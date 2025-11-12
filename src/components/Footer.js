@@ -5,7 +5,6 @@ import {
   FaEnvelope, 
   FaPhone, 
   FaFacebook, 
-  FaTwitter, 
   FaLinkedin, 
   FaInstagram,
   FaYoutube,
@@ -17,10 +16,10 @@ function Footer() {
   // Services data
   const SERVICES = [
     { id: 1, title: 'IT Tutorials & Courses' },
-    { id: 2, title: 'Cloud Solutions' },
-    { id: 3, title: 'Data Analytics' },
-    { id: 4, title: 'Cybersecurity' },
-    { id: 5, title: 'Web Development' },
+    { id: 2, title: 'Websites' },
+    { id: 3, title: 'Android Applications' },
+    { id: 4, title: 'IOS Applications' },
+    { id: 5, title: 'Cloud' },
     { id: 6, title: 'Mobile Apps' }
   ];
 
@@ -41,19 +40,17 @@ function Footer() {
               to thrive in the digital landscape. Empowering your journey with cutting-edge technology education.
             </p>
             <div className="bytebodh-footer-social">
-              <a href="#facebook" className="bytebodh-social-link">
+              <a href="https://www.facebook.com/share/1AE1wkgx2m/?mibextid=wwXIfr" className="bytebodh-social-link">
                 <FaFacebook size={18} />
               </a>
-              <a href="#twitter" className="bytebodh-social-link">
-                <FaTwitter size={18} />
-              </a>
-              <a href="#linkedin" className="bytebodh-social-link">
+             
+              <a href="https://www.linkedin.com/company/bytebodh/" className="bytebodh-social-link">
                 <FaLinkedin size={18} />
               </a>
-              <a href="#instagram" className="bytebodh-social-link">
+              <a href="https://www.instagram.com/bytebodh/" className="bytebodh-social-link">
                 <FaInstagram size={18} />
               </a>
-              <a href="#youtube" className="bytebodh-social-link">
+              <a href="https://youtube.com/@bytebodh?si=z3Kdf8dOBZMVU9YF" className="bytebodh-social-link">
                 <FaYoutube size={18} />
               </a>
               <a href="#github" className="bytebodh-social-link">
@@ -76,20 +73,20 @@ function Footer() {
           <Col lg={2} md={6} className="mb-4">
             <h6 className="bytebodh-footer-heading mb-3">Company</h6>
             <ul className="bytebodh-footer-list list-unstyled">
-              <li className="mb-2"><a href="#!" className="bytebodh-footer-link">About Us</a></li>
-              <li className="mb-2"><a href="#!" className="bytebodh-footer-link">Our Team</a></li>
-              <li className="mb-2"><a href="#!" className="bytebodh-footer-link">Careers</a></li>
-              <li className="mb-2"><a href="#!" className="bytebodh-footer-link">Blog</a></li>
+              <li className="mb-2"><a href="/about" className="bytebodh-footer-link">About Us</a></li>
+              <li className="mb-2"><a href="/about" className="bytebodh-footer-link">Our Team</a></li>
+              <li className="mb-2"><a href="/contact" className="bytebodh-footer-link">Careers</a></li>
+              <li className="mb-2"><a href="/blog" className="bytebodh-footer-link">Blog</a></li>
             </ul>
           </Col>
 
           <Col lg={2} md={6} className="mb-4">
             <h6 className="bytebodh-footer-heading mb-3">Support</h6>
             <ul className="bytebodh-footer-list list-unstyled">
-              <li className="mb-2"><a href="#!" className="bytebodh-footer-link">Help Center</a></li>
-              <li className="mb-2"><a href="#!" className="bytebodh-footer-link">Contact Us</a></li>
-              <li className="mb-2"><a href="#!" className="bytebodh-footer-link">Privacy Policy</a></li>
-              <li className="mb-2"><a href="#!" className="bytebodh-footer-link">Terms of Service</a></li>
+              <li className="mb-2"><a href="/contact" className="bytebodh-footer-link">Help Center</a></li>
+              <li className="mb-2"><a href="/contact" className="bytebodh-footer-link">Contact Us</a></li>
+              <li className="mb-2"><a href="/privacy-policy" className="bytebodh-footer-link">Privacy Policy</a></li>
+              <li className="mb-2"><a href="/terms-and-conditions" className="bytebodh-footer-link">Terms of Service</a></li>
             </ul>
           </Col>
 
@@ -118,9 +115,9 @@ function Footer() {
           </Col>
           <Col md={6} className="text-md-end">
             <div className="bytebodh-footer-links">
-              <a href="#!" className="bytebodh-footer-link me-3">Privacy Policy</a>
-              <a href="#!" className="bytebodh-footer-link me-3">Terms of Service</a>
-              <a href="#!" className="bytebodh-footer-link">Cookie Policy</a>
+              <a href="/privacy-policy" className="bytebodh-footer-link me-3">Privacy Policy</a>
+              <a href="/terms-and-conditions" className="bytebodh-footer-link me-3">Terms of Service</a>
+              <a href="/cookie-policy" className="bytebodh-footer-link">Cookie Policy</a>
             </div>
           </Col>
         </Row>

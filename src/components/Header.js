@@ -5,11 +5,11 @@ import {
   FaEnvelope, 
   FaPhone, 
   FaFacebook, 
-  FaTwitter, 
   FaLinkedin, 
   FaInstagram,
   FaBars,
-  FaTimes
+  FaTimes,
+  FaYoutube
 } from 'react-icons/fa';
 import './header.css'
 
@@ -52,16 +52,16 @@ function Header() {
 
             {/* Social Media Icons */}
             <div className="d-flex align-items-center gap-3">
-              <a href="#facebook" className="text-white-50 hover:text-primary transition-colors">
+              <a href="https://www.facebook.com/share/1AE1wkgx2m/?mibextid=wwXIfr" className="text-white-50 hover:text-primary transition-colors">
                 <FaFacebook size={16} />
               </a>
-              <a href="#twitter" className="text-white-50 hover:text-primary transition-colors">
-                <FaTwitter size={16} />
+              <a href="https://youtube.com/@bytebodh?si=z3Kdf8dOBZMVU9YF" className="text-white-50 hover:text-primary transition-colors">
+                <FaYoutube size={16} />
               </a>
-              <a href="#linkedin" className="text-white-50 hover:text-primary transition-colors">
+              <a href="https://www.linkedin.com/company/bytebodh/" className="text-white-50 hover:text-primary transition-colors">
                 <FaLinkedin size={16} />
               </a>
-              <a href="#instagram" className="text-white-50 hover:text-primary transition-colors">
+              <a href="https://www.instagram.com/bytebodh/" className="text-white-50 hover:text-primary transition-colors">
                 <FaInstagram size={16} />
               </a>
             </div>
