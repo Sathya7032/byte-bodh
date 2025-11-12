@@ -193,7 +193,7 @@ function Blog() {
                     <h5 className="bytebodh-widget-title">Categories</h5>
                     <div className="bytebodh-categories-list">
                       {categories.map((category, index) => (
-                        <a key={index} href="#" className="bytebodh-category-item">
+                        <a key={index} href="/" className="bytebodh-category-item">
                           <span>{category}</span>
                           <span className="bytebodh-category-count">12</span>
                         </a>
@@ -208,7 +208,7 @@ function Blog() {
                     <h5 className="bytebodh-widget-title">Popular Posts</h5>
                     <div className="bytebodh-popular-posts">
                       {blogPosts.slice(0, 3).map((post) => (
-                        <a key={post.id} href="#" className="bytebodh-popular-post">
+                        <a key={post.id} href="/" className="bytebodh-popular-post">
                           <div className="bytebodh-popular-content">
                             <h6>{post.title}</h6>
                             <span>{post.date}</span>

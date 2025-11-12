@@ -11,13 +11,6 @@ import {
 function HeroSection() {
   
 
-  const stats = [
-    { number: '500+', label: 'Tutorials' },
-    { number: '50+', label: 'Products' },
-    { number: '10K+', label: 'Students' },
-    { number: '95%', label: 'Satisfaction' }
-  ];
-
   return (
     <section className="bytebodh-hero">
       <Container>

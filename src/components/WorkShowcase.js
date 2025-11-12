@@ -1,7 +1,7 @@
 // src/components/WorkShowcase.js
 import React, { useState } from 'react';
 import { Container, Row, Col, Badge } from 'react-bootstrap';
-import { FaExternalLinkAlt, FaGlobe, FaMobile, FaLaptop, FaCode, FaServer, FaDatabase } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaMobile, FaLaptop, FaCode, FaServer, FaDatabase } from 'react-icons/fa';
 
 function WorkShowcase() {
   const [activeFilter, setActiveFilter] = useState('all');
