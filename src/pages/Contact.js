@@ -1,57 +1,123 @@
 // src/pages/Contact.js
-import React, { useState } from 'react';
-import { Container, Row, Col, Form, Button, Card, Badge } from 'react-bootstrap';
-import { 
-  FaEnvelope, 
-  FaPhone, 
+import React, { useState } from "react";
+import {
+  Container,
+  Row,
+  Col,
+  Form,
+  Button,
+  Card,
+  Badge,
+  Alert,
+  Spinner,
+} from "react-bootstrap";
+import {
+  FaEnvelope,
+  FaPhone,
   FaPaperPlane,
   FaWhatsapp,
   FaHeadset,
   FaClock,
-  FaCheckCircle
-} from 'react-icons/fa';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+  FaCheckCircle,
+  FaExclamationCircle,
+} from "react-icons/fa";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 function Contact() {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    budget: '',
-    projectType: '',
-    message: ''
+    name: "",
+    email: "",
+    phone: "",
+    budget: "",
+    project_type: "",
+    message: "",
   });
+
+  const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState({ show: false, type: "", message: "" });
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = (e) => {
+  const showAlert = (type, message) => {
+    setAlert({ show: true, type, message });
+    setTimeout(() => setAlert({ show: false, type: "", message: "" }), 5000);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        "https://bytebodh.codewithsathya.info/api/contact/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        showAlert(
+          "success",
+          data.message ||
+            "Thank you for contacting us! We'll get back to you soon."
+        );
+        // Reset form
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          budget: "",
+          project_type: "",
+          message: "",
+        });
+      } else {
+        // Handle validation errors
+        const errorMessage =
+          data.detail ||
+          Object.values(data).flat().join(", ") ||
+          "Something went wrong. Please try again.";
+        showAlert("danger", errorMessage);
+      }
+    } catch (error) {
+      console.error("Contact form submission error:", error);
+      showAlert(
+        "danger",
+        "Network error. Please check your connection and try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const features = [
     {
       icon: <FaHeadset />,
-      title: '24/7 Support',
-      description: 'Round-the-clock assistance for all your queries and concerns'
+      title: "24/7 Support",
+      description:
+        "Round-the-clock assistance for all your queries and concerns",
     },
     {
       icon: <FaClock />,
-      title: 'Quick Response',
-      description: 'Get responses within 2 hours during business hours'
+      title: "Quick Response",
+      description: "Get responses within 2 hours during business hours",
     },
     {
       icon: <FaCheckCircle />,
-      title: 'Expert Consultation',
-      description: 'Free technical consultation for your project requirements'
-    }
+      title: "Expert Consultation",
+      description: "Free technical consultation for your project requirements",
+    },
   ];
 
   return (
@@ -67,11 +133,15 @@ function Contact() {
                   Get In Touch
                 </Badge>
                 <h1 className="bytebodh-hero-title mb-3">
-                  Let's Build Something <span className="bytebodh-hero-gradient">Amazing Together</span>
+                  Let's Build Something{" "}
+                  <span className="bytebodh-hero-gradient">
+                    Amazing Together
+                  </span>
                 </h1>
                 <p className="bytebodh-hero-description">
-                  Ready to start your project? We're here to help transform your ideas into reality. 
-                  Get a free consultation and quote for your project.
+                  Ready to start your project? We're here to help transform your
+                  ideas into reality. Get a free consultation and quote for your
+                  project.
                 </p>
               </Col>
             </Row>
@@ -81,6 +151,31 @@ function Contact() {
         {/* Contact Form & Info */}
         <section className="bytebodh-contact-main py-5">
           <Container>
+            {/* Alert Notification */}
+            {alert.show && (
+              <Row className="mb-4">
+                <Col lg={8} className="mx-auto">
+                  <Alert
+                    variant={alert.type}
+                    className="bytebodh-alert"
+                    dismissible
+                    onClose={() =>
+                      setAlert({ show: false, type: "", message: "" })
+                    }
+                  >
+                    <div className="d-flex align-items-center">
+                      {alert.type === "success" ? (
+                        <FaCheckCircle className="me-2" />
+                      ) : (
+                        <FaExclamationCircle className="me-2" />
+                      )}
+                      {alert.message}
+                    </div>
+                  </Alert>
+                </Col>
+              </Row>
+            )}
+
             <Row className="g-5 align-items-start">
               {/* Left Side - Contact Information */}
               <Col lg={6}>
@@ -89,15 +184,17 @@ function Contact() {
                     We're Always Available at Your Service
                   </h2>
                   <p className="bytebodh-content-description mb-4">
-                    At ByteBodh, we believe in being accessible whenever you need us. 
-                    Whether you're a solo entrepreneur with a big idea or a small business 
-                    looking to scale, we're here to provide the technical expertise and 
-                    support you need to succeed.
+                    At ByteBodh, we believe in being accessible whenever you
+                    need us. Whether you're a solo entrepreneur with a big idea
+                    or a small business looking to scale, we're here to provide
+                    the technical expertise and support you need to succeed.
                   </p>
                   <p className="bytebodh-content-description mb-5">
-                    Our remote-first approach means we can collaborate seamlessly from anywhere, 
-                    ensuring you get the same high-quality service regardless of your location. 
-                    Let's discuss your project and find the perfect solution for your needs.
+                    Our remote-first approach means we can collaborate
+                    seamlessly from anywhere, ensuring you get the same
+                    high-quality service regardless of your location. Let's
+                    discuss your project and find the perfect solution for your
+                    needs.
                   </p>
 
                   {/* Contact Methods */}
@@ -138,7 +235,9 @@ function Contact() {
 
                   {/* Features */}
                   <div className="bytebodh-contact-features">
-                    <h5 className="bytebodh-features-title mb-4">Why Choose Us?</h5>
+                    <h5 className="bytebodh-features-title mb-4">
+                      Why Choose Us?
+                    </h5>
                     <Row>
                       {features.map((feature, index) => (
                         <Col key={index} md={12} className="mb-3">
@@ -163,17 +262,22 @@ function Contact() {
                 <Card className="bytebodh-contact-card">
                   <Card.Body className="p-4">
                     <div className="bytebodh-form-header text-center mb-4">
-                      <h3 className="bytebodh-form-title mb-2">Start Your Project</h3>
+                      <h3 className="bytebodh-form-title mb-2">
+                        Start Your Project
+                      </h3>
                       <p className="bytebodh-form-subtitle">
-                        Fill out the form below and we'll get back to you within 24 hours
+                        Fill out the form below and we'll get back to you within
+                        24 hours
                       </p>
                     </div>
-                    
+
                     <Form onSubmit={handleSubmit}>
                       <Row className="g-3">
                         <Col md={6}>
                           <Form.Group className="mb-3">
-                            <Form.Label className="bytebodh-form-label">Full Name *</Form.Label>
+                            <Form.Label className="bytebodh-form-label">
+                              Full Name *
+                            </Form.Label>
                             <Form.Control
                               type="text"
                               name="name"
@@ -182,12 +286,15 @@ function Contact() {
                               placeholder="Enter your full name"
                               className="bytebodh-form-control"
                               required
+                              disabled={loading}
                             />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group className="mb-3">
-                            <Form.Label className="bytebodh-form-label">Email Address *</Form.Label>
+                            <Form.Label className="bytebodh-form-label">
+                              Email Address *
+                            </Form.Label>
                             <Form.Control
                               type="email"
                               name="email"
@@ -196,12 +303,15 @@ function Contact() {
                               placeholder="Enter your email"
                               className="bytebodh-form-control"
                               required
+                              disabled={loading}
                             />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group className="mb-3">
-                            <Form.Label className="bytebodh-form-label">Phone Number</Form.Label>
+                            <Form.Label className="bytebodh-form-label">
+                              Phone Number
+                            </Form.Label>
                             <Form.Control
                               type="tel"
                               name="phone"
@@ -209,17 +319,21 @@ function Contact() {
                               onChange={handleChange}
                               placeholder="Enter your phone number"
                               className="bytebodh-form-control"
+                              disabled={loading}
                             />
                           </Form.Group>
                         </Col>
                         <Col md={6}>
                           <Form.Group className="mb-3">
-                            <Form.Label className="bytebodh-form-label">Project Budget</Form.Label>
+                            <Form.Label className="bytebodh-form-label">
+                              Project Budget
+                            </Form.Label>
                             <Form.Select
                               name="budget"
                               value={formData.budget}
                               onChange={handleChange}
                               className="bytebodh-form-select"
+                              disabled={loading}
                             >
                               <option value="">Select budget range</option>
                               <option value="5k-15k">₹5,000 - ₹15,000</option>
@@ -231,25 +345,36 @@ function Contact() {
                         </Col>
                         <Col md={12}>
                           <Form.Group className="mb-3">
-                            <Form.Label className="bytebodh-form-label">Project Type</Form.Label>
+                            <Form.Label className="bytebodh-form-label">
+                              Project Type
+                            </Form.Label>
                             <Form.Select
-                              name="projectType"
-                              value={formData.projectType}
+                              name="project_type"
+                              value={formData.project_type}
                               onChange={handleChange}
                               className="bytebodh-form-select"
+                              disabled={loading}
                             >
                               <option value="">Select project type</option>
-                              <option value="website">Website Development</option>
+                              <option value="website">
+                                Website Development
+                              </option>
                               <option value="mobile">Mobile App</option>
-                              <option value="ecommerce">E-commerce Store</option>
-                              <option value="consultation">IT Consultation</option>
+                              <option value="ecommerce">
+                                E-commerce Store
+                              </option>
+                              <option value="consultation">
+                                IT Consultation
+                              </option>
                               <option value="other">Other</option>
                             </Form.Select>
                           </Form.Group>
                         </Col>
                         <Col md={12}>
                           <Form.Group className="mb-3">
-                            <Form.Label className="bytebodh-form-label">Project Details *</Form.Label>
+                            <Form.Label className="bytebodh-form-label">
+                              Project Details *
+                            </Form.Label>
                             <Form.Control
                               as="textarea"
                               rows={6}
@@ -259,17 +384,39 @@ function Contact() {
                               placeholder="Tell us about your project requirements, timeline, goals, and any specific features you need. The more details you provide, the better we can assist you."
                               className="bytebodh-form-control"
                               required
+                              disabled={loading}
                             />
                           </Form.Group>
                         </Col>
                         <Col md={12}>
                           <div className="bytebodh-form-footer">
-                            <Button type="submit" className="bytebodh-submit-btn w-100">
-                              <FaPaperPlane className="me-2" />
-                              Send Message & Get Free Quote
+                            <Button
+                              type="submit"
+                              className="bytebodh-submit-btn w-100"
+                              disabled={loading}
+                            >
+                              {loading ? (
+                                <>
+                                  <Spinner
+                                    as="span"
+                                    animation="border"
+                                    size="sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                    className="me-2"
+                                  />
+                                  Sending...
+                                </>
+                              ) : (
+                                <>
+                                  <FaPaperPlane className="me-2" />
+                                  Send Message & Get Free Quote
+                                </>
+                              )}
                             </Button>
                             <p className="bytebodh-form-note text-center mt-3">
-                              We respect your privacy. Your information is safe with us.
+                              We respect your privacy. Your information is safe
+                              with us.
                             </p>
                           </div>
                         </Col>
@@ -297,7 +444,11 @@ function Contact() {
         }
 
         .bytebodh-hero-badge {
-          background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%) !important;
+          background: linear-gradient(
+            135deg,
+            #0284c7 0%,
+            #6366f1 100%
+          ) !important;
           border: none;
           padding: 0.75rem 1.5rem;
           font-size: 0.875rem;
@@ -451,6 +602,23 @@ function Contact() {
           line-height: 1.5;
         }
 
+        /* Alert Styles */
+        .bytebodh-alert {
+          border-radius: 12px;
+          border: none;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .bytebodh-alert .alert-success {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          color: white;
+        }
+
+        .bytebodh-alert .alert-danger {
+          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+          color: white;
+        }
+
         /* Form Styles */
         .bytebodh-contact-card {
           border: none;
@@ -488,7 +656,8 @@ function Contact() {
           letter-spacing: 0.5px;
         }
 
-        .bytebodh-form-control, .bytebodh-form-select {
+        .bytebodh-form-control,
+        .bytebodh-form-select {
           border: 2px solid #e5e7eb;
           border-radius: 12px;
           padding: 0.875rem 1rem;
@@ -497,11 +666,19 @@ function Contact() {
           background: #fafafa;
         }
 
-        .bytebodh-form-control:focus, .bytebodh-form-select:focus {
+        .bytebodh-form-control:focus,
+        .bytebodh-form-select:focus {
           border-color: #0284c7;
           box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
           background: white;
           outline: none;
+        }
+
+        .bytebodh-form-control:disabled,
+        .bytebodh-form-select:disabled {
+          background-color: #f8fafc;
+          opacity: 0.7;
+          cursor: not-allowed;
         }
 
         .bytebodh-form-control::placeholder {
@@ -509,7 +686,11 @@ function Contact() {
         }
 
         .bytebodh-submit-btn {
-          background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%) !important;
+          background: linear-gradient(
+            135deg,
+            #0284c7 0%,
+            #6366f1 100%
+          ) !important;
           border: none;
           padding: 1rem 2rem;
           font-weight: 600;
@@ -520,23 +701,34 @@ function Contact() {
           overflow: hidden;
         }
 
-        .bytebodh-submit-btn:hover {
+        .bytebodh-submit-btn:hover:not(:disabled) {
           transform: translateY(-2px);
           box-shadow: 0 8px 25px rgba(2, 132, 199, 0.4);
         }
 
+        .bytebodh-submit-btn:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+          transform: none;
+        }
+
         .bytebodh-submit-btn::before {
-          content: '';
+          content: "";
           position: absolute;
           top: 0;
           left: -100%;
           width: 100%;
           height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent
+          );
           transition: left 0.5s;
         }
 
-        .bytebodh-submit-btn:hover::before {
+        .bytebodh-submit-btn:hover:not(:disabled)::before {
           left: 100%;
         }
 
@@ -556,15 +748,15 @@ function Contact() {
             padding-right: 0;
             margin-bottom: 3rem;
           }
-          
+
           .bytebodh-content-title {
             font-size: 2rem;
           }
-          
+
           .bytebodh-hero-title {
             font-size: 2.25rem;
           }
-          
+
           .bytebodh-contact-card {
             position: static;
           }
@@ -574,21 +766,21 @@ function Contact() {
           .bytebodh-hero-title {
             font-size: 2rem;
           }
-          
+
           .bytebodh-hero-description {
             font-size: 1.1rem;
           }
-          
+
           .bytebodh-content-title {
             font-size: 1.75rem;
           }
-          
+
           .bytebodh-contact-method {
             flex-direction: column;
             text-align: center;
             gap: 1rem;
           }
-          
+
           .bytebodh-method-icon {
             align-self: center;
           }
@@ -598,11 +790,11 @@ function Contact() {
           .bytebodh-hero-title {
             font-size: 1.75rem;
           }
-          
+
           .bytebodh-content-title {
             font-size: 1.5rem;
           }
-          
+
           .bytebodh-contact-methods {
             padding: 1.5rem;
           }
