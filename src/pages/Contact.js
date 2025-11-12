@@ -108,7 +108,7 @@ function Contact() {
                       </div>
                       <div className="bytebodh-method-details">
                         <h5>Email Us</h5>
-                        <p>hello@bytebodh.com</p>
+                        <p>info@bytebodh.in</p>
                         <span>Professional responses within 24 hours</span>
                       </div>
                     </div>
@@ -119,8 +119,8 @@ function Contact() {
                       </div>
                       <div className="bytebodh-method-details">
                         <h5>Call Us</h5>
-                        <p>+1 (555) 123-4567</p>
-                        <span>Mon-Fri: 9:00 AM - 6:00 PM EST</span>
+                        <p>+91 7032488372</p>
+                        <span>Mon-Fri: 9:00 AM - 6:00 PM IST</span>
                       </div>
                     </div>
 
@@ -130,7 +130,7 @@ function Contact() {
                       </div>
                       <div className="bytebodh-method-details">
                         <h5>WhatsApp</h5>
-                        <p>+1 (555) 123-4567</p>
+                        <p>+91 7032488372</p>
                         <span>Quick chat for instant support</span>
                       </div>
                     </div>

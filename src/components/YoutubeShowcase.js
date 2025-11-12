@@ -6,23 +6,23 @@ function YouTubeShowcase() {
   const videos = [
     {
       id: "video1",
-      title: "Web Development Tutorial for Beginners",
-      embedId: "qz0aGYrrlhU" // FreeCodeCamp HTML Crash Course
+      title: "Java animated videos for Beginners",
+      embedId: "06NxbTAtVGk?si=58XvZOeDZ-B9y7i7" // FreeCodeCamp HTML Crash Course
     },
     {
       id: "video2", 
-      title: "React JS Crash Course 2024",
-      embedId: "w7ejDZ8SWv8" // Traversy Media React Crash Course
+      title: "Java animated videos for Beginners",
+      embedId: "gLNrqolU-R8?si=DTarWKZUHKcn8mET" // Traversy Media React Crash Course
     },
     {
       id: "video3",
-      title: "Python for Beginners - Full Course",
-      embedId: "rfscVS0vtbw" // FreeCodeCamp Python Tutorial
+      title: "Java animated videos for Beginners",
+      embedId: "5JlO9WoH1Pw?si=TYjf-vhVG3VWXY0L" // FreeCodeCamp Python Tutorial
     },
     {
       id: "video4",
-      title: "JavaScript Programming - Full Course",
-      embedId: "jS4aFq5-91M" // FreeCodeCamp JavaScript Tutorial
+      title: "Java animated videos for Beginners",
+      embedId: "7Cfwnndatn0?si=MbXio3YdYbyUOBTj" // FreeCodeCamp JavaScript Tutorial
     }
   ];
 

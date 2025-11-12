@@ -4,7 +4,6 @@ import { Container, Row, Col } from 'react-bootstrap';
 import { 
   FaEnvelope, 
   FaPhone, 
-  FaMapMarkerAlt,
   FaFacebook, 
   FaTwitter, 
   FaLinkedin, 
@@ -99,18 +98,13 @@ function Footer() {
             <div className="bytebodh-contact-info">
               <div className="bytebodh-contact-item d-flex align-items-center mb-3">
                 <FaEnvelope className="bytebodh-contact-icon me-2" />
-                <span className="bytebodh-contact-text">hello@bytebodh.com</span>
+                <span className="bytebodh-contact-text">info@bytebodh.in</span>
               </div>
               <div className="bytebodh-contact-item d-flex align-items-center mb-3">
                 <FaPhone className="bytebodh-contact-icon me-2" />
-                <span className="bytebodh-contact-text">+1 (555) 123-4567</span>
+                <span className="bytebodh-contact-text">+91 7032488372</span>
               </div>
-              <div className="bytebodh-contact-item d-flex align-items-start mb-3">
-                <FaMapMarkerAlt className="bytebodh-contact-icon me-2 mt-1" />
-                <span className="bytebodh-contact-text">
-                  123 Tech Street<br />Innovation City, IC 12345
-                </span>
-              </div>
+              
             </div>
           </Col>
         </Row>

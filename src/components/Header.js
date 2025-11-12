@@ -42,7 +42,7 @@ function Header() {
             <div className="d-flex align-items-center gap-4">
               <div className="d-flex align-items-center gap-2">
                 <FaEnvelope size={14} className="text-primary" />
-                <span className="fs-7">bytebodh@gmail.com</span>
+                <span className="fs-7">info@bytebodh.in</span>
               </div>
               <div className="d-flex align-items-center gap-2">
                 <FaPhone size={14} className="text-primary" />
