@@ -46,7 +46,7 @@ function Header() {
               </div>
               <div className="d-flex align-items-center gap-2">
                 <FaPhone size={14} className="text-primary" />
-                <span className="fs-7">+91 7032488372</span>
+                <span className="fs-7">+91 8519965746</span>
               </div>
             </div>
 

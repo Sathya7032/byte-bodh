@@ -13,7 +13,7 @@ function WorkShowcase() {
       description: "Full-stack online store with payment gateway integration and inventory management",
       type: "website",
       category: "fullstack",
-      url: "https://example-ecommerce.netlify.app",
+      url: "https://bytebodh.in",
       image: "/images/ecommerce-preview.jpg",
       technologies: ["React", "Node.js", "MongoDB", "Stripe"],
       budget: "₹15,000",
@@ -25,7 +25,7 @@ function WorkShowcase() {
       description: "Modern portfolio website with smooth animations and CMS integration",
       type: "website",
       category: "frontend",
-      url: "https://example-portfolio.vercel.app",
+      url: "https://satyanarayana8179.pythonanywhere.com/",
       image: "/images/portfolio-preview.jpg",
       technologies: ["Next.js", "Tailwind CSS", "Framer Motion"],
       budget: "₹8,000",
@@ -42,41 +42,7 @@ function WorkShowcase() {
       budget: "₹12,000",
       status: "completed"
     },
-    {
-      id: 4,
-      title: "SAAS Analytics Dashboard",
-      description: "Real-time analytics dashboard with data visualization and reporting features",
-      type: "website",
-      category: "fullstack",
-      url: "https://example-dashboard.netlify.app",
-      image: "/images/dashboard-preview.jpg",
-      technologies: ["Vue.js", "Express", "PostgreSQL", "Chart.js"],
-      budget: "₹25,000",
-      status: "completed"
-    },
-    {
-      id: 5,
-      title: "Restaurant Booking System",
-      description: "Table reservation system with admin panel and customer notifications",
-      type: "website",
-      category: "fullstack",
-      url: "https://example-restaurant.netlify.app",
-      image: "/images/restaurant-preview.jpg",
-      technologies: ["React", "Python", "MySQL", "Twilio"],
-      budget: "₹18,000",
-      status: "completed"
-    },
-    {
-      id: 6,
-      title: "Travel Companion App",
-      description: "Mobile app for travel planning with itinerary management and local guides",
-      type: "mobile",
-      category: "mobile",
-      image: "/images/travel-app-preview.jpg",
-      technologies: ["Flutter", "Node.js", "MongoDB"],
-      budget: "₹20,000",
-      status: "in-progress"
-    }
+    
   ];
 
   const filters = [

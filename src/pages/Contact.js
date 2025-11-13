@@ -1,5 +1,7 @@
 // src/pages/Contact.js
 import React, { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   Container,
   Row,
@@ -8,7 +10,6 @@ import {
   Button,
   Card,
   Badge,
-  Alert,
   Spinner,
 } from "react-bootstrap";
 import {
@@ -19,7 +20,6 @@ import {
   FaHeadset,
   FaClock,
   FaCheckCircle,
-  FaExclamationCircle,
 } from "react-icons/fa";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -35,18 +35,12 @@ function Contact() {
   });
 
   const [loading, setLoading] = useState(false);
-  const [alert, setAlert] = useState({ show: false, type: "", message: "" });
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
-  };
-
-  const showAlert = (type, message) => {
-    setAlert({ show: true, type, message });
-    setTimeout(() => setAlert({ show: false, type: "", message: "" }), 5000);
   };
 
   const handleSubmit = async (e) => {
@@ -68,10 +62,18 @@ function Contact() {
       const data = await response.json();
 
       if (response.ok) {
-        showAlert(
-          "success",
+        toast.success(
           data.message ||
-            "Thank you for contacting us! We'll get back to you soon."
+            "Thank you for contacting us! We'll get back to you soon.",
+          {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            theme: "colored",
+          }
         );
         // Reset form
         setFormData({
@@ -88,13 +90,29 @@ function Contact() {
           data.detail ||
           Object.values(data).flat().join(", ") ||
           "Something went wrong. Please try again.";
-        showAlert("danger", errorMessage);
+        toast.error(errorMessage, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "colored",
+        });
       }
     } catch (error) {
       console.error("Contact form submission error:", error);
-      showAlert(
-        "danger",
-        "Network error. Please check your connection and try again."
+      toast.error(
+        "Network error. Please check your connection and try again.",
+        {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "colored",
+        }
       );
     } finally {
       setLoading(false);
@@ -151,31 +169,6 @@ function Contact() {
         {/* Contact Form & Info */}
         <section className="bytebodh-contact-main py-5">
           <Container>
-            {/* Alert Notification */}
-            {alert.show && (
-              <Row className="mb-4">
-                <Col lg={8} className="mx-auto">
-                  <Alert
-                    variant={alert.type}
-                    className="bytebodh-alert"
-                    dismissible
-                    onClose={() =>
-                      setAlert({ show: false, type: "", message: "" })
-                    }
-                  >
-                    <div className="d-flex align-items-center">
-                      {alert.type === "success" ? (
-                        <FaCheckCircle className="me-2" />
-                      ) : (
-                        <FaExclamationCircle className="me-2" />
-                      )}
-                      {alert.message}
-                    </div>
-                  </Alert>
-                </Col>
-              </Row>
-            )}
-
             <Row className="g-5 align-items-start">
               {/* Left Side - Contact Information */}
               <Col lg={6}>
@@ -227,7 +220,7 @@ function Contact() {
                       </div>
                       <div className="bytebodh-method-details">
                         <h5>WhatsApp</h5>
-                        <p>+91 7032488372</p>
+                        <p>+91 8519965746</p>
                         <span>Quick chat for instant support</span>
                       </div>
                     </div>
@@ -431,6 +424,20 @@ function Contact() {
       </div>
       <Footer />
 
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+
       <style jsx>{`
         .bytebodh-contact-page {
           background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
@@ -600,23 +607,6 @@ function Contact() {
           margin: 0;
           font-size: 0.9rem;
           line-height: 1.5;
-        }
-
-        /* Alert Styles */
-        .bytebodh-alert {
-          border-radius: 12px;
-          border: none;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .bytebodh-alert .alert-success {
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-          color: white;
-        }
-
-        .bytebodh-alert .alert-danger {
-          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-          color: white;
         }
 
         /* Form Styles */

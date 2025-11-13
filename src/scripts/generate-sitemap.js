@@ -1,6 +1,7 @@
 const { SitemapStream, streamToPromise } = require('sitemap');
 const { createWriteStream } = require('fs');
 
+const API_BASE = "https://bytebodh.codewithsathya.info/api/blog-posts/";
 const sitemap = new SitemapStream({ hostname: 'https://bytebodh.in' });
 
 const links = [
@@ -13,26 +14,34 @@ const links = [
   { url: '/cookie-policy', changefreq: 'monthly', priority: 0.6 },
 ];
 
-// Example blog slugs
-const blogSlugs = ['welcome-to-bytebodh'];
-blogSlugs.forEach(slug => links.push({ url: `/blogs/${slug}`, changefreq: 'weekly', priority: 0.9 }));
+async function fetchBlogSlugs() {
+  try {
+    const res = await fetch(API_BASE);
+    const data = await res.json();
+
+    const slugs = data.map(blog => blog.slug);
+    slugs.forEach(slug => links.push({
+      url: `/blogs/${slug}`,
+      changefreq: 'weekly',
+      priority: 0.9
+    }));
+
+    console.log("Fetched slugs:", slugs);
+  } catch (err) {
+    console.error('Error fetching blog slugs:', err);
+  }
+}
 
 async function generateSitemap() {
+  await fetchBlogSlugs();
+
   const writeStream = createWriteStream('./public/sitemap.xml');
-
-  // Pipe sitemap stream to file
   sitemap.pipe(writeStream);
-
-  // Write all URLs
   links.forEach(link => sitemap.write(link));
-
-  // End the sitemap stream
   sitemap.end();
 
-  // Wait for the sitemap stream (not the writeStream)
   await streamToPromise(sitemap);
-
-  console.log('Sitemap created!');
+  console.log('✅ Sitemap created successfully at ./public/sitemap.xml');
 }
 
 generateSitemap();

@@ -99,7 +99,7 @@ function Footer() {
               </div>
               <div className="bytebodh-contact-item d-flex align-items-center mb-3">
                 <FaPhone className="bytebodh-contact-icon me-2" />
-                <span className="bytebodh-contact-text">+91 7032488372</span>
+                <span className="bytebodh-contact-text">+91 8519965746</span>
               </div>
               
             </div>
