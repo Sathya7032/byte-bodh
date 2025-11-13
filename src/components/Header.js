@@ -16,9 +16,10 @@ import './header.css'
 // Navigation items data
 const NAV_ITEMS = [
   { id: 'home', label: 'Home' },
+  { id: 'jobs', label: 'Job Notifications' },
   { id: 'blogs', label: 'Blogs' },
   { id: 'about', label: 'About' },
-  { id: 'contact', label: 'Contact' }
+  { id: 'contact', label: 'Contact' },
 ];
 
 function Header() {

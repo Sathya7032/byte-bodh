@@ -9,6 +9,8 @@ import BlogDetail from './pages/BlogDetail';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsAndConditions';
 import CookiePolicy from './pages/CookiePolicy';
+import Jobs from './pages/Jobs';
+import JobDetail from './pages/JobDetail';
 
 const App = () => {
   return (
@@ -22,6 +24,8 @@ const App = () => {
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
       <Route path="/cookie-policy" element={<CookiePolicy />} />
+      <Route path='/jobs' element={<Jobs />} />
+      <Route path="/jobs/:id" element={<JobDetail />} />
     </Routes>
     </BrowserRouter>
   )
