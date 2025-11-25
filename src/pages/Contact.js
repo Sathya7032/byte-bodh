@@ -209,7 +209,7 @@ function Contact() {
                       </div>
                       <div className="bytebodh-method-details">
                         <h5>Call Us</h5>
-                        <p>+91 7032488372</p>
+                        <p>+91 8519965746</p>
                         <span>Mon-Fri: 9:00 AM - 6:00 PM IST</span>
                       </div>
                     </div>
