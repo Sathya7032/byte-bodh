@@ -1,160 +1,259 @@
-// src/components/AppShowcase.js
-import React from 'react';
-import { Container, Row, Col, Button, Badge } from 'react-bootstrap';
-import { 
+import React, { useState } from "react";
+import { Container, Row, Col, Button, Badge } from "react-bootstrap";
+import {
   FaGooglePlay,
   FaStar,
   FaDownload,
   FaMobile,
-  FaCheckCircle
-} from 'react-icons/fa';
+  FaCheckCircle,
+  FaUsers,
+  FaRocket,
+} from "react-icons/fa";
 
 function AppShowcase() {
+  const [activeApp, setActiveApp] = useState("bytebodh");
+
+  const apps = {
+    bytebodh: {
+      name: "ByteBodh",
+      tagline: "Learn IT Skills the Smart Way",
+      description:
+        "ByteBodh helps you learn full-stack development, mobile app development, cloud computing, databases, and modern IT skills — all through a beautifully designed, easy-to-understand mobile learning experience.",
+      downloads: "5,000+",
+      rating: "4.8",
+      reviews: "2.5K+ reviews",
+      link: "https://play.google.com/store/apps/details?id=com.sathichary581.codewithsathya",
+      features: [
+        "Web Development",
+        "Mobile App Development",
+        "Cloud Computing",
+        "Data Analytics",
+      ],
+      logo: "B",
+      color: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    },
+
+    javify: {
+      name: "Javify",
+      tagline: "Master Java & Build Real Projects",
+      description:
+        "Javify is designed for anyone who wants to master Java from basics to advanced — including OOP, DSA, Spring Boot, and real industry-level project patterns. Perfect for beginners, students, and job-seekers.",
+      downloads: "1,000+",
+      rating: "4.9",
+      reviews: "1.1K+ reviews",
+      link: "https://play.google.com/store/apps/details?id=com.bytebodh.javify",
+      features: [
+        "Java Basics to Advanced",
+        "Object-Oriented Programming",
+        "DSA Problem Solving",
+        "Spring Boot Essentials",
+      ],
+      logo: "J",
+      color: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+    },
+  };
+
+  const app = apps[activeApp];
 
   const ratings = [
     { stars: 5, percentage: 87 },
     { stars: 4, percentage: 10 },
     { stars: 3, percentage: 2 },
     { stars: 2, percentage: 1 },
-    { stars: 1, percentage: 0 }
+    { stars: 1, percentage: 0 },
+  ];
+
+  const stats = [
+    { icon: <FaUsers />, label: "Active Learners", value: "6,000+" },
+    { icon: <FaRocket />, label: "Courses", value: "50+" },
+    { icon: <FaStar />, label: "Rating", value: app.rating },
   ];
 
   return (
-    <section className="bytebodh-app-showcase">
+    <section className="app-showcase">
       <Container>
         <Row className="align-items-center py-5 my-4">
-          {/* Left Content - App Info */}
-          <Col lg={6} className="bytebodh-app-content">
-            <Badge bg="primary" className="bytebodh-app-badge mb-3">
+          {/* LEFT CONTENT */}
+          <Col lg={6} className="app-content">
+            <Badge bg="primary" className="app-badge mb-4">
               <FaMobile className="me-2" />
-              Now Available on Play Store
+              Now Available on Google Play
             </Badge>
-            
-            <h2 className="bytebodh-app-title mb-3">
-              Learn Anytime, Anywhere with 
-              <span className="bytebodh-app-gradient"> ByteBodh App</span>
-            </h2>
-            
-            <p className="bytebodh-app-description mb-4">
-              Take your IT learning journey mobile! Our Android app brings all ByteBodh tutorials, 
-              projects, and tools to your fingertips. Perfect for busy entrepreneurs and small business 
-              owners who want to learn on the go.
-            </p>
 
-            {/* App Ratings */}
-            <div className="bytebodh-app-ratings mb-4">
-              <div className="bytebodh-rating-overview d-flex align-items-center mb-3">
-                <div className="bytebodh-rating-score me-3">
-                  <div className="bytebodh-rating-number">4.8</div>
-                  <div className="bytebodh-rating-stars">
+            {/* App Switch Tabs */}
+            <div className="app-tabs mb-4">
+              {Object.keys(apps).map((appKey) => (
+                <button
+                  key={appKey}
+                  className={`app-tab ${activeApp === appKey ? "active" : ""}`}
+                  onClick={() => setActiveApp(appKey)}
+                  style={{
+                    background: activeApp === appKey ? apps[appKey].color : "transparent",
+                  }}
+                >
+                  {apps[appKey].name}
+                </button>
+              ))}
+            </div>
+
+            <h1 className="app-title mb-3">
+              {app.tagline} with{" "}
+              <span 
+                className="app-gradient"
+                style={{ backgroundImage: app.color }}
+              >
+                {app.name}
+              </span>
+            </h1>
+
+            <p className="app-description mb-4">{app.description}</p>
+
+            {/* Stats */}
+            <div className="app-stats mb-4">
+              {stats.map((stat, index) => (
+                <div key={index} className="app-stat">
+                  <div className="stat-icon">{stat.icon}</div>
+                  <div className="stat-content">
+                    <div className="stat-value">{stat.value}</div>
+                    <div className="stat-label">{stat.label}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* RATINGS */}
+            <div className="app-ratings mb-4">
+              <div className="rating-overview d-flex align-items-center mb-3">
+                <div className="rating-score me-4">
+                  <div className="rating-number">{app.rating}</div>
+                  <div className="rating-stars">
                     {[...Array(5)].map((_, i) => (
                       <FaStar key={i} className="text-warning" />
                     ))}
                   </div>
-                  <div className="bytebodh-rating-count">2.5K+ reviews</div>
+                  <div className="rating-count">{app.reviews}</div>
                 </div>
-                <div className="bytebodh-rating-bars flex-grow-1">
+
+                <div className="rating-bars flex-grow-1">
                   {ratings.map((rating, index) => (
-                    <div key={index} className="bytebodh-rating-bar d-flex align-items-center mb-1">
-                      <span className="bytebodh-rating-star-count me-2">{rating.stars}</span>
-                      <FaStar className="bytebodh-rating-star-icon me-2" />
-                      <div className="bytebodh-rating-progress flex-grow-1">
-                        <div 
-                          className="bytebodh-rating-progress-bar"
+                    <div
+                      key={index}
+                      className="rating-bar d-flex align-items-center mb-2"
+                    >
+                      <span className="rating-star-count">
+                        {rating.stars}
+                      </span>
+                      <FaStar className="rating-star-icon me-2" />
+                      <div className="rating-progress flex-grow-1">
+                        <div
+                          className="rating-progress-bar"
                           style={{ width: `${rating.percentage}%` }}
                         ></div>
                       </div>
-                      <span className="bytebodh-rating-percentage ms-2">{rating.percentage}%</span>
+                      <span className="rating-percentage">
+                        {rating.percentage}%
+                      </span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Download Button */}
-            <div className="bytebodh-download-actions">
-              <Button className="bytebodh-playstore-btn btn-lg">
+            {/* DOWNLOAD BUTTON */}
+            <div className="download-actions">
+              <Button
+                className="playstore-btn btn-lg"
+                onClick={() => window.open(app.link, "_blank")}
+                style={{ backgroundImage: app.color }}
+              >
                 <FaGooglePlay className="me-2" size={24} />
-                <div className="bytebodh-btn-text">
+                <div className="btn-text">
                   <small>GET IT ON</small>
                   <strong>Google Play</strong>
                 </div>
               </Button>
-              
-              <div className="bytebodh-download-stats mt-3">
+
+              <div className="download-stats mt-3">
                 <FaDownload className="text-primary me-2" />
-                <span>10+ Downloads</span>
+                <span>{app.downloads} Downloads</span>
               </div>
             </div>
           </Col>
 
-          {/* Right Content - App Mockup */}
-          <Col lg={6} className="bytebodh-app-visual">
-            <div className="bytebodh-phone-mockup">
-              <div className="bytebodh-phone-frame">
-                <div className="bytebodh-phone-screen">
-                  {/* App Screen Content */}
-                  <div className="bytebodh-app-screen">
-                    <div className="bytebodh-app-header">
-                      <div className="bytebodh-app-logo">
-                        <div className="bytebodh-app-logo-icon">B</div>
-                        <span>ByteBodh</span>
+          {/* RIGHT SIDE PHONE MOCKUP */}
+          <Col lg={6} className="app-visual">
+            <div className="phone-mockup">
+              <div className="phone-frame">
+                <div className="phone-screen">
+                  <div className="app-screen">
+                    <div 
+                      className="app-header"
+                      style={{ backgroundImage: app.color }}
+                    >
+                      <div className="app-logo">
+                        <div 
+                          className="app-logo-icon"
+                          style={{ background: 'rgba(255, 255, 255, 0.2)' }}
+                        >
+                          {app.logo}
+                        </div>
+                        <span>{app.name}</span>
                       </div>
                     </div>
-                    
-                    <div className="bytebodh-app-content-preview">
-                      <div className="bytebodh-app-feature-preview">
-                        <FaCheckCircle className="text-success me-2" />
-                        <span>Web Development</span>
-                      </div>
-                      <div className="bytebodh-app-feature-preview">
-                        <FaCheckCircle className="text-success me-2" />
-                        <span>Mobile Apps</span>
-                      </div>
-                      <div className="bytebodh-app-feature-preview">
-                        <FaCheckCircle className="text-success me-2" />
-                        <span>Cloud Computing</span>
-                      </div>
-                      <div className="bytebodh-app-feature-preview">
-                        <FaCheckCircle className="text-success me-2" />
-                        <span>Data Analytics</span>
-                      </div>
+
+                    <div className="app-content-preview">
+                      {app.features.map((feature, idx) => (
+                        <div
+                          key={idx}
+                          className="app-feature-preview"
+                        >
+                          <FaCheckCircle className="text-success me-2" />
+                          <span>{feature}</span>
+                        </div>
+                      ))}
                     </div>
-                    
-                    <div className="bytebodh-app-bottom-nav">
-                      <div className="bytebodh-nav-item active">Learn</div>
-                      <div className="bytebodh-nav-item">Practice</div>
-                      <div className="bytebodh-nav-item">Projects</div>
-                      <div className="bytebodh-nav-item">Profile</div>
+
+                    <div className="app-bottom-nav">
+                      <div className="nav-item active">Learn</div>
+                      <div className="nav-item">Practice</div>
+                      <div className="nav-item">Projects</div>
+                      <div className="nav-item">Profile</div>
                     </div>
                   </div>
                 </div>
               </div>
-              
-              {/* Floating Elements */}
-              <div className="bytebodh-app-floating element-1">
-                <FaStar className="bytebodh-floating-icon" />
-                <span>4.8 Rating</span>
+
+              <div 
+                className="app-floating element-1"
+                style={{ backgroundImage: app.color }}
+              >
+                <FaStar className="floating-icon" />
+                <span>{app.rating} Rating</span>
               </div>
-              <div className="bytebodh-app-floating element-2">
-                <FaDownload className="bytebodh-floating-icon" />
-                <span>10+ Downloads</span>
+
+              <div 
+                className="app-floating element-2"
+                style={{ backgroundImage: app.color }}
+              >
+                <FaDownload className="floating-icon" />
+                <span>{app.downloads}</span>
               </div>
             </div>
           </Col>
         </Row>
       </Container>
 
-      {/* App Showcase-specific CSS */}
+      {/* Enhanced CSS */}
       <style jsx>{`
-        .bytebodh-app-showcase {
+        .app-showcase {
           background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
           color: #e2e8f0;
           position: relative;
           overflow: hidden;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        .bytebodh-app-showcase::before {
+        .app-showcase::before {
           content: '';
           position: absolute;
           top: -50%;
@@ -165,218 +264,320 @@ function AppShowcase() {
           border-radius: 50%;
         }
 
-        .bytebodh-app-badge {
+        .app-showcase::after {
+          content: '';
+          position: absolute;
+          bottom: -30%;
+          left: -10%;
+          width: 400px;
+          height: 400px;
+          background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+          border-radius: 50%;
+          z-index: 0;
+        }
+
+        .app-badge {
           background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%) !important;
           border: none;
           padding: 0.75rem 1.5rem;
           font-size: 0.875rem;
-          font-weight: 500;
+          font-weight: 600;
           border-radius: 50px;
-        }
-
-        .bytebodh-app-title {
-          font-size: 2.4rem;
-          font-weight: 700;
-          line-height: 1.2;
-          color: #f8fafc;
-        }
-
-        .bytebodh-app-gradient {
-          background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          display: block;
-        }
-
-        .bytebodh-app-description {
-          font-size: 1.1rem;
-          color: #cbd5e1;
-          line-height: 1.7;
-          max-width: 90%;
-        }
-
-        /* Ratings Styles */
-        .bytebodh-app-ratings {
-          background: rgba(255, 255, 255, 0.05);
-          padding: 1.5rem;
-          border-radius: 16px;
+          backdrop-filter: blur(10px);
           border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .bytebodh-rating-number {
-          font-size: 2.5rem;
+        .app-tabs {
+          display: flex;
+          gap: 1rem;
+          background: rgba(255, 255, 255, 0.05);
+          padding: 0.5rem;
+          border-radius: 16px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+        }
+
+        .app-tab {
+          padding: 0.75rem 1.5rem;
+          border-radius: 12px;
+          border: none;
+          background: transparent;
+          color: #cbd5e1;
+          font-size: 0.9rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          flex: 1;
+        }
+
+        .app-tab.active {
+          color: white;
+          font-weight: 600;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+          transform: translateY(-1px);
+        }
+
+        .app-title {
+          font-size: 3rem;
+          font-weight: 800;
+          line-height: 1.1;
+          color: #f8fafc;
+          margin-bottom: 1.5rem;
+        }
+
+        .app-gradient {
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          display: inline-block;
+        }
+
+        .app-description {
+          font-size: 1.125rem;
+          color: #cbd5e1;
+          line-height: 1.7;
+          max-width: 90%;
+          margin-bottom: 2rem;
+        }
+
+        /* Stats Styles */
+        .app-stats {
+          display: flex;
+          gap: 1.5rem;
+          margin-bottom: 2rem;
+        }
+
+        .app-stat {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 1rem;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+        }
+
+        .stat-icon {
+          color: #0284c7;
+          font-size: 1.5rem;
+        }
+
+        .stat-value {
+          font-size: 1.25rem;
           font-weight: 700;
+          color: #f8fafc;
+        }
+
+        .stat-label {
+          font-size: 0.875rem;
+          color: #94a3b8;
+        }
+
+        /* Ratings Styles */
+        .app-ratings {
+          background: rgba(255, 255, 255, 0.05);
+          padding: 1.5rem;
+          border-radius: 20px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          margin-bottom: 2rem;
+        }
+
+        .rating-number {
+          font-size: 2.5rem;
+          font-weight: 800;
           color: #f8fafc;
           line-height: 1;
         }
 
-        .bytebodh-rating-stars {
+        .rating-stars {
           color: #fbbf24;
           margin: 0.5rem 0;
         }
 
-        .bytebodh-rating-count {
+        .rating-count {
           color: #94a3b8;
           font-size: 0.875rem;
+          font-weight: 500;
         }
 
-        .bytebodh-rating-bar {
+        .rating-bar {
           font-size: 0.875rem;
         }
 
-        .bytebodh-rating-star-count {
+        .rating-star-count {
           color: #cbd5e1;
           width: 20px;
+          font-weight: 600;
         }
 
-        .bytebodh-rating-star-icon {
+        .rating-star-icon {
           color: #fbbf24;
           font-size: 0.75rem;
         }
 
-        .bytebodh-rating-progress {
+        .rating-progress {
           background: rgba(255, 255, 255, 0.1);
           height: 6px;
           border-radius: 3px;
           overflow: hidden;
+          margin: 0 0.75rem;
         }
 
-        .bytebodh-rating-progress-bar {
+        .rating-progress-bar {
           background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
           height: 100%;
           border-radius: 3px;
           transition: width 0.3s ease;
         }
 
-        .bytebodh-rating-percentage {
+        .rating-percentage {
           color: #94a3b8;
           width: 30px;
           text-align: right;
-        }
-
-        /* App Features */
-        .bytebodh-app-feature {
-          padding: 1rem;
-        }
-
-        .bytebodh-app-feature-icon {
-          color: #0284c7;
-          font-size: 2rem;
-          margin-bottom: 0.5rem;
-        }
-
-        .bytebodh-app-feature-text strong {
-          color: #f8fafc;
-          display: block;
-          font-size: 0.9rem;
-          margin-bottom: 0.25rem;
-        }
-
-        .bytebodh-app-feature-text small {
-          color: #94a3b8;
-          font-size: 0.8rem;
+          font-weight: 500;
         }
 
         /* Download Button */
-        .bytebodh-playstore-btn {
-          background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%) !important;
+        .playstore-btn {
           border: none;
-          padding: 1rem 2rem;
-          border-radius: 12px;
+          padding: 1.25rem 2.5rem;
+          border-radius: 16px;
           display: flex;
           align-items: center;
-          transition: all 0.3s ease;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+          position: relative;
+          overflow: hidden;
         }
 
-        .bytebodh-playstore-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(2, 132, 199, 0.4);
+        .playstore-btn::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          transition: left 0.5s;
         }
 
-        .bytebodh-btn-text {
+        .playstore-btn:hover::before {
+          left: 100%;
+        }
+
+        .playstore-btn:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-text {
           text-align: left;
           line-height: 1.2;
         }
 
-        .bytebodh-btn-text small {
+        .btn-text small {
           font-size: 0.75rem;
           opacity: 0.9;
           display: block;
+          font-weight: 500;
         }
 
-        .bytebodh-btn-text strong {
+        .btn-text strong {
           font-size: 1.1rem;
           display: block;
+          font-weight: 700;
         }
 
-        .bytebodh-download-stats {
+        .download-stats {
           color: #cbd5e1;
           font-size: 0.875rem;
           display: flex;
           align-items: center;
+          font-weight: 500;
         }
 
         /* Phone Mockup */
-        .bytebodh-phone-mockup {
+        .phone-mockup {
           position: relative;
           display: flex;
           justify-content: center;
           align-items: center;
-          min-height: 500px;
+          min-height: 600px;
         }
 
-        .bytebodh-phone-frame {
-          width: 300px;
-          height: 600px;
+        .phone-frame {
+          width: 320px;
+          height: 640px;
           background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
           border-radius: 40px;
-          padding: 12px;
+          padding: 14px;
           position: relative;
-          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 
+            0 25px 50px rgba(0, 0, 0, 0.3),
+            0 0 0 1px rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          z-index: 2;
         }
 
-        .bytebodh-phone-screen {
+        .phone-screen {
           background: white;
           height: 100%;
           border-radius: 32px;
           overflow: hidden;
           position: relative;
+          box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
         }
 
-        .bytebodh-app-screen {
+        .app-screen {
           height: 100%;
           display: flex;
           flex-direction: column;
           background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
         }
 
-        .bytebodh-app-header {
-          background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
+        .app-header {
           color: white;
-          padding: 1.5rem 1rem 1rem;
+          padding: 2rem 1rem 1.5rem;
+          position: relative;
+          overflow: hidden;
         }
 
-        .bytebodh-app-logo {
+        .app-header::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.1);
+        }
+
+        .app-logo {
           display: flex;
           align-items: center;
           gap: 0.75rem;
-          font-weight: 600;
+          font-weight: 700;
+          font-size: 1.25rem;
+          position: relative;
+          z-index: 1;
         }
 
-        .bytebodh-app-logo-icon {
-          width: 32px;
-          height: 32px;
+        .app-logo-icon {
+          width: 40px;
+          height: 40px;
           background: rgba(255, 255, 255, 0.2);
-          border-radius: 8px;
+          border-radius: 10px;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-weight: 700;
+          font-weight: 800;
+          font-size: 1.1rem;
+          backdrop-filter: blur(10px);
         }
 
-        .bytebodh-app-content-preview {
+        .app-content-preview {
           flex: 1;
           padding: 2rem 1rem;
           display: flex;
@@ -384,113 +585,149 @@ function AppShowcase() {
           gap: 1rem;
         }
 
-        .bytebodh-app-feature-preview {
+        .app-feature-preview {
           display: flex;
           align-items: center;
-          padding: 1rem;
+          padding: 1.25rem;
           background: white;
-          border-radius: 12px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          border-radius: 16px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
           color: #334155;
-          font-weight: 500;
+          font-weight: 600;
+          transition: transform 0.2s ease;
         }
 
-        .bytebodh-app-bottom-nav {
+        .app-feature-preview:hover {
+          transform: translateX(5px);
+        }
+
+        .app-bottom-nav {
           display: flex;
           background: white;
           border-top: 1px solid #e2e8f0;
-          padding: 0.75rem 0;
+          padding: 1rem 0;
+          box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
         }
 
-        .bytebodh-nav-item {
+        .nav-item {
           flex: 1;
           text-align: center;
           color: #64748b;
-          font-size: 0.75rem;
-          font-weight: 500;
+          font-size: 0.8rem;
+          font-weight: 600;
+          padding: 0.5rem;
+          transition: color 0.2s ease;
         }
 
-        .bytebodh-nav-item.active {
+        .nav-item.active {
           color: #0284c7;
         }
 
         /* Floating Elements */
-        .bytebodh-app-floating {
+        .app-floating {
           position: absolute;
-          background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
           color: white;
-          padding: 0.75rem 1rem;
+          padding: 1rem 1.5rem;
           border-radius: 50px;
           display: flex;
           align-items: center;
-          gap: 0.5rem;
-          font-weight: 600;
+          gap: 0.75rem;
+          font-weight: 700;
           font-size: 0.875rem;
-          box-shadow: 0 8px 25px rgba(2, 132, 199, 0.3);
-          animation: bytebodh-app-float 3s ease-in-out infinite;
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+          animation: app-float 3s ease-in-out infinite;
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          z-index: 3;
         }
 
-        .bytebodh-floating-icon {
-          font-size: 1rem;
+        .floating-icon {
+          font-size: 1.1rem;
         }
 
         .element-1 {
-          top: 20%;
-          right: 10%;
+          top: 15%;
+          right: 5%;
           animation-delay: 0s;
         }
 
         .element-2 {
-          bottom: 30%;
-          left: 5%;
+          bottom: 25%;
+          left: 3%;
           animation-delay: 1.5s;
         }
 
-        @keyframes bytebodh-app-float {
-          0%, 100% { transform: translateY(0px) scale(1); }
-          50% { transform: translateY(-10px) scale(1.05); }
+        @keyframes app-float {
+          0%, 100% { 
+            transform: translateY(0px) scale(1) rotate(0deg); 
+          }
+          50% { 
+            transform: translateY(-10px) scale(1.05) rotate(2deg); 
+          }
         }
 
         /* Responsive Design */
-        @media (max-width: 991.98px) {
-          .bytebodh-app-title {
-            font-size: 2.25rem;
-          }
-          
-          .bytebodh-app-description {
-            max-width: 100%;
-          }
-          
-          .bytebodh-phone-mockup {
-            margin-top: 3rem;
-            min-height: 400px;
-          }
-          
-          .bytebodh-phone-frame {
-            transform: scale(0.9);
+        @media (max-width: 1199.98px) {
+          .app-title {
+            font-size: 2.5rem;
           }
         }
 
-        @media (max-width: 576px) {
-          .bytebodh-app-title {
+        @media (max-width: 991.98px) {
+          .app-title {
+            font-size: 2.25rem;
+          }
+          
+          .app-description {
+            max-width: 100%;
+          }
+          
+          .phone-mockup {
+            margin-top: 3rem;
+            min-height: 500px;
+          }
+          
+          .phone-frame {
+            transform: scale(0.9);
+          }
+
+          .app-stats {
+            flex-direction: column;
+            gap: 1rem;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .app-title {
             font-size: 2rem;
           }
           
-          .bytebodh-phone-frame {
-            transform: scale(0.8);
+          .app-tabs {
+            flex-direction: column;
           }
-          
-          .bytebodh-app-floating {
-            display: none;
-          }
-          
-          .bytebodh-rating-overview {
+
+          .rating-overview {
             flex-direction: column;
             text-align: center;
           }
           
-          .bytebodh-rating-score {
-            margin-bottom: 1rem;
+          .rating-score {
+            margin-bottom: 1.5rem;
+            margin-right: 0;
+          }
+        }
+
+        @media (max-width: 576px) {
+          .app-title {
+            font-size: 1.75rem;
+          }
+          
+          .phone-frame {
+            transform: scale(0.8);
+          }
+          
+          .app-floating {
+            display: none;
           }
         }
       `}</style>

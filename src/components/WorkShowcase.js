@@ -17,8 +17,8 @@ function WorkShowcase() {
     },
     {
       id: 3,
-      title: "CodeWithSathya",
-      url: "https://codewithsathya.info",
+      title: "Scoremate",
+      url: "https://www.scoremate.in",
     }
   ];
 

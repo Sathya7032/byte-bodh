@@ -25,14 +25,11 @@ function Jobs() {
         const jobsData = await response.json();
         console.log('Fetched jobs data:', jobsData);
         
-        // Handle different response structures
         let jobsArray = [];
         
         if (Array.isArray(jobsData)) {
-          // If it's already an array
           jobsArray = jobsData;
         } else if (jobsData && typeof jobsData === 'object') {
-          // If it's an object, check for common properties
           if (jobsData.results) {
             jobsArray = jobsData.results;
           } else if (jobsData.data) {
@@ -40,18 +37,15 @@ function Jobs() {
           } else if (jobsData.jobs) {
             jobsArray = jobsData.jobs;
           } else {
-            // If it's a single job object, wrap it in an array
             jobsArray = [jobsData];
           }
         }
         
-        console.log('Processed jobs array:', jobsArray);
-        
-        // Show ALL jobs without filtering for active/inactive
+        console.log('Processed jobs array:', jobsArray);        
         setJobs(jobsArray);
         setError(null);
       } catch (err) {
-        setError('Failed to load jobs. Please try again later.');
+        setError('Unable to load job notifications. Please try again later.');
         console.error('Error fetching jobs:', err);
       } finally {
         setLoading(false);
@@ -61,7 +55,6 @@ function Jobs() {
     fetchJobs();
   }, []);
 
-  // Filter jobs based on search term
   const filteredJobs = jobs.filter(job =>
     job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     job.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -87,35 +80,41 @@ function Jobs() {
     <>
       <Header />
       <div className="bytebodh-jobs-page">
+
         {/* Hero Section */}
         <section className="bytebodh-jobs-hero">
           <Container>
             <Row className="text-center py-5">
               <Col lg={8} className="mx-auto">
+
+                {/* UPDATED TEXT */}
                 <Badge bg="primary" className="bytebodh-hero-badge mb-3">
-                  Careers
+                  Job Alerts
                 </Badge>
+
                 <h1 className="bytebodh-hero-title mb-3">
-                  Join Our <span className="bytebodh-hero-gradient">Team</span>
+                  Latest <span className="bytebodh-hero-gradient">Job Notifications</span>
                 </h1>
+
                 <p className="bytebodh-hero-description">
-                  Discover exciting career opportunities and be part of our innovative journey. 
-                  We're looking for talented individuals to help us grow and succeed together.
+                  Stay updated with the newest job openings from top companies across India.
+                  Explore opportunities, check eligibility, and apply directly to the companies you prefer.
                 </p>
 
-                {/* Search Bar */}
+                {/* Search Box */}
                 <div className="bytebodh-search-box mt-4">
                   <div className="bytebodh-search-input">
                     <FaSearch className="bytebodh-search-icon" />
                     <input
                       type="text"
-                      placeholder="Search jobs by title, company, or location..."
+                      placeholder="Search jobs by title, company name, or location..."
                       className="bytebodh-search-field"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
                 </div>
+
               </Col>
             </Row>
           </Container>
@@ -130,7 +129,7 @@ function Jobs() {
                   <Spinner animation="border" role="status" variant="primary">
                     <span className="visually-hidden">Loading jobs...</span>
                   </Spinner>
-                  <p className="mt-3">Loading available positions...</p>
+                  <p className="mt-3">Fetching latest job notifications...</p>
                 </Col>
               </Row>
             ) : error ? (
@@ -152,7 +151,7 @@ function Jobs() {
                 <Row className="mb-4">
                   <Col>
                     <h4 className="bytebodh-jobs-count">
-                      {filteredJobs.length} {filteredJobs.length === 1 ? 'Job' : 'Jobs'} Available
+                      {filteredJobs.length} Latest Job Notifications
                     </h4>
                   </Col>
                 </Row>
@@ -162,8 +161,8 @@ function Jobs() {
                   <Row>
                     <Col className="text-center">
                       <div className="bytebodh-no-jobs">
-                        <h5>No positions found</h5>
-                        <p>Try adjusting your search terms or check back later for new opportunities!</p>
+                        <h5>No Job Notifications Found</h5>
+                        <p>Try different keywords or visit again soon for updated company job announcements.</p>
                       </div>
                     </Col>
                   </Row>
@@ -173,45 +172,47 @@ function Jobs() {
                       <Col key={job.id} lg={6}>
                         <Card className="bytebodh-job-card h-100">
                           <Card.Body className="d-flex flex-column">
-                            {/* Job Header */}
+
                             <div className="bytebodh-job-header mb-3">
                               <div className="bytebodh-job-title-section">
-                                <h5 className="bytebodh-job-title">{job.title || 'Untitled Position'}</h5>
+
+                                {/* UPDATED FALLBACK TEXTS */}
+                                <h5 className="bytebodh-job-title">
+                                  {job.title || 'Job Title Not Provided'}
+                                </h5>
+
                                 <Badge bg="light" text="dark" className="bytebodh-company-badge">
-                                  {job.company || 'Company not specified'}
+                                  {job.company || 'Company: Not Available'}
                                 </Badge>
                               </div>
                             </div>
 
-                            {/* Job Details */}
                             <div className="bytebodh-job-details mb-3">
                               <div className="bytebodh-job-detail-item">
                                 <FaMapMarkerAlt className="bytebodh-detail-icon" />
-                                <span>{job.location || 'Location not specified'}</span>
+                                <span>{job.location || 'Location: Not Mentioned'}</span>
                               </div>
                               <div className="bytebodh-job-detail-item">
                                 <FaBriefcase className="bytebodh-detail-icon" />
-                                <span>{job.experience_level || 'Experience not specified'}</span>
+                                <span>{job.experience_level || 'Experience: Not Provided'}</span>
                               </div>
                             </div>
 
-                            {/* Job Dates */}
                             <div className="bytebodh-job-dates mb-3">
                               <div className="bytebodh-date-item">
                                 <FaCalendarAlt className="bytebodh-date-icon" />
                                 <small className="text-muted">
-                                  Posted: {formatDate(job.posted_on)}
+                                  Posted On: {formatDate(job.posted_on)}
                                 </small>
                               </div>
                               <div className="bytebodh-date-item">
                                 <FaCalendarAlt className="bytebodh-date-icon" />
                                 <small className="text-muted">
-                                  Apply by: {formatDate(job.last_date)}
+                                  Last Date to Apply: {formatDate(job.last_date)}
                                 </small>
                               </div>
                             </div>
 
-                            {/* Action Buttons */}
                             <div className="mt-auto d-flex gap-2">
                               <Link 
                                 to={`/jobs/${job.id}`}
@@ -219,8 +220,8 @@ function Jobs() {
                               >
                                 View Details
                               </Link>
-                              
                             </div>
+
                           </Card.Body>
                         </Card>
                       </Col>
@@ -229,13 +230,13 @@ function Jobs() {
                 )}
               </>
             )}
-
-           
           </Container>
         </section>
       </div>
+
       <Footer />
 
+      {/* STYLES KEEP SAME */}
       <style jsx>{`
         .bytebodh-jobs-page {
           background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
