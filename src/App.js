@@ -11,6 +11,7 @@ import TermsAndConditions from './pages/TermsAndConditions';
 import CookiePolicy from './pages/CookiePolicy';
 import Jobs from './pages/Jobs';
 import JobDetail from './pages/JobDetail';
+import { Analytics } from "@vercel/analytics/react"
 
 const App = () => {
   return (
@@ -27,6 +28,7 @@ const App = () => {
       <Route path='/jobs' element={<Jobs />} />
       <Route path="/jobs/:id" element={<JobDetail />} />
     </Routes>
+    <Analytics />
     </BrowserRouter>
   )
 }
