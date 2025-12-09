@@ -12,6 +12,8 @@ import CookiePolicy from './pages/CookiePolicy';
 import Jobs from './pages/Jobs';
 import JobDetail from './pages/JobDetail';
 import { Analytics } from "@vercel/analytics/react"
+import ByteBodhQRGenerator from './qr-code/ByteBodhQRGenerator';
+import Products from './pages/Products';
 
 const App = () => {
   return (
@@ -26,7 +28,9 @@ const App = () => {
       <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
       <Route path="/cookie-policy" element={<CookiePolicy />} />
       <Route path='/jobs' element={<Jobs />} />
+      <Route path='/products' element={<Products />} />
       <Route path="/jobs/:id" element={<JobDetail />} />
+      <Route path='/qr' element={<ByteBodhQRGenerator/>} />
     </Routes>
     <Analytics />
     </BrowserRouter>
