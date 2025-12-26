@@ -1,163 +1,235 @@
-import React, { useState } from 'react';
+// Header.jsx
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Container, Navbar, Nav } from 'react-bootstrap';
 import { 
   FaEnvelope, 
   FaPhone, 
   FaFacebook, 
   FaLinkedin, 
   FaInstagram,
-  FaBars,
-  FaTimes,
   FaYoutube
 } from 'react-icons/fa';
-import './header.css'
 
-// Navigation items data
+// Simplified navigation items - removed dropdown
 const NAV_ITEMS = [
-  { id: 'home', label: 'Home' },
-  { id: 'products', label: 'Our Products' },
-  { id: 'blogs', label: 'Blogs' },
-  { id: 'about', label: 'About' },
-  { id: 'contact', label: 'Contact' },
+  { id: 'home', label: 'Home', href: '/' },
+  { id: 'products', label: 'Our Products', href: '/products' },
+  { id: 'blogs', label: 'Blogs', href: '/blogs' },
+  { id: 'about', label: 'About', href: '/about' },
+  { id: 'contact', label: 'Contact', href: '/contact' },
+];
+
+const SOCIAL_LINKS = [
+  { icon: FaFacebook, href: 'https://www.facebook.com/share/1AE1wkgx2m/?mibextid=wwXIfr', color: 'hover:text-blue-600' },
+  { icon: FaYoutube, href: 'https://youtube.com/@bytebodh?si=z3Kdf8dOBZMVU9YF', color: 'hover:text-red-600' },
+  { icon: FaLinkedin, href: 'https://www.linkedin.com/company/bytebodh/', color: 'hover:text-blue-700' },
+  { icon: FaInstagram, href: 'https://www.instagram.com/bytebodh/', color: 'hover:text-pink-600' },
 ];
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
 
-  // Get current path without leading slash
-  const currentPath = location.pathname.substring(1) || 'home';
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-  const handleNavClick = () => {
+  // Close mobile menu on route change
+  useEffect(() => {
     setIsMenuOpen(false);
-  };
+  }, [location]);
+
+  const currentPath = location.pathname;
 
   return (
     <>
-      {/* Top Bar with Contact Info and Social Icons */}
-      <div className="bg-dark text-white py-2 d-none d-lg-block">
-        <Container>
-          <div className="d-flex justify-content-between align-items-center">
-            {/* Contact Information */}
-            <div className="d-flex align-items-center gap-4">
-              <div className="d-flex align-items-center gap-2">
-                <FaEnvelope size={14} className="text-primary" />
-                <span className="fs-7">info@bytebodh.in</span>
-              </div>
-              <div className="d-flex align-items-center gap-2">
-                <FaPhone size={14} className="text-primary" />
-                <span className="fs-7">+91 8519965746</span>
-              </div>
+      {/* Top Bar */}
+      <div className="bg-gradient-to-r from-gray-900 to-blue-900 text-white py-2 hidden lg:block">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center">
+            {/* Contact Info */}
+            <div className="flex items-center space-x-6">
+              <a 
+                href="mailto:info@bytebodh.in" 
+                className="flex items-center space-x-2 group transition-all duration-200 hover:text-blue-300"
+              >
+                <div className="bg-blue-600 p-1.5 rounded-lg group-hover:bg-blue-500 transition-colors">
+                  <FaEnvelope size={12} />
+                </div>
+                <span className="text-sm font-medium">info@bytebodh.in</span>
+              </a>
+              <a 
+                href="tel:+918519965746" 
+                className="flex items-center space-x-2 group transition-all duration-200 hover:text-blue-300"
+              >
+                <div className="bg-green-600 p-1.5 rounded-lg group-hover:bg-green-500 transition-colors">
+                  <FaPhone size={12} />
+                </div>
+                <span className="text-sm font-medium">+91 8519965746</span>
+              </a>
             </div>
 
-            {/* Social Media Icons */}
-            <div className="d-flex align-items-center gap-3">
-              <a href="https://www.facebook.com/share/1AE1wkgx2m/?mibextid=wwXIfr" className="text-white-50 hover:text-primary transition-colors">
-                <FaFacebook size={16} />
-              </a>
-              <a href="https://youtube.com/@bytebodh?si=z3Kdf8dOBZMVU9YF" className="text-white-50 hover:text-primary transition-colors">
-                <FaYoutube size={16} />
-              </a>
-              <a href="https://www.linkedin.com/company/bytebodh/" className="text-white-50 hover:text-primary transition-colors">
-                <FaLinkedin size={16} />
-              </a>
-              <a href="https://www.instagram.com/bytebodh/" className="text-white-50 hover:text-primary transition-colors">
-                <FaInstagram size={16} />
-              </a>
+            {/* Social Links */}
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-300">Follow us:</span>
+              <div className="flex items-center space-x-3">
+                {SOCIAL_LINKS.map((social, index) => {
+                  const Icon = social.icon;
+                  return (
+                    <a
+                      key={index}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`text-gray-300 ${social.color} transition-colors duration-200 transform hover:scale-110`}
+                    >
+                      <Icon size={16} />
+                    </a>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </Container>
+        </div>
       </div>
 
-      {/* Main Navigation Bar */}
-      <Navbar expand="lg" className="bg-white shadow-sm sticky-top z-40" expanded={isMenuOpen}>
-        <Container>
-          {/* Brand/Logo */}
-          <Navbar.Brand as={Link} to="/" className="d-flex align-items-center text-decoration-none">
-            
-            <div className="ms-3">
-              <div className="fs-5 fw-bold text-dark">ByteBodh</div>
+      {/* Main Header */}
+      <header className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-white'}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16 lg:h-20">
+            {/* Logo */}
+            <div className="flex items-center">
+              <Link to="/" className="flex items-center space-x-3 group">
+                <div className="relative">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-300"></div>
+                  <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white p-2.5 rounded-lg font-bold text-xl">
+                    BB
+                  </div>
+                </div>
+                <div>
+                  <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    ByteBodh
+                  </span>
+                  <p className="text-xs text-gray-500 font-medium">Digital Solutions</p>
+                </div>
+              </Link>
             </div>
-          </Navbar.Brand>
 
-          {/* Mobile Menu Toggle */}
-          <Navbar.Toggle 
-            aria-controls="basic-navbar-nav"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="border-0"
-          >
-            {isMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
-          </Navbar.Toggle>
-
-          <Navbar.Collapse id="basic-navbar-nav">
-            {/* Navigation Links */}
-            <Nav className="mx-auto">
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center space-x-1">
               {NAV_ITEMS.map((item) => (
-                <Nav.Link
+                <Link
                   key={item.id}
-                  as={Link}
-                  to={item.id === 'home' ? '/' : `/${item.id}`}
-                  className={`fw-medium mx-2 px-3 ${
-                    currentPath === item.id 
-                      ? 'text-primary' 
-                      : 'text-dark'
+                  to={item.href}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                    currentPath === item.href
+                      ? 'text-blue-600 bg-blue-50'
+                      : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
                   }`}
-                  onClick={handleNavClick}
-                  style={{
-                    fontSize: '0.95rem',
-                    position: 'relative',
-                    transition: 'all 0.3s ease'
-                  }}
                 >
                   {item.label}
-                  {currentPath === item.id && (
-                    <div 
-                      style={{
-                        position: 'absolute',
-                        bottom: '-5px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        width: '30px',
-                        height: '2px',
-                        background: 'linear-gradient(135deg, #0284c7 0%, #6366f1 100%)',
-                        borderRadius: '2px'
-                      }}
-                    />
-                  )}
-                </Nav.Link>
+                </Link>
               ))}
-            </Nav>
+            </nav>
 
-            {/* Action Buttons */}
-            <div className="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+            {/* CTA Buttons - Desktop */}
+            <div className="hidden lg:flex items-center space-x-3">
               <Link
                 to="/contact"
-                className="btn btn-outline-dark border-2 px-4 py-2 fw-medium rounded-3"
-                style={{ 
-                  fontSize: '0.9rem',
-                  transition: 'all 0.3s ease'
-                }}
-                onClick={handleNavClick}
+                className="px-5 py-2.5 border-2 border-gray-800 text-gray-800 font-semibold rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 hover:scale-105"
               >
-                Contact
+                Get Started
               </Link>
               <Link
                 to="/contact"
-                className="btn btn-primary px-4 py-2 fw-medium rounded-3 border-0"
-                style={{
-                  background: 'linear-gradient(135deg, #0284c7 0%, #6366f1 100%)',
-                  fontSize: '0.9rem',
-                  transition: 'all 0.3s ease'
-                }}
-                onClick={handleNavClick}
+                className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 hover:scale-105"
               >
-                Get a Quote
+                Free Consultation
               </Link>
             </div>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="lg:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+            >
+              <div className="w-6 h-5 relative">
+                <span className={`absolute left-0 top-0 w-6 h-0.5 bg-gray-700 transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
+                <span className={`absolute left-0 top-2 w-6 h-0.5 bg-gray-700 transition-all duration-300 ${isMenuOpen ? 'opacity-0' : ''}`}></span>
+                <span className={`absolute left-0 top-4 w-6 h-0.5 bg-gray-700 transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+              </div>
+            </button>
+          </div>
+
+          {/* Mobile Menu */}
+          {isMenuOpen && (
+            <div className="lg:hidden animate-slideDown">
+              <div className="py-4 px-2 bg-white border-t border-gray-100 shadow-lg rounded-b-2xl">
+                {NAV_ITEMS.map((item) => (
+                  <Link
+                    key={item.id}
+                    to={item.href}
+                    className={`block px-4 py-3 rounded-lg transition-colors font-medium mb-1 ${
+                      currentPath === item.href
+                        ? 'text-blue-600 bg-blue-50'
+                        : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
+                    }`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+                
+                {/* Mobile CTA Buttons */}
+                <div className="mt-6 pt-6 border-t border-gray-100 space-y-3 px-2">
+                  <Link
+                    to="/contact"
+                    className="block w-full text-center px-4 py-3 border-2 border-gray-800 text-gray-800 font-semibold rounded-lg hover:bg-gray-800 hover:text-white transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Get Started
+                  </Link>
+                  <Link
+                    to="/contact"
+                    className="block w-full text-center px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-blue-500/30 transition-all"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Free Consultation
+                  </Link>
+                </div>
+                
+                {/* Social Links - Mobile */}
+                <div className="mt-6 pt-6 border-t border-gray-100">
+                  <p className="px-4 text-sm text-gray-500 mb-3">Connect with us:</p>
+                  <div className="flex justify-center space-x-6">
+                    {SOCIAL_LINKS.map((social, index) => {
+                      const Icon = social.icon;
+                      return (
+                        <a
+                          key={index}
+                          href={social.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`p-2 rounded-full bg-gray-100 ${social.color} transition-colors duration-200`}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <Icon size={18} />
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </header>
     </>
   );
 }

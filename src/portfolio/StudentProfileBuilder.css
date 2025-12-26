@@ -1,0 +1,287 @@
+/* StudentProfileBuilder.css */
+.student-profile-builder {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  min-height: 100vh;
+}
+
+.student-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: white;
+}
+
+.student-header-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.student-header-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.student-header-subtitle {
+  color: #cbd5e1;
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.input-section-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.form-section-title {
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.preview-section {
+  position: sticky;
+  top: 20px;
+}
+
+.preview-card {
+  border: none;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.12);
+}
+
+.preview-header {
+  background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
+}
+
+.preview-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-content {
+  background: white;
+}
+
+.preview-section-title {
+  color: #0f172a;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.preview-section-block {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 1.5rem;
+}
+
+.preview-section-block:last-child {
+  border-bottom: none;
+}
+
+.academic-stat {
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.skills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.skill-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.project-preview {
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #0284c7;
+}
+
+.project-title {
+  color: #0f172a;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.project-description {
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.achievements-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.achievement-item {
+  padding: 0.5rem 0;
+  display: flex;
+  align-items: flex-start;
+  color: #475569;
+}
+
+.languages-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.language-item {
+  display: flex;
+  align-items: center;
+}
+
+.preview-footer {
+  background: #f8fafc;
+}
+
+.social-link {
+  color: #64748b;
+  transition: color 0.3s ease;
+}
+
+.social-link:hover {
+  color: #0284c7;
+}
+
+.live-preview-indicator {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.live-preview .preview-card {
+  box-shadow: 0 4px 25px rgba(2, 132, 199, 0.2);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .student-header-title {
+    font-size: 2rem;
+  }
+  
+  .student-header-subtitle {
+    font-size: 1rem;
+  }
+  
+  .preview-section {
+    position: static;
+    margin-top: 2rem;
+  }
+  
+  .action-buttons .row {
+    flex-direction: column;
+  }
+  
+  .action-buttons .col {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .skills-grid {
+    justify-content: center;
+  }
+  
+  .preview-header .row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .student-header-title {
+    font-size: 1.75rem;
+  }
+  
+  .tabs .d-flex {
+    justify-content: center;
+  }
+  
+  .tabs .btn {
+    flex: 1;
+    min-width: 120px;
+  }
+  
+  .preview-avatar {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+/* Form Controls Styling */
+.form-control:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 0.2rem rgba(2, 132, 199, 0.1);
+}
+
+.form-select:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 0.2rem rgba(2, 132, 199, 0.1);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
+  border: none;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: none;
+}
+
+.btn-outline-primary:hover {
+  background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
+  color: white;
+  border-color: transparent;
+}

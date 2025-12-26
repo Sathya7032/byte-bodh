@@ -1,535 +1,342 @@
 // src/pages/Products.js
-import React, { useState } from 'react';
-import { Container, Row, Col, Card, Badge, Button } from 'react-bootstrap';
-import { FaQrcode, FaFileAlt, FaBusinessTime, FaMobile, FaSearch, FaRocket, FaUsers, FaChartLine } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import React, { useState } from "react";
+import {
+  FaQrcode,
+  FaFileAlt,
+  FaBusinessTime,
+  FaMobile,
+  FaSearch,
+  FaRocket,
+  FaUsers,
+  FaChartLine,
+  FaExternalLinkAlt,
+  FaCheckCircle,
+} from "react-icons/fa";
+import { Link } from "react-router-dom";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 function Products() {
-  const [searchTerm, setSearchTerm] = useState('');
-  
+  const [searchTerm, setSearchTerm] = useState("");
+
   const products = [
     {
       id: 1,
       title: "QR Code Generator",
-      description: "Create professional, customizable QR codes instantly with logo support, color customization, and multiple download formats.",
-      icon: <FaQrcode />,
+      description:
+        "Create professional, customizable QR codes instantly with logo support, color customization, and multiple download formats.",
+      icon: <FaQrcode className="text-2xl" />,
       category: "Marketing Tools",
-      features: ["Custom Colors", "Logo Upload", "Multiple Formats", "Instant Download"],
+      features: [
+        "Custom Colors",
+        "Logo Upload",
+        "Multiple Formats",
+        "Instant Download",
+      ],
       status: "Live",
       path: "/qr",
-      color: "linear-gradient(135deg, #0284c7 0%, #6366f1 100%)"
+      color: "linear-gradient(135deg, #0284c7 0%, #6366f1 100%)",
     },
     {
       id: 2,
       title: "Resume Maker Pro",
-      description: "Create professional resumes with beautiful templates, AI-powered suggestions, and easy customization options.",
-      icon: <FaFileAlt />,
+      description:
+        "Create professional resumes with beautiful templates, AI-powered suggestions, and easy customization options.",
+      icon: <FaFileAlt className="text-2xl" />,
       category: "Career Tools",
-      features: ["15+ Templates", "AI Suggestions", "PDF Export", "ATS Friendly"],
-      status: "Coming Soon",
-      path: "/coming-soon",
-      color: "linear-gradient(135deg, #10b981 0%, #059669 100%)"
+      features: [
+        "15+ Templates",
+        "AI Suggestions",
+        "PDF Export",
+        "ATS Friendly",
+      ],
+      status: "Live",
+      path: "/resume-builder",
+      color: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
     },
     {
       id: 3,
-      title: "Business Profile Builder",
-      description: "Build stunning digital business profiles with integrated QR codes, contact management, and analytics.",
-      icon: <FaBusinessTime />,
-      category: "Business Tools",
-      features: ["QR Integration", "Contact Cards", "Analytics", "Custom Domain"],
-      status: "Beta",
-      path: "/coming-soon",
-      color: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)"
+      title: "Student Portfolio Builder",
+      description:
+        "Build stunning digital portfolios for students with project showcases, skill tracking, and academic achievements.",
+      icon: <FaBusinessTime className="text-2xl" />,
+      category: "Student Tools",
+      features: [
+        "Project Showcase",
+        "Skill Tracking",
+        "Academic Achievements",
+        "Social Integration",
+      ],
+      status: "Live",
+      path: "/profile",
+      color: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
     },
     {
       id: 4,
       title: "QR Scanner Pro",
-      description: "Advanced QR code scanner with batch scanning, history tracking, and business card detection.",
-      icon: <FaMobile />,
+      description:
+        "Advanced QR code scanner with batch scanning, history tracking, and business card detection.",
+      icon: <FaMobile className="text-2xl" />,
       category: "Utility Tools",
       features: ["Batch Scan", "History", "Export Data", "Offline Mode"],
       status: "In Development",
       path: "/coming-soon",
-      color: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)"
+      color: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
     },
     {
       id: 5,
       title: "Digital Business Cards",
-      description: "Create interactive digital business cards that can be shared via QR codes, links, or NFC.",
-      icon: <FaUsers />,
+      description:
+        "Create interactive digital business cards that can be shared via QR codes, links, or NFC.",
+      icon: <FaUsers className="text-2xl" />,
       category: "Networking Tools",
-      features: ["Interactive Cards", "QR Sharing", "Analytics", "Contact Sync"],
+      features: [
+        "Interactive Cards",
+        "QR Sharing",
+        "Analytics",
+        "Contact Sync",
+      ],
       status: "Planned",
       path: "/coming-soon",
-      color: "linear-gradient(135deg, #ec4899 0%, #db2777 100%)"
+      color: "linear-gradient(135deg, #ec4899 0%, #db2777 100%)",
     },
     {
       id: 6,
       title: "Marketing Analytics",
-      description: "Track QR code performance, campaign analytics, and customer engagement metrics.",
-      icon: <FaChartLine />,
+      description:
+        "Track QR code performance, campaign analytics, and customer engagement metrics.",
+      icon: <FaChartLine className="text-2xl" />,
       category: "Analytics Tools",
-      features: ["QR Analytics", "Campaign Tracking", "Real-time Data", "Export Reports"],
+      features: [
+        "QR Analytics",
+        "Campaign Tracking",
+        "Real-time Data",
+        "Export Reports",
+      ],
       status: "Planned",
       path: "/coming-soon",
-      color: "linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)"
-    }
+      color: "linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)",
+    },
   ];
 
-  const filteredProducts = products.filter(product =>
-    product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProducts = products.filter(
+    (product) =>
+      product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusBadge = (status) => {
-    switch(status) {
-      case 'Live':
-        return <Badge bg="success" className="product-status-badge">Live</Badge>;
-      case 'Coming Soon':
-        return <Badge bg="warning" className="product-status-badge">Coming Soon</Badge>;
-      case 'Beta':
-        return <Badge bg="info" className="product-status-badge">Beta</Badge>;
-      case 'In Development':
-        return <Badge bg="primary" className="product-status-badge">In Development</Badge>;
-      case 'Planned':
-        return <Badge bg="secondary" className="product-status-badge">Planned</Badge>;
+    switch (status) {
+      case "Live":
+        return (
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+            <FaCheckCircle className="mr-1" />
+            Live
+          </span>
+        );
+      case "Coming Soon":
+        return (
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
+            Coming Soon
+          </span>
+        );
+      case "Beta":
+        return (
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+            Beta
+          </span>
+        );
+      case "In Development":
+        return (
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+            In Development
+          </span>
+        );
+      case "Planned":
+        return (
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
+            Planned
+          </span>
+        );
       default:
-        return <Badge bg="light" text="dark" className="product-status-badge">{status}</Badge>;
+        return (
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
+            {status}
+          </span>
+        );
     }
   };
 
   return (
     <>
       <Header />
-      <div className="bytebodh-products-page">
-
+      <div className="min-h-screen bg-gradient-to-br from-white to-gray-50">
         {/* Hero Section */}
-        <section className="bytebodh-products-hero">
-          <Container>
-            <Row className="text-center py-5">
-              <Col lg={8} className="mx-auto">
-                <Badge bg="primary" className="bytebodh-hero-badge mb-3">
-                  <FaRocket className="me-2" />
-                  Our Products
-                </Badge>
+        <section className="bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+          <div className="container mx-auto px-4 py-16 md:py-20">
+            <div className="max-w-4xl mx-auto text-center">
+              <span className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-sm font-medium mb-6">
+                <FaRocket className="mr-2" />
+                Our Products
+              </span>
 
-                <h1 className="bytebodh-hero-title mb-3">
-                  Explore <span className="bytebodh-hero-gradient">ByteBodh Tools</span>
-                </h1>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+                Explore{" "}
+                <span className="bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">
+                  ByteBodh Tools
+                </span>
+              </h1>
 
-                <p className="bytebodh-hero-description">
-                  Discover our suite of digital tools designed to empower businesses and students.
-                  From QR code generation to professional resume building, we create solutions that
-                  simplify tasks and enhance productivity.
-                </p>
+              <p className="text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                Discover our suite of digital tools designed to empower
+                businesses and students. From QR code generation to professional
+                resume building, we create solutions that simplify tasks and
+                enhance productivity.
+              </p>
 
-                {/* Search Box */}
-                <div className="bytebodh-search-box mt-4">
-                  <div className="bytebodh-search-input">
-                    <FaSearch className="bytebodh-search-icon" />
-                    <input
-                      type="text"
-                      placeholder="Search tools by name, category, or features..."
-                      className="bytebodh-search-field"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
+              {/* Search Box */}
+              <div className="max-w-lg mx-auto">
+                <div className="relative flex items-center bg-white rounded-xl shadow-lg p-3">
+                  <FaSearch className="text-gray-400 ml-2 mr-3" />
+                  <input
+                    type="text"
+                    placeholder="Search tools by name, category, or features..."
+                    className="flex-1 outline-none text-gray-800 placeholder-gray-500"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
                 </div>
-
-              </Col>
-            </Row>
-          </Container>
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Products List Section */}
-        <section className="bytebodh-products-list-section py-5">
-          <Container>
+        <section className="py-12 md:py-16">
+          <div className="container mx-auto px-4">
             {/* Products Count */}
-            <Row className="mb-4">
-              <Col>
-                <h4 className="bytebodh-products-count">
-                  {filteredProducts.length} Digital Tools Available
-                </h4>
-              </Col>
-            </Row>
+            <div className="mb-8">
+              <h4 className="text-xl font-semibold text-gray-900">
+                {filteredProducts.length} Digital Tools Available
+              </h4>
+            </div>
 
             {/* Products Grid */}
             {filteredProducts.length === 0 ? (
-              <Row>
-                <Col className="text-center">
-                  <div className="bytebodh-no-products">
-                    <h5>No Tools Found</h5>
-                    <p>Try different keywords or check back soon for new product announcements.</p>
-                  </div>
-                </Col>
-              </Row>
+              <div className="text-center py-16">
+                <div className="max-w-md mx-auto">
+                  <h5 className="text-xl font-semibold text-gray-800 mb-3">
+                    No Tools Found
+                  </h5>
+                  <p className="text-gray-600">
+                    Try different keywords or check back soon for new product
+                    announcements.
+                  </p>
+                </div>
+              </div>
             ) : (
-              <Row className="g-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                 {filteredProducts.map((product) => (
-                  <Col key={product.id} lg={6}>
-                    <Card className="bytebodh-product-card h-100">
-                      <Card.Body className="d-flex flex-column">
-
-                        {/* Product Header */}
-                        <div className="bytebodh-product-header mb-3">
-                          <div className="bytebodh-product-title-section">
-                            <div className="d-flex align-items-center justify-content-between">
-                              <div className="bytebodh-product-icon" style={{background: product.color}}>
-                                {product.icon}
-                              </div>
-                              {getStatusBadge(product.status)}
-                            </div>
-                            
-                            <h5 className="bytebodh-product-title mt-3">
-                              {product.title}
-                            </h5>
-
-                            <Badge bg="light" text="dark" className="bytebodh-category-badge">
-                              {product.category}
-                            </Badge>
-                          </div>
-                        </div>
-
-                        {/* Product Description */}
-                        <div className="bytebodh-product-description mb-3">
-                          <p className="mb-0">{product.description}</p>
-                        </div>
-
-                        {/* Product Features */}
-                        <div className="bytebodh-product-features mb-3">
-                          <h6 className="bytebodh-features-title">Key Features:</h6>
-                          <div className="bytebodh-features-grid">
-                            {product.features.map((feature, index) => (
-                              <div key={index} className="bytebodh-feature-item">
-                                <div className="bytebodh-feature-dot"></div>
-                                <span>{feature}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="mt-auto d-flex gap-2">
-                          <Link 
-                            to={product.path}
-                            className="bytebodh-view-btn"
+                  <div
+                    key={product.id}
+                    className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 overflow-hidden border border-gray-100"
+                  >
+                    <div className="p-6 h-full flex flex-col">
+                      {/* Product Header */}
+                      <div className="mb-4">
+                        <div className="flex items-center justify-between mb-4">
+                          <div
+                            className="w-12 h-12 rounded-xl flex items-center justify-center text-white"
+                            style={{ background: product.color }}
                           >
-                            {product.status === 'Live' ? 'Try Now' : 'Learn More'}
-                          </Link>
-                          {product.status === 'Live' && (
-                            <Button 
-                              variant="primary" 
-                              className="bytebodh-try-btn"
-                              as={Link}
-                              to={product.path}
-                            >
-                              <FaRocket className="me-2" />
-                              Launch Tool
-                            </Button>
-                          )}
+                            {product.icon}
+                          </div>
+                          {getStatusBadge(product.status)}
                         </div>
 
-                      </Card.Body>
-                    </Card>
-                  </Col>
+                        <h5 className="text-xl font-semibold text-gray-900 mb-2">
+                          {product.title}
+                        </h5>
+
+                        <span className="inline-block px-3 py-1 rounded-lg bg-gray-100 text-gray-700 text-sm font-medium">
+                          {product.category}
+                        </span>
+                      </div>
+
+                      {/* Product Description */}
+                      <div className="mb-4 flex-1">
+                        <p className="text-gray-600 leading-relaxed">
+                          {product.description}
+                        </p>
+                      </div>
+
+                      {/* Product Features */}
+                      <div className="mb-6">
+                        <h6 className="text-sm font-semibold text-gray-900 mb-3">
+                          Key Features:
+                        </h6>
+                        <div className="grid grid-cols-1 gap-2">
+                          {product.features.map((feature, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center text-sm text-gray-700"
+                            >
+                              <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2"></div>
+                              <span>{feature}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex flex-col sm:flex-row gap-3 mt-auto">
+                        <Link
+                          to={product.path}
+                          className="flex-1 text-center px-4 py-3 border-2 border-blue-600 text-blue-600 font-semibold rounded-lg hover:bg-blue-600 hover:text-white transition-colors duration-200"
+                        >
+                          {product.status === "Live" ? "Try Now" : "Learn More"}
+                        </Link>
+                        {product.status === "Live" && (
+                          <Link
+                            to={product.path}
+                            className="flex-1 text-center px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 hover:translate-y-[-2px] flex items-center justify-center"
+                          >
+                            <FaRocket className="mr-2" />
+                            Launch Tool
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </Row>
+              </div>
             )}
 
             {/* CTA Section */}
-            <Row className="mt-5">
-              <Col>
-                <div className="bytebodh-products-cta text-center p-5">
-                  <h3 className="mb-3">Need a Custom Solution?</h3>
-                  <p className="bytebodh-cta-description mb-4">
-                    Have specific requirements for your business or educational institution?
-                    Let's build a custom tool tailored to your needs.
-                  </p>
-                  <Button 
-                    variant="outline-primary" 
-                    size="lg"
-                    className="bytebodh-cta-btn"
-                    href="mailto:info@bytebodh.in"
-                  >
-                    Contact Us for Custom Solutions
-                  </Button>
-                </div>
-              </Col>
-            </Row>
-          </Container>
+            <div className="mt-12">
+              <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-8 md:p-12 text-center border border-gray-200">
+                <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+                  Need a Custom Solution?
+                </h3>
+                <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+                  Have specific requirements for your business or educational
+                  institution? Let's build a custom tool tailored to your needs.
+                </p>
+                <a
+                  href="mailto:info@bytebodh.in"
+                  className="inline-flex items-center px-6 py-3 border-2 border-blue-600 text-blue-600 font-semibold rounded-lg hover:bg-blue-600 hover:text-white transition-colors duration-200"
+                >
+                  Contact Us for Custom Solutions
+                  <FaExternalLinkAlt className="ml-2" />
+                </a>
+              </div>
+            </div>
+          </div>
         </section>
       </div>
 
       <Footer />
-
-      {/* STYLES - Modified for Products */}
-      <style jsx>{`
-        .bytebodh-products-page {
-          background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-          min-height: 100vh;
-        }
-
-        .bytebodh-products-hero {
-          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-          color: white;
-          padding: 4rem 0;
-        }
-
-        .bytebodh-hero-badge {
-          background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%) !important;
-          border: none;
-          padding: 0.75rem 1.5rem;
-          font-size: 0.875rem;
-          font-weight: 500;
-          border-radius: 50px;
-        }
-
-        .bytebodh-hero-title {
-          font-size: 3rem;
-          font-weight: 700;
-          line-height: 1.2;
-          color: #f8fafc;
-          margin-bottom: 1rem;
-        }
-
-        .bytebodh-hero-gradient {
-          background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .bytebodh-hero-description {
-          font-size: 1.2rem;
-          color: #cbd5e1;
-          line-height: 1.6;
-          max-width: 600px;
-          margin: 0 auto;
-        }
-
-        .bytebodh-search-box {
-          max-width: 500px;
-          margin: 0 auto;
-        }
-
-        .bytebodh-search-input {
-          position: relative;
-          display: flex;
-          align-items: center;
-          background: white;
-          border-radius: 12px;
-          padding: 0.5rem 1rem;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .bytebodh-search-icon {
-          color: #64748b;
-          margin-right: 0.5rem;
-          font-size: 1.1rem;
-        }
-
-        .bytebodh-search-field {
-          flex: 1;
-          border: none;
-          outline: none;
-          padding: 0.75rem 0;
-          font-size: 1rem;
-          background: transparent;
-        }
-
-        .bytebodh-products-list-section {
-          background: white;
-        }
-
-        .bytebodh-products-count {
-          color: #0f172a;
-          font-weight: 600;
-        }
-
-        .bytebodh-product-card {
-          border: none;
-          border-radius: 16px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-          transition: all 0.3s ease;
-          background: white;
-        }
-
-        .bytebodh-product-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .bytebodh-product-icon {
-          width: 50px;
-          height: 50px;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-size: 1.5rem;
-        }
-
-        .product-status-badge {
-          font-size: 0.75rem;
-          padding: 0.25rem 0.75rem;
-          border-radius: 20px;
-        }
-
-        .bytebodh-product-title {
-          color: #0f172a;
-          font-weight: 600;
-          margin-bottom: 0.5rem;
-          font-size: 1.25rem;
-        }
-
-        .bytebodh-category-badge {
-          background: #f1f5f9 !important;
-          color: #475569 !important;
-          font-weight: 500;
-          border-radius: 8px;
-          padding: 0.25rem 0.75rem;
-        }
-
-        .bytebodh-product-description {
-          color: #64748b;
-          font-size: 0.95rem;
-          line-height: 1.6;
-        }
-
-        .bytebodh-features-title {
-          color: #0f172a;
-          font-weight: 600;
-          margin-bottom: 0.75rem;
-          font-size: 0.9rem;
-        }
-
-        .bytebodh-features-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 0.5rem;
-        }
-
-        .bytebodh-feature-item {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          font-size: 0.85rem;
-          color: #475569;
-        }
-
-        .bytebodh-feature-dot {
-          width: 6px;
-          height: 6px;
-          background: #0284c7;
-          border-radius: 50%;
-        }
-
-        .bytebodh-view-btn {
-          display: inline-block;
-          background: transparent;
-          color: #0284c7;
-          border: 2px solid #0284c7;
-          padding: 0.75rem 1.5rem;
-          border-radius: 8px;
-          text-decoration: none;
-          font-weight: 600;
-          text-align: center;
-          flex: 1;
-          transition: all 0.3s ease;
-        }
-
-        .bytebodh-view-btn:hover {
-          background: #0284c7;
-          color: white;
-          text-decoration: none;
-        }
-
-        .bytebodh-try-btn {
-          background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%) !important;
-          border: none !important;
-          border-radius: 8px;
-          padding: 0.75rem 1.5rem;
-          font-weight: 600;
-          flex: 1;
-          transition: all 0.3s ease;
-        }
-
-        .bytebodh-try-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(2, 132, 199, 0.3);
-        }
-
-        .bytebodh-no-products {
-          padding: 3rem 1rem;
-          color: #64748b;
-        }
-
-        .bytebodh-no-products h5 {
-          color: #475569;
-          margin-bottom: 1rem;
-        }
-
-        .bytebodh-products-cta {
-          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-          border-radius: 16px;
-          border: 1px solid #e2e8f0;
-        }
-
-        .bytebodh-products-cta h3 {
-          color: #0f172a;
-          font-weight: 600;
-        }
-
-        .bytebodh-cta-description {
-          color: #64748b;
-          max-width: 500px;
-          margin: 0 auto;
-        }
-
-        .bytebodh-cta-btn {
-          border: 2px solid #0284c7;
-          color: #0284c7;
-          font-weight: 600;
-          padding: 0.75rem 2rem;
-          border-radius: 12px;
-          transition: all 0.3s ease;
-        }
-
-        .bytebodh-cta-btn:hover {
-          background: #0284c7;
-          color: white;
-          transform: translateY(-2px);
-        }
-
-        @media (max-width: 768px) {
-          .bytebodh-hero-title {
-            font-size: 2.25rem;
-          }
-          
-          .bytebodh-features-grid {
-            grid-template-columns: 1fr;
-          }
-          
-          .bytebodh-view-btn,
-          .bytebodh-try-btn {
-            flex: none;
-            width: 100%;
-          }
-          
-          .d-flex.gap-2 {
-            flex-direction: column;
-          }
-          
-          .bytebodh-products-cta {
-            padding: 2rem 1rem !important;
-          }
-        }
-      `}</style>
     </>
   );
 }

@@ -1,5 +1,4 @@
 import React from "react";
-import { Container, Row, Col, Button, Badge } from "react-bootstrap";
 import { FaArrowRight, FaStar, FaQrcode } from "react-icons/fa";
 import Lottie from "lottie-react";
 import animationData from "../assets/anime/hero.json";
@@ -11,174 +10,110 @@ function HeroSection() {
   };
 
   return (
-    <section className="bytebodh-hero">
-      <Container>
-        <Row className="align-items-center min-vh-80 py-5">
+    <section className="relative overflow-hidden bg-gradient-to-br from-gray-50 to-blue-50/30">
+      {/* Background elements */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+      <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-br from-blue-500/10 to-purple-600/10 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-gradient-to-tr from-green-500/10 to-emerald-600/10 rounded-full blur-3xl"></div>
+      
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
-          <Col lg={7} className="bytebodh-hero-content">
-            <Badge bg="primary" className="bytebodh-hero-badge mb-3">
-              <FaStar className="me-2" />
-              Empowering Students & Businesses
-            </Badge>
+          <div className="space-y-8">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2.5 rounded-full text-sm font-semibold shadow-lg shadow-blue-500/25 animate-pulse">
+              <FaStar className="animate-spin-slow" />
+              <span>Empowering Students & Businesses</span>
+            </div>
 
-            <h1 className="bytebodh-hero-title mb-4">
-              Improve Your Online Presence with
-              <span className="bytebodh-hero-gradient"> Smart Digital Tools</span>
+            {/* Title */}
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+              <span className="text-gray-900">Improve Your</span>{" "}
+              <span className="text-gray-900">Online Presence with</span>
+              <span className="block mt-2 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">
+                Smart Digital Tools
+              </span>
             </h1>
 
-            <p className="bytebodh-hero-description mb-4">
-              ByteBodh provides modern, easy-to-use digital tools crafted for both
-              growing businesses and ambitious students. Whether you want to
-              strengthen your brand, automate daily work, enhance productivity, or
-              build a powerful online identity, our solutions help you grow with
-              confidence.
-            </p>
+            {/* Description */}
+            <div className="space-y-4">
+              <p className="text-lg text-gray-600 leading-relaxed">
+                ByteBodh provides modern, easy-to-use digital tools crafted for both
+                growing businesses and ambitious students. Whether you want to
+                strengthen your brand, automate daily work, enhance productivity, or
+                build a powerful online identity, our solutions help you grow with
+                confidence.
+              </p>
+              
+              
+            </div>
 
-            <p className="bytebodh-hero-description mb-5">
-              <strong>Latest Feature:</strong> Try our new QR Code Generator to create
-              professional, customizable QR codes instantly for your business needs.
-            </p>
+            
 
             {/* CTA Buttons */}
-            <div className="bytebodh-hero-actions d-flex flex-wrap gap-3">
-              <Button className="bytebodh-btn-primary btn-lg">
-                Explore Tools <FaArrowRight className="ms-2" />
-              </Button>
-              <Button 
-                className="bytebodh-btn-qr-highlight btn-lg"
-                onClick={handleTryQRGenerator}
+            <div className="flex flex-col sm:flex-row gap-4 pt-6">
+              <button
+                onClick={() => window.location.href = '/products'}
+                className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 transform hover:-translate-y-1"
               >
-                <FaQrcode className="me-2" />
-                Try QR Generator
-              </Button>
+                <span className="flex items-center justify-center gap-2">
+                  Explore Tools
+                  <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+                </span>
+                <div className="absolute inset-0 rounded-xl border-2 border-white/20 -m-0.5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              </button>
+              
+              <button
+                onClick={handleTryQRGenerator}
+                className="group relative px-8 py-4 bg-gradient-to-r from-emerald-600 to-green-600 text-white font-semibold rounded-xl hover:shadow-xl hover:shadow-emerald-500/30 transition-all duration-300 transform hover:-translate-y-1"
+              >
+                <span className="flex items-center justify-center gap-2">
+                  <FaQrcode className="group-hover:rotate-12 transition-transform" />
+                  Try QR Generator
+                </span>
+                <div className="absolute inset-0 rounded-xl border-2 border-white/20 -m-0.5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              </button>
             </div>
-          </Col>
 
-          {/* Right Content - Lottie Animation */}
-          <Col lg={5} className="bytebodh-hero-visual">
-            <Lottie animationData={animationData} loop={true} style={{ width: "100%", height: "50%" }} />
-          </Col>
-        </Row>
-      </Container>
+           
+          </div>
 
-      <style jsx>{`
-        .bytebodh-hero {
-          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-          position: relative;
-          overflow: hidden;
-        }
-        .bytebodh-hero::before {
-          content: "";
-          position: absolute;
-          top: 0;
-          right: 0;
-          width: 50%;
-          height: 100%;
-          background: linear-gradient(135deg, rgba(2, 132, 199, 0.05) 0%, rgba(99, 102, 241, 0.05) 100%);
-          clip-path: polygon(100% 0, 100% 100%, 0 100%);
-        }
-        .min-vh-80 {
-          min-height: 80vh;
-        }
-        .bytebodh-hero-badge {
-          background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%) !important;
-          border: none;
-          padding: 0.75rem 1.5rem;
-          font-size: 0.875rem;
-          font-weight: 500;
-          border-radius: 50px;
-        }
-        .bytebodh-hero-title {
-          font-size: 2.5rem;
-          font-weight: 700;
-          line-height: 1.1;
-          color: #0f172a;
-          margin-bottom: 1.5rem;
-        }
-        .bytebodh-hero-gradient {
-          background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        .bytebodh-hero-description {
-          font-size: 1rem;
-          color: #64748b;
-          line-height: 1.6;
-          max-width: 90%;
-        }
-        .bytebodh-btn-primary {
-          background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%) !important;
-          border: none;
-          padding: 0.875rem 2rem;
-          font-weight: 600;
-          border-radius: 12px;
-          transition: all 0.3s ease;
-          color: white;
-        }
-        .bytebodh-btn-primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(2, 132, 199, 0.3);
-          color: white;
-        }
-        .bytebodh-btn-qr-highlight {
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-          border: none !important;
-          padding: 0.875rem 2rem;
-          font-weight: 600;
-          border-radius: 12px;
-          transition: all 0.3s ease;
-          color: white !important;
-          position: relative;
-          overflow: hidden;
-        }
-        .bytebodh-btn-qr-highlight::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-          transition: 0.5s;
-        }
-        .bytebodh-btn-qr-highlight:hover::before {
-          left: 100%;
-        }
-        .bytebodh-btn-qr-highlight:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-          color: white !important;
-        }
-        .bytebodh-hero-visual {
-          position: relative;
-          padding-left: 2rem;
-        }
-        @media (max-width: 991.98px) {
-          .bytebodh-hero-title {
-            font-size: 2.2rem;
-          }
-          .bytebodh-hero-description {
-            font-size: 1rem;
-            max-width: 100%;
-          }
-          .bytebodh-hero-visual {
-            padding-left: 0;
-            margin-top: 3rem;
-          }
-        }
-        @media (max-width: 768px) {
-          .bytebodh-hero-title {
-            font-size: 2rem;
-          }
-          .bytebodh-hero-actions {
-            flex-direction: column;
-          }
-          .bytebodh-hero-actions .btn {
-            width: 100%;
-          }
-        }
-      `}</style>
+          {/* Right Content - Animation */}
+          <div className="relative">
+            {/* Decorative elements */}
+            <div className="absolute -top-6 -right-6 w-32 h-32 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-xl"></div>
+            <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-full blur-xl"></div>
+            
+            {/* Main animation container */}
+            <div className="relative bg-gradient-to-br from-white to-gray-50 rounded-3xl border border-gray-100 p-8 shadow-2xl shadow-blue-500/10">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-1.5 rounded-full text-sm font-medium">
+                  Interactive Demo
+                </div>
+              </div>
+              
+              <Lottie 
+                animationData={animationData} 
+                loop={true} 
+                className="w-full h-auto"
+              />
+              
+              {/* Floating elements */}
+              <div className="absolute -bottom-3 -left-3 bg-white rounded-xl p-3 shadow-lg border border-gray-100 animate-float">
+                <div className="text-sm font-semibold text-blue-600">QR Generator</div>
+                <div className="text-xs text-gray-500">Instant creation</div>
+              </div>
+              
+              <div className="absolute -top-3 -right-3 bg-white rounded-xl p-3 shadow-lg border border-gray-100 animate-float-delayed">
+                <div className="text-sm font-semibold text-purple-600">Analytics</div>
+                <div className="text-xs text-gray-500">Real-time data</div>
+              </div>
+            </div>
+            
+            
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

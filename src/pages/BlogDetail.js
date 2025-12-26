@@ -1,7 +1,13 @@
 // src/pages/BlogDetail.js
 import React, { useEffect, useState } from "react";
-import { Container, Row, Col, Badge, Spinner } from "react-bootstrap";
-import { FaCalendar, FaUser, FaArrowLeft, FaEye, FaClock } from "react-icons/fa";
+import {
+  FaCalendar,
+  FaUser,
+  FaArrowLeft,
+  FaEye,
+  FaClock,
+  FaTag,
+} from "react-icons/fa";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import Header from "../components/Header";
@@ -38,13 +44,13 @@ function BlogDetail() {
     return (
       <>
         <Header />
-        <div className="bytebodh-blog-detail-page">
-          <Container>
-            <div className="text-center py-5">
-              <Spinner animation="border" variant="primary" />
-              <p className="mt-3">Loading blog post...</p>
+        <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+          <div className="container mx-auto px-4 py-12">
+            <div className="text-center py-12">
+              <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
+              <p className="mt-4 text-gray-600">Loading blog post...</p>
             </div>
-          </Container>
+          </div>
         </div>
         <Footer />
       </>
@@ -55,17 +61,24 @@ function BlogDetail() {
     return (
       <>
         <Header />
-        <div className="bytebodh-blog-detail-page">
-          <Container>
-            <div className="text-center py-5">
-              <h3>Blog Post Not Found</h3>
-              <p className="text-muted mb-4">{error || "The requested blog post could not be found."}</p>
-              <Link to="/blogs" className="bytebodh-back-btn">
-                <FaArrowLeft className="me-2" />
+        <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
+          <div className="container mx-auto px-4 py-12">
+            <div className="text-center py-12 max-w-2xl mx-auto">
+              <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                Blog Post Not Found
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {error || "The requested blog post could not be found."}
+              </p>
+              <Link
+                to="/blogs"
+                className="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold"
+              >
+                <FaArrowLeft className="mr-2" />
                 Back to Blogs
               </Link>
             </div>
-          </Container>
+          </div>
         </div>
         <Footer />
       </>
@@ -75,337 +88,143 @@ function BlogDetail() {
   return (
     <>
       <Header />
-      <div className="bytebodh-blog-detail-page">
+      <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
         {/* Blog Hero Section */}
-        <section className="bytebodh-blog-detail-hero">
-          <Container>
-            <div className="bytebodh-breadcrumb mb-4">
-              <Link to="/blogs" className="bytebodh-back-btn">
-                <FaArrowLeft className="me-2" />
-                Back to Blogs
-              </Link>
-            </div>
-            
-            <Row className="justify-content-center">
-              <Col lg={8}>
-                <Badge bg="primary" className="bytebodh-category-badge mb-3">
-                  {blog.category?.name || "Uncategorized"}
-                </Badge>
-                
-                <h1 className="bytebodh-blog-detail-title mb-4">
-                  {blog.title}
-                </h1>
-                
-                <p className="bytebodh-blog-detail-excerpt">
-                  {blog.excerpt}
-                </p>
-                
-                <div className="bytebodh-blog-meta">
-                  <div className="bytebodh-meta-item">
-                    <FaUser className="me-2" />
-                    <span>By {blog.author || "ByteBodh Team"}</span>
-                  </div>
-                  <div className="bytebodh-meta-item">
-                    <FaCalendar className="me-2" />
-                    <span>{new Date(blog.published_date).toLocaleDateString('en-US', { 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
-                    })}</span>
-                  </div>
-                  <div className="bytebodh-meta-item">
-                    <FaClock className="me-2" />
-                    <span>{blog.read_time || 5} min read</span>
-                  </div>
-                  <div className="bytebodh-meta-item">
-                    <FaEye className="me-2" />
-                    <span>{blog.views} views</span>
-                  </div>
+        <section className="bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+          <div className="container mx-auto px-4 py-12">
+            <div className="max-w-4xl mx-auto">
+              {/* Breadcrumb */}
+              <div className="mb-6">
+                <Link
+                  to="/blogs"
+                  className="inline-flex items-center text-gray-300 hover:text-white transition-colors"
+                >
+                  <FaArrowLeft className="mr-2" />
+                  Back to Blogs
+                </Link>
+              </div>
+
+              {/* Category Badge */}
+              {blog.category?.name && (
+                <span className="inline-block bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold mb-4">
+                  {blog.category.name}
+                </span>
+              )}
+
+              {/* Title */}
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-100 mb-6 leading-tight">
+                {blog.title}
+              </h1>
+
+              {/* Excerpt */}
+              <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed">
+                {blog.excerpt}
+              </p>
+
+              {/* Meta Information */}
+              <div className="flex flex-wrap gap-4 md:gap-6 text-gray-400 text-sm md:text-base">
+                <div className="flex items-center">
+                  <FaUser className="mr-2" />
+                  <span>By {blog.author || "ByteBodh Team"}</span>
                 </div>
-              </Col>
-            </Row>
-          </Container>
+                <div className="flex items-center">
+                  <FaCalendar className="mr-2" />
+                  <span>
+                    {new Date(blog.published_date).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <FaClock className="mr-2" />
+                  <span>{blog.read_time || 5} min read</span>
+                </div>
+                <div className="flex items-center">
+                  <FaEye className="mr-2" />
+                  <span>{blog.views} views</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Blog Content Section */}
-        <section className="bytebodh-blog-content-section py-5">
-          <Container>
-            <Row className="justify-content-center">
-              <Col lg={8}>
-                <article className="bytebodh-blog-article">
-                  {blog.featured_image && (
-                    <div className="bytebodh-blog-featured-image mb-5">
-                      <img 
-                        src={blog.featured_image} 
-                        alt={blog.title}
-                        className="img-fluid rounded"
-                      />
+        <section className="py-8 md:py-12">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <article className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                {/* Featured Image */}
+                {blog.featured_image && (
+                  <div className="mb-8 rounded-xl overflow-hidden shadow-lg">
+                    <img
+                      src={blog.featured_image}
+                      alt={blog.title}
+                      className="w-full h-auto max-h-[400px] object-cover"
+                    />
+                  </div>
+                )}
+
+                {/* Blog Content */}
+                <div
+                  className="prose prose-lg max-w-none prose-headings:text-gray-800 
+                           prose-p:text-gray-600 prose-p:leading-relaxed 
+                           prose-strong:text-gray-800 prose-ul:text-gray-600 
+                           prose-ol:text-gray-600 prose-li:leading-relaxed
+                           prose-blockquote:border-l-4 prose-blockquote:border-blue-500
+                           prose-blockquote:pl-6 prose-blockquote:text-gray-600
+                           prose-pre:bg-gray-900 prose-pre:text-gray-100
+                           prose-code:text-red-600 prose-code:bg-gray-100
+                           prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+                           prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl"
+                  dangerouslySetInnerHTML={{ __html: blog.content }}
+                />
+
+                {/* Tags */}
+                {blog.tags && blog.tags.length > 0 && (
+                  <div className="mt-8 pt-6 border-t border-gray-100">
+                    <div className="flex items-center mb-4">
+                      <FaTag className="text-gray-500 mr-2" />
+                      <h4 className="text-lg font-semibold text-gray-800">
+                        Tags:
+                      </h4>
                     </div>
-                  )}
-                  
-                  <div 
-                    className="bytebodh-blog-content"
-                    dangerouslySetInnerHTML={{ __html: blog.content }}
-                  />
-                  
-                  {/* Tags */}
-                  {blog.tags && blog.tags.length > 0 && (
-                    <div className="bytebodh-blog-tags mt-5">
-                      <h6 className="bytebodh-tags-title">Tags:</h6>
-                      <div className="bytebodh-tags-list">
-                        {blog.tags.map((tag, index) => (
-                          <Badge 
-                            key={tag.id} 
-                            bg="outline-primary" 
-                            className="bytebodh-tag me-2 mb-2"
-                          >
-                            {tag.name}
-                          </Badge>
-                        ))}
-                      </div>
+                    <div className="flex flex-wrap gap-2">
+                      {blog.tags.map((tag, index) => (
+                        <span
+                          key={tag.id}
+                          className="inline-flex items-center px-4 py-2 rounded-full 
+                                   bg-gray-100 text-gray-700 text-sm font-medium 
+                                   border border-gray-200 hover:bg-gray-200 transition-colors"
+                        >
+                          {tag.name}
+                        </span>
+                      ))}
                     </div>
-                  )}
-                </article>
-                
-                {/* Navigation */}
-                <div className="bytebodh-blog-navigation mt-5 pt-4 border-top">
-                  <Row>
-                    <Col className="text-center">
-                      <Link to="/blogs" className="bytebodh-back-to-blogs-btn">
-                        <FaArrowLeft className="me-2" />
-                        Back to All Blogs
-                      </Link>
-                    </Col>
-                  </Row>
+                  </div>
+                )}
+              </article>
+
+              {/* Navigation */}
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <div className="text-center">
+                  <Link
+                    to="/blogs"
+                    className="inline-flex items-center justify-center 
+                               bg-gradient-to-r from-blue-600 to-indigo-600 
+                               text-white font-semibold px-6 py-3 rounded-lg
+                               hover:shadow-lg hover:scale-105 transition-all duration-300"
+                  >
+                    <FaArrowLeft className="mr-2" />
+                    Back to All Blogs
+                  </Link>
                 </div>
-              </Col>
-            </Row>
-          </Container>
+              </div>
+            </div>
+          </div>
         </section>
       </div>
-
-      <style jsx>{`
-        .bytebodh-blog-detail-page {
-          background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-          min-height: 100vh;
-        }
-
-        .bytebodh-blog-detail-hero {
-          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-          color: white;
-          padding: 3rem 0 4rem;
-        }
-
-        .bytebodh-breadcrumb {
-          opacity: 0.9;
-        }
-
-        .bytebodh-back-btn {
-          color: #cbd5e1;
-          text-decoration: none;
-          display: inline-flex;
-          align-items: center;
-          font-weight: 500;
-          transition: color 0.3s ease;
-        }
-
-        .bytebodh-back-btn:hover {
-          color: #ffffff;
-          text-decoration: none;
-        }
-
-        .bytebodh-category-badge {
-          background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%) !important;
-          border: none;
-          padding: 0.5rem 1rem;
-          font-size: 0.875rem;
-          font-weight: 600;
-          border-radius: 6px;
-        }
-
-        .bytebodh-blog-detail-title {
-          font-size: 2.5rem;
-          font-weight: 700;
-          line-height: 1.2;
-          color: #f8fafc;
-          margin-bottom: 1rem;
-        }
-
-        .bytebodh-blog-detail-excerpt {
-          font-size: 1.2rem;
-          color: #cbd5e1;
-          line-height: 1.6;
-          margin-bottom: 2rem;
-        }
-
-        .bytebodh-blog-meta {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 1.5rem;
-          font-size: 0.95rem;
-          color: #94a3b8;
-        }
-
-        .bytebodh-meta-item {
-          display: flex;
-          align-items: center;
-        }
-
-        .bytebodh-blog-content-section {
-          background: white;
-        }
-
-        .bytebodh-blog-article {
-          color: #374151;
-          line-height: 1.7;
-        }
-
-        .bytebodh-blog-featured-image img {
-          width: 100%;
-          max-height: 400px;
-          object-fit: cover;
-          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-        }
-
-        .bytebodh-blog-content {
-          font-size: 1.1rem;
-          color: #374151;
-        }
-
-        .bytebodh-blog-content h1,
-        .bytebodh-blog-content h2,
-        .bytebodh-blog-content h3,
-        .bytebodh-blog-content h4,
-        .bytebodh-blog-content h5,
-        .bytebodh-blog-content h6 {
-          color: #0f172a;
-          margin-top: 2rem;
-          margin-bottom: 1rem;
-          font-weight: 600;
-        }
-
-        .bytebodh-blog-content h1 { font-size: 2rem; }
-        .bytebodh-blog-content h2 { font-size: 1.75rem; }
-        .bytebodh-blog-content h3 { font-size: 1.5rem; }
-        .bytebodh-blog-content h4 { font-size: 1.25rem; }
-        .bytebodh-blog-content h5 { font-size: 1.1rem; }
-        .bytebodh-blog-content h6 { font-size: 1rem; }
-
-        .bytebodh-blog-content p {
-          margin-bottom: 1.5rem;
-          font-size: 1.1rem;
-          line-height: 1.8;
-        }
-
-        .bytebodh-blog-content ul,
-        .bytebodh-blog-content ol {
-          margin-bottom: 1.5rem;
-          padding-left: 1.5rem;
-        }
-
-        .bytebodh-blog-content li {
-          margin-bottom: 0.5rem;
-          line-height: 1.6;
-        }
-
-        .bytebodh-blog-content strong {
-          color: #0f172a;
-          font-weight: 600;
-        }
-
-        .bytebodh-blog-content code {
-          background: #f1f5f9;
-          color: #dc2626;
-          padding: 0.2rem 0.4rem;
-          border-radius: 4px;
-          font-size: 0.9em;
-        }
-
-        .bytebodh-blog-content pre {
-          background: #1e293b;
-          color: #e2e8f0;
-          padding: 1.5rem;
-          border-radius: 8px;
-          overflow-x: auto;
-          margin: 1.5rem 0;
-        }
-
-        .bytebodh-blog-content pre code {
-          background: none;
-          color: inherit;
-          padding: 0;
-        }
-
-        .bytebodh-blog-content blockquote {
-          border-left: 4px solid #0284c7;
-          padding-left: 1.5rem;
-          margin: 1.5rem 0;
-          color: #64748b;
-          font-style: italic;
-        }
-
-        .bytebodh-tags-title {
-          color: #0f172a;
-          font-weight: 600;
-          margin-bottom: 0.75rem;
-        }
-
-        .bytebodh-tag {
-          background: #f1f5f9 !important;
-          color: #475569 !important;
-          border: 1px solid #e2e8f0 !important;
-          padding: 0.5rem 1rem;
-          font-size: 0.875rem;
-          font-weight: 500;
-          border-radius: 20px;
-        }
-
-        .bytebodh-back-to-blogs-btn {
-          display: inline-flex;
-          align-items: center;
-          background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
-          color: white;
-          text-decoration: none;
-          padding: 0.75rem 1.5rem;
-          border-radius: 8px;
-          font-weight: 600;
-          transition: all 0.3s ease;
-        }
-
-        .bytebodh-back-to-blogs-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(2, 132, 199, 0.3);
-          color: white;
-          text-decoration: none;
-        }
-
-        @media (max-width: 768px) {
-          .bytebodh-blog-detail-hero {
-            padding: 2rem 0 3rem;
-          }
-
-          .bytebodh-blog-detail-title {
-            font-size: 2rem;
-          }
-
-          .bytebodh-blog-detail-excerpt {
-            font-size: 1.1rem;
-          }
-
-          .bytebodh-blog-meta {
-            flex-direction: column;
-            gap: 1rem;
-          }
-
-          .bytebodh-blog-content {
-            font-size: 1rem;
-          }
-
-          .bytebodh-blog-content h1 { font-size: 1.75rem; }
-          .bytebodh-blog-content h2 { font-size: 1.5rem; }
-          .bytebodh-blog-content h3 { font-size: 1.25rem; }
-        }
-      `}</style>
       <Footer />
     </>
   );
