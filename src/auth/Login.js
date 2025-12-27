@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { FaGoogle, FaEnvelope, FaLock, FaExclamationTriangle } from "react-icons/fa";
+import { FaGoogle, FaEnvelope, FaLock, FaExclamationTriangle, FaArrowRight } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { loginUser, googleLogin, clearAuthData } from "../services/auth";
 
@@ -124,163 +124,235 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 md:p-8">
-        {/* Logo & Header */}
-        <div className="text-center mb-6">
-          <div className="mx-auto w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg mb-3">
-            BB
-          </div>
-          <h2 className="text-2xl font-semibold text-gray-800">
-            Welcome Back
-          </h2>
-          <p className="text-gray-500 text-sm">
-            Sign in to your ByteBodh account
-          </p>
-        </div>
-
-        {/* Google Login */}
-        <button
-          onClick={googleLogin}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-2 border border-blue-600 text-blue-600 rounded-lg py-2 hover:bg-blue-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <FaGoogle />
-          Continue with Google
-        </button>
-
-        {/* Divider */}
-        <div className="flex items-center gap-2 my-6">
-          <div className="flex-1 h-px bg-gray-300" />
-          <span className="text-xs text-gray-500">
-            or continue with username/password
-          </span>
-          <div className="flex-1 h-px bg-gray-300" />
-        </div>
-
-        {/* General Error Message - Animated */}
-        {showErrors && error && (
-          <div className="mb-4 animate-fadeIn">
-            <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3">
-              <div className="flex items-center gap-2">
-                <FaExclamationTriangle className="flex-shrink-0" />
-                <span>{error}</span>
+    <div className="min-h-screen flex">
+      {/* Left Section - Brand/Info */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-gray-50 to-blue-50 p-12 flex-col justify-between">
+        <div>
+          {/* Logo */}
+          <div className="mb-16">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-black to-blue-600 flex items-center justify-center">
+                <span className="text-white font-bold">BB</span>
               </div>
+              <span className="text-2xl font-bold">
+                Byte<span className="text-black">Bodh</span>
+              </span>
             </div>
           </div>
-        )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Username */}
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <label className="block text-sm font-medium text-gray-700">
+          {/* Hero Content */}
+          <div className="max-w-md">
+            <h1 className="text-6xl font-bold mb-6 leading-tight">
+              <span className="text-black">Byte</span>
+              <span className="text-blue-600">Bodh</span>
+            </h1>
+            
+            <p className="text-gray-700 text-xl mb-8 leading-relaxed">
+              Your all-in-one platform for portfolio building, 
+              QR code generation, and professional growth tools.
+            </p>
+
+            {/* Features List */}
+            <div className="space-y-4 mb-12">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                  <FaArrowRight className="text-blue-600 text-sm" />
+                </div>
+                <span className="text-gray-700">Build stunning portfolios in minutes</span>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                  <FaArrowRight className="text-blue-600 text-sm" />
+                </div>
+                <span className="text-gray-700">Generate & track QR codes</span>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                  <FaArrowRight className="text-blue-600 text-sm" />
+                </div>
+                <span className="text-gray-700">Professional resume builder</span>
+              </div>
+            </div>
+           
+          </div>
+        </div>
+
+        {/* Footer Note */}
+        <div className="text-gray-500 text-sm">
+          © {new Date().getFullYear()} ByteBodh. All rights reserved.
+        </div>
+      </div>
+
+      {/* Right Section - Login Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 bg-white">
+        <div className="w-full max-w-md">
+          {/* Mobile Logo */}
+          <div className="lg:hidden mb-8">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-black to-blue-600 flex items-center justify-center">
+                <span className="text-white font-bold">BB</span>
+              </div>
+              <span className="text-2xl font-bold">
+                Byte<span className="text-black">Bodh</span>
+              </span>
+            </div>
+          </div>
+
+          {/* Form Header */}
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-gray-800">Welcome Back</h2>
+            <p className="text-gray-500 mt-2">
+              Sign in to continue to your ByteBodh account
+            </p>
+          </div>
+
+          {/* Google Login */}
+          <button
+            onClick={googleLogin}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-xl py-3 px-4 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed mb-6"
+          >
+            <FaGoogle className="text-gray-600" />
+            <span className="font-medium text-gray-700">Continue with Google</span>
+          </button>
+
+          {/* Divider */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex-1 h-px bg-gray-300" />
+            <span className="text-sm text-gray-500">or</span>
+            <div className="flex-1 h-px bg-gray-300" />
+          </div>
+
+          {/* General Error Message */}
+          {showErrors && error && (
+            <div className="mb-6 animate-fadeIn">
+              <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl p-4">
+                <div className="flex items-center gap-3">
+                  <FaExclamationTriangle className="flex-shrink-0" />
+                  <span>{error}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Username */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Username
               </label>
+              <div className="relative">
+                <FaEnvelope className={`absolute left-4 top-1/2 -translate-y-1/2 ${
+                  showErrors && fieldErrors.username ? "text-red-400" : "text-gray-400"
+                }`} />
+                <input
+                  type="text"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  placeholder="Enter your username"
+                  required
+                  disabled={loading}
+                  className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 transition-all ${
+                    getFieldErrorClass("username")
+                  }`}
+                />
+              </div>
               {showErrors && fieldErrors.username && (
-                <span className="text-xs text-red-500 animate-slideIn">
+                <span className="text-xs text-red-500 mt-2 block animate-slideIn">
                   {fieldErrors.username}
                 </span>
               )}
             </div>
-            <div className="relative">
-              <FaEnvelope className={`absolute left-3 top-1/2 -translate-y-1/2 ${
-                showErrors && fieldErrors.username ? "text-red-400" : "text-gray-400"
-              }`} />
-              <input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                placeholder="Enter your username"
-                required
-                disabled={loading}
-                className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 disabled:bg-gray-100 transition-colors ${
-                  getFieldErrorClass("username")
-                }`}
-              />
-            </div>
-          </div>
 
-          {/* Password */}
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <label className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
+            {/* Password */}
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Password
+                </label>
+                <Link 
+                  to="/forgot-password" 
+                  className="text-sm text-blue-600 hover:underline disabled:text-gray-400"
+                  onClick={(e) => loading && e.preventDefault()}
+                >
+                  Forgot password?
+                </Link>
+              </div>
+              <div className="relative">
+                <FaLock className={`absolute left-4 top-1/2 -translate-y-1/2 ${
+                  showErrors && fieldErrors.password ? "text-red-400" : "text-gray-400"
+                }`} />
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  required
+                  disabled={loading}
+                  className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 transition-all ${
+                    getFieldErrorClass("password")
+                  }`}
+                />
+              </div>
               {showErrors && fieldErrors.password && (
-                <span className="text-xs text-red-500 animate-slideIn">
+                <span className="text-xs text-red-500 mt-2 block animate-slideIn">
                   {fieldErrors.password}
                 </span>
               )}
             </div>
-            <div className="relative">
-              <FaLock className={`absolute left-3 top-1/2 -translate-y-1/2 ${
-                showErrors && fieldErrors.password ? "text-red-400" : "text-gray-400"
-              }`} />
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter your password"
-                required
-                disabled={loading}
-                className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 disabled:bg-gray-100 transition-colors ${
-                  getFieldErrorClass("password")
-                }`}
-              />
-            </div>
-          </div>
 
-          {/* Remember & Forgot */}
-          <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center gap-2 text-gray-600 cursor-pointer">
+            {/* Remember Me */}
+            <div className="flex items-center">
               <input 
                 type="checkbox" 
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer" 
+                id="remember"
+                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer" 
                 disabled={loading}
               />
-              Remember me
-            </label>
-            <Link 
-              to="/forgot-password" 
-              className="text-blue-600 hover:underline disabled:text-gray-400"
-              onClick={(e) => loading && e.preventDefault()}
+              <label htmlFor="remember" className="ml-2 text-sm text-gray-600 cursor-pointer">
+                Remember me for 30 days
+              </label>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-medium hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-md hover:shadow-lg"
             >
-              Forgot password?
-            </Link>
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Signing in...
+                </>
+              ) : (
+                <>
+                  Sign In
+                  <FaArrowRight />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Sign Up Link */}
+          <div className="text-center mt-8 pt-6 border-t border-gray-200">
+            <p className="text-gray-600">
+              Don't have an account?{" "}
+              <Link 
+                to="/register" 
+                className="text-blue-600 font-semibold hover:underline hover:text-blue-700"
+                onClick={(e) => loading && e.preventDefault()}
+              >
+                Sign up for free
+              </Link>
+            </p>
           </div>
-
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {loading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Signing in...
-              </>
-            ) : (
-              "Sign In"
-            )}
-          </button>
-        </form>
-
-        {/* Switch */}
-        <p className="text-center text-sm text-gray-600 mt-5">
-          Don&apos;t have an account?{" "}
-          <Link 
-            to="/register" 
-            className="text-blue-600 font-medium hover:underline"
-            onClick={(e) => loading && e.preventDefault()}
-          >
-            Sign up
-          </Link>
-        </p>
+        </div>
       </div>
     </div>
   );

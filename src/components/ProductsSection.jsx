@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { FaQrcode, FaUserGraduate, FaArrowRight } from 'react-icons/fa';
 
 function ProductsSection() {
@@ -48,10 +49,13 @@ function ProductsSection() {
               </div>
             </div>
             
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium flex items-center justify-center">
+            <Link 
+              to="/qr"
+              className="block w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium flex items-center justify-center transition-colors text-center"
+            >
               Try for Free
               <FaArrowRight className="ml-2" />
-            </button>
+            </Link>
           </div>
 
           {/* Portfolio & Resume Maker Card */}
@@ -85,14 +89,33 @@ function ProductsSection() {
               </div>
             </div>
             
-            <button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-medium flex items-center justify-center">
+            <Link 
+              to="/login"
+              className="block w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-medium flex items-center justify-center transition-colors text-center"
+            >
               Build Portfolio
               <FaArrowRight className="ml-2" />
-            </button>
+            </Link>
           </div>
         </div>
 
-       
+        {/* Additional Navigation Links */}
+        <div className="text-center mt-10">
+          <div className="inline-flex items-center space-x-6">
+            <Link 
+              to="/services"
+              className="text-blue-600 hover:text-blue-800 font-medium text-lg transition-colors"
+            >
+              View All Services →
+            </Link>
+            <Link 
+              to="/pricing"
+              className="text-gray-700 hover:text-gray-900 font-medium text-lg transition-colors"
+            >
+              See Pricing Plans
+            </Link>
+          </div>
+        </div>
       </div>
     </section>
   );

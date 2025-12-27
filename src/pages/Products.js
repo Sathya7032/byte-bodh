@@ -213,7 +213,7 @@ function Products() {
         </section>
 
         {/* Products List Section */}
-        <section className="py-12 md:py-16">
+        <section className="py-12 md:py-16 mx-10">
           <div className="container mx-auto px-4">
             {/* Products Count */}
             <div className="mb-8">

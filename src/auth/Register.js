@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaGoogle, FaUser, FaEnvelope, FaLock, FaCheck } from "react-icons/fa";
+import { FaGoogle, FaUser, FaEnvelope, FaLock, FaCheck, FaArrowRight } from "react-icons/fa";
 import { toast } from "react-toastify";
 import {
   registerUser,
@@ -138,167 +138,333 @@ const Register = () => {
       : "bg-red-500";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 md:p-8">
-        {/* Header */}
-        <div className="text-center mb-6">
-          <div className="mx-auto w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold mb-3">
-            BB
+    <div className="min-h-screen flex">
+      {/* Left Section - Brand/Info */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-gray-50 to-blue-50 p-12 flex-col justify-between">
+        <div>
+          {/* Logo */}
+          <div className="mb-16">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-black to-blue-600 flex items-center justify-center">
+                <span className="text-white font-bold">BB</span>
+              </div>
+              <span className="text-2xl font-bold">
+                Byte<span className="text-black">Bodh</span>
+              </span>
+            </div>
           </div>
-          <h2 className="text-2xl font-semibold">Create Account</h2>
-          <p className="text-gray-500 text-sm">
-            Join ByteBodh and start your journey
-          </p>
+
+          {/* Hero Content */}
+          <div className="max-w-md">
+            <h1 className="text-6xl font-bold mb-6 leading-tight">
+              <span className="text-black">Join</span>
+              <span className="text-blue-600">ByteBodh</span>
+            </h1>
+            
+            <p className="text-gray-700 text-xl mb-8 leading-relaxed">
+              Create your free account and unlock powerful tools for your 
+              professional journey.
+            </p>
+
+            {/* Features List */}
+            <div className="space-y-4 mb-12">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                  <FaCheck className="text-blue-600 text-sm" />
+                </div>
+                <span className="text-gray-700">Build professional portfolios</span>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                  <FaCheck className="text-blue-600 text-sm" />
+                </div>
+                <span className="text-gray-700">Generate & track QR codes</span>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                  <FaCheck className="text-blue-600 text-sm" />
+                </div>
+                <span className="text-gray-700">Create ATS-friendly resumes</span>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                  <FaCheck className="text-blue-600 text-sm" />
+                </div>
+                <span className="text-gray-700">Free starter plan available</span>
+              </div>
+            </div>
+
+            {/* Testimonial */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+              <p className="text-gray-600 italic mb-3">
+                "ByteBodh's portfolio builder helped me showcase my projects 
+                beautifully and land multiple interview calls."
+              </p>
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500"></div>
+                <div className="ml-3">
+                  <p className="font-medium text-gray-800">Sarah Miller</p>
+                  <p className="text-sm text-gray-500">UI/UX Designer</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Google */}
-        <button
-          onClick={googleLogin}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-2 border border-blue-600 text-blue-600 rounded-lg py-2 hover:bg-blue-50 transition disabled:opacity-50"
-        >
-          <FaGoogle />
-          Sign up with Google
-        </button>
-
-        {/* Divider */}
-        <div className="flex items-center gap-2 my-6">
-          <div className="flex-1 h-px bg-gray-300" />
-          <span className="text-xs text-gray-500">or sign up with email</span>
-          <div className="flex-1 h-px bg-gray-300" />
+        {/* Footer Note */}
+        <div className="text-gray-500 text-sm">
+          © {new Date().getFullYear()} ByteBodh. All rights reserved.
         </div>
+      </div>
 
-        {error && (
-          <div className="text-red-600 bg-red-50 border border-red-200 rounded-md p-2 mb-4 text-sm text-center">
-            {error}
+      {/* Right Section - Registration Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 bg-white">
+        <div className="w-full max-w-md">
+          {/* Mobile Logo */}
+          <div className="lg:hidden mb-8">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-black to-blue-600 flex items-center justify-center">
+                <span className="text-white font-bold">BB</span>
+              </div>
+              <span className="text-2xl font-bold">
+                Byte<span className="text-black">Bodh</span>
+              </span>
+            </div>
           </div>
-        )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {[
-            { name: "fullName", label: "Full Name", icon: <FaUser /> },
-            { name: "username", label: "Username", icon: <FaUser /> },
-            { name: "email", label: "Email Address", icon: <FaEnvelope /> },
-          ].map((field) => (
-            <div key={field.name}>
-              <label className="text-sm font-medium">{field.label}</label>
+          {/* Form Header */}
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-gray-800">Create Account</h2>
+            <p className="text-gray-500 mt-2">
+              Join ByteBodh and start building your professional presence
+            </p>
+          </div>
+
+          {/* Google Sign Up */}
+          <button
+            onClick={googleLogin}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-xl py-3 px-4 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed mb-6"
+          >
+            <FaGoogle className="text-gray-600" />
+            <span className="font-medium text-gray-700">Sign up with Google</span>
+          </button>
+
+          {/* Divider */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex-1 h-px bg-gray-300" />
+            <span className="text-sm text-gray-500">or sign up with email</span>
+            <div className="flex-1 h-px bg-gray-300" />
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="text-red-600 bg-red-50 border border-red-200 rounded-xl p-4 mb-6 text-sm">
+              <div className="flex items-center gap-2">
+                <FaCheck className="text-red-500" />
+                <span>{error}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Full Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Full Name
+              </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                  {field.icon}
-                </span>
+                <FaUser className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
-                  type={field.name === "email" ? "email" : "text"}
-                  name={field.name}
-                  value={formData[field.name]}
+                  type="text"
+                  name="fullName"
+                  value={formData.fullName}
                   onChange={handleChange}
+                  placeholder="Enter your full name"
                   required
                   disabled={loading}
-                  className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 transition-all"
                 />
               </div>
             </div>
-          ))}
 
-          {/* Password */}
-          <div>
-            <label className="text-sm font-medium">Password</label>
-            <div className="relative">
-              <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
+            {/* Username */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Username
+              </label>
+              <div className="relative">
+                <FaUser className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  placeholder="Choose a username"
+                  required
+                  disabled={loading}
+                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 transition-all"
+                />
+              </div>
             </div>
 
-            {formData.password && (
-              <>
-                <div className="w-full h-2 bg-gray-200 rounded mt-2">
-                  <div
-                    className={`h-2 rounded ${strengthColor}`}
-                    style={{ width: `${passwordStrength}%` }}
-                  />
-                </div>
-
-                <div className="mt-2 space-y-1">
-                  {passwordRequirements.map((req, i) => (
-                    <div key={i} className="flex items-center text-sm">
-                      <FaCheck
-                        className={`mr-2 ${
-                          req.met ? "text-green-500" : "text-gray-400"
-                        }`}
-                        size={12}
-                      />
-                      <span
-                        className={req.met ? "text-green-600" : "text-gray-500"}
-                      >
-                        {req.text}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Confirm */}
-          <div>
-            <label className="text-sm font-medium">Confirm Password</label>
-            <div className="relative">
-              <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-                disabled={loading}
-                className="w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address
+              </label>
+              <div className="relative">
+                <FaEnvelope className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter your email"
+                  required
+                  disabled={loading}
+                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 transition-all"
+                />
+              </div>
             </div>
-            {formData.confirmPassword &&
-              formData.password !== formData.confirmPassword && (
-                <p className="text-sm text-red-600 mt-1">
-                  Passwords do not match
-                </p>
+
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Create a strong password"
+                  required
+                  disabled={loading}
+                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 transition-all"
+                />
+              </div>
+
+              {/* Password Strength Indicator */}
+              {formData.password && (
+                <div className="mt-3">
+                  <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full ${strengthColor} transition-all duration-300`}
+                      style={{ width: `${passwordStrength}%` }}
+                    />
+                  </div>
+                  
+                  <div className="mt-3 space-y-2">
+                    {passwordRequirements.map((req, i) => (
+                      <div key={i} className="flex items-center text-sm">
+                        <FaCheck
+                          className={`mr-3 ${
+                            req.met ? "text-green-500" : "text-gray-400"
+                          }`}
+                          size={12}
+                        />
+                        <span className={req.met ? "text-green-600" : "text-gray-500"}>
+                          {req.text}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
-          </div>
+            </div>
 
-          {/* Terms */}
-          <label className="flex items-start gap-2 text-sm">
-            <input type="checkbox" required className="mt-1" />
-            <span>
-              I agree to the{" "}
-              <Link to="/terms" className="text-blue-600">
-                Terms
-              </Link>{" "}
-              and{" "}
-              <Link to="/privacy" className="text-blue-600">
-                Privacy Policy
+            {/* Confirm Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Confirm your password"
+                  required
+                  disabled={loading}
+                  className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 transition-all ${
+                    formData.confirmPassword && formData.password !== formData.confirmPassword
+                      ? "border-red-500"
+                      : "border-gray-200"
+                  }`}
+                />
+              </div>
+              {formData.confirmPassword &&
+                formData.password !== formData.confirmPassword && (
+                  <p className="text-sm text-red-500 mt-2">
+                    Passwords do not match
+                  </p>
+                )}
+            </div>
+
+            {/* Terms & Conditions */}
+            <div className="flex items-start pt-2">
+              <input 
+                type="checkbox" 
+                id="terms"
+                required 
+                className="w-4 h-4 mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer" 
+                disabled={loading}
+              />
+              <label htmlFor="terms" className="ml-2 text-sm text-gray-600 cursor-pointer">
+                I agree to the{" "}
+                <Link to="/terms" className="text-blue-600 hover:underline">
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link to="/privacy" className="text-blue-600 hover:underline">
+                  Privacy Policy
+                </Link>
+              </label>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-medium hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-md hover:shadow-lg mt-4"
+            >
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Creating Account...
+                </>
+              ) : (
+                <>
+                  Create Account
+                  <FaArrowRight />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Sign In Link */}
+          <div className="text-center mt-8 pt-6 border-t border-gray-200">
+            <p className="text-gray-600">
+              Already have an account?{" "}
+              <Link 
+                to="/login" 
+                className="text-blue-600 font-semibold hover:underline hover:text-blue-700"
+                onClick={(e) => loading && e.preventDefault()}
+              >
+                Sign in here
               </Link>
-            </span>
-          </label>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition"
-          >
-            {loading ? "Creating Account..." : "Create Account"}
-          </button>
-        </form>
-
-        <p className="text-center text-sm mt-4">
-          Already have an account?{" "}
-          <Link to="/login" className="text-blue-600 font-medium">
-            Sign in
-          </Link>
-        </p>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
