@@ -163,7 +163,7 @@ const StudentProfileBuilder = () => {
             <!-- Header -->
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; border-radius: 8px; margin-bottom: 30px;">
               <div style="display: flex; align-items: center; gap: 30px;">
-                <img src="${profile.user.pictureUrl}" alt="${profile.fullName}" style="width: 120px; height: 120px; border-radius: 50%; border: 4px solid white; object-fit: cover;">
+                <img src="${profile.pictureUrl}" alt="${profile.fullName}" style="width: 120px; height: 120px; border-radius: 50%; border: 4px solid white; object-fit: cover;">
                 <div>
                   <h1 style="font-size: 36px; margin: 0 0 10px 0;">${profile.fullName}</h1>
                   <h2 style="font-size: 20px; margin: 0 0 15px 0; opacity: 0.9;">${profile.headline}</h2>
@@ -424,7 +424,7 @@ const StudentProfileBuilder = () => {
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
               <div className="flex items-start space-x-6">
                 <img
-                  src={profile.user.pictureUrl}
+                  src={profile.pictureUrl}
                   alt={profile.fullName}
                   className="w-24 h-24 rounded-full object-cover border-4 border-blue-50"
                 />
