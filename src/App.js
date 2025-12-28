@@ -44,6 +44,7 @@ const App = () => {
           <Route path="/qr" element={<ByteBodhQRGenerator />} />
           <Route path="/blogs" element={<Blog />} />
           <Route path="/blogs/:slug" element={<BlogDetail />} />
+          <Route path="/portfolio/:username" element={<Portfolio />} />
           {/*         
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           
@@ -70,7 +71,7 @@ const App = () => {
               path="/resume-builder"
               element={<StudentProfileBuilder />}
             />
-            <Route path="/portfolio/:username" element={<Portfolio />} />
+            
             <Route path="/contacts" element={<Contacts />} />
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/help" element={<HelpSupportPage />} />

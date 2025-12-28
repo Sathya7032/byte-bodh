@@ -71,7 +71,7 @@ export const updateProfile = (data) =>
 
 export const deleteProfile = () => api.delete("/api/profile");
 
-export const getPublicProfileByUsername = (username) =>api.get(`${API_URL}/api/profile/public/${username}`);
+export const getPublicProfileByUsername = (username) =>axios.get(`${API_URL}/api/profile/public/${username}`);
 
 export const createContactMessage = (data) => api.post("/api/contact", data);
 
