@@ -6,7 +6,7 @@ import {
   logout,
 } from "../services/auth"; // 👈 the file where your axios code exists
 
-const API_URL = "https://backend.bytebodh.in"; // ✅ base backend URL
+const API_URL = "http://localhost:8080"; // ✅ base backend URL
 
 /* =========================
    AXIOS INSTANCE

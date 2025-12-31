@@ -23,7 +23,7 @@ import {
   FaChevronRight,
   FaChevronUp,
   FaExternalLinkAlt,
-  FaDownload
+  FaCertificate
 } from "react-icons/fa";
 import { 
   SiJavascript, 
@@ -116,6 +116,7 @@ const Portfolio = () => {
     { id: "projects", label: "Projects", icon: <FaProjectDiagram /> },
     { id: "experience", label: "Experience", icon: <FaBriefcase /> },
     { id: "education", label: "Education", icon: <FaGraduationCap /> },
+    { id: "certifications", label: "Certifications", icon: <FaCertificate /> },
     { id: "contact", label: "Contact", icon: <FaUser /> },
   ];
 
@@ -246,51 +247,30 @@ const Portfolio = () => {
     return <FaCode {...iconProps} />;
   };
 
-  // Skill categories - FIXED WITH SAFETY CHECK
-  const categorizeSkills = (skills) => {
-    // Check if skills is undefined or not an array
-    if (!skills || !Array.isArray(skills)) {
-      return {};
-    }
-
-    const categories = {
-      "Languages": [],
-      "Frontend": [],
-      "Backend": [],
-      "Databases": [],
-      "DevOps & Cloud": [],
-      "Tools": []
-    };
-
-    skills.forEach(skill => {
-      if (!skill) return; // Skip null/undefined skills
-      
-      const skillLower = skill.toLowerCase();
-      if (skillLower.includes("java") || skillLower.includes("python") || 
-          skillLower.includes("javascript") || skillLower.includes("typescript") ||
-          skillLower.includes("c++") || skillLower.includes("go")) {
-        categories["Languages"].push(skill);
-      } else if (skillLower.includes("react") || skillLower.includes("angular") || 
-                 skillLower.includes("vue") || skillLower.includes("next") ||
-                 skillLower.includes("tailwind") || skillLower.includes("css")) {
-        categories["Frontend"].push(skill);
-      } else if (skillLower.includes("spring") || skillLower.includes("node") ||
-                 skillLower.includes("express") || skillLower.includes("django")) {
-        categories["Backend"].push(skill);
-      } else if (skillLower.includes("mysql") || skillLower.includes("mongodb") ||
-                 skillLower.includes("postgres") || skillLower.includes("redis")) {
-        categories["Databases"].push(skill);
-      } else if (skillLower.includes("docker") || skillLower.includes("kubernetes") ||
-                 skillLower.includes("aws") || skillLower.includes("gcp") ||
-                 skillLower.includes("azure") || skillLower.includes("jenkins")) {
-        categories["DevOps & Cloud"].push(skill);
-      } else {
-        categories["Tools"].push(skill);
-      }
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short',
+      day: 'numeric'
     });
+  };
 
-    // Remove empty categories
-    return Object.fromEntries(Object.entries(categories).filter(([_, catSkills]) => catSkills.length > 0));
+  const iconByPlatform = (platform) => {
+    switch (platform) {
+      case "LINKEDIN":
+        return <FaLinkedin className="w-5 h-5" />;
+      case "GITHUB":
+        return <FaGithub className="w-5 h-5" />;
+      case "LEETCODE":
+        return <SiLeetcode className="w-5 h-5" />;
+      case "PORTFOLIO":
+        return <FaGlobe className="w-5 h-5" />;
+      default:
+        return <FaGlobe className="w-5 h-5" />;
+    }
   };
 
   if (loading) {
@@ -335,27 +315,78 @@ const Portfolio = () => {
     );
   }
 
-  const iconByPlatform = (platform) => {
-    switch (platform) {
-      case "LINKEDIN":
-        return <FaLinkedin className="w-5 h-5" />;
-      case "GITHUB":
-        return <FaGithub className="w-5 h-5" />;
-      case "LEETCODE":
-        return <SiLeetcode className="w-5 h-5" />;
-      case "PORTFOLIO":
-        return <FaGlobe className="w-5 h-5" />;
-      default:
-        return <FaGlobe className="w-5 h-5" />;
-    }
-  };
-
   // Get data with safety checks
-  const skillCategories = categorizeSkills(profile.skills || []);
+  const skills = profile.skills || [];
   const socialMediaLinks = profile.socialMediaLinks || [];
   const projects = profile.projects || [];
   const experience = profile.experience || [];
   const education = profile.education || [];
+  const certifications = profile.certifications || [];
+
+  // Function to categorize skills as Backend or Frontend
+  const getSkillCategory = (skill) => {
+    if (!skill) return "Other";
+    
+    const skillLower = skill.toLowerCase();
+    
+    // Backend skills
+    const backendKeywords = [
+      "java", "spring", "node", "express", "python", "django", "flask",
+      "php", "laravel", "ruby", "rails", "c#", "dotnet", "asp.net",
+      "go", "golang", "rust", "api", "rest", "graphql", "microservices",
+      "serverless", "aws", "azure", "gcp", "docker", "kubernetes", "jenkins",
+      "ci/cd", "nginx", "apache", "mysql", "mongodb", "postgresql", "redis",
+      "elasticsearch", "kafka", "rabbitmq"
+    ];
+    
+    // Frontend skills
+    const frontendKeywords = [
+      "react", "angular", "vue", "next", "javascript", "typescript", "html",
+      "css", "sass", "less", "tailwind", "bootstrap", "material-ui", "chakra",
+      "redux", "zustand", "context", "jquery", "webpack", "vite", "babel",
+      "figma", "photoshop", "illustrator", "ui/ux", "responsive", "mobile",
+      "pwa", "spa", "webgl", "three.js", "gsap", "animation"
+    ];
+    
+    for (const keyword of backendKeywords) {
+      if (skillLower.includes(keyword)) return "Backend";
+    }
+    
+    for (const keyword of frontendKeywords) {
+      if (skillLower.includes(keyword)) return "Frontend";
+    }
+    
+    return "Other";
+  };
+
+  // Categorize skills
+  const categorizedSkills = {
+    Backend: [],
+    Frontend: [],
+    Other: []
+  };
+
+  skills.forEach(skill => {
+    const category = getSkillCategory(skill);
+    categorizedSkills[category].push(skill);
+  });
+
+  // Remove empty categories
+  const filteredCategories = Object.fromEntries(
+    Object.entries(categorizedSkills).filter(([_, skills]) => skills.length > 0)
+  );
+
+  // Function to get color based on skill category
+  const getCategoryColor = (category) => {
+    switch (category) {
+      case "Backend":
+        return { bg: "from-red-50 to-orange-50", text: "text-red-600", border: "border-red-200" };
+      case "Frontend":
+        return { bg: "from-blue-50 to-cyan-50", text: "text-blue-600", border: "border-blue-200" };
+      default:
+        return { bg: "from-gray-50 to-gray-100", text: "text-gray-600", border: "border-gray-200" };
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
@@ -431,14 +462,7 @@ const Portfolio = () => {
               </div>
             </button>
 
-            {/* Download CV Button */}
-            <a
-              href="#"
-              className="hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transition-all duration-300"
-            >
-              <FaDownload className="w-4 h-4" />
-              <span className="font-medium">Download CV</span>
-            </a>
+           
           </div>
         </div>
 
@@ -473,13 +497,7 @@ const Portfolio = () => {
                     <FaChevronRight className="w-4 h-4 text-gray-400" />
                   </a>
                 ))}
-                <a
-                  href="#"
-                  className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transition-all"
-                >
-                  <FaDownload className="w-4 h-4" />
-                  <span className="font-medium">Download CV</span>
-                </a>
+               
               </div>
             </motion.div>
           )}
@@ -588,7 +606,7 @@ const Portfolio = () => {
       </section>
 
       {/* ================= SKILLS SECTION ================= */}
-      {Object.keys(skillCategories).length > 0 && (
+      {skills.length > 0 && (
         <section id="skills" className="py-20 bg-gradient-to-b from-white to-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
@@ -600,40 +618,43 @@ const Portfolio = () => {
               </p>
             </div>
 
-            <div className="grid gap-8">
-              {Object.entries(skillCategories).map(([category, skills], catIndex) => (
-                <div key={category}>
-                  <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    <div className="p-2 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg">
-                      <FaTools className="w-5 h-5 text-blue-600" />
-                    </div>
-                    {category}
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {skills.map((skill, index) => (
-                      <motion.div
-                        key={skill + index}
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: (catIndex * 0.1) + (index * 0.05) }}
-                        viewport={{ once: true }}
-                        whileHover={{ y: -5 }}
-                        className="group"
-                      >
-                        <div className="bg-white rounded-xl shadow-sm hover:shadow-lg p-6 transition-all duration-300 border border-gray-100">
-                          <div className="flex items-center justify-center mb-4">
-                            <div className="p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg group-hover:scale-110 transition-transform duration-300">
-                              {getSkillIcon(skill)}
+            <div className="space-y-12">
+              {Object.entries(filteredCategories).map(([category, categorySkills]) => {
+                const colors = getCategoryColor(category);
+                return (
+                  <div key={category}>
+                    <h3 className={`text-xl font-bold mb-6 flex items-center gap-2 ${colors.text}`}>
+                      <div className={`p-2 bg-gradient-to-r ${colors.bg} rounded-lg border ${colors.border}`}>
+                        <FaTools className="w-5 h-5" />
+                      </div>
+                      {category}
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {categorySkills.map((skill, index) => (
+                        <motion.div
+                          key={skill + index}
+                          initial={{ opacity: 0, y: 20 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: index * 0.05 }}
+                          viewport={{ once: true }}
+                          whileHover={{ y: -5 }}
+                          className="group"
+                        >
+                          <div className={`bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-sm hover:shadow-lg p-6 transition-all duration-300 border ${colors.border}`}>
+                            <div className="flex items-center justify-center mb-4">
+                              <div className={`p-3 bg-gradient-to-br ${colors.bg} rounded-lg group-hover:scale-110 transition-transform duration-300 border ${colors.border}`}>
+                                {getSkillIcon(skill)}
+                              </div>
                             </div>
+                            <h4 className="text-center font-semibold text-gray-800">{skill}</h4>
+                            <div className={`mt-3 h-1 w-full bg-gradient-to-r ${category === 'Backend' ? 'from-red-400 to-orange-400' : category === 'Frontend' ? 'from-blue-400 to-cyan-400' : 'from-gray-400 to-gray-500'} rounded-full opacity-0 group-hover:opacity-100 transition duration-300`}></div>
                           </div>
-                          <h4 className="text-center font-semibold text-gray-800">{skill}</h4>
-                          <div className="mt-3 h-1 w-full bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full opacity-0 group-hover:opacity-100 transition duration-300"></div>
-                        </div>
-                      </motion.div>
-                    ))}
+                        </motion.div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
@@ -663,12 +684,13 @@ const Portfolio = () => {
                   whileHover={{ y: -8 }}
                   className="group"
                 >
-                  <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 h-full">
-                    {/* Project Image */}
-                    <div className="h-48 bg-gradient-to-r from-blue-500 to-indigo-500 relative overflow-hidden">
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <FaProjectDiagram className="w-20 h-20 text-white/20" />
-                      </div>
+                  <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 h-full flex flex-col">
+                    {/* Project Title as Header */}
+                    <div className="h-48 bg-gradient-to-r from-blue-500 to-indigo-500 relative overflow-hidden flex items-center justify-center p-4">
+                      <div className="absolute inset-0 bg-black/10"></div>
+                      <h3 className="text-2xl font-bold text-white text-center relative z-10 px-4 py-6 bg-black/20 backdrop-blur-sm rounded-xl w-full">
+                        {project.title || "Project Title"}
+                      </h3>
                       <div className="absolute top-4 right-4">
                         <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-xs font-semibold text-blue-600 rounded-full">
                           {(project.techStack || "").split(",")[0] || "Project"}
@@ -677,7 +699,7 @@ const Portfolio = () => {
                     </div>
 
                     {/* Project Content */}
-                    <div className="p-6">
+                    <div className="p-6 flex-1 flex flex-col">
                       <div className="flex items-start justify-between mb-4">
                         <div className="p-2 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg">
                           <FaProjectDiagram className="w-5 h-5 text-blue-600" />
@@ -687,11 +709,7 @@ const Portfolio = () => {
                         </span>
                       </div>
                       
-                      <h3 className="text-xl font-bold text-gray-800 mb-3">
-                        {project.title || "Project Title"}
-                      </h3>
-                      
-                      <p className="text-gray-600 mb-6 line-clamp-3">
+                      <p className="text-gray-600 mb-6 line-clamp-3 flex-1">
                         {project.description || "Project description not available."}
                       </p>
 
@@ -720,7 +738,7 @@ const Portfolio = () => {
                           href={project.projectUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-center justify-between w-full px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 hover:text-blue-700 rounded-lg group/link transition-all"
+                          className="inline-flex items-center justify-between w-full px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 hover:text-blue-700 rounded-lg group/link transition-all mt-auto"
                         >
                           <span className="font-medium">View Details</span>
                           <FaExternalLinkAlt className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
@@ -903,6 +921,108 @@ const Portfolio = () => {
                             <p className="text-gray-600 italic text-sm leading-relaxed">
                               "{edu.achievements}"
                             </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ================= CERTIFICATIONS SECTION ================= */}
+      {certifications.length > 0 && (
+        <section id="certifications" className="py-20 bg-gradient-to-b from-gray-50 to-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+                Certifications
+              </h2>
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+                Professional certifications and completed courses
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {certifications.map((cert, index) => (
+                <motion.div
+                  key={cert.id || index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  whileHover={{ y: -5 }}
+                  className="group"
+                >
+                  <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 h-full">
+                    <div className="p-8">
+                      {/* Header */}
+                      <div className="flex items-start justify-between mb-8">
+                        <div className="p-4 bg-gradient-to-r from-teal-100 to-emerald-100 rounded-xl">
+                          <FaCertificate className="w-8 h-8 text-teal-600" />
+                        </div>
+                        <span className="text-xs font-medium px-3 py-1 bg-teal-100 text-teal-600 rounded-full">
+                          Certification
+                        </span>
+                      </div>
+
+                      {/* Content */}
+                      <div className="space-y-6">
+                        <div>
+                          <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                            {cert.name || "Certification Name"}
+                          </h3>
+                          <p className="text-gray-600 leading-relaxed">
+                            {cert.description || "Certification description not available."}
+                          </p>
+                        </div>
+
+                        {/* Dates */}
+                        <div className="space-y-4">
+                          {cert.startDate && (
+                            <div className="flex items-center gap-3">
+                              <FaCalendarAlt className="w-5 h-5 text-teal-500" />
+                              <div>
+                                <div className="text-sm text-gray-500">Start Date</div>
+                                <div className="font-medium text-gray-700">
+                                  {formatDate(cert.startDate)}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {cert.endDate && (
+                            <div className="flex items-center gap-3">
+                              <FaCalendarAlt className="w-5 h-5 text-blue-500" />
+                              <div>
+                                <div className="text-sm text-gray-500">End Date</div>
+                                <div className="font-medium text-gray-700">
+                                  {formatDate(cert.endDate)}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Duration */}
+                        {cert.startDate && cert.endDate && (
+                          <div className="pt-6 border-t border-gray-100">
+                            <div className="text-center">
+                              <div className="text-sm text-gray-500 mb-2">Duration</div>
+                              <div className="text-lg font-bold text-teal-600">
+                                {(() => {
+                                  const start = new Date(cert.startDate);
+                                  const end = new Date(cert.endDate);
+                                  const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+                                  return months > 12 
+                                    ? `${Math.floor(months/12)} years ${months%12} months`
+                                    : `${months} months`;
+                                })()}
+                              </div>
+                            </div>
                           </div>
                         )}
                       </div>

@@ -28,6 +28,8 @@ import Portfolio from "./portfolio/Portfolio";
 import Contacts from "./portfolio/Contacts";
 import Tasks from "./portfolio/Tasks";
 import HelpSupportPage from "./portfolio/HelpSupportPage";
+import AdminLogin from "./admin/AdminLogin";
+import DashboardPage from "./admin/pages/DashboardPage";
 
 const App = () => {
   const googleClientId =
@@ -72,6 +74,10 @@ const App = () => {
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/help" element={<HelpSupportPage />} />
           </Route>
+
+          {/* ===== ADMIN LOGIN ===== */}
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/admin-dashboard" element={<DashboardPage />} />
         </Routes>
         <Analytics />
       </BrowserRouter>

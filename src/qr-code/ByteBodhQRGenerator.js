@@ -613,19 +613,12 @@ const ByteBodhQRGenerator = () => {
                   <div className="mb-8 text-center">
                     <div className="inline-block p-6 bg-white rounded-2xl shadow-lg">
                       <div
-                        className="relative p-6 rounded-xl inline-block"
+                        className="flex flex-col items-center justify-center rounded-xl"
                         style={{ backgroundColor: bgColor }}
                         ref={qrRef}
                       >
-                        <QRCode 
-                          value={inputText} 
-                          fgColor={fgColor} 
-                          bgColor={bgColor} 
-                          size={256}
-                          className="rounded-lg"
-                        />
                         {logoPreview && (
-                          <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="mb-4 flex items-center justify-center">
                             <div
                               className="bg-white p-2 rounded-lg shadow-lg"
                               style={{
@@ -641,6 +634,15 @@ const ByteBodhQRGenerator = () => {
                             </div>
                           </div>
                         )}
+                        <div className="flex items-center justify-center">
+                          <QRCode 
+                            value={inputText} 
+                            fgColor={fgColor} 
+                            bgColor={bgColor} 
+                            size={256}
+                            className="rounded-lg"
+                          />
+                        </div>
                       </div>
                       {title && (
                         <div className="mt-4">

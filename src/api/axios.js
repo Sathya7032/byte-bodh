@@ -2,7 +2,7 @@ import axios from "axios";
 import { getAccessToken, logout } from "../services/auth";
 
 const api = axios.create({
-  baseURL: "https://backend.bytebodh.in/api",
+  baseURL: "http://localhost:8080/api",
   headers: {
     "Content-Type": "application/json",
   },

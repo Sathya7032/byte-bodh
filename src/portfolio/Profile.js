@@ -26,7 +26,8 @@ import {
   FaGithub,
   FaExternalLinkAlt,
   FaCamera,
-  FaUserCircle
+  FaUserCircle,
+  FaCertificate
 } from "react-icons/fa";
 import { SiLeetcode } from "react-icons/si";
 import { motion } from "framer-motion";
@@ -45,6 +46,7 @@ const Profile = () => {
     experience: [],
     projects: [],
     socialMediaLinks: [],
+    certifications: [],
     pictureUrl: ""
   });
   const [loading, setLoading] = useState(true);
@@ -92,6 +94,13 @@ const Profile = () => {
     profileUrl: ""
   };
 
+  const defaultCertification = {
+    name: "",
+    startDate: "",
+    endDate: "",
+    description: ""
+  };
+
   const tabs = [
     { id: "personal", label: "Personal", icon: <FaUser className="w-4 h-4" /> },
     { id: "professional", label: "Professional", icon: <FaBriefcase className="w-4 h-4" /> },
@@ -99,7 +108,8 @@ const Profile = () => {
     { id: "experience", label: "Experience", icon: <FaHistory className="w-4 h-4" /> },
     { id: "projects", label: "Projects", icon: <FaProjectDiagram className="w-4 h-4" /> },
     { id: "skills", label: "Skills", icon: <FaTools className="w-4 h-4" /> },
-    { id: "social", label: "Social", icon: <FaLink className="w-4 h-4" /> }
+    { id: "social", label: "Social", icon: <FaLink className="w-4 h-4" /> },
+    { id: "certifications", label: "Certifications", icon: <FaCertificate className="w-4 h-4" /> }
   ];
 
   const socialPlatforms = [
@@ -137,6 +147,7 @@ const Profile = () => {
         experience: data.experience || [],
         projects: data.projects || [],
         socialMediaLinks: data.socialMediaLinks || [],
+        certifications: data.certifications || [],
         pictureUrl: data.pictureUrl || ""
       });
       
@@ -182,53 +193,53 @@ const Profile = () => {
   };
 
   const handleSave = async () => {
-  setSaving(true);
+    setSaving(true);
 
-  const formData = new FormData();
+    const formData = new FormData();
 
-  const payload = {
-    fullName: profile.fullName,
-    mobileNumber: profile.mobileNumber,
-    email: profile.email,
-    headline: profile.headline,
-    summary: profile.summary,
-    isFresher: profile.isFresher,
-    skills: profile.skills,
-    education: profile.education,
-    experience: profile.experience,
-    projects: profile.projects,
-    socialMediaLinks: profile.socialMediaLinks,
-  };
+    const payload = {
+      fullName: profile.fullName,
+      mobileNumber: profile.mobileNumber,
+      email: profile.email,
+      headline: profile.headline,
+      summary: profile.summary,
+      isFresher: profile.isFresher,
+      skills: profile.skills,
+      education: profile.education,
+      experience: profile.experience,
+      projects: profile.projects,
+      socialMediaLinks: profile.socialMediaLinks,
+      certifications: profile.certifications,
+    };
 
-  // ✅ MUST be Blob
-  formData.append(
-    "profile",
-    new Blob([JSON.stringify(payload)], { type: "application/json" })
-  );
+    // ✅ MUST be Blob
+    formData.append(
+      "profile",
+      new Blob([JSON.stringify(payload)], { type: "application/json" })
+    );
 
-  if (profileImage) {
-    formData.append("profileImage", profileImage);
-  }
-
-  try {
-    const res = await updateProfile(formData);
-
-    toast.success("Profile updated successfully");
-
-    setProfile((prev) => ({ ...prev, ...res.data }));
-
-    if (res.data.pictureUrl) {
-      setImagePreview(res.data.pictureUrl);
-      setProfileImage(null);
+    if (profileImage) {
+      formData.append("profileImage", profileImage);
     }
-  } catch (err) {
-    toast.error("Failed to save profile");
-    console.error(err);
-  } finally {
-    setSaving(false);
-  }
-};
 
+    try {
+      const res = await updateProfile(formData);
+
+      toast.success("Profile updated successfully");
+
+      setProfile((prev) => ({ ...prev, ...res.data }));
+
+      if (res.data.pictureUrl) {
+        setImagePreview(res.data.pictureUrl);
+        setProfileImage(null);
+      }
+    } catch (err) {
+      toast.error("Failed to save profile");
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleAddSkill = () => {
     if (newSkill.trim() && !profile.skills.includes(newSkill.trim())) {
@@ -243,6 +254,46 @@ const Profile = () => {
   const handleRemoveSkill = (index) => {
     const updatedSkills = profile.skills.filter((_, i) => i !== index);
     setProfile({ ...profile, skills: updatedSkills });
+  };
+
+  const handleAddCertification = () => {
+    setEditingSection("certification");
+    setTempItem(defaultCertification);
+  };
+
+  const handleSaveCertification = () => {
+    if (!tempItem.name) {
+      toast.error("Certification name is required");
+      return;
+    }
+
+    const updatedCertifications = [...profile.certifications, tempItem];
+    setProfile({ ...profile, certifications: updatedCertifications });
+    setEditingSection(null);
+    setTempItem({});
+    toast.success("Certification added successfully");
+  };
+
+  const handleEditCertification = (index) => {
+    setEditingSection(`certification-${index}`);
+    setTempItem(profile.certifications[index]);
+  };
+
+  const handleUpdateCertification = (index) => {
+    const updatedCertifications = [...profile.certifications];
+    updatedCertifications[index] = tempItem;
+    setProfile({ ...profile, certifications: updatedCertifications });
+    setEditingSection(null);
+    setTempItem({});
+    toast.success("Certification updated successfully");
+  };
+
+  const handleRemoveCertification = (index) => {
+    if (window.confirm("Are you sure you want to delete this certification?")) {
+      const updatedCertifications = profile.certifications.filter((_, i) => i !== index);
+      setProfile({ ...profile, certifications: updatedCertifications });
+      toast.success("Certification removed successfully");
+    }
   };
 
   const handleAddEducation = () => {
@@ -403,6 +454,16 @@ const Profile = () => {
       setProfile({ ...profile, socialMediaLinks: updatedSocialLinks });
       toast.success("Social link removed successfully");
     }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   const renderTabContent = () => {
@@ -1488,6 +1549,235 @@ const Profile = () => {
                     >
                       <FaCheck className="w-4 h-4" />
                       Save Link
+                    </button>
+                    <button 
+                      className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-all"
+                      onClick={() => {
+                        setEditingSection(null);
+                        setTempItem({});
+                      }}
+                    >
+                      <FaTimes className="w-4 h-4" />
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        );
+
+      case "certifications":
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-6"
+          >
+            <div className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-teal-100 rounded-lg">
+                    <FaCertificate className="w-5 h-5 text-teal-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-800">Certifications</h2>
+                    <p className="text-gray-600 mt-1">Your professional certifications and courses</p>
+                  </div>
+                </div>
+                <button 
+                  className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-medium rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleAddCertification}
+                  disabled={editingSection}
+                >
+                  <FaPlus className="w-4 h-4" />
+                  Add Certification
+                </button>
+              </div>
+              
+              {profile.certifications.length === 0 && !editingSection && (
+                <div className="text-center py-12 border-2 border-dashed border-teal-200 rounded-xl bg-white/50">
+                  <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FaCertificate className="w-8 h-8 text-teal-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-700 mb-2">No certifications added yet</h3>
+                  <p className="text-gray-600">Add your professional certifications to showcase your skills and knowledge.</p>
+                </div>
+              )}
+              
+              <div className="space-y-4">
+                {profile.certifications.map((cert, index) => (
+                  <div key={index} className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-shadow">
+                    {editingSection === `certification-${index}` ? (
+                      <div className="space-y-6">
+                        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                          <FaEdit className="w-4 h-4 text-teal-600" />
+                          Edit Certification
+                        </h3>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Certification Name <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                              value={tempItem.name}
+                              onChange={(e) => setTempItem({...tempItem, name: e.target.value})}
+                              placeholder="e.g., AWS Certified Solutions Architect"
+                            />
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                              <input
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                                type="date"
+                                value={tempItem.startDate || ""}
+                                onChange={(e) => setTempItem({...tempItem, startDate: e.target.value})}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                              <input
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                                type="date"
+                                value={tempItem.endDate || ""}
+                                onChange={(e) => setTempItem({...tempItem, endDate: e.target.value})}
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                            <textarea
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                              value={tempItem.description || ""}
+                              onChange={(e) => setTempItem({...tempItem, description: e.target.value})}
+                              placeholder="What does this certification cover? What skills did you learn?"
+                              rows={3}
+                            />
+                          </div>
+                        </div>
+                        <div className="flex gap-3">
+                          <button 
+                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-medium rounded-lg hover:shadow-lg transition-all"
+                            onClick={() => handleUpdateCertification(index)}
+                          >
+                            <FaCheck className="w-4 h-4" />
+                            Save Changes
+                          </button>
+                          <button 
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-all"
+                            onClick={() => {
+                              setEditingSection(null);
+                              setTempItem({});
+                            }}
+                          >
+                            <FaTimes className="w-4 h-4" />
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="text-xl font-semibold text-gray-800">{cert.name}</h4>
+                          <div className="flex flex-wrap gap-3 mt-3">
+                            {cert.startDate && (
+                              <span className="px-3 py-1 bg-teal-100 text-teal-800 text-sm font-medium rounded-full">
+                                Started: {formatDate(cert.startDate)}
+                              </span>
+                            )}
+                            {cert.endDate && (
+                              <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+                                Completed: {formatDate(cert.endDate)}
+                              </span>
+                            )}
+                          </div>
+                          {cert.description && (
+                            <p className="mt-4 text-gray-700">{cert.description}</p>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <button 
+                            className="p-2 text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+                            onClick={() => handleEditCertification(index)}
+                            disabled={editingSection}
+                            title="Edit"
+                          >
+                            <FaEdit className="w-4 h-4" />
+                          </button>
+                          <button 
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            onClick={() => handleRemoveCertification(index)}
+                            disabled={editingSection}
+                            title="Delete"
+                          >
+                            <FaTrash className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              
+              {editingSection === "certification" && (
+                <div className="mt-6 bg-white rounded-xl border-2 border-dashed border-teal-300 p-6">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <FaPlus className="w-4 h-4 text-teal-600" />
+                    Add New Certification
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Certification Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                        value={tempItem.name}
+                        onChange={(e) => setTempItem({...tempItem, name: e.target.value})}
+                        placeholder="e.g., AWS Certified Solutions Architect"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                        <input
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                          type="date"
+                          value={tempItem.startDate || ""}
+                          onChange={(e) => setTempItem({...tempItem, startDate: e.target.value})}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                        <input
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                          type="date"
+                          value={tempItem.endDate || ""}
+                          onChange={(e) => setTempItem({...tempItem, endDate: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                      <textarea
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                        value={tempItem.description || ""}
+                        onChange={(e) => setTempItem({...tempItem, description: e.target.value})}
+                        placeholder="What does this certification cover? What skills did you learn?"
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-3 mt-6">
+                    <button 
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-medium rounded-lg hover:shadow-lg transition-all"
+                      onClick={handleSaveCertification}
+                    >
+                      <FaCheck className="w-4 h-4" />
+                      Save Certification
                     </button>
                     <button 
                       className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-all"
