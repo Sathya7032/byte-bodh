@@ -23,7 +23,14 @@ import {
   FaChevronRight,
   FaChevronUp,
   FaExternalLinkAlt,
-  FaCertificate
+  FaCertificate,
+  FaShareAlt,
+  FaDownload,
+  FaCopy,
+  FaWhatsapp,
+  FaTwitter,
+  FaLinkedinIn,
+  FaFacebook
 } from "react-icons/fa";
 import { 
   SiJavascript, 
@@ -47,6 +54,9 @@ import { getPublicProfileByUsername, createContactMessage } from "../api/profile
 import { motion, AnimatePresence } from "framer-motion";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import QRCode from "react-qr-code";
+import * as htmlToImage from 'html-to-image';
+import { saveAs } from "file-saver";
 
 const Portfolio = () => {
   const { username } = useParams();
@@ -61,6 +71,43 @@ const Portfolio = () => {
     message: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [qrCodeValue, setQrCodeValue] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  // Professional color scheme
+  const colors = {
+    primary: {
+      light: "#667eea", // Indigo
+      main: "#4f46e5", // Indigo 600
+      dark: "#4338ca", // Indigo 700
+      gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+    },
+    secondary: {
+      light: "#fbbf24", // Amber
+      main: "#f59e0b", // Amber 500
+      dark: "#d97706", // Amber 600
+      gradient: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)"
+    },
+    accent: {
+      light: "#10b981", // Emerald
+      main: "#059669", // Emerald 600
+      dark: "#047857", // Emerald 700
+      gradient: "linear-gradient(135deg, #10b981 0%, #059669 100%)"
+    },
+    neutral: {
+      50: "#f8fafc",
+      100: "#f1f5f9",
+      200: "#e2e8f0",
+      300: "#cbd5e1",
+      400: "#94a3b8",
+      500: "#64748b",
+      600: "#475569",
+      700: "#334155",
+      800: "#1e293b",
+      900: "#0f172a"
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -68,6 +115,9 @@ const Portfolio = () => {
     };
     window.addEventListener("scroll", handleScroll);
     
+    // Set current URL for QR code
+    setQrCodeValue(window.location.href);
+
     // Observe sections for active navigation
     const observer = new IntersectionObserver(
       (entries) => {
@@ -98,7 +148,6 @@ const Portfolio = () => {
       .finally(() => setLoading(false));
   }, [username]);
 
-  // Function to get initials from full name
   const getInitials = (fullName) => {
     if (!fullName) return "";
     return fullName
@@ -109,7 +158,6 @@ const Portfolio = () => {
       .slice(0, 2);
   };
 
-  // Navigation sections
   const sections = [
     { id: "home", label: "Home", icon: <FaHome /> },
     { id: "skills", label: "Skills", icon: <FaTools /> },
@@ -120,7 +168,6 @@ const Portfolio = () => {
     { id: "contact", label: "Contact", icon: <FaUser /> },
   ];
 
-  // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -129,33 +176,24 @@ const Portfolio = () => {
     }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Basic validation
     if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
       toast.error("Please fill in all fields", {
         position: "top-right",
         autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
+        theme: "colored"
       });
       return;
     }
 
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       toast.error("Please enter a valid email address", {
         position: "top-right",
         autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
+        theme: "colored"
       });
       return;
     }
@@ -163,29 +201,22 @@ const Portfolio = () => {
     setIsSubmitting(true);
 
     try {
-      // Create the contact message data
       const contactData = {
         name: formData.name,
         email: formData.email,
         message: formData.message,
-        recipientUsername: username // The portfolio owner's username
+        recipientUsername: username
       };
 
-      // Make the API call
       const response = await createContactMessage(contactData);
       
       if (response.data?.success) {
-        // Show success toast
         toast.success("Message sent successfully! I'll get back to you soon.", {
           position: "top-right",
           autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
+          theme: "colored"
         });
 
-        // Reset form
         setFormData({
           name: "",
           email: "",
@@ -197,17 +228,13 @@ const Portfolio = () => {
     } catch (error) {
       console.error("Error sending message:", error);
       
-      // Show error toast
       toast.error(
         error.response?.data?.message || 
         "Failed to send message. Please try again later.", 
         {
           position: "top-right",
           autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
+          theme: "colored"
         }
       );
     } finally {
@@ -215,7 +242,65 @@ const Portfolio = () => {
     }
   };
 
-  // Icon mapping for skills
+  // Share functionality
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    toast.success("Link copied to clipboard!", {
+      position: "top-right",
+      autoClose: 2000,
+      theme: "colored"
+    });
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const downloadQRCode = () => {
+    const svg = document.getElementById("qr-code-svg");
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+    
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      
+      canvas.toBlob((blob) => {
+        saveAs(blob, `${username}-portfolio-qr.png`);
+      });
+    };
+    
+    img.src = "data:image/svg+xml;base64," + btoa(svgData);
+  };
+
+  const shareOnSocial = (platform) => {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(`Check out ${profile?.fullName}'s portfolio!`);
+    
+    let shareUrl = "";
+    switch(platform) {
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
+        break;
+      case 'linkedin':
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+        break;
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+        break;
+      case 'whatsapp':
+        shareUrl = `https://wa.me/?text=${text}%20${url}`;
+        break;
+      default:
+        return;
+    }
+    
+    window.open(shareUrl, '_blank', 'noopener,noreferrer');
+  };
+
   const getSkillIcon = (skill) => {
     if (!skill) return <FaCode className="w-6 h-6" />;
     
@@ -247,7 +332,6 @@ const Portfolio = () => {
     return <FaCode {...iconProps} />;
   };
 
-  // Format date for display
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -278,9 +362,9 @@ const Portfolio = () => {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
         <div className="text-center">
           <div className="relative">
-            <div className="w-20 h-20 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
+            <div className="w-20 h-20 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto"></div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-8 h-8 bg-blue-600 rounded-full animate-pulse"></div>
+              <div className="w-8 h-8 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full animate-pulse"></div>
             </div>
           </div>
           <p className="mt-6 text-gray-600 text-lg font-medium">
@@ -306,7 +390,7 @@ const Portfolio = () => {
           </p>
           <a
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 font-medium"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 font-medium"
           >
             ← Return Home
           </a>
@@ -315,7 +399,6 @@ const Portfolio = () => {
     );
   }
 
-  // Get data with safety checks
   const skills = profile.skills || [];
   const socialMediaLinks = profile.socialMediaLinks || [];
   const projects = profile.projects || [];
@@ -323,13 +406,11 @@ const Portfolio = () => {
   const education = profile.education || [];
   const certifications = profile.certifications || [];
 
-  // Function to categorize skills as Backend or Frontend
   const getSkillCategory = (skill) => {
     if (!skill) return "Other";
     
     const skillLower = skill.toLowerCase();
     
-    // Backend skills
     const backendKeywords = [
       "java", "spring", "node", "express", "python", "django", "flask",
       "php", "laravel", "ruby", "rails", "c#", "dotnet", "asp.net",
@@ -339,7 +420,6 @@ const Portfolio = () => {
       "elasticsearch", "kafka", "rabbitmq"
     ];
     
-    // Frontend skills
     const frontendKeywords = [
       "react", "angular", "vue", "next", "javascript", "typescript", "html",
       "css", "sass", "less", "tailwind", "bootstrap", "material-ui", "chakra",
@@ -359,7 +439,6 @@ const Portfolio = () => {
     return "Other";
   };
 
-  // Categorize skills
   const categorizedSkills = {
     Backend: [],
     Frontend: [],
@@ -371,42 +450,182 @@ const Portfolio = () => {
     categorizedSkills[category].push(skill);
   });
 
-  // Remove empty categories
   const filteredCategories = Object.fromEntries(
     Object.entries(categorizedSkills).filter(([_, skills]) => skills.length > 0)
   );
 
-  // Function to get color based on skill category
   const getCategoryColor = (category) => {
     switch (category) {
       case "Backend":
-        return { bg: "from-red-50 to-orange-50", text: "text-red-600", border: "border-red-200" };
+        return { 
+          bg: "from-red-50 to-orange-50", 
+          text: "text-red-600", 
+          border: "border-red-200",
+          gradient: "linear-gradient(135deg, #fecaca 0%, #fed7aa 100%)"
+        };
       case "Frontend":
-        return { bg: "from-blue-50 to-cyan-50", text: "text-blue-600", border: "border-blue-200" };
+        return { 
+          bg: "from-blue-50 to-cyan-50", 
+          text: "text-blue-600", 
+          border: "border-blue-200",
+          gradient: "linear-gradient(135deg, #dbeafe 0%, #cffafe 100%)"
+        };
       default:
-        return { bg: "from-gray-50 to-gray-100", text: "text-gray-600", border: "border-gray-200" };
+        return { 
+          bg: "from-gray-50 to-gray-100", 
+          text: "text-gray-600", 
+          border: "border-gray-200",
+          gradient: "linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)"
+        };
     }
   };
 
+  // Share Modal Component
+  // Update the ShareModal component to this:
+const ShareModal = () => (
+  <AnimatePresence>
+    {showShareModal && (
+      <>
+        {/* Backdrop - separate from modal content */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 bg-gray-900 bg-opacity-75"
+          onClick={() => setShowShareModal(false)}
+        />
+        
+        {/* Modal content - separate fixed positioning */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="relative w-full max-w-md bg-white rounded-2xl shadow-xl"
+            onClick={(e) => e.stopPropagation()} // This prevents clicks inside modal from closing
+          >
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-gray-900">
+                  Share Portfolio
+                </h3>
+                <button
+                  onClick={() => setShowShareModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* QR Code */}
+              <div className="flex flex-col items-center mb-8">
+                <div className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm mb-4">
+                  <QRCode
+                    id="qr-code-svg"
+                    value={qrCodeValue}
+                    size={180}
+                    level="H"
+                    fgColor={colors.primary.dark}
+                    bgColor="white"
+                  />
+                </div>
+                <p className="text-sm text-gray-600 text-center">
+                  Scan to visit portfolio
+                </p>
+              </div>
+
+              {/* Share Links */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Share Link
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={qrCodeValue}
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 text-sm"
+                    />
+                    <button
+                      onClick={copyToClipboard}
+                      className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg hover:shadow-lg transition-all flex items-center gap-2"
+                    >
+                      <FaCopy className="w-4 h-4" />
+                      {copied ? "Copied!" : "Copy"}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Social Share Buttons */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Share on Social Media
+                  </label>
+                  <div className="grid grid-cols-4 gap-3">
+                    <button
+                      onClick={() => shareOnSocial('twitter')}
+                      className="flex flex-col items-center justify-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors group"
+                    >
+                      <FaTwitter className="w-6 h-6 text-blue-500 mb-1" />
+                      <span className="text-xs text-blue-600">Twitter</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => shareOnSocial('linkedin')}
+                      className="flex flex-col items-center justify-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors group"
+                    >
+                      <FaLinkedinIn className="w-6 h-6 text-blue-700 mb-1" />
+                      <span className="text-xs text-blue-700">LinkedIn</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => shareOnSocial('facebook')}
+                      className="flex flex-col items-center justify-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors group"
+                    >
+                      <FaFacebook className="w-6 h-6 text-blue-600 mb-1" />
+                      <span className="text-xs text-blue-600">Facebook</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => shareOnSocial('whatsapp')}
+                      className="flex flex-col items-center justify-center p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors group"
+                    >
+                      <FaWhatsapp className="w-6 h-6 text-green-500 mb-1" />
+                      <span className="text-xs text-green-600">WhatsApp</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Download QR Code */}
+                <div className="pt-4 border-t border-gray-200">
+                  <button
+                    onClick={downloadQRCode}
+                    className="w-full px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                  >
+                    <FaDownload className="w-5 h-5" />
+                    Download QR Code
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </>
+    )}
+  </AnimatePresence>
+);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      {/* Toast Container */}
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
-      
-      {/* ================= TOP BAR ================= */}
+    <div className="min-h-screen" style={{ background: `linear-gradient(135deg, ${colors.neutral[50]} 0%, ${colors.neutral[100]} 100%)` }}>
+      <ToastContainer />
+      <ShareModal />
+
+      {/* TOP BAR */}
       <div className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-        isScrolled ? "bg-white shadow-lg" : "bg-transparent"
+        isScrolled ? "bg-white shadow-lg backdrop-blur-sm bg-white/90" : "bg-transparent"
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -416,11 +635,11 @@ const Portfolio = () => {
                 <img
                   src={profile.pictureUrl}
                   alt={profile.fullName || "User"}
-                  className="w-10 h-10 rounded-full border-2 border-blue-100"
+                  className="w-10 h-10 rounded-full border-2 border-white shadow-sm"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center">
-                  <span className="text-lg font-bold text-white">
+                <div className="w-10 h-10 rounded-full" style={{ background: colors.primary.gradient }}>
+                  <span className="text-lg font-bold text-white flex items-center justify-center h-full">
                     {getInitials(profile.fullName)}
                   </span>
                 </div>
@@ -431,24 +650,36 @@ const Portfolio = () => {
               </div>
             </div>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1">
-              {sections.map((section) => (
-                <a
-                  key={section.id}
-                  href={`#${section.id}`}
-                  onClick={() => setActiveSection(section.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
-                    activeSection === section.id
-                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
-                      : "text-gray-600 hover:text-blue-600 hover:bg-gray-100"
-                  }`}
-                >
-                  <span className="text-sm">{section.icon}</span>
-                  <span className="text-sm font-medium">{section.label}</span>
-                </a>
-              ))}
-            </nav>
+            {/* Desktop Navigation & Share Button */}
+            <div className="hidden md:flex items-center gap-4">
+              <nav className="flex items-center gap-1">
+                {sections.map((section) => (
+                  <a
+                    key={section.id}
+                    href={`#${section.id}`}
+                    onClick={() => setActiveSection(section.id)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+                      activeSection === section.id
+                        ? "text-white"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    }`}
+                    style={activeSection === section.id ? { background: colors.primary.gradient } : {}}
+                  >
+                    <span className="text-sm">{section.icon}</span>
+                    <span className="text-sm font-medium">{section.label}</span>
+                  </a>
+                ))}
+              </nav>
+              
+              <button
+                onClick={() => setShowShareModal(true)}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 hover:shadow-md"
+                style={{ background: colors.secondary.gradient, color: "white" }}
+              >
+                <FaShareAlt className="w-4 h-4" />
+                <span className="font-medium">Share</span>
+              </button>
+            </div>
 
             {/* Mobile Menu Button */}
             <button
@@ -461,8 +692,6 @@ const Portfolio = () => {
                 <span className={`w-6 h-0.5 bg-gray-600 transition-all duration-300 ${isMenuOpen ? "-rotate-45 -translate-y-1.5" : ""}`}></span>
               </div>
             </button>
-
-           
           </div>
         </div>
 
@@ -486,7 +715,7 @@ const Portfolio = () => {
                     }}
                     className={`flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
                       activeSection === section.id
-                        ? "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600"
+                        ? "bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-600"
                         : "text-gray-600 hover:bg-gray-50"
                     }`}
                   >
@@ -497,23 +726,36 @@ const Portfolio = () => {
                     <FaChevronRight className="w-4 h-4 text-gray-400" />
                   </a>
                 ))}
-               
+                <button
+                  onClick={() => {
+                    setShowShareModal(true);
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-all"
+                  style={{ background: colors.secondary.gradient, color: "white" }}
+                >
+                  <FaShareAlt className="w-4 h-4" />
+                  <span className="font-medium">Share Portfolio</span>
+                </button>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* ================= HERO SECTION ================= */}
+      {/* HERO SECTION */}
       <section id="home" className="relative pt-32 pb-20 lg:pt-40 lg:pb-28">
-        {/* Background Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50"></div>
+        {/* Background with gradient overlay */}
+        <div className="absolute inset-0" style={{ 
+          background: `linear-gradient(135deg, ${colors.neutral[50]} 0%, ${colors.neutral[100]} 50%, ${colors.neutral[50]} 100%)`
+        }}></div>
         
-        {/* Background Pattern */}
+        {/* Subtle grid pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, #3b82f6 1px, transparent 0)`,
-            backgroundSize: '40px 40px'
+            backgroundImage: `linear-gradient(90deg, ${colors.primary.dark} 1px, transparent 1px), 
+                            linear-gradient(${colors.primary.dark} 1px, transparent 1px)`,
+            backgroundSize: '50px 50px'
           }}></div>
         </div>
 
@@ -521,7 +763,8 @@ const Portfolio = () => {
           <div className="flex flex-col lg:flex-row items-center gap-12">
             {/* Profile Image */}
             <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 rounded-full blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+              <div className="absolute -inset-1 rounded-full opacity-20 group-hover:opacity-40 transition duration-500" 
+                   style={{ background: colors.primary.gradient, filter: 'blur(10px)' }}></div>
               <div className="relative">
                 {profile.pictureUrl ? (
                   <img
@@ -530,34 +773,53 @@ const Portfolio = () => {
                     className="w-64 h-64 rounded-full border-8 border-white shadow-2xl"
                   />
                 ) : (
-                  <div className="w-64 h-64 rounded-full border-8 border-white shadow-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                  <div className="w-64 h-64 rounded-full border-8 border-white shadow-2xl flex items-center justify-center"
+                       style={{ background: colors.primary.gradient }}>
                     <span className="text-7xl font-bold text-white">
                       {getInitials(profile.fullName)}
                     </span>
                   </div>
                 )}
               </div>
+              {/* Share button on image hover */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowShareModal(true)}
+                className="absolute bottom-4 right-4 w-12 h-12 rounded-full shadow-lg flex items-center justify-center backdrop-blur-sm"
+                style={{ background: 'rgba(255, 255, 255, 0.9)' }}
+              >
+                <FaShareAlt className="w-5 h-5" style={{ color: colors.primary.dark }} />
+              </motion.button>
             </div>
 
             {/* Hero Content */}
             <div className="flex-1 text-center lg:text-left">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-full mb-6 border border-blue-100">
-                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                <span className="text-sm font-medium text-blue-600">
+              {/* Status Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 border"
+                   style={{ 
+                     background: `linear-gradient(135deg, ${colors.accent.light}15, ${colors.accent.main}15)`,
+                     borderColor: `${colors.accent.light}40`
+                   }}>
+                <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: colors.accent.main }}></span>
+                <span className="text-sm font-medium" style={{ color: colors.accent.dark }}>
                   Available for opportunities
                 </span>
               </div>
 
               <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-4">
-                Hi, I'm <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{profile.fullName || "User"}</span>
+                Hi, I'm <span style={{ 
+                  background: colors.primary.gradient,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}>{profile.fullName || "User"}</span>
               </h1>
               
-              <h2 className="text-2xl lg:text-3xl font-semibold text-gray-700 mb-6">
+              <h2 className="text-2xl lg:text-3xl font-semibold mb-6" style={{ color: colors.neutral[700] }}>
                 {profile.headline || "Full Stack Developer"}
               </h2>
 
-              <p className="text-lg text-gray-600 mb-8 max-w-3xl leading-relaxed">
+              <p className="text-lg mb-8 max-w-3xl leading-relaxed" style={{ color: colors.neutral[600] }}>
                 {profile.summary || "Passionate developer with experience in building modern web applications."}
               </p>
 
@@ -565,14 +827,19 @@ const Portfolio = () => {
               <div className="flex flex-wrap gap-4 mb-8">
                 <a
                   href="#projects"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 font-medium group"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg hover:shadow-lg transition-all duration-300 font-medium group"
+                  style={{ background: colors.primary.gradient, color: "white" }}
                 >
                   <span>View My Work</span>
                   <FaChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </a>
                 <a
                   href="#contact"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 rounded-lg hover:bg-gray-50 border border-gray-200 transition-all duration-300 font-medium"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-white rounded-lg hover:bg-gray-50 border transition-all duration-300 font-medium"
+                  style={{ 
+                    color: colors.primary.dark,
+                    borderColor: colors.neutral[300]
+                  }}
                 >
                   Get In Touch
                 </a>
@@ -589,12 +856,17 @@ const Portfolio = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    whileHover={{ scale: 1.1 }}
+                    whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                     className="group relative"
                   >
-                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full blur opacity-0 group-hover:opacity-30 transition duration-300"></div>
-                    <div className="relative w-12 h-12 bg-white shadow-md rounded-full flex items-center justify-center text-gray-700 hover:text-blue-600 hover:shadow-lg transition-all duration-300 border border-gray-100">
+                    <div className="absolute -inset-1 rounded-full opacity-0 group-hover:opacity-30 transition duration-300"
+                         style={{ background: colors.primary.gradient, filter: 'blur(8px)' }}></div>
+                    <div className="relative w-12 h-12 bg-white shadow-md rounded-full flex items-center justify-center hover:shadow-lg transition-all duration-300 border"
+                         style={{ 
+                           color: colors.neutral[600],
+                           borderColor: colors.neutral[200]
+                         }}>
                       {iconByPlatform(link.platform)}
                     </div>
                   </motion.a>
@@ -605,26 +877,29 @@ const Portfolio = () => {
         </div>
       </section>
 
-      {/* ================= SKILLS SECTION ================= */}
+      {/* SKILLS SECTION */}
       {skills.length > 0 && (
-        <section id="skills" className="py-20 bg-gradient-to-b from-white to-gray-50">
+        <section id="skills" className="py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+              <h2 className="text-3xl lg:text-4xl font-bold mb-4" style={{ color: colors.neutral[900] }}>
                 Technical Expertise
               </h2>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              <p className="text-lg max-w-3xl mx-auto" style={{ color: colors.neutral[600] }}>
                 Proficient in a wide range of modern technologies and frameworks
               </p>
             </div>
 
             <div className="space-y-12">
               {Object.entries(filteredCategories).map(([category, categorySkills]) => {
-                const colors = getCategoryColor(category);
+                const colorsCat = getCategoryColor(category);
                 return (
                   <div key={category}>
-                    <h3 className={`text-xl font-bold mb-6 flex items-center gap-2 ${colors.text}`}>
-                      <div className={`p-2 bg-gradient-to-r ${colors.bg} rounded-lg border ${colors.border}`}>
+                    <h3 className={`text-xl font-bold mb-6 flex items-center gap-2`} style={{ color: colorsCat.text }}>
+                      <div className={`p-2 rounded-lg border`} style={{ 
+                        background: colorsCat.gradient,
+                        borderColor: colorsCat.border
+                      }}>
                         <FaTools className="w-5 h-5" />
                       </div>
                       {category}
@@ -640,14 +915,23 @@ const Portfolio = () => {
                           whileHover={{ y: -5 }}
                           className="group"
                         >
-                          <div className={`bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-sm hover:shadow-lg p-6 transition-all duration-300 border ${colors.border}`}>
-                            <div className="flex items-center justify-center mb-4">
-                              <div className={`p-3 bg-gradient-to-br ${colors.bg} rounded-lg group-hover:scale-110 transition-transform duration-300 border ${colors.border}`}>
+                          <div className="rounded-xl shadow-sm hover:shadow-lg p-6 transition-all duration-300 border h-full flex flex-col items-center"
+                               style={{ 
+                                 background: `linear-gradient(135deg, ${colors.neutral[50]}, white)`,
+                                 borderColor: colorsCat.border
+                               }}>
+                            <div className="mb-4">
+                              <div className={`p-3 rounded-lg group-hover:scale-110 transition-transform duration-300 border`}
+                                   style={{ 
+                                     background: colorsCat.gradient,
+                                     borderColor: colorsCat.border
+                                   }}>
                                 {getSkillIcon(skill)}
                               </div>
                             </div>
-                            <h4 className="text-center font-semibold text-gray-800">{skill}</h4>
-                            <div className={`mt-3 h-1 w-full bg-gradient-to-r ${category === 'Backend' ? 'from-red-400 to-orange-400' : category === 'Frontend' ? 'from-blue-400 to-cyan-400' : 'from-gray-400 to-gray-500'} rounded-full opacity-0 group-hover:opacity-100 transition duration-300`}></div>
+                            <h4 className="text-center font-semibold" style={{ color: colors.neutral[800] }}>{skill}</h4>
+                            <div className="mt-3 h-1 w-full rounded-full opacity-0 group-hover:opacity-100 transition duration-300"
+                                 style={{ background: colorsCat.gradient }}></div>
                           </div>
                         </motion.div>
                       ))}
@@ -660,15 +944,15 @@ const Portfolio = () => {
         </section>
       )}
 
-      {/* ================= PROJECTS SECTION ================= */}
+      {/* PROJECTS SECTION */}
       {projects.length > 0 && (
-        <section id="projects" className="py-20 bg-white">
+        <section id="projects" className="py-20" style={{ background: colors.neutral[50] }}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+              <h2 className="text-3xl lg:text-4xl font-bold mb-4" style={{ color: colors.neutral[900] }}>
                 Featured Projects
               </h2>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              <p className="text-lg max-w-3xl mx-auto" style={{ color: colors.neutral[600] }}>
                 Showcasing innovative solutions and technical implementations
               </p>
             </div>
@@ -684,15 +968,21 @@ const Portfolio = () => {
                   whileHover={{ y: -8 }}
                   className="group"
                 >
-                  <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 h-full flex flex-col">
-                    {/* Project Title as Header */}
-                    <div className="h-48 bg-gradient-to-r from-blue-500 to-indigo-500 relative overflow-hidden flex items-center justify-center p-4">
+                  <div className="rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border h-full flex flex-col"
+                       style={{ 
+                         background: `linear-gradient(135deg, white, ${colors.neutral[50]})`,
+                         borderColor: colors.neutral[200]
+                       }}>
+                    {/* Project Header */}
+                    <div className="h-48 relative overflow-hidden flex items-center justify-center p-4"
+                         style={{ background: colors.primary.gradient }}>
                       <div className="absolute inset-0 bg-black/10"></div>
                       <h3 className="text-2xl font-bold text-white text-center relative z-10 px-4 py-6 bg-black/20 backdrop-blur-sm rounded-xl w-full">
                         {project.title || "Project Title"}
                       </h3>
                       <div className="absolute top-4 right-4">
-                        <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-xs font-semibold text-blue-600 rounded-full">
+                        <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-xs font-semibold rounded-full"
+                              style={{ color: colors.primary.dark }}>
                           {(project.techStack || "").split(",")[0] || "Project"}
                         </span>
                       </div>
@@ -701,15 +991,19 @@ const Portfolio = () => {
                     {/* Project Content */}
                     <div className="p-6 flex-1 flex flex-col">
                       <div className="flex items-start justify-between mb-4">
-                        <div className="p-2 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg">
-                          <FaProjectDiagram className="w-5 h-5 text-blue-600" />
+                        <div className="p-2 rounded-lg" style={{ background: colors.primary.gradient + '20' }}>
+                          <FaProjectDiagram className="w-5 h-5" style={{ color: colors.primary.dark }} />
                         </div>
-                        <span className="text-xs font-medium px-3 py-1 bg-gray-100 text-gray-600 rounded-full">
+                        <span className="text-xs font-medium px-3 py-1 rounded-full"
+                              style={{ 
+                                background: colors.neutral[100],
+                                color: colors.neutral[600]
+                              }}>
                           Project
                         </span>
                       </div>
                       
-                      <p className="text-gray-600 mb-6 line-clamp-3 flex-1">
+                      <p className="mb-6 line-clamp-3 flex-1" style={{ color: colors.neutral[600] }}>
                         {project.description || "Project description not available."}
                       </p>
 
@@ -719,13 +1013,23 @@ const Portfolio = () => {
                           {(project.techStack || "").split(",").slice(0, 3).map((tech, i) => (
                             <span
                               key={i}
-                              className="px-3 py-1 bg-gray-50 text-gray-600 text-xs font-medium rounded-full border border-gray-200"
+                              className="px-3 py-1 text-xs font-medium rounded-full border"
+                              style={{ 
+                                background: colors.neutral[50],
+                                color: colors.neutral[600],
+                                borderColor: colors.neutral[200]
+                              }}
                             >
                               {tech.trim()}
                             </span>
                           ))}
                           {(project.techStack || "").split(",").length > 3 && (
-                            <span className="px-3 py-1 bg-gray-50 text-gray-600 text-xs font-medium rounded-full border border-gray-200">
+                            <span className="px-3 py-1 text-xs font-medium rounded-full border"
+                                  style={{ 
+                                    background: colors.neutral[50],
+                                    color: colors.neutral[600],
+                                    borderColor: colors.neutral[200]
+                                  }}>
                               +{(project.techStack || "").split(",").length - 3} more
                             </span>
                           )}
@@ -738,7 +1042,11 @@ const Portfolio = () => {
                           href={project.projectUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-center justify-between w-full px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 hover:text-blue-700 rounded-lg group/link transition-all mt-auto"
+                          className="inline-flex items-center justify-between w-full px-4 py-2 rounded-lg group/link transition-all mt-auto"
+                          style={{ 
+                            background: `linear-gradient(135deg, ${colors.primary.light}15, ${colors.primary.dark}15)`,
+                            color: colors.primary.dark
+                          }}
                         >
                           <span className="font-medium">View Details</span>
                           <FaExternalLinkAlt className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
@@ -753,22 +1061,23 @@ const Portfolio = () => {
         </section>
       )}
 
-      {/* ================= EXPERIENCE SECTION ================= */}
+      {/* EXPERIENCE SECTION */}
       {experience.length > 0 && (
-        <section id="experience" className="py-20 bg-gradient-to-b from-gray-50 to-white">
+        <section id="experience" className="py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+              <h2 className="text-3xl lg:text-4xl font-bold mb-4" style={{ color: colors.neutral[900] }}>
                 Professional Experience
               </h2>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              <p className="text-lg max-w-3xl mx-auto" style={{ color: colors.neutral[600] }}>
                 A track record of delivering impactful solutions
               </p>
             </div>
 
             <div className="relative">
               {/* Timeline Line */}
-              <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-blue-200 to-indigo-200"></div>
+              <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2 h-full w-1"
+                   style={{ background: `linear-gradient(to bottom, ${colors.primary.light}20, ${colors.primary.dark}20)` }}></div>
 
               <div className="space-y-12">
                 {experience.map((exp, index) => (
@@ -782,21 +1091,26 @@ const Portfolio = () => {
                   >
                     {/* Timeline Dot */}
                     <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2">
-                      <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full border-4 border-white shadow-lg"></div>
+                      <div className="w-4 h-4 rounded-full border-4 border-white shadow-lg"
+                           style={{ background: colors.primary.gradient }}></div>
                     </div>
 
                     <div className="lg:w-1/2 lg:px-12">
-                      <div className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300 border border-gray-100">
+                      <div className="rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300 border h-full"
+                           style={{ 
+                             background: `linear-gradient(135deg, white, ${colors.neutral[50]})`,
+                             borderColor: colors.neutral[200]
+                           }}>
                         {/* Experience Header */}
                         <div className="flex items-start justify-between mb-6">
                           <div>
-                            <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                            <h3 className="text-2xl font-bold mb-2" style={{ color: colors.neutral[800] }}>
                               {exp.jobTitle || "Job Title"}
                             </h3>
-                            <p className="text-lg font-semibold text-blue-600 mb-1">
+                            <p className="text-lg font-semibold mb-1" style={{ color: colors.primary.dark }}>
                               {exp.company || "Company"}
                             </p>
-                            <div className="flex items-center gap-4 text-sm text-gray-500">
+                            <div className="flex items-center gap-4 text-sm" style={{ color: colors.neutral[500] }}>
                               <div className="flex items-center gap-2">
                                 <FaCalendarAlt className="w-4 h-4" />
                                 <span>
@@ -816,13 +1130,13 @@ const Portfolio = () => {
                               )}
                             </div>
                           </div>
-                          <div className="p-3 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-xl">
-                            <FaBriefcase className="w-6 h-6 text-blue-600" />
+                          <div className="p-3 rounded-xl" style={{ background: colors.primary.gradient + '20' }}>
+                            <FaBriefcase className="w-6 h-6" style={{ color: colors.primary.dark }} />
                           </div>
                         </div>
 
                         {/* Description */}
-                        <p className="text-gray-600 leading-relaxed">
+                        <p className="leading-relaxed" style={{ color: colors.neutral[600] }}>
                           {exp.description || "Experience description not available."}
                         </p>
                       </div>
@@ -835,15 +1149,15 @@ const Portfolio = () => {
         </section>
       )}
 
-      {/* ================= EDUCATION SECTION ================= */}
+      {/* EDUCATION SECTION */}
       {education.length > 0 && (
-        <section id="education" className="py-20 bg-white">
+        <section id="education" className="py-20" style={{ background: colors.neutral[50] }}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+              <h2 className="text-3xl lg:text-4xl font-bold mb-4" style={{ color: colors.neutral[900] }}>
                 Education
               </h2>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              <p className="text-lg max-w-3xl mx-auto" style={{ color: colors.neutral[600] }}>
                 Academic background and qualifications
               </p>
             </div>
@@ -859,24 +1173,28 @@ const Portfolio = () => {
                   whileHover={{ scale: 1.02 }}
                   className="group"
                 >
-                  <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 h-full">
+                  <div className="rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border h-full"
+                       style={{ 
+                         background: `linear-gradient(135deg, white, ${colors.neutral[50]})`,
+                         borderColor: colors.neutral[200]
+                       }}>
                     <div className="p-8">
                       {/* Header */}
                       <div className="flex items-start justify-between mb-8">
                         <div>
-                          <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                          <h3 className="text-2xl font-bold mb-2" style={{ color: colors.neutral[800] }}>
                             {edu.institution || "Institution"}
                           </h3>
                           <div className="flex items-center gap-3">
-                            <span className="text-lg font-semibold text-blue-600">
+                            <span className="text-lg font-semibold" style={{ color: colors.primary.dark }}>
                               {edu.degree || "Degree"}
                             </span>
-                            <span className="text-gray-400">•</span>
-                            <span className="text-gray-600">{edu.fieldOfStudy || "Field of Study"}</span>
+                            <span style={{ color: colors.neutral[400] }}>•</span>
+                            <span style={{ color: colors.neutral[600] }}>{edu.fieldOfStudy || "Field of Study"}</span>
                           </div>
                         </div>
-                        <div className="p-4 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-xl">
-                          <FaGraduationCap className="w-8 h-8 text-blue-600" />
+                        <div className="p-4 rounded-xl" style={{ background: colors.primary.gradient + '20' }}>
+                          <FaGraduationCap className="w-8 h-8" style={{ color: colors.primary.dark }} />
                         </div>
                       </div>
 
@@ -884,15 +1202,15 @@ const Portfolio = () => {
                       <div className="space-y-6">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <FaCalendarAlt className="w-5 h-5 text-blue-500" />
-                            <span className="font-medium text-gray-700">
+                            <FaCalendarAlt className="w-5 h-5" style={{ color: colors.primary.dark }} />
+                            <span className="font-medium" style={{ color: colors.neutral[700] }}>
                               {edu.startYear || "Start"} - {edu.endYear || "End"}
                             </span>
                           </div>
                           {edu.cgpa && (
                             <div className="text-right">
-                              <div className="text-sm text-gray-500 mb-1">CGPA</div>
-                              <div className="text-2xl font-bold text-blue-600">{edu.cgpa}/10.0</div>
+                              <div className="text-sm mb-1" style={{ color: colors.neutral[500] }}>CGPA</div>
+                              <div className="text-2xl font-bold" style={{ color: colors.primary.dark }}>{edu.cgpa}/10.0</div>
                             </div>
                           )}
                         </div>
@@ -901,15 +1219,18 @@ const Portfolio = () => {
                         {edu.cgpa && (
                           <div>
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm font-medium text-gray-600">Academic Performance</span>
-                              <span className="text-sm font-bold text-blue-600">
+                              <span className="text-sm font-medium" style={{ color: colors.neutral[600] }}>Academic Performance</span>
+                              <span className="text-sm font-bold" style={{ color: colors.primary.dark }}>
                                 {((edu.cgpa / 10) * 100).toFixed(1)}%
                               </span>
                             </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div className="w-full rounded-full h-2" style={{ background: colors.neutral[200] }}>
                               <div
-                                className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full transition-all duration-500"
-                                style={{ width: `${(edu.cgpa / 10) * 100}%` }}
+                                className="h-2 rounded-full transition-all duration-500"
+                                style={{ 
+                                  width: `${(edu.cgpa / 10) * 100}%`,
+                                  background: colors.primary.gradient
+                                }}
                               ></div>
                             </div>
                           </div>
@@ -917,8 +1238,8 @@ const Portfolio = () => {
 
                         {/* Achievements */}
                         {edu.achievements && (
-                          <div className="pt-6 border-t border-gray-100">
-                            <p className="text-gray-600 italic text-sm leading-relaxed">
+                          <div className="pt-6 border-t" style={{ borderColor: colors.neutral[200] }}>
+                            <p className="italic text-sm leading-relaxed" style={{ color: colors.neutral[600] }}>
                               "{edu.achievements}"
                             </p>
                           </div>
@@ -933,15 +1254,15 @@ const Portfolio = () => {
         </section>
       )}
 
-      {/* ================= CERTIFICATIONS SECTION ================= */}
+      {/* CERTIFICATIONS SECTION */}
       {certifications.length > 0 && (
-        <section id="certifications" className="py-20 bg-gradient-to-b from-gray-50 to-white">
+        <section id="certifications" className="py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+              <h2 className="text-3xl lg:text-4xl font-bold mb-4" style={{ color: colors.neutral[900] }}>
                 Certifications
               </h2>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              <p className="text-lg max-w-3xl mx-auto" style={{ color: colors.neutral[600] }}>
                 Professional certifications and completed courses
               </p>
             </div>
@@ -957,14 +1278,22 @@ const Portfolio = () => {
                   whileHover={{ y: -5 }}
                   className="group"
                 >
-                  <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 h-full">
+                  <div className="rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border h-full"
+                       style={{ 
+                         background: `linear-gradient(135deg, white, ${colors.neutral[50]})`,
+                         borderColor: colors.neutral[200]
+                       }}>
                     <div className="p-8">
                       {/* Header */}
                       <div className="flex items-start justify-between mb-8">
-                        <div className="p-4 bg-gradient-to-r from-teal-100 to-emerald-100 rounded-xl">
-                          <FaCertificate className="w-8 h-8 text-teal-600" />
+                        <div className="p-4 rounded-xl" style={{ background: colors.accent.gradient + '20' }}>
+                          <FaCertificate className="w-8 h-8" style={{ color: colors.accent.dark }} />
                         </div>
-                        <span className="text-xs font-medium px-3 py-1 bg-teal-100 text-teal-600 rounded-full">
+                        <span className="text-xs font-medium px-3 py-1 rounded-full"
+                              style={{ 
+                                background: colors.accent.gradient + '20',
+                                color: colors.accent.dark
+                              }}>
                           Certification
                         </span>
                       </div>
@@ -972,10 +1301,10 @@ const Portfolio = () => {
                       {/* Content */}
                       <div className="space-y-6">
                         <div>
-                          <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                          <h3 className="text-2xl font-bold mb-2" style={{ color: colors.neutral[800] }}>
                             {cert.name || "Certification Name"}
                           </h3>
-                          <p className="text-gray-600 leading-relaxed">
+                          <p className="leading-relaxed" style={{ color: colors.neutral[600] }}>
                             {cert.description || "Certification description not available."}
                           </p>
                         </div>
@@ -984,10 +1313,10 @@ const Portfolio = () => {
                         <div className="space-y-4">
                           {cert.startDate && (
                             <div className="flex items-center gap-3">
-                              <FaCalendarAlt className="w-5 h-5 text-teal-500" />
+                              <FaCalendarAlt className="w-5 h-5" style={{ color: colors.accent.dark }} />
                               <div>
-                                <div className="text-sm text-gray-500">Start Date</div>
-                                <div className="font-medium text-gray-700">
+                                <div className="text-sm" style={{ color: colors.neutral[500] }}>Start Date</div>
+                                <div className="font-medium" style={{ color: colors.neutral[700] }}>
                                   {formatDate(cert.startDate)}
                                 </div>
                               </div>
@@ -996,10 +1325,10 @@ const Portfolio = () => {
                           
                           {cert.endDate && (
                             <div className="flex items-center gap-3">
-                              <FaCalendarAlt className="w-5 h-5 text-blue-500" />
+                              <FaCalendarAlt className="w-5 h-5" style={{ color: colors.primary.dark }} />
                               <div>
-                                <div className="text-sm text-gray-500">End Date</div>
-                                <div className="font-medium text-gray-700">
+                                <div className="text-sm" style={{ color: colors.neutral[500] }}>End Date</div>
+                                <div className="font-medium" style={{ color: colors.neutral[700] }}>
                                   {formatDate(cert.endDate)}
                                 </div>
                               </div>
@@ -1009,10 +1338,10 @@ const Portfolio = () => {
 
                         {/* Duration */}
                         {cert.startDate && cert.endDate && (
-                          <div className="pt-6 border-t border-gray-100">
+                          <div className="pt-6 border-t" style={{ borderColor: colors.neutral[200] }}>
                             <div className="text-center">
-                              <div className="text-sm text-gray-500 mb-2">Duration</div>
-                              <div className="text-lg font-bold text-teal-600">
+                              <div className="text-sm mb-2" style={{ color: colors.neutral[500] }}>Duration</div>
+                              <div className="text-lg font-bold" style={{ color: colors.accent.dark }}>
                                 {(() => {
                                   const start = new Date(cert.startDate);
                                   const end = new Date(cert.endDate);
@@ -1035,35 +1364,41 @@ const Portfolio = () => {
         </section>
       )}
 
-      {/* ================= CONTACT SECTION ================= */}
-      <section id="contact" className="py-20 bg-gradient-to-br from-blue-50 to-indigo-50">
+      {/* CONTACT SECTION */}
+      <section id="contact" className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4" style={{ color: colors.neutral[900] }}>
               Get In Touch
             </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg max-w-3xl mx-auto" style={{ color: colors.neutral[600] }}>
               Feel free to reach out for collaborations or just a friendly hello
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl p-8 lg:p-12 max-w-4xl mx-auto">
+          <div className="rounded-2xl shadow-xl p-8 lg:p-12 max-w-4xl mx-auto"
+               style={{ 
+                 background: `linear-gradient(135deg, white, ${colors.neutral[50]})`,
+                 border: `1px solid ${colors.neutral[200]}`
+               }}>
             <div className="grid lg:grid-cols-2 gap-12">
               {/* Contact Info */}
               <div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-8">
+                <h3 className="text-2xl font-bold mb-8" style={{ color: colors.neutral[800] }}>
                   Contact Information
                 </h3>
                 
                 <div className="space-y-6">
                   {profile.email && (
                     <div className="flex items-start gap-4">
-                      <div className="p-3 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg">
-                        <FaEnvelope className="w-6 h-6 text-blue-600" />
+                      <div className="p-3 rounded-lg" style={{ background: colors.primary.gradient + '20' }}>
+                        <FaEnvelope className="w-6 h-6" style={{ color: colors.primary.dark }} />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-700 mb-1">Email</h4>
-                        <a href={`mailto:${profile.email}`} className="text-blue-600 hover:text-blue-700">
+                        <h4 className="font-semibold mb-1" style={{ color: colors.neutral[700] }}>Email</h4>
+                        <a href={`mailto:${profile.email}`} 
+                           className="hover:underline transition-all"
+                           style={{ color: colors.primary.dark }}>
                           {profile.email}
                         </a>
                       </div>
@@ -1072,12 +1407,14 @@ const Portfolio = () => {
 
                   {profile.phone && (
                     <div className="flex items-start gap-4">
-                      <div className="p-3 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg">
-                        <FaPhone className="w-6 h-6 text-blue-600" />
+                      <div className="p-3 rounded-lg" style={{ background: colors.primary.gradient + '20' }}>
+                        <FaPhone className="w-6 h-6" style={{ color: colors.primary.dark }} />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-700 mb-1">Phone</h4>
-                        <a href={`tel:${profile.phone}`} className="text-blue-600 hover:text-blue-700">
+                        <h4 className="font-semibold mb-1" style={{ color: colors.neutral[700] }}>Phone</h4>
+                        <a href={`tel:${profile.phone}`} 
+                           className="hover:underline transition-all"
+                           style={{ color: colors.primary.dark }}>
                           {profile.phone}
                         </a>
                       </div>
@@ -1086,19 +1423,19 @@ const Portfolio = () => {
 
                   {profile.location && (
                     <div className="flex items-start gap-4">
-                      <div className="p-3 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg">
-                        <FaMapMarkerAlt className="w-6 h-6 text-blue-600" />
+                      <div className="p-3 rounded-lg" style={{ background: colors.primary.gradient + '20' }}>
+                        <FaMapMarkerAlt className="w-6 h-6" style={{ color: colors.primary.dark }} />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-700 mb-1">Location</h4>
-                        <p className="text-gray-600">{profile.location}</p>
+                        <h4 className="font-semibold mb-1" style={{ color: colors.neutral[700] }}>Location</h4>
+                        <p style={{ color: colors.neutral[600] }}>{profile.location}</p>
                       </div>
                     </div>
                   )}
 
                   {/* Social Links */}
                   <div className="pt-6">
-                    <h4 className="font-semibold text-gray-700 mb-4">Connect with me</h4>
+                    <h4 className="font-semibold mb-4" style={{ color: colors.neutral[700] }}>Connect with me</h4>
                     <div className="flex gap-4">
                       {socialMediaLinks.map((link, index) => (
                         <a
@@ -1106,7 +1443,12 @@ const Portfolio = () => {
                           href={link.profileUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="w-12 h-12 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg flex items-center justify-center text-blue-600 hover:text-blue-700 hover:shadow-lg transition-all duration-300 border border-blue-100"
+                          className="w-12 h-12 rounded-lg flex items-center justify-center hover:shadow-lg transition-all duration-300 border"
+                          style={{ 
+                            background: colors.primary.gradient + '10',
+                            color: colors.primary.dark,
+                            borderColor: colors.neutral[200]
+                          }}
                         >
                           {iconByPlatform(link.platform)}
                         </a>
@@ -1118,13 +1460,13 @@ const Portfolio = () => {
 
               {/* Contact Form */}
               <div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-8">
+                <h3 className="text-2xl font-bold mb-8" style={{ color: colors.neutral[800] }}>
                   Send a Message
                 </h3>
                 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium mb-2" style={{ color: colors.neutral[700] }}>
                       Your Name
                     </label>
                     <input
@@ -1132,14 +1474,18 @@ const Portfolio = () => {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-blue-500 transition-all"
+                      style={{ 
+                        borderColor: colors.neutral[300],
+                        outline: 'none'
+                      }}
                       placeholder="John Doe"
                       disabled={isSubmitting}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium mb-2" style={{ color: colors.neutral[700] }}>
                       Email Address
                     </label>
                     <input
@@ -1147,14 +1493,18 @@ const Portfolio = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-blue-500 transition-all"
+                      style={{ 
+                        borderColor: colors.neutral[300],
+                        outline: 'none'
+                      }}
                       placeholder="john@example.com"
                       disabled={isSubmitting}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium mb-2" style={{ color: colors.neutral[700] }}>
                       Message
                     </label>
                     <textarea
@@ -1162,7 +1512,11 @@ const Portfolio = () => {
                       name="message"
                       value={formData.message}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-blue-500 transition-all resize-none"
+                      style={{ 
+                        borderColor: colors.neutral[300],
+                        outline: 'none'
+                      }}
                       placeholder="Your message here..."
                       disabled={isSubmitting}
                     ></textarea>
@@ -1171,9 +1525,10 @@ const Portfolio = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className={`w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:shadow-lg transition-all duration-300 hover:from-blue-700 hover:to-indigo-700 flex items-center justify-center gap-2 ${
+                    className={`w-full px-6 py-3 text-white font-medium rounded-lg hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 ${
                       isSubmitting ? "opacity-70 cursor-not-allowed" : ""
                     }`}
+                    style={{ background: colors.primary.gradient }}
                   >
                     {isSubmitting ? (
                       <>
@@ -1191,9 +1546,9 @@ const Portfolio = () => {
         </div>
       </section>
 
-      {/* ================= FOOTER ================= */}
-      <footer className="bg-gradient-to-br from-gray-900 to-gray-800 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* FOOTER */}
+      <footer className="py-12" style={{ background: colors.neutral[900] }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-3 gap-12">
             {/* Brand Info */}
             <div>
@@ -1202,17 +1557,19 @@ const Portfolio = () => {
                   <img
                     src={profile.pictureUrl}
                     alt={profile.fullName || "User"}
-                    className="w-14 h-14 rounded-full border-2 border-white/20"
+                    className="w-14 h-14 rounded-full border-2"
+                    style={{ borderColor: `${colors.neutral[700]}` }}
                   />
                 ) : (
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center">
+                  <div className="w-14 h-14 rounded-full flex items-center justify-center"
+                       style={{ background: colors.primary.gradient }}>
                     <span className="text-xl font-bold text-white">
                       {getInitials(profile.fullName)}
                     </span>
                   </div>
                 )}
                 <div>
-                  <h3 className="text-2xl font-bold">{profile.fullName || "User"}</h3>
+                  <h3 className="text-2xl font-bold text-white">{profile.fullName || "User"}</h3>
                   <p className="text-gray-400">@{profile.user?.username || username}</p>
                 </div>
               </div>
@@ -1226,17 +1583,26 @@ const Portfolio = () => {
                     href={link.profileUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-lg flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300"
+                    className="w-10 h-10 backdrop-blur-sm rounded-lg flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300"
+                    style={{ background: 'rgba(255, 255, 255, 0.1)' }}
                   >
                     {iconByPlatform(link.platform)}
                   </a>
                 ))}
+                {/* Share button in footer */}
+                <button
+                  onClick={() => setShowShareModal(true)}
+                  className="w-10 h-10 backdrop-blur-sm rounded-lg flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300"
+                  style={{ background: 'rgba(255, 255, 255, 0.1)' }}
+                >
+                  <FaShareAlt className="w-5 h-5" />
+                </button>
               </div>
             </div>
 
             {/* Quick Links */}
             <div>
-              <h4 className="text-lg font-bold mb-6">Quick Links</h4>
+              <h4 className="text-lg font-bold mb-6 text-white">Quick Links</h4>
               <div className="grid grid-cols-2 gap-4">
                 {sections.map((section) => (
                   <a
@@ -1245,7 +1611,8 @@ const Portfolio = () => {
                     onClick={() => setActiveSection(section.id)}
                     className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors duration-300 group"
                   >
-                    <span className="w-2 h-2 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                    <span className="w-2 h-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          style={{ background: colors.primary.gradient }}></span>
                     <span>{section.label}</span>
                   </a>
                 ))}
@@ -1254,7 +1621,7 @@ const Portfolio = () => {
 
             {/* Contact Info */}
             <div>
-              <h4 className="text-lg font-bold mb-6">Contact Info</h4>
+              <h4 className="text-lg font-bold mb-6 text-white">Contact Info</h4>
               <div className="space-y-4">
                 {profile.email && (
                   <div className="flex items-center gap-3 text-gray-400">
@@ -1282,7 +1649,7 @@ const Portfolio = () => {
             </div>
           </div>
 
-          <div className="mt-12 pt-8 border-t border-white/10 text-center">
+          <div className="mt-12 pt-8 border-t text-center" style={{ borderColor: colors.neutral[700] }}>
             <p className="text-gray-400">
               © {new Date().getFullYear()} {profile.fullName || "User"}. All rights reserved.
             </p>
@@ -1296,12 +1663,30 @@ const Portfolio = () => {
       {/* Back to Top Button */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className={`fixed bottom-8 right-8 w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center group ${
+        className={`fixed bottom-8 right-8 w-12 h-12 text-white rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center group ${
           isScrolled ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
         }`}
+        style={{ background: colors.primary.gradient }}
       >
         <FaChevronUp className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
       </button>
+
+      {/* Floating Share Button */}
+      <motion.button
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 1 }}
+        onClick={() => setShowShareModal(true)}
+        className="fixed bottom-8 left-8 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center group z-40"
+        style={{ background: colors.secondary.gradient }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <FaShareAlt className="w-6 h-6 text-white" />
+        <span className="absolute -top-8 bg-gray-900 text-white text-xs px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          Share Portfolio
+        </span>
+      </motion.button>
     </div>
   );
 };
