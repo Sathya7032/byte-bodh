@@ -38,6 +38,7 @@ import AdminBlogDetail from "./admin/pages/AdminBlogDetail";
 import BlogForm from './admin/pages/BlogForm'
 import AdminContacts from "./admin/pages/AdminContacts";
 import Users from "./admin/pages/Users";
+import CodeEditor from "./products/CodeEditor";
 
 const App = () => {
   const googleClientId =
@@ -63,6 +64,7 @@ const App = () => {
           <Route path="/cookie-policy" element={<CookiePolicy />} />
           <Route path="/invoive-generator" element={<InvoiceGenerator />} />
           <Route path="/image-compressor" element={<ImageCompressor />} />
+          <Route path="/code-editor" element={<CodeEditor />} />
           {/*         
           <Route path="/jobs" element={<Jobs />} />
           
