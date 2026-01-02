@@ -1,8 +1,9 @@
 import axios from "axios";
 import { getAccessToken, logout } from "../services/auth";
+import { API_ENDPOINTS } from "../config/api";
 
 const api = axios.create({
-  baseURL: "https://backend.bytebodh.in/api",
+  baseURL: API_ENDPOINTS.API,
   headers: {
     "Content-Type": "application/json",
   },

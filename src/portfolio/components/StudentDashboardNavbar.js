@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import {
   PersonCircle,
-  Gear,
   BoxArrowRight,
   List,
   ChevronDown,

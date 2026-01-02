@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import DashboardLayout from "../portfolio/components/DashboardLayout";
 import {
   getMyProfile,
-  createProfile,
   updateProfile,
 } from "../api/profileService";
 import { toast } from "react-toastify";

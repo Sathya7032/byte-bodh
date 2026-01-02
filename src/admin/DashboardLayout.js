@@ -3,19 +3,16 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 
-
 const DashboardLayout = ({ children, pageTitle = "Dashboard", onNavigate }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [activePage, setActivePage] = useState('dashboard');
 
-  // Check if mobile on mount and resize
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
-      if (window.innerWidth < 1024) {
-        setSidebarCollapsed(true);
-      }
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      setSidebarCollapsed(mobile);
     };
 
     checkMobile();
@@ -24,19 +21,16 @@ const DashboardLayout = ({ children, pageTitle = "Dashboard", onNavigate }) => {
   }, []);
 
   const toggleSidebar = () => {
-    setSidebarCollapsed(!sidebarCollapsed);
+    setSidebarCollapsed(prev => !prev);
   };
 
   const handleNavigate = (pageId) => {
     setActivePage(pageId);
-    if (onNavigate) {
-      onNavigate(pageId);
-    }
+    onNavigate?.(pageId);
   };
 
   const handleSearch = (query) => {
     console.log('Search query:', query);
-    // Implement search functionality
   };
 
   const user = {
@@ -46,26 +40,37 @@ const DashboardLayout = ({ children, pageTitle = "Dashboard", onNavigate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        <Sidebar
-          isCollapsed={sidebarCollapsed}
-          toggleSidebar={toggleSidebar}
-          isMobile={isMobile}
-          onNavigate={handleNavigate}
-        />
+    <div className="h-screen overflow-hidden bg-gray-50">
+      <div className="flex h-full">
         
-        <div className="flex-1 flex flex-col">
-          <Navbar
+        {/* FIXED SIDEBAR */}
+        <aside className="h-screen flex-shrink-0">
+          <Sidebar
+            isCollapsed={sidebarCollapsed}
             toggleSidebar={toggleSidebar}
-            pageTitle={pageTitle}
-            onSearch={handleSearch}
-            user={user}
+            isMobile={isMobile}
+            onNavigate={handleNavigate}
           />
+        </aside>
+
+        {/* CONTENT AREA */}
+        <div className="flex flex-col flex-1 h-screen overflow-hidden">
           
-          <main className="flex-1 overflow-y-auto">
+          {/* FIXED NAVBAR */}
+          <header className="flex-shrink-0">
+            <Navbar
+              toggleSidebar={toggleSidebar}
+              pageTitle={pageTitle}
+              onSearch={handleSearch}
+              user={user}
+            />
+          </header>
+
+          {/* SCROLLABLE CONTENT ONLY */}
+          <main className="flex-1 overflow-y-auto p-4">
             {children}
           </main>
+
         </div>
       </div>
     </div>

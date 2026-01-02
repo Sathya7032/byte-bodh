@@ -1,11 +1,11 @@
 // components/Sidebar.jsx
-import React from 'react';
-import { 
-  Home, 
-  BarChart3, 
-  Users, 
-  Settings,  
-  ShoppingCart, 
+import React, { useState, useEffect } from 'react';
+import { NavLink } from 'react-router-dom';
+import {
+  Home,
+  BarChart3,
+  Users,
+  ShoppingCart,
   Shield,
   HelpCircle,
   LogOut,
@@ -15,53 +15,69 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import { getUser, logout } from '../services/auth';
 
-const Sidebar = ({ isCollapsed, toggleSidebar, isMobile, onNavigate }) => {
+const Sidebar = ({ isCollapsed, toggleSidebar, isMobile }) => {
+  
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const userData = getUser();
+    setUser(userData);
+  }, []);
+
   const menuItems = [
-    { id: 'dashboard', icon: <Home size={20} />, label: 'Dashboard', badge: null },
-    { id: 'users', icon: <Users size={20} />, label: 'Users', badge: null },
-    { id: 'analytics', icon: <BarChart3 size={20} />, label: 'Analytics', badge: 'New' },
-    { id: 'orders', icon: <ShoppingCart size={20} />, label: 'Orders', badge: '24' },
-    { id: 'products', icon: <Package size={20} />, label: 'Products', badge: null },
+    { path: '/admin-dashboard', icon: <Home size={20} />, label: 'Dashboard' },
+    { path: '/admin-users', icon: <Users size={20} />, label: 'Users' },
+    { path: '/categories', icon: <BarChart3 size={20} />, label: 'Categories' },
+    { path: '/admin-blogs', icon: <ShoppingCart size={20} />, label: 'Blogs' },
+    { path: '/admin-contacts', icon: <Package size={20} />, label: 'Contacts' },
   ];
 
   const secondaryItems = [
-    { id: 'settings', icon: <Settings size={20} />, label: 'Settings', badge: null },
-    { id: 'help', icon: <HelpCircle size={20} />, label: 'Help Center', badge: null },
+    { path: '/help', icon: <HelpCircle size={20} />, label: 'Help Center' },
   ];
 
-  const handleItemClick = (itemId) => {
-    if (onNavigate) {
-      onNavigate(itemId);
-    }
-    if (isMobile) {
-      toggleSidebar();
+  const handleLogout = () => {
+    if (window.confirm('Are you sure you want to logout?')) {
+      logout();
     }
   };
+
+  const linkBaseClasses = `
+    w-full flex items-center px-3 py-3 rounded-lg transition-colors
+  `;
+
+  const getLinkClasses = ({ isActive }) =>
+    `${linkBaseClasses}
+     ${isCollapsed ? 'justify-center' : 'space-x-3'}
+     ${isActive
+        ? 'bg-blue-600 text-white'
+        : 'text-gray-300 hover:bg-gray-800'
+     }`;
 
   return (
     <>
       {/* Mobile Overlay */}
       {!isCollapsed && isMobile && (
-        <div 
+        <div
           className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
           onClick={toggleSidebar}
         />
       )}
 
-      {/* Sidebar */}
-      <aside className={`
-        fixed lg:static inset-y-0 left-0 z-40
-        transform transition-all duration-300 ease-in-out
-        ${isCollapsed ? '-translate-x-full lg:translate-x-0 lg:w-20' : 'translate-x-0 w-64'}
-        ${isCollapsed ? 'lg:w-20' : 'w-64'}
-        bg-gray-900 text-white h-screen flex flex-col
-        shadow-2xl
-      `}>
-        {/* Logo Section */}
+      <aside
+        className={`
+          fixed lg:static inset-y-0 left-0 z-40
+          transform transition-all duration-300
+          ${isCollapsed ? '-translate-x-full lg:translate-x-0 lg:w-20' : 'translate-x-0 w-64'}
+          bg-gray-900 text-white h-screen flex flex-col shadow-2xl
+        `}
+      >
+        {/* Logo */}
         <div className="p-6 border-b border-gray-800 flex items-center justify-between">
-          <div className={`flex items-center space-x-3 ${isCollapsed ? 'justify-center w-full' : ''}`}>
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+          <div className={`flex items-center space-x-3 ${isCollapsed && 'justify-center w-full'}`}>
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
               <Shield size={24} />
             </div>
             {!isCollapsed && (
@@ -71,119 +87,106 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile, onNavigate }) => {
               </div>
             )}
           </div>
-          
+
           {!isCollapsed && isMobile && (
-            <button 
-              onClick={toggleSidebar}
-              className="p-1 hover:bg-gray-800 rounded-lg"
-            >
+            <button onClick={toggleSidebar} className="p-1 hover:bg-gray-800 rounded-lg">
               <X size={20} />
             </button>
           )}
         </div>
 
-        {/* Collapse Toggle for Desktop */}
+        {/* Collapse Button */}
         {!isMobile && (
           <button
             onClick={toggleSidebar}
-            className="absolute -right-3 top-20 bg-gray-800 hover:bg-gray-700 p-1.5 rounded-full border border-gray-700 shadow-lg z-10"
+            className="absolute -right-3 top-20 bg-gray-800 p-1.5 rounded-full border border-gray-700"
           >
             {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
           </button>
         )}
 
-        {/* Main Navigation */}
+        {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-6">
-          <div className={`px-4 mb-6 ${isCollapsed ? 'text-center' : ''}`}>
-            {!isCollapsed && (
-              <h2 className="text-xs uppercase text-gray-400 font-semibold tracking-wider">
-                Main Menu
-              </h2>
-            )}
-          </div>
-          
           <ul className={`space-y-1 ${isCollapsed ? 'px-2' : 'px-4'}`}>
-            {menuItems.map((item) => (
-              <li key={item.id}>
-                <button
-                  onClick={() => handleItemClick(item.id)}
-                  className={`
-                    w-full flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} 
-                    px-3 py-3 rounded-lg transition-colors
-                    hover:bg-gray-800 text-gray-300
-                    ${item.id === 'dashboard' ? 'bg-blue-600 text-white hover:bg-blue-700' : ''}
-                  `}
+            {menuItems.map(item => (
+              <li key={item.path}>
+                <NavLink
+                  to={item.path}
+                  className={getLinkClasses}
                   title={isCollapsed ? item.label : ''}
+                  onClick={isMobile ? toggleSidebar : undefined}
                 >
-                  <span className={item.id === 'dashboard' ? 'text-white' : 'text-gray-400'}>
-                    {item.icon}
-                  </span>
-                  {!isCollapsed && (
-                    <>
-                      <span className="font-medium flex-1 text-left">{item.label}</span>
-                      {item.badge && (
-                        <span className="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">
-                          {item.badge}
-                        </span>
-                      )}
-                    </>
-                  )}
-                </button>
+                  <span>{item.icon}</span>
+                  {!isCollapsed && <span className="font-medium">{item.label}</span>}
+                </NavLink>
               </li>
             ))}
           </ul>
 
-          {/* Secondary Items */}
           <div className={`mt-8 ${isCollapsed ? 'px-2' : 'px-4'}`}>
             {!isCollapsed && (
-              <h2 className="text-xs uppercase text-gray-400 font-semibold tracking-wider mb-2">
+              <h2 className="text-xs uppercase text-gray-400 font-semibold mb-2">
                 Settings
               </h2>
             )}
-            
+
             <ul className="space-y-1">
-              {secondaryItems.map((item) => (
-                <li key={item.id}>
-                  <button
-                    onClick={() => handleItemClick(item.id)}
-                    className={`
-                      w-full flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} 
-                      px-3 py-3 rounded-lg text-gray-300 hover:bg-gray-800 transition-colors
-                    `}
+              {secondaryItems.map(item => (
+                <li key={item.path}>
+                  <NavLink
+                    to={item.path}
+                    className={getLinkClasses}
                     title={isCollapsed ? item.label : ''}
+                    onClick={isMobile ? toggleSidebar : undefined}
                   >
-                    <span className="text-gray-400">{item.icon}</span>
-                    {!isCollapsed && (
-                      <span className="font-medium">{item.label}</span>
-                    )}
-                  </button>
+                    <span>{item.icon}</span>
+                    {!isCollapsed && <span className="font-medium">{item.label}</span>}
+                  </NavLink>
                 </li>
               ))}
             </ul>
           </div>
         </nav>
 
-        {/* User Profile Section */}
+        {/* Profile */}
         <div className="p-4 border-t border-gray-800">
-          <div className={`
-            flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} 
-            p-3 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer
-          `}>
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-              <User size={20} />
+          <button
+            onClick={handleLogout}
+            className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} p-3 rounded-lg hover:bg-gray-800 transition-colors group`}
+            title={isCollapsed ? 'Logout' : ''}
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+              {user?.fullName ? (
+                <span className="text-white font-semibold text-sm">
+                  {user.fullName.charAt(0).toUpperCase()}
+                </span>
+              ) : (
+                <User size={20} />
+              )}
             </div>
             {!isCollapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="font-medium truncate">Admin User</p>
-                <p className="text-xs text-gray-400 truncate">admin@bytebodh.com</p>
-              </div>
+              <>
+                <div className="flex-1 text-left">
+                  <p className="font-medium text-white truncate">
+                    {user?.fullName || 'Admin User'}
+                  </p>
+                  <p className="text-xs text-gray-400 truncate">
+                    {user?.email || 'admin@bytebodh.com'}
+                  </p>
+                </div>
+                <LogOut 
+                  size={18} 
+                  className="text-gray-400 group-hover:text-white transition-colors"
+                />
+              </>
             )}
-            {!isCollapsed && (
-              <button className="p-1 hover:bg-gray-700 rounded">
-                <LogOut size={18} />
-              </button>
+            {isCollapsed && (
+              <LogOut 
+                size={18} 
+                className="text-gray-400 group-hover:text-white transition-colors"
+              />
             )}
-          </div>
+          </button>
         </div>
       </aside>
     </>

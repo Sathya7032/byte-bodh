@@ -5,14 +5,13 @@ import {
   saveAuthData,
   logout,
 } from "../services/auth"; // 👈 the file where your axios code exists
-
-const API_URL = "https://backend.bytebodh.in"; // ✅ base backend URL
+import API_BASE_URL from "../config/api";
 
 /* =========================
    AXIOS INSTANCE
 ========================= */
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -71,7 +70,7 @@ export const updateProfile = (data) =>
 
 export const deleteProfile = () => api.delete("/api/profile");
 
-export const getPublicProfileByUsername = (username) =>axios.get(`${API_URL}/api/profile/public/${username}`);
+export const getPublicProfileByUsername = (username) =>axios.get(`${API_BASE_URL}/api/profile/public/${username}`);
 
 export const createContactMessage = (data) => api.post("/api/contact", data);
 

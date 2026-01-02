@@ -1,12 +1,11 @@
 import axios from "axios";
-
-const API_URL = "https://backend.bytebodh.in/auth";
+import { API_ENDPOINTS } from "../config/api";
 
 /* =========================
    AXIOS INSTANCE
 ========================= */
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: API_ENDPOINTS.AUTH,
   headers: {
     "Content-Type": "application/json",
   },
@@ -185,7 +184,7 @@ export const loginUser = async (loginData) => {
 export const googleLogin = () => {
   // Clear any existing auth data before starting Google OAuth
   clearAuthData();
-  window.location.href = `${API_URL}/google`;
+  window.location.href = `${API_ENDPOINTS.AUTH}/google`;
 };
 
 /* =========================

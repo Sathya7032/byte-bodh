@@ -12,21 +12,22 @@ import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import API_BASE_URL from "../config/api";
 
 function BlogDetail() {
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { slug } = useParams();
-  const API_BASE = "https://bytebodh.codewithsathya.info/api";
 
-  // Fetch blog details by slug
+  // Fetch blog details by slug - public endpoint without authentication
   useEffect(() => {
     const fetchBlogDetail = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_BASE}/blog-posts/${slug}/`);
-        setBlog(response.data.data);
+        const response = await axios.get(`${API_BASE_URL}/api/blogs/slug/${slug}`);
+        // Handle different response structures
+        setBlog(response.data.data || response.data);
       } catch (err) {
         setError("Blog post not found");
         console.error("Error fetching blog details:", err);
@@ -116,35 +117,36 @@ function BlogDetail() {
                 {blog.title}
               </h1>
 
-              {/* Excerpt */}
-              <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed">
-                {blog.excerpt}
-              </p>
-
               {/* Meta Information */}
               <div className="flex flex-wrap gap-4 md:gap-6 text-gray-400 text-sm md:text-base">
                 <div className="flex items-center">
                   <FaUser className="mr-2" />
                   <span>By {blog.author || "ByteBodh Team"}</span>
                 </div>
-                <div className="flex items-center">
-                  <FaCalendar className="mr-2" />
-                  <span>
-                    {new Date(blog.published_date).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </span>
-                </div>
+                {(blog.createdAt || blog.created_at || blog.published_date) && (
+                  <div className="flex items-center">
+                    <FaCalendar className="mr-2" />
+                    <span>
+                      {new Date(
+                        blog.createdAt || blog.created_at || blog.published_date
+                      ).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-center">
                   <FaClock className="mr-2" />
-                  <span>{blog.read_time || 5} min read</span>
+                  <span>{blog.readTime || blog.read_time || 5} min read</span>
                 </div>
-                <div className="flex items-center">
-                  <FaEye className="mr-2" />
-                  <span>{blog.views} views</span>
-                </div>
+                {blog.views !== undefined && (
+                  <div className="flex items-center">
+                    <FaEye className="mr-2" />
+                    <span>{blog.views || 0} views</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -156,52 +158,48 @@ function BlogDetail() {
             <div className="max-w-4xl mx-auto">
               <article className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
                 {/* Featured Image */}
-                {blog.featured_image && (
+                {blog.imageUrl && (
                   <div className="mb-8 rounded-xl overflow-hidden shadow-lg">
                     <img
-                      src={blog.featured_image}
+                      src={blog.imageUrl}
                       alt={blog.title}
-                      className="w-full h-auto max-h-[400px] object-cover"
+                      className="w-full h-auto max-h-[500px] object-cover"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.style.display = 'none';
+                      }}
                     />
                   </div>
                 )}
 
-                {/* Blog Content */}
-                <div
-                  className="prose prose-lg max-w-none prose-headings:text-gray-800 
-                           prose-p:text-gray-600 prose-p:leading-relaxed 
-                           prose-strong:text-gray-800 prose-ul:text-gray-600 
-                           prose-ol:text-gray-600 prose-li:leading-relaxed
-                           prose-blockquote:border-l-4 prose-blockquote:border-blue-500
-                           prose-blockquote:pl-6 prose-blockquote:text-gray-600
-                           prose-pre:bg-gray-900 prose-pre:text-gray-100
-                           prose-code:text-red-600 prose-code:bg-gray-100
-                           prose-code:px-1 prose-code:py-0.5 prose-code:rounded
-                           prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl"
-                  dangerouslySetInnerHTML={{ __html: blog.content }}
-                />
+                {/* Blog Content - Description HTML */}
+                {blog.description && (
+                  <div
+                    className="prose prose-lg max-w-none prose-headings:text-gray-800 
+                             prose-p:text-gray-600 prose-p:leading-relaxed 
+                             prose-strong:text-gray-800 prose-ul:text-gray-600 
+                             prose-ol:text-gray-600 prose-li:leading-relaxed
+                             prose-blockquote:border-l-4 prose-blockquote:border-blue-500
+                             prose-blockquote:pl-6 prose-blockquote:text-gray-600
+                             prose-pre:bg-gray-900 prose-pre:text-gray-100
+                             prose-code:text-red-600 prose-code:bg-gray-100
+                             prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+                             prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
+                             prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
+                             prose-img:rounded-lg prose-img:shadow-md"
+                    dangerouslySetInnerHTML={{ __html: blog.description }}
+                  />
+                )}
 
-                {/* Tags */}
-                {blog.tags && blog.tags.length > 0 && (
+                {/* Featured Badge */}
+                {blog.isFeatured && (
                   <div className="mt-8 pt-6 border-t border-gray-100">
-                    <div className="flex items-center mb-4">
-                      <FaTag className="text-gray-500 mr-2" />
-                      <h4 className="text-lg font-semibold text-gray-800">
-                        Tags:
-                      </h4>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {blog.tags.map((tag, index) => (
-                        <span
-                          key={tag.id}
-                          className="inline-flex items-center px-4 py-2 rounded-full 
-                                   bg-gray-100 text-gray-700 text-sm font-medium 
-                                   border border-gray-200 hover:bg-gray-200 transition-colors"
-                        >
-                          {tag.name}
-                        </span>
-                      ))}
-                    </div>
+                    <span className="inline-flex items-center px-4 py-2 rounded-full 
+                                   bg-gradient-to-r from-yellow-400 to-orange-500 
+                                   text-white text-sm font-semibold">
+                      <FaTag className="mr-2" />
+                      Featured Post
+                    </span>
                   </div>
                 )}
               </article>

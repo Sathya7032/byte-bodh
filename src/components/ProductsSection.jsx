@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaQrcode, FaUserGraduate, FaArrowRight } from 'react-icons/fa';
+import { FaQrcode, FaUserGraduate, FaArrowRight, FaFileInvoice, FaImage } from 'react-icons/fa';
 
 function ProductsSection() {
   return (
@@ -94,6 +94,86 @@ function ProductsSection() {
               className="block w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-medium flex items-center justify-center transition-colors text-center"
             >
               Build Portfolio
+              <FaArrowRight className="ml-2" />
+            </Link>
+          </div>
+
+          {/* Invoice Generator Card */}
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow p-6">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                <FaFileInvoice className="text-green-600 text-xl" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-800">Invoice Generator</h3>
+                <p className="text-green-600 text-sm">Create professional invoices</p>
+              </div>
+            </div>
+            
+            <p className="text-gray-600 mb-6">
+              Generate professional invoices with GST support, tax calculations, and export to PDF. Perfect for businesses and freelancers.
+            </p>
+            
+            <div className="space-y-3 mb-6">
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                <span className="text-gray-700">GST and tax calculations</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                <span className="text-gray-700">Export to PDF format</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                <span className="text-gray-700">Customizable templates</span>
+              </div>
+            </div>
+            
+            <Link 
+              to="/invoive-generator"
+              className="block w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium flex items-center justify-center transition-colors text-center"
+            >
+              Create Invoice
+              <FaArrowRight className="ml-2" />
+            </Link>
+          </div>
+
+          {/* Image Compressor Card */}
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow p-6">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
+                <FaImage className="text-orange-600 text-xl" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-800">Image Compressor</h3>
+                <p className="text-orange-600 text-sm">Compress images online</p>
+              </div>
+            </div>
+            
+            <p className="text-gray-600 mb-6">
+              Reduce image file sizes without losing quality. Perfect for optimizing photos for web, email, or storage.
+            </p>
+            
+            <div className="space-y-3 mb-6">
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
+                <span className="text-gray-700">Batch compression support</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
+                <span className="text-gray-700">Quality control options</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
+                <span className="text-gray-700">Fast and secure processing</span>
+              </div>
+            </div>
+            
+            <Link 
+              to="/image-compressor"
+              className="block w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-lg font-medium flex items-center justify-center transition-colors text-center"
+            >
+              Compress Images
               <FaArrowRight className="ml-2" />
             </Link>
           </div>

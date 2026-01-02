@@ -16,10 +16,11 @@ import {
 } from "react-icons/fa";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import API_BASE_URL from "../config/api";
 
 // Create axios instance with base URL
 const api = axios.create({
-  baseURL: "http://localhost:8080", // Change to your backend URL
+  baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },

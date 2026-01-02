@@ -30,6 +30,14 @@ import Tasks from "./portfolio/Tasks";
 import HelpSupportPage from "./portfolio/HelpSupportPage";
 import AdminLogin from "./admin/AdminLogin";
 import DashboardPage from "./admin/pages/DashboardPage";
+import InvoiceGenerator from "./products/InvoiceGenerator";
+import ImageCompressor from "./products/ImageCompressor";
+import Categories from "./admin/pages/Categories";
+import Blogs from "./admin/pages/Blogs";
+import AdminBlogDetail from "./admin/pages/AdminBlogDetail";
+import BlogForm from './admin/pages/BlogForm'
+import AdminContacts from "./admin/pages/AdminContacts";
+import Users from "./admin/pages/Users";
 
 const App = () => {
   const googleClientId =
@@ -53,6 +61,8 @@ const App = () => {
             element={<TermsAndConditions />}
           />
           <Route path="/cookie-policy" element={<CookiePolicy />} />
+          <Route path="/invoive-generator" element={<InvoiceGenerator />} />
+          <Route path="/image-compressor" element={<ImageCompressor />} />
           {/*         
           <Route path="/jobs" element={<Jobs />} />
           
@@ -73,11 +83,19 @@ const App = () => {
             <Route path="/contacts" element={<Contacts />} />
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/help" element={<HelpSupportPage />} />
+
+            <Route path="/admin-dashboard" element={<DashboardPage />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/admin-blogs" element={<Blogs />} />
+            <Route path="/admin-blogs/:id" element={<AdminBlogDetail />} />
+            <Route path="/admin-blogs/create" element={<BlogForm />} />
+            <Route path="/admin-blogs/edit/:id" element={<BlogForm />} />
+            <Route path="/admin-contacts" element={<AdminContacts />} />
+            <Route path="/admin-users" element={<Users />} />
           </Route>
 
           {/* ===== ADMIN LOGIN ===== */}
           <Route path="/admin-login" element={<AdminLogin />} />
-          <Route path="/admin-dashboard" element={<DashboardPage />} />
         </Routes>
         <Analytics />
       </BrowserRouter>

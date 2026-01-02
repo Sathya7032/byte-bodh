@@ -5,28 +5,49 @@ import {
   Search, 
   Menu,
   ChevronDown,
-  User,
-  Settings,
-  HelpCircle,
   LogOut,
-  TrendingUp,
-  Users,
-  ShoppingCart,
-  DollarSign
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { getUser, logout } from "../services/auth";
 
 const Navbar = ({ 
   toggleSidebar, 
   pageTitle = "Dashboard",
-  onSearch,
-  user = { name: "Admin User", email: "admin@bytebodh.com", role: "Administrator" }
+  onSearch
 }) => {
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
+  const [user, setUser] = useState({
+    name: "Admin User",
+    email: "admin@bytebodh.com",
+    role: "Administrator"
+  });
 
- 
+  // Load user data from auth service
+  useEffect(() => {
+    const loadUserData = () => {
+      try {
+        const userData = getUser();
+        if (userData) {
+          setUser({
+            name: userData.fullName || "Admin User",
+            email: userData.email || "admin@bytebodh.com",
+            role: userData.role === 'admin' ? "Administrator" : userData.role || "User"
+          });
+        }
+      } catch (error) {
+        console.error("Error loading user data:", error);
+        // Fallback to default user data
+      }
+    };
+
+    loadUserData();
+  }, []);
+
   const handleSearch = (e) => {
     const value = e.target.value;
     setSearchQuery(value);
@@ -35,17 +56,26 @@ const Navbar = ({
     }
   };
 
-  
-
   const markAllAsRead = () => {
     setUnreadCount(0);
     setShowNotifications(false);
+    toast.success("All notifications marked as read");
   };
 
   const handleLogout = () => {
-    // Add logout logic here
-    console.log('Logging out...');
+    // Show confirmation toast
+    toast.info("Logging out...", {
+      position: "top-center",
+      autoClose: 1000,
+    });
+
+    // Add a small delay before actual logout
+    setTimeout(() => {
+      logout(); // This will clear auth data and redirect to /login
+    }, 1500);
   };
+
+  
 
   useEffect(() => {
     // Close dropdowns when clicking outside
@@ -102,6 +132,43 @@ const Navbar = ({
               />
             </div>
 
+            {/* Notifications (Optional - kept for reference) */}
+            <div className="relative notifications-dropdown">
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative"
+                aria-label="Notifications"
+              >
+                <Bell className="h-5 w-5 text-gray-600" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+                  <div className="p-4 border-b flex justify-between items-center">
+                    <h3 className="font-semibold text-gray-800">Notifications</h3>
+                    <button
+                      onClick={markAllAsRead}
+                      className="text-sm text-blue-600 hover:text-blue-800"
+                    >
+                      Mark all as read
+                    </button>
+                  </div>
+                  <div className="max-h-80 overflow-y-auto">
+                    {/* Notification items would go here */}
+                    <div className="p-4 hover:bg-gray-50">
+                      <p className="text-sm text-gray-800">System update completed successfully</p>
+                      <p className="text-xs text-gray-500 mt-1">5 minutes ago</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* User Menu */}
             <div className="relative user-menu-dropdown">
               <button
@@ -124,33 +191,11 @@ const Navbar = ({
                     <p className="font-medium text-gray-800">{user.name}</p>
                     <p className="text-sm text-gray-500 truncate">{user.email}</p>
                   </div>
-                  <div className="py-2">
-                    <a
-                      href="#"
-                      className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      <User size={18} />
-                      <span>Profile</span>
-                    </a>
-                    <a
-                      href="#"
-                      className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      <Settings size={18} />
-                      <span>Settings</span>
-                    </a>
-                    <a
-                      href="#"
-                      className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      <HelpCircle size={18} />
-                      <span>Help & Support</span>
-                    </a>
-                  </div>
+                  
                   <div className="border-t py-2">
                     <button
                       onClick={handleLogout}
-                      className="flex items-center space-x-3 w-full px-4 py-2 text-red-600 hover:bg-red-50 transition-colors"
+                      className="flex items-center space-x-3 w-full px-4 py-2 text-red-600 hover:bg-red-50 transition-colors text-left"
                     >
                       <LogOut size={18} />
                       <span>Logout</span>

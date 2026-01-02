@@ -5,7 +5,6 @@ import {
   Download,
   Envelope,
   CalendarCheck,
-  Gear,
   QuestionCircle,
 } from "react-bootstrap-icons";
 import { useNavigate, useLocation } from "react-router-dom";
