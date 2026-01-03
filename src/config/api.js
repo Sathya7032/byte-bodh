@@ -1,7 +1,8 @@
 // Centralized API Configuration
 // Update this base URL to change API endpoint across the entire application
 
-const API_BASE_URL = "https://backend.bytebodh.in";
+// const API_BASE_URL = "https://backend.bytebodh.in";
+const API_BASE_URL = "http://localhost:8080";
 
 export default API_BASE_URL;
 
