@@ -8,8 +8,8 @@ import BlogDetail from "./pages/BlogDetail";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import CookiePolicy from "./pages/CookiePolicy";
-// import Jobs from "./pages/Jobs";
-// import JobDetail from "./pages/JobDetail";
+import Jobs from "./pages/Jobs";
+import JobDetail from "./pages/JobDetail";
 import { Analytics } from "@vercel/analytics/react";
 import ByteBodhQRGenerator from "./qr-code/ByteBodhQRGenerator";
 import Products from "./pages/Products";
@@ -39,6 +39,9 @@ import BlogForm from './admin/pages/BlogForm'
 import AdminContacts from "./admin/pages/AdminContacts";
 import Users from "./admin/pages/Users";
 import CodeEditor from "./products/CodeEditor";
+import JobNotifications from "./admin/pages/JobNotifications";
+import JobNotificationForm from "./admin/pages/JobNotificationForm";
+import JobNotificationDetail from "./admin/pages/JobNotificationDetail";
 
 const App = () => {
   const googleClientId =
@@ -65,11 +68,8 @@ const App = () => {
           <Route path="/invoive-generator" element={<InvoiceGenerator />} />
           <Route path="/image-compressor" element={<ImageCompressor />} />
           <Route path="/code-editor" element={<CodeEditor />} />
-          {/*         
           <Route path="/jobs" element={<Jobs />} />
-          
           <Route path="/jobs/:id" element={<JobDetail />} />
-           */}
 
           {/* ===== PROTECTED ROUTES ===== */}
 
@@ -94,6 +94,10 @@ const App = () => {
             <Route path="/admin-blogs/edit/:id" element={<BlogForm />} />
             <Route path="/admin-contacts" element={<AdminContacts />} />
             <Route path="/admin-users" element={<Users />} />
+            <Route path="/admin/job-notifications" element={<JobNotifications />} />
+            <Route path="/admin/job-notifications/create" element={<JobNotificationForm />} />
+            <Route path="/admin/job-notifications/:id" element={<JobNotificationDetail />} />
+            <Route path="/admin/job-notifications/:id/edit" element={<JobNotificationForm />} />
           </Route>
 
           {/* ===== ADMIN LOGIN ===== */}

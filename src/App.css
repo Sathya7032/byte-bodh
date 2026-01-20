@@ -64,3 +64,487 @@
   backdrop-filter: blur(8px);
   background-color: rgba(255, 255, 255, 0.95) !important;
 }
+
+/* Dashboard Mobile Responsiveness */
+@media (max-width: 768px) {
+  /* Welcome Header - Stack on mobile */
+  .dashboard-welcome-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  /* Quote Section - Reduce padding on mobile */
+  .dashboard-quote-section {
+    padding: 1.5rem;
+  }
+  
+  .dashboard-quote-section p {
+    font-size: 1.25rem;
+  }
+  
+  .dashboard-quote-section blockquote {
+    font-size: 1.5rem !important;
+  }
+  
+  /* Hide status indicator on mobile to save space */
+  .dashboard-active-status {
+    display: none;
+  }
+  
+  /* Date display stays visible */
+  .dashboard-date-display {
+    width: 100%;
+    text-align: left;
+  }
+  
+  /* Stats cards - Full width on mobile */
+  .dashboard-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Reduce stat card icon size on mobile */
+  .dashboard-stat-icon {
+    width: 3rem;
+    height: 3rem;
+  }
+  
+  .dashboard-stat-icon-content {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  
+  /* Two column layout - Stack on mobile */
+  .dashboard-main-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Reduce padding in cards on mobile */
+  .dashboard-card {
+    padding: 1.5rem;
+  }
+  
+  /* Upcoming features - Single column on mobile */
+  .dashboard-features-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboard-feature-card {
+    padding: 1rem;
+  }
+  
+  /* Table responsive - Adjust font size */
+  .dashboard-activity-table {
+    font-size: 0.875rem;
+  }
+  
+  .dashboard-activity-table th,
+  .dashboard-activity-table td {
+    padding: 0.75rem;
+  }
+  
+  /* Activity row - Stack items on mobile */
+  .dashboard-activity-row-content {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  /* Quote section buttons - Adjust spacing */
+  .dashboard-quote-controls {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .dashboard-quote-dots {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Extra small screens - Even more aggressive adjustments */
+  
+  /* Welcome header text */
+  .dashboard-welcome-title {
+    font-size: 1.5rem;
+  }
+  
+  .dashboard-welcome-subtitle {
+    font-size: 1rem;
+  }
+  
+  /* Quote section - Very compact on small screens */
+  .dashboard-quote-section {
+    padding: 1rem;
+  }
+  
+  .dashboard-quote-section blockquote {
+    font-size: 1.25rem !important;
+    margin-bottom: 1rem;
+  }
+  
+  /* Author and category */
+  .dashboard-quote-meta {
+    font-size: 0.875rem;
+  }
+  
+  /* Stat card title */
+  .dashboard-stat-title {
+    font-size: 0.875rem;
+  }
+  
+  /* Stat number - Slightly smaller */
+  .dashboard-stat-number {
+    font-size: 2rem;
+  }
+  
+  /* Stat description */
+  .dashboard-stat-desc {
+    font-size: 0.75rem;
+  }
+  
+  /* Card padding - More compact */
+  .dashboard-card {
+    padding: 1rem;
+  }
+  
+  /* Feature card - Reduce padding */
+  .dashboard-feature-card {
+    padding: 0.75rem;
+  }
+  
+  /* Feature icon size */
+  .dashboard-feature-icon {
+    padding: 0.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  
+  /* Feature title and description */
+  .dashboard-feature-title {
+    font-size: 0.95rem;
+  }
+  
+  .dashboard-feature-desc {
+    font-size: 0.8rem;
+  }
+  
+  /* Activity table - Stack completely */
+  .dashboard-activity-table {
+    font-size: 0.75rem;
+  }
+  
+  .dashboard-activity-row-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  
+  /* Quick actions - Full width */
+  .dashboard-quick-action {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  /* Sidebar - Move to top on small screens */
+  .dashboard-sidebar {
+    order: -1;
+  }
+  
+  /* Progress bars - Adjust height */
+  .dashboard-progress-bar {
+    height: 0.5rem;
+  }
+}
+
+/* Landscape mobile adjustments */
+@media (max-height: 600px) and (orientation: landscape) {
+  .dashboard-quote-section {
+    padding: 0.75rem;
+  }
+  
+  .dashboard-quote-section blockquote {
+    font-size: 1rem !important;
+    margin-bottom: 0.5rem;
+  }
+  
+  .dashboard-card {
+    padding: 1rem;
+  }
+}
+
+/* Portfolio Mobile Responsiveness */
+@media (max-width: 1024px) {
+  /* Hero section - stack on tablet and below */
+  .portfolio-hero-section {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .portfolio-hero-image {
+    width: 14rem;
+    height: 14rem;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Top bar adjustments */
+  .portfolio-topbar {
+    padding: 0.5rem;
+  }
+  
+  .portfolio-topbar-logo {
+    gap: 0.5rem;
+  }
+  
+  .portfolio-topbar-logo-name {
+    font-size: 1rem;
+  }
+  
+  .portfolio-topbar-logo-username {
+    font-size: 0.625rem;
+  }
+  
+  /* Hero section */
+  .portfolio-hero-section {
+    padding-top: 2rem;
+    padding-bottom: 1rem;
+    gap: 2rem;
+  }
+  
+  .portfolio-hero-image {
+    width: 12rem;
+    height: 12rem;
+    border-width: 4px;
+  }
+  
+  .portfolio-hero-content {
+    padding: 0 1rem;
+  }
+  
+  .portfolio-hero-title {
+    font-size: 1.875rem;
+  }
+  
+  .portfolio-hero-subtitle {
+    font-size: 1rem;
+  }
+  
+  /* Skills section */
+  .portfolio-skills-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .portfolio-skill-item-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  /* Projects section */
+  .portfolio-projects-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .portfolio-project-header {
+    height: 12rem;
+  }
+  
+  .portfolio-project-title {
+    font-size: 1.25rem;
+  }
+  
+  .portfolio-project-content {
+    padding: 1rem;
+  }
+  
+  /* Experience section */
+  .portfolio-experience-timeline {
+    display: none;
+  }
+  
+  .portfolio-experience-item {
+    flex-direction: column;
+  }
+  
+  .portfolio-experience-dot {
+    display: none;
+  }
+  
+  .portfolio-experience-card {
+    width: 100%;
+    padding: 1.5rem;
+  }
+  
+  /* Education section */
+  .portfolio-education-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .portfolio-education-card {
+    padding: 1.5rem;
+  }
+  
+  .portfolio-education-header {
+    font-size: 1.125rem;
+  }
+  
+  .portfolio-education-degree {
+    font-size: 1rem;
+  }
+  
+  /* Certifications section */
+  .portfolio-certifications-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .portfolio-certification-card {
+    padding: 1.5rem;
+  }
+  
+  /* Contact section */
+  .portfolio-contact-container {
+    flex-direction: column;
+  }
+  
+  .portfolio-contact-info {
+    width: 100%;
+  }
+  
+  .portfolio-contact-form {
+    width: 100%;
+    gap: 1rem;
+  }
+  
+  .portfolio-contact-input {
+    padding: 0.75rem;
+  }
+  
+  /* Section margins */
+  .portfolio-section {
+    padding: 3rem 0;
+  }
+  
+  .portfolio-section-title {
+    font-size: 1.875rem;
+  }
+  
+  .portfolio-section-subtitle {
+    font-size: 1rem;
+  }
+  
+  .portfolio-section-content {
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Extra small screens */
+  
+  /* Top bar */
+  .portfolio-topbar-logo-name {
+    font-size: 0.875rem;
+  }
+  
+  .portfolio-topbar-logo-username {
+    font-size: 0.5rem;
+  }
+  
+  /* Hero section */
+  .portfolio-hero-image {
+    width: 10rem;
+    height: 10rem;
+    border-width: 3px;
+  }
+  
+  .portfolio-hero-title {
+    font-size: 1.5rem;
+  }
+  
+  .portfolio-hero-subtitle {
+    font-size: 0.875rem;
+  }
+  
+  .portfolio-hero-content {
+    padding: 0 0.5rem;
+  }
+  
+  /* Status badge and contact info */
+  .portfolio-status-badge {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .portfolio-contact-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .portfolio-contact-buttons a,
+  .portfolio-contact-buttons button {
+    width: 100%;
+  }
+  
+  /* Skill items */
+  .portfolio-skill-item-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .portfolio-skill-card {
+    padding: 1rem;
+  }
+  
+  /* Projects */
+  .portfolio-project-header {
+    height: 10rem;
+  }
+  
+  .portfolio-project-title {
+    font-size: 1rem;
+  }
+  
+  /* Section titles */
+  .portfolio-section-title {
+    font-size: 1.5rem;
+  }
+  
+  .portfolio-section-subtitle {
+    font-size: 0.875rem;
+  }
+  
+  /* Cards general */
+  .portfolio-card {
+    padding: 1rem;
+  }
+  
+  /* Timeline text */
+  .portfolio-experience-date {
+    font-size: 0.875rem;
+  }
+  
+  /* Share modal adjustments */
+  .portfolio-share-modal-title {
+    font-size: 1.25rem;
+  }
+  
+  .portfolio-share-modal-content {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-height: 600px) and (orientation: landscape) {
+  .portfolio-hero-section {
+    padding-top: 1rem;
+    padding-bottom: 0.5rem;
+    gap: 1rem;
+  }
+  
+  .portfolio-hero-image {
+    width: 8rem;
+    height: 8rem;
+  }
+  
+  .portfolio-hero-title {
+    font-size: 1.25rem;
+  }
+  
+  .portfolio-section {
+    padding: 2rem 0;
+  }
+}

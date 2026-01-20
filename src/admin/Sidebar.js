@@ -13,7 +13,8 @@ import {
   Package,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Briefcase
 } from 'lucide-react';
 import { getUser, logout } from '../services/auth';
 
@@ -31,6 +32,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile }) => {
     { path: '/admin-users', icon: <Users size={20} />, label: 'Users' },
     { path: '/categories', icon: <BarChart3 size={20} />, label: 'Categories' },
     { path: '/admin-blogs', icon: <ShoppingCart size={20} />, label: 'Blogs' },
+    { path: '/admin/job-notifications', icon: <Briefcase size={20} />, label: 'Job Notifications' },
     { path: '/admin-contacts', icon: <Package size={20} />, label: 'Contacts' },
   ];
 

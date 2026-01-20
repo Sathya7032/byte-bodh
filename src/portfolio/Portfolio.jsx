@@ -501,12 +501,12 @@ const ShareModal = () => (
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-md bg-white rounded-2xl shadow-xl"
-            onClick={(e) => e.stopPropagation()} // This prevents clicks inside modal from closing
+            className="portfolio-share-modal-content relative w-full max-w-md bg-white rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-gray-900">
+                <h3 className="portfolio-share-modal-title text-xl font-bold text-gray-900">
                   Share Portfolio
                 </h3>
                 <button
@@ -624,13 +624,13 @@ const ShareModal = () => (
       <ShareModal />
 
       {/* TOP BAR */}
-      <div className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+      <div className={`portfolio-topbar fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         isScrolled ? "bg-white shadow-lg backdrop-blur-sm bg-white/90" : "bg-transparent"
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo/Name */}
-            <div className="flex items-center gap-3">
+            <div className="portfolio-topbar-logo flex items-center gap-3">
               {profile.user?.pictureUrl ? (
                 <img
                   src={profile.pictureUrl}
@@ -639,14 +639,14 @@ const ShareModal = () => (
                 />
               ) : (
                 <div className="w-10 h-10 rounded-full" style={{ background: colors.primary.gradient }}>
-                  <span className="text-lg font-bold text-white flex items-center justify-center h-full">
+                  <span className="portfolio-topbar-logo-name text-lg font-bold text-white flex items-center justify-center h-full">
                     {getInitials(profile.fullName)}
                   </span>
                 </div>
               )}
               <div>
-                <h1 className="text-xl font-bold text-gray-800">{profile.fullName || "User"}</h1>
-                <p className="text-xs text-gray-500">@{profile.user?.username || username}</p>
+                <h1 className="portfolio-topbar-logo-name text-xl font-bold text-gray-800">{profile.fullName || "User"}</h1>
+                <p className="portfolio-topbar-logo-username text-xs text-gray-500">@{profile.user?.username || username}</p>
               </div>
             </div>
 
@@ -744,7 +744,7 @@ const ShareModal = () => (
       </div>
 
       {/* HERO SECTION */}
-      <section id="home" className="relative pt-32 pb-20 lg:pt-40 lg:pb-28">
+      <section id="home" className="portfolio-section relative pt-32 pb-20 lg:pt-40 lg:pb-28">
         {/* Background with gradient overlay */}
         <div className="absolute inset-0" style={{ 
           background: `linear-gradient(135deg, ${colors.neutral[50]} 0%, ${colors.neutral[100]} 50%, ${colors.neutral[50]} 100%)`
@@ -759,8 +759,8 @@ const ShareModal = () => (
           }}></div>
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row items-center gap-12">
+        <div className="portfolio-section-content relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="portfolio-hero-section flex flex-col lg:flex-row items-center gap-12">
             {/* Profile Image */}
             <div className="relative group">
               <div className="absolute -inset-1 rounded-full opacity-20 group-hover:opacity-40 transition duration-500" 
@@ -770,10 +770,10 @@ const ShareModal = () => (
                   <img
                     src={profile.pictureUrl}
                     alt={profile.fullName || "User"}
-                    className="w-64 h-64 rounded-full border-8 border-white shadow-2xl"
+                    className="portfolio-hero-image w-64 h-64 rounded-full border-8 border-white shadow-2xl"
                   />
                 ) : (
-                  <div className="w-64 h-64 rounded-full border-8 border-white shadow-2xl flex items-center justify-center"
+                  <div className="portfolio-hero-image w-64 h-64 rounded-full border-8 border-white shadow-2xl flex items-center justify-center"
                        style={{ background: colors.primary.gradient }}>
                     <span className="text-7xl font-bold text-white">
                       {getInitials(profile.fullName)}
@@ -794,9 +794,9 @@ const ShareModal = () => (
             </div>
 
             {/* Hero Content */}
-            <div className="flex-1 text-center lg:text-left">
+            <div className="portfolio-hero-content flex-1">
               {/* Status Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 border"
+              <div className="portfolio-status-badge inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 border"
                    style={{ 
                      background: `linear-gradient(135deg, ${colors.accent.light}15, ${colors.accent.main}15)`,
                      borderColor: `${colors.accent.light}40`
@@ -807,7 +807,7 @@ const ShareModal = () => (
                 </span>
               </div>
 
-              <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-4">
+              <h1 className="portfolio-hero-title text-4xl lg:text-6xl font-bold text-gray-900 mb-4">
                 Hi, I'm <span style={{ 
                   background: colors.primary.gradient,
                   WebkitBackgroundClip: 'text',
@@ -815,7 +815,7 @@ const ShareModal = () => (
                 }}>{profile.fullName || "User"}</span>
               </h1>
               
-              <h2 className="text-2xl lg:text-3xl font-semibold mb-6" style={{ color: colors.neutral[700] }}>
+              <h2 className="portfolio-hero-subtitle text-2xl lg:text-3xl font-semibold mb-6" style={{ color: colors.neutral[700] }}>
                 {profile.headline || "Full Stack Developer"}
               </h2>
 
@@ -824,7 +824,7 @@ const ShareModal = () => (
               </p>
 
               {/* CTA Buttons */}
-              <div className="flex flex-wrap gap-4 mb-8">
+              <div className="portfolio-contact-buttons flex flex-wrap gap-4 mb-8">
                 <a
                   href="#projects"
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-lg hover:shadow-lg transition-all duration-300 font-medium group"
@@ -879,18 +879,18 @@ const ShareModal = () => (
 
       {/* SKILLS SECTION */}
       {skills.length > 0 && (
-        <section id="skills" className="py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="skills" className="portfolio-section py-20">
+          <div className="portfolio-section-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl lg:text-4xl font-bold mb-4" style={{ color: colors.neutral[900] }}>
+              <h2 className="portfolio-section-title text-3xl lg:text-4xl font-bold mb-4" style={{ color: colors.neutral[900] }}>
                 Technical Expertise
               </h2>
-              <p className="text-lg max-w-3xl mx-auto" style={{ color: colors.neutral[600] }}>
+              <p className="portfolio-section-subtitle text-lg max-w-3xl mx-auto" style={{ color: colors.neutral[600] }}>
                 Proficient in a wide range of modern technologies and frameworks
               </p>
             </div>
 
-            <div className="space-y-12">
+            <div className="portfolio-skills-grid space-y-12">
               {Object.entries(filteredCategories).map(([category, categorySkills]) => {
                 const colorsCat = getCategoryColor(category);
                 return (
@@ -904,7 +904,7 @@ const ShareModal = () => (
                       </div>
                       {category}
                     </h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="portfolio-skill-item-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                       {categorySkills.map((skill, index) => (
                         <motion.div
                           key={skill + index}
@@ -915,7 +915,7 @@ const ShareModal = () => (
                           whileHover={{ y: -5 }}
                           className="group"
                         >
-                          <div className="rounded-xl shadow-sm hover:shadow-lg p-6 transition-all duration-300 border h-full flex flex-col items-center"
+                          <div className="portfolio-skill-card rounded-xl shadow-sm hover:shadow-lg p-6 transition-all duration-300 border h-full flex flex-col items-center"
                                style={{ 
                                  background: `linear-gradient(135deg, ${colors.neutral[50]}, white)`,
                                  borderColor: colorsCat.border
@@ -946,18 +946,18 @@ const ShareModal = () => (
 
       {/* PROJECTS SECTION */}
       {projects.length > 0 && (
-        <section id="projects" className="py-20" style={{ background: colors.neutral[50] }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="projects" className="portfolio-section py-20" style={{ background: colors.neutral[50] }}>
+          <div className="portfolio-section-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl lg:text-4xl font-bold mb-4" style={{ color: colors.neutral[900] }}>
+              <h2 className="portfolio-section-title text-3xl lg:text-4xl font-bold mb-4" style={{ color: colors.neutral[900] }}>
                 Featured Projects
               </h2>
-              <p className="text-lg max-w-3xl mx-auto" style={{ color: colors.neutral[600] }}>
+              <p className="portfolio-section-subtitle text-lg max-w-3xl mx-auto" style={{ color: colors.neutral[600] }}>
                 Showcasing innovative solutions and technical implementations
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="portfolio-projects-grid grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {projects.map((project, index) => (
                 <motion.div
                   key={project.id || index}
@@ -968,16 +968,16 @@ const ShareModal = () => (
                   whileHover={{ y: -8 }}
                   className="group"
                 >
-                  <div className="rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border h-full flex flex-col"
+                  <div className="portfolio-card rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border h-full flex flex-col"
                        style={{ 
                          background: `linear-gradient(135deg, white, ${colors.neutral[50]})`,
                          borderColor: colors.neutral[200]
                        }}>
                     {/* Project Header */}
-                    <div className="h-48 relative overflow-hidden flex items-center justify-center p-4"
+                    <div className="portfolio-project-header h-48 relative overflow-hidden flex items-center justify-center p-4"
                          style={{ background: colors.primary.gradient }}>
                       <div className="absolute inset-0 bg-black/10"></div>
-                      <h3 className="text-2xl font-bold text-white text-center relative z-10 px-4 py-6 bg-black/20 backdrop-blur-sm rounded-xl w-full">
+                      <h3 className="portfolio-project-title text-2xl font-bold text-white text-center relative z-10 px-4 py-6 bg-black/20 backdrop-blur-sm rounded-xl w-full">
                         {project.title || "Project Title"}
                       </h3>
                       <div className="absolute top-4 right-4">
@@ -989,7 +989,7 @@ const ShareModal = () => (
                     </div>
 
                     {/* Project Content */}
-                    <div className="p-6 flex-1 flex flex-col">
+                    <div className="portfolio-project-content p-6 flex-1 flex flex-col">
                       <div className="flex items-start justify-between mb-4">
                         <div className="p-2 rounded-lg" style={{ background: colors.primary.gradient + '20' }}>
                           <FaProjectDiagram className="w-5 h-5" style={{ color: colors.primary.dark }} />
@@ -1063,20 +1063,20 @@ const ShareModal = () => (
 
       {/* EXPERIENCE SECTION */}
       {experience.length > 0 && (
-        <section id="experience" className="py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="experience" className="portfolio-section py-20">
+          <div className="portfolio-section-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl lg:text-4xl font-bold mb-4" style={{ color: colors.neutral[900] }}>
+              <h2 className="portfolio-section-title text-3xl lg:text-4xl font-bold mb-4" style={{ color: colors.neutral[900] }}>
                 Professional Experience
               </h2>
-              <p className="text-lg max-w-3xl mx-auto" style={{ color: colors.neutral[600] }}>
+              <p className="portfolio-section-subtitle text-lg max-w-3xl mx-auto" style={{ color: colors.neutral[600] }}>
                 A track record of delivering impactful solutions
               </p>
             </div>
 
             <div className="relative">
               {/* Timeline Line */}
-              <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2 h-full w-1"
+              <div className="portfolio-experience-timeline hidden lg:block absolute left-1/2 transform -translate-x-1/2 h-full w-1"
                    style={{ background: `linear-gradient(to bottom, ${colors.primary.light}20, ${colors.primary.dark}20)` }}></div>
 
               <div className="space-y-12">
@@ -1087,15 +1087,15 @@ const ShareModal = () => (
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5 }}
                     viewport={{ once: true }}
-                    className={`relative flex ${index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"}`}
+                    className={`portfolio-experience-item relative flex ${index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"}`}
                   >
                     {/* Timeline Dot */}
-                    <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2">
+                    <div className="portfolio-experience-dot hidden lg:block absolute left-1/2 transform -translate-x-1/2">
                       <div className="w-4 h-4 rounded-full border-4 border-white shadow-lg"
                            style={{ background: colors.primary.gradient }}></div>
                     </div>
 
-                    <div className="lg:w-1/2 lg:px-12">
+                    <div className="portfolio-experience-card lg:w-1/2 lg:px-12">
                       <div className="rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300 border h-full"
                            style={{ 
                              background: `linear-gradient(135deg, white, ${colors.neutral[50]})`,
@@ -1110,7 +1110,7 @@ const ShareModal = () => (
                             <p className="text-lg font-semibold mb-1" style={{ color: colors.primary.dark }}>
                               {exp.company || "Company"}
                             </p>
-                            <div className="flex items-center gap-4 text-sm" style={{ color: colors.neutral[500] }}>
+                            <div className="portfolio-experience-date flex flex-wrap items-center gap-4 text-sm" style={{ color: colors.neutral[500] }}>
                               <div className="flex items-center gap-2">
                                 <FaCalendarAlt className="w-4 h-4" />
                                 <span>
@@ -1151,18 +1151,18 @@ const ShareModal = () => (
 
       {/* EDUCATION SECTION */}
       {education.length > 0 && (
-        <section id="education" className="py-20" style={{ background: colors.neutral[50] }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="education" className="portfolio-section py-20" style={{ background: colors.neutral[50] }}>
+          <div className="portfolio-section-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl lg:text-4xl font-bold mb-4" style={{ color: colors.neutral[900] }}>
+              <h2 className="portfolio-section-title text-3xl lg:text-4xl font-bold mb-4" style={{ color: colors.neutral[900] }}>
                 Education
               </h2>
-              <p className="text-lg max-w-3xl mx-auto" style={{ color: colors.neutral[600] }}>
+              <p className="portfolio-section-subtitle text-lg max-w-3xl mx-auto" style={{ color: colors.neutral[600] }}>
                 Academic background and qualifications
               </p>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-8">
+            <div className="portfolio-education-grid grid lg:grid-cols-2 gap-8">
               {education.map((edu, index) => (
                 <motion.div
                   key={edu.id || index}
@@ -1173,7 +1173,7 @@ const ShareModal = () => (
                   whileHover={{ scale: 1.02 }}
                   className="group"
                 >
-                  <div className="rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border h-full"
+                  <div className="portfolio-education-card rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border h-full"
                        style={{ 
                          background: `linear-gradient(135deg, white, ${colors.neutral[50]})`,
                          borderColor: colors.neutral[200]
@@ -1182,14 +1182,13 @@ const ShareModal = () => (
                       {/* Header */}
                       <div className="flex items-start justify-between mb-8">
                         <div>
-                          <h3 className="text-2xl font-bold mb-2" style={{ color: colors.neutral[800] }}>
+                          <h3 className="portfolio-education-header text-2xl font-bold mb-2" style={{ color: colors.neutral[800] }}>
                             {edu.institution || "Institution"}
                           </h3>
-                          <div className="flex items-center gap-3">
-                            <span className="text-lg font-semibold" style={{ color: colors.primary.dark }}>
+                          <div className="flex flex-col gap-3">
+                            <span className="portfolio-education-degree text-lg font-semibold" style={{ color: colors.primary.dark }}>
                               {edu.degree || "Degree"}
                             </span>
-                            <span style={{ color: colors.neutral[400] }}>•</span>
                             <span style={{ color: colors.neutral[600] }}>{edu.fieldOfStudy || "Field of Study"}</span>
                           </div>
                         </div>
@@ -1256,18 +1255,18 @@ const ShareModal = () => (
 
       {/* CERTIFICATIONS SECTION */}
       {certifications.length > 0 && (
-        <section id="certifications" className="py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="certifications" className="portfolio-section py-20">
+          <div className="portfolio-section-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl lg:text-4xl font-bold mb-4" style={{ color: colors.neutral[900] }}>
+              <h2 className="portfolio-section-title text-3xl lg:text-4xl font-bold mb-4" style={{ color: colors.neutral[900] }}>
                 Certifications
               </h2>
-              <p className="text-lg max-w-3xl mx-auto" style={{ color: colors.neutral[600] }}>
+              <p className="portfolio-section-subtitle text-lg max-w-3xl mx-auto" style={{ color: colors.neutral[600] }}>
                 Professional certifications and completed courses
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="portfolio-certifications-grid grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {certifications.map((cert, index) => (
                 <motion.div
                   key={cert.id || index}
@@ -1278,7 +1277,7 @@ const ShareModal = () => (
                   whileHover={{ y: -5 }}
                   className="group"
                 >
-                  <div className="rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border h-full"
+                  <div className="portfolio-certification-card rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border h-full"
                        style={{ 
                          background: `linear-gradient(135deg, white, ${colors.neutral[50]})`,
                          borderColor: colors.neutral[200]
@@ -1365,13 +1364,13 @@ const ShareModal = () => (
       )}
 
       {/* CONTACT SECTION */}
-      <section id="contact" className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="contact" className="portfolio-section py-20">
+        <div className="portfolio-section-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4" style={{ color: colors.neutral[900] }}>
+            <h2 className="portfolio-section-title text-3xl lg:text-4xl font-bold mb-4" style={{ color: colors.neutral[900] }}>
               Get In Touch
             </h2>
-            <p className="text-lg max-w-3xl mx-auto" style={{ color: colors.neutral[600] }}>
+            <p className="portfolio-section-subtitle text-lg max-w-3xl mx-auto" style={{ color: colors.neutral[600] }}>
               Feel free to reach out for collaborations or just a friendly hello
             </p>
           </div>
@@ -1381,9 +1380,9 @@ const ShareModal = () => (
                  background: `linear-gradient(135deg, white, ${colors.neutral[50]})`,
                  border: `1px solid ${colors.neutral[200]}`
                }}>
-            <div className="grid lg:grid-cols-2 gap-12">
+            <div className="portfolio-contact-container grid lg:grid-cols-2 gap-12">
               {/* Contact Info */}
-              <div>
+              <div className="portfolio-contact-info">
                 <h3 className="text-2xl font-bold mb-8" style={{ color: colors.neutral[800] }}>
                   Contact Information
                 </h3>
@@ -1397,7 +1396,7 @@ const ShareModal = () => (
                       <div>
                         <h4 className="font-semibold mb-1" style={{ color: colors.neutral[700] }}>Email</h4>
                         <a href={`mailto:${profile.email}`} 
-                           className="hover:underline transition-all"
+                           className="hover:underline transition-all break-all"
                            style={{ color: colors.primary.dark }}>
                           {profile.email}
                         </a>
@@ -1459,7 +1458,7 @@ const ShareModal = () => (
               </div>
 
               {/* Contact Form */}
-              <div>
+              <div className="portfolio-contact-form">
                 <h3 className="text-2xl font-bold mb-8" style={{ color: colors.neutral[800] }}>
                   Send a Message
                 </h3>
@@ -1474,7 +1473,7 @@ const ShareModal = () => (
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-blue-500 transition-all"
+                      className="portfolio-contact-input w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-blue-500 transition-all"
                       style={{ 
                         borderColor: colors.neutral[300],
                         outline: 'none'
@@ -1493,7 +1492,7 @@ const ShareModal = () => (
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-blue-500 transition-all"
+                      className="portfolio-contact-input w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-blue-500 transition-all"
                       style={{ 
                         borderColor: colors.neutral[300],
                         outline: 'none'
@@ -1512,7 +1511,7 @@ const ShareModal = () => (
                       name="message"
                       value={formData.message}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-blue-500 transition-all resize-none"
+                      className="portfolio-contact-input w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-blue-500 transition-all resize-none"
                       style={{ 
                         borderColor: colors.neutral[300],
                         outline: 'none'

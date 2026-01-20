@@ -1,10 +1,10 @@
 // src/pages/Jobs.js
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Badge, Button, Spinner, Alert } from 'react-bootstrap';
 import { FaMapMarkerAlt, FaCalendarAlt, FaBriefcase, FaSearch } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { getJobNotifications } from '../api/jobNotifications';
 
 function Jobs() {
   const [jobs, setJobs] = useState([]);
@@ -16,32 +16,27 @@ function Jobs() {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        const response = await fetch('https://bytebodh.codewithsathya.info/api/jobs/');
+        // Try new API first
+        const res = await getJobNotifications();
+        let jobsArray = res.data.data || [];
         
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        // Transform data to match UI expectations
+        jobsArray = jobsArray.map(job => ({
+          id: job.id,
+          title: job.jobTitle,
+          company: job.companyName,
+          location: job.location,
+          description: job.jobDescription,
+          jobLink: job.jobLink,
+          applicationDeadline: job.applicationDeadline,
+          employmentType: job.employmentType,
+          experienceRequired: job.experienceRequired,
+          requiredSkills: job.requiredSkills,
+          requirements: job.requirements,
+          isActive: job.isActive
+        }));
         
-        const jobsData = await response.json();
-        console.log('Fetched jobs data:', jobsData);
-        
-        let jobsArray = [];
-        
-        if (Array.isArray(jobsData)) {
-          jobsArray = jobsData;
-        } else if (jobsData && typeof jobsData === 'object') {
-          if (jobsData.results) {
-            jobsArray = jobsData.results;
-          } else if (jobsData.data) {
-            jobsArray = jobsData.data;
-          } else if (jobsData.jobs) {
-            jobsArray = jobsData.jobs;
-          } else {
-            jobsArray = [jobsData];
-          }
-        }
-        
-        console.log('Processed jobs array:', jobsArray);        
+        console.log('Fetched jobs data:', jobsArray);
         setJobs(jobsArray);
         setError(null);
       } catch (err) {
@@ -79,392 +74,135 @@ function Jobs() {
   return (
     <>
       <Header />
-      <div className="bytebodh-jobs-page">
+      <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
 
         {/* Hero Section */}
-        <section className="bytebodh-jobs-hero">
-          <Container>
-            <Row className="text-center py-5">
-              <Col lg={8} className="mx-auto">
+        <section className="bg-gradient-to-br from-gray-900 to-gray-800 text-white py-16 md:py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2 rounded-full mb-6 border border-blue-400/30">
+                <span className="text-sm font-semibold">Job Alerts</span>
+              </div>
 
-                {/* UPDATED TEXT */}
-                <Badge bg="primary" className="bytebodh-hero-badge mb-3">
-                  Job Alerts
-                </Badge>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+                Latest <span className="bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">Job Notifications</span>
+              </h1>
 
-                <h1 className="bytebodh-hero-title mb-3">
-                  Latest <span className="bytebodh-hero-gradient">Job Notifications</span>
-                </h1>
+              <p className="text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                Stay updated with the newest job openings from top companies across India.
+                Explore opportunities, check eligibility, and apply directly to the companies you prefer.
+              </p>
 
-                <p className="bytebodh-hero-description">
-                  Stay updated with the newest job openings from top companies across India.
-                  Explore opportunities, check eligibility, and apply directly to the companies you prefer.
-                </p>
-
-                {/* Search Box */}
-                <div className="bytebodh-search-box mt-4">
-                  <div className="bytebodh-search-input">
-                    <FaSearch className="bytebodh-search-icon" />
-                    <input
-                      type="text"
-                      placeholder="Search jobs by title, company name, or location..."
-                      className="bytebodh-search-field"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
+              {/* Search Box */}
+              <div className="max-w-2xl mx-auto">
+                <div className="relative">
+                  <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search jobs by title, company name, or location..."
+                    className="w-full pl-12 pr-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
                 </div>
-
-              </Col>
-            </Row>
-          </Container>
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Jobs List Section */}
-        <section className="bytebodh-jobs-list-section py-5">
-          <Container>
+        <section className="py-12 md:py-16 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {loading ? (
-              <Row className="text-center">
-                <Col>
-                  <Spinner animation="border" role="status" variant="primary">
-                    <span className="visually-hidden">Loading jobs...</span>
-                  </Spinner>
-                  <p className="mt-3">Fetching latest job notifications...</p>
-                </Col>
-              </Row>
+              <div className="flex flex-col items-center justify-center py-16">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <p className="mt-4 text-gray-600">Fetching latest job notifications...</p>
+              </div>
             ) : error ? (
-              <Row>
-                <Col lg={8} className="mx-auto">
-                  <Alert variant="danger" className="text-center">
-                    {error}
-                    <div className="mt-3">
-                      <Button variant="outline-danger" onClick={() => window.location.reload()}>
-                        Retry
-                      </Button>
-                    </div>
-                  </Alert>
-                </Col>
-              </Row>
+              <div className="max-w-2xl mx-auto">
+                <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg text-center">
+                  <p className="mb-4">{error}</p>
+                  <button 
+                    onClick={() => window.location.reload()}
+                    className="px-6 py-2 border-2 border-red-500 text-red-500 font-semibold rounded-lg hover:bg-red-500 hover:text-white transition-all"
+                  >
+                    Retry
+                  </button>
+                </div>
+              </div>
             ) : (
               <>
                 {/* Jobs Count */}
-                <Row className="mb-4">
-                  <Col>
-                    <h4 className="bytebodh-jobs-count">
-                      {filteredJobs.length} Latest Job Notifications
-                    </h4>
-                  </Col>
-                </Row>
+                <div className="mb-8">
+                  <h4 className="text-2xl font-bold text-gray-800">
+                    {filteredJobs.length} Latest Job Notifications
+                  </h4>
+                </div>
 
                 {/* Jobs Grid */}
                 {filteredJobs.length === 0 ? (
-                  <Row>
-                    <Col className="text-center">
-                      <div className="bytebodh-no-jobs">
-                        <h5>No Job Notifications Found</h5>
-                        <p>Try different keywords or visit again soon for updated company job announcements.</p>
-                      </div>
-                    </Col>
-                  </Row>
+                  <div className="text-center py-12">
+                    <div className="mb-4">
+                      <h5 className="text-xl font-semibold text-gray-800">No Job Notifications Found</h5>
+                      <p className="text-gray-600 mt-2">Try different keywords or visit again soon for updated company job announcements.</p>
+                    </div>
+                  </div>
                 ) : (
-                  <Row className="g-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {filteredJobs.map((job) => (
-                      <Col key={job.id} lg={6}>
-                        <Card className="bytebodh-job-card h-100">
-                          <Card.Body className="d-flex flex-column">
+                      <Link key={job.id} to={`/jobs/${job.id}`}>
+                        <div className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow h-full overflow-hidden">
+                          <div className="p-6 flex flex-col h-full">
 
-                            <div className="bytebodh-job-header mb-3">
-                              <div className="bytebodh-job-title-section">
-
-                                {/* UPDATED FALLBACK TEXTS */}
-                                <h5 className="bytebodh-job-title">
+                            <div className="mb-4">
+                              <div className="mb-3">
+                                <h5 className="text-lg font-bold text-gray-800">
                                   {job.title || 'Job Title Not Provided'}
                                 </h5>
-
-                                <Badge bg="light" text="dark" className="bytebodh-company-badge">
+                                <span className="inline-block mt-2 bg-gray-100 text-gray-700 text-sm px-3 py-1 rounded">
                                   {job.company || 'Company: Not Available'}
-                                </Badge>
+                                </span>
                               </div>
                             </div>
 
-                            <div className="bytebodh-job-details mb-3">
-                              <div className="bytebodh-job-detail-item">
-                                <FaMapMarkerAlt className="bytebodh-detail-icon" />
+                            <div className="space-y-2 mb-4 flex-grow">
+                              <div className="flex items-center gap-2 text-gray-600">
+                                <FaMapMarkerAlt className="text-blue-500" />
                                 <span>{job.location || 'Location: Not Mentioned'}</span>
                               </div>
-                              <div className="bytebodh-job-detail-item">
-                                <FaBriefcase className="bytebodh-detail-icon" />
-                                <span>{job.experience_level || 'Experience: Not Provided'}</span>
+                              <div className="flex items-center gap-2 text-gray-600">
+                                <FaBriefcase className="text-blue-500" />
+                                <span>{job.employmentType || 'Experience: Not Provided'}</span>
                               </div>
                             </div>
 
-                            <div className="bytebodh-job-dates mb-3">
-                              <div className="bytebodh-date-item">
-                                <FaCalendarAlt className="bytebodh-date-icon" />
-                                <small className="text-muted">
-                                  Posted On: {formatDate(job.posted_on)}
-                                </small>
-                              </div>
-                              <div className="bytebodh-date-item">
-                                <FaCalendarAlt className="bytebodh-date-icon" />
-                                <small className="text-muted">
-                                  Last Date to Apply: {formatDate(job.last_date)}
-                                </small>
+                            <div className="space-y-1 mb-4 text-sm text-gray-500">
+                              <div className="flex items-center gap-2">
+                                <FaCalendarAlt className="text-blue-500" />
+                                <span>Deadline: {formatDate(job.applicationDeadline)}</span>
                               </div>
                             </div>
 
-                            <div className="mt-auto d-flex gap-2">
-                              <Link 
-                                to={`/jobs/${job.id}`}
-                                className="bytebodh-view-btn"
-                              >
+                            <div className="mt-auto">
+                              <button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-lg transition-all">
                                 View Details
-                              </Link>
+                              </button>
                             </div>
 
-                          </Card.Body>
-                        </Card>
-                      </Col>
+                          </div>
+                        </div>
+                      </Link>
                     ))}
-                  </Row>
+                  </div>
                 )}
               </>
             )}
-          </Container>
+          </div>
         </section>
       </div>
 
       <Footer />
-
-      {/* STYLES KEEP SAME */}
-      <style jsx>{`
-        .bytebodh-jobs-page {
-          background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-          min-height: 100vh;
-        }
-
-        .bytebodh-jobs-hero {
-          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-          color: white;
-          padding: 4rem 0;
-        }
-
-        .bytebodh-hero-badge {
-          background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%) !important;
-          border: none;
-          padding: 0.75rem 1.5rem;
-          font-size: 0.875rem;
-          font-weight: 500;
-          border-radius: 50px;
-        }
-
-        .bytebodh-hero-title {
-          font-size: 3rem;
-          font-weight: 700;
-          line-height: 1.2;
-          color: #f8fafc;
-          margin-bottom: 1rem;
-        }
-
-        .bytebodh-hero-gradient {
-          background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .bytebodh-hero-description {
-          font-size: 1.2rem;
-          color: #cbd5e1;
-          line-height: 1.6;
-          max-width: 600px;
-          margin: 0 auto;
-        }
-
-        .bytebodh-search-box {
-          max-width: 500px;
-          margin: 0 auto;
-        }
-
-        .bytebodh-search-input {
-          position: relative;
-          display: flex;
-          align-items: center;
-          background: white;
-          border-radius: 12px;
-          padding: 0.5rem 1rem;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .bytebodh-search-icon {
-          color: #64748b;
-          margin-right: 0.5rem;
-          font-size: 1.1rem;
-        }
-
-        .bytebodh-search-field {
-          flex: 1;
-          border: none;
-          outline: none;
-          padding: 0.75rem 0;
-          font-size: 1rem;
-          background: transparent;
-        }
-
-        .bytebodh-jobs-list-section {
-          background: white;
-        }
-
-        .bytebodh-jobs-count {
-          color: #0f172a;
-          font-weight: 600;
-        }
-
-        .bytebodh-job-card {
-          border: none;
-          border-radius: 16px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-          transition: all 0.3s ease;
-          background: white;
-        }
-
-        .bytebodh-job-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .bytebodh-job-title {
-          color: #0f172a;
-          font-weight: 600;
-          margin-bottom: 0.5rem;
-          font-size: 1.25rem;
-        }
-
-        .bytebodh-company-badge {
-          background: #f1f5f9 !important;
-          color: #475569 !important;
-          font-weight: 500;
-          border-radius: 8px;
-        }
-
-        .bytebodh-job-details {
-          display: flex;
-          flex-direction: column;
-          gap: 0.75rem;
-        }
-
-        .bytebodh-job-detail-item {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          color: #64748b;
-          font-size: 0.9rem;
-        }
-
-        .bytebodh-detail-icon {
-          color: #0284c7;
-          font-size: 0.875rem;
-        }
-
-        .bytebodh-job-dates {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-          padding: 1rem;
-          background: #f8fafc;
-          border-radius: 8px;
-        }
-
-        .bytebodh-date-item {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-        }
-
-        .bytebodh-date-icon {
-          color: #94a3b8;
-          font-size: 0.75rem;
-        }
-
-        .bytebodh-view-btn {
-          display: inline-block;
-          background: transparent;
-          color: #0284c7;
-          border: 2px solid #0284c7;
-          padding: 0.75rem 1.5rem;
-          border-radius: 8px;
-          text-decoration: none;
-          font-weight: 600;
-          text-align: center;
-          flex: 1;
-          transition: all 0.3s ease;
-        }
-
-        .bytebodh-view-btn:hover {
-          background: #0284c7;
-          color: white;
-          text-decoration: none;
-        }
-
-        .bytebodh-apply-btn {
-          background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
-          border: none;
-          border-radius: 8px;
-          padding: 0.75rem 1.5rem;
-          font-weight: 600;
-          flex: 1;
-          transition: all 0.3s ease;
-        }
-
-        .bytebodh-apply-btn:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(2, 132, 199, 0.3);
-        }
-
-        .bytebodh-apply-btn:disabled {
-          background: #94a3b8;
-          cursor: not-allowed;
-        }
-
-        .bytebodh-no-jobs {
-          padding: 3rem 1rem;
-          color: #64748b;
-        }
-
-        .bytebodh-no-jobs h5 {
-          color: #475569;
-          margin-bottom: 1rem;
-        }
-
-        .bytebodh-jobs-cta {
-          padding: 2rem;
-          background: white;
-          border-radius: 16px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        }
-
-        @media (max-width: 768px) {
-          .bytebodh-hero-title {
-            font-size: 2.25rem;
-          }
-          
-          .bytebodh-job-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.5rem;
-          }
-          
-          .bytebodh-view-btn,
-          .bytebodh-apply-btn {
-            flex: none;
-            width: 100%;
-          }
-          
-          .d-flex.gap-2 {
-            flex-direction: column;
-          }
-        }
-      `}</style>
     </>
   );
 }

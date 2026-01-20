@@ -14,6 +14,12 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import API_BASE_URL from "../config/api";
 
+function decodeHtml(html) {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
+}
+
 function BlogDetail() {
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,6 +34,7 @@ function BlogDetail() {
         const response = await axios.get(`${API_BASE_URL}/api/blogs/slug/${slug}`);
         // Handle different response structures
         setBlog(response.data.data || response.data);
+        console.log("Fetched blog details:", response.data);
       } catch (err) {
         setError("Blog post not found");
         console.error("Error fetching blog details:", err);
@@ -187,7 +194,7 @@ function BlogDetail() {
                              prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
                              prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
                              prose-img:rounded-lg prose-img:shadow-md"
-                    dangerouslySetInnerHTML={{ __html: blog.description }}
+                    dangerouslySetInnerHTML={{ __html: decodeHtml(blog.description) }}
                   />
                 )}
 
@@ -202,6 +209,7 @@ function BlogDetail() {
                     </span>
                   </div>
                 )}
+
               </article>
 
               {/* Navigation */}

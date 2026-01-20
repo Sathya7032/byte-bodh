@@ -7,11 +7,11 @@ import {
   Search,
   Moon,
   Sun,
+  XLg,
 } from "react-bootstrap-icons";
 import { getUser, logout } from "../../services/auth";
 
-const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSidebarOpen }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -26,19 +26,14 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme }) =>
     fullName
   )}&background=3b82f6&color=fff&bold=true&size=128`;
 
-  
-
   const handleSidebarToggle = () => {
-    const next = !sidebarOpen;
-    setSidebarOpen(next);
-    onToggleSidebar?.(next);
+    onToggleSidebar?.();
   };
 
   const handleLogout = () => {
     logout();
   };
 
- 
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
       <div className="px-4 sm:px-6 lg:px-8">
@@ -49,9 +44,14 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme }) =>
               <button
                 onClick={handleSidebarToggle}
                 aria-label="Toggle sidebar"
-                className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+                className="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+                title={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
               >
-                <List size={20} />
+                {isSidebarOpen ? (
+                  <XLg size={20} />
+                ) : (
+                  <List size={20} />
+                )}
               </button>
             )}
 
@@ -61,14 +61,12 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme }) =>
               </div>
               <a
                 href="/dashboard"
-                className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+                className="hidden sm:block text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
               >
                 ByteBodh
               </a>
             </div>
           </div>
-
-         
 
           {/* RIGHT SECTION */}
           <div className="flex items-center gap-3">
@@ -91,8 +89,6 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme }) =>
               </button>
             )}
 
-           
-
             {/* User Profile */}
             <div className="relative" ref={dropdownRef}>
               <button
@@ -109,7 +105,7 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme }) =>
                   />
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full" />
                 </div>
-                
+
                 <div className="hidden md:block text-left">
                   <div className="text-sm font-semibold text-gray-900">
                     {fullName}

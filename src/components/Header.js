@@ -15,11 +15,12 @@ import { isAuthenticated, logout } from "../services/auth";
 // Simplified navigation items - removed dropdown
 const NAV_ITEMS = [
   { id: "home", label: "Home", href: "/" },
+  { id: "jobs", label: "Jobs", href: "/jobs" },
   { id: "products", label: "Our Products", href: "/products" },
   { id: "blogs", label: "Blogs", href: "/blogs" },
   { id: "about", label: "About", href: "/about" },
   { id: "contact", label: "Contact", href: "/contact" },
-];
+]
 
 const SOCIAL_LINKS = [
   {
