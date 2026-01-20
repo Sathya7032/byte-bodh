@@ -138,7 +138,7 @@ const Portfolio = () => {
       window.removeEventListener("scroll", handleScroll);
       observer.disconnect();
     };
-  }, []);
+  }, [sections]);
 
   useEffect(() => {
     getPublicProfileByUsername(username)

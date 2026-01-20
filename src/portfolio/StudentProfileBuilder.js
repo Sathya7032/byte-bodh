@@ -22,10 +22,6 @@ const StudentProfileBuilder = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null)
   const [generatingPDF, setGeneratingPDF] = useState(false)
 
-  useEffect(() => {
-    fetchProfile()
-  }, [])
-
   const fetchProfile = async () => {
     try {
       const response = await getMyProfile()
@@ -34,10 +30,12 @@ const StudentProfileBuilder = () => {
       setSelectedTemplate(resumeTemplates[0])
     } catch (error) {
       console.error('Error fetching profile:', error)
-    } finally {
-      setLoading(false)
     }
   }
+
+  useEffect(() => {
+    fetchProfile()
+  }, [])
 
   const resumeTemplates = [
     {
