@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import {
   FaGithub,
@@ -108,6 +108,16 @@ const Portfolio = () => {
     }
   };
 
+  const sections = useMemo(() => [
+    { id: "home", label: "Home", icon: <FaHome /> },
+    { id: "skills", label: "Skills", icon: <FaTools /> },
+    { id: "projects", label: "Projects", icon: <FaProjectDiagram /> },
+    { id: "experience", label: "Experience", icon: <FaBriefcase /> },
+    { id: "education", label: "Education", icon: <FaGraduationCap /> },
+    { id: "certifications", label: "Certifications", icon: <FaCertificate /> },
+    { id: "contact", label: "Contact", icon: <FaUser /> },
+  ], []);
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -156,16 +166,6 @@ const Portfolio = () => {
       .toUpperCase()
       .slice(0, 2);
   };
-
-  const sections = [
-    { id: "home", label: "Home", icon: <FaHome /> },
-    { id: "skills", label: "Skills", icon: <FaTools /> },
-    { id: "projects", label: "Projects", icon: <FaProjectDiagram /> },
-    { id: "experience", label: "Experience", icon: <FaBriefcase /> },
-    { id: "education", label: "Education", icon: <FaGraduationCap /> },
-    { id: "certifications", label: "Certifications", icon: <FaCertificate /> },
-    { id: "contact", label: "Contact", icon: <FaUser /> },
-  ];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

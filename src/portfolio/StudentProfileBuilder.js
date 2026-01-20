@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import DashboardLayout from './components/DashboardLayout'
 import { getMyProfile } from '../api/profileService'
 import { 
@@ -22,7 +22,7 @@ const StudentProfileBuilder = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null)
   const [generatingPDF, setGeneratingPDF] = useState(false)
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const response = await getMyProfile()
       setProfile(response.data)
@@ -30,12 +30,14 @@ const StudentProfileBuilder = () => {
       setSelectedTemplate(resumeTemplates[0])
     } catch (error) {
       console.error('Error fetching profile:', error)
+    } finally {
+      setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchProfile()
-  }, [])
+  }, [fetchProfile])
 
   const resumeTemplates = [
     {

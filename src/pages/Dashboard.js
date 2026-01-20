@@ -114,7 +114,7 @@ const Dashboard = () => {
     }, 30000);
 
     return () => clearInterval(quoteInterval);
-  }, [navigate]);
+  }, [navigate, quotes.length]);
 
   const fetchDashboardStats = async () => {
     try {
