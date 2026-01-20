@@ -2,9 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
-  Briefcase,
   Calendar,
-  Badge,
   Clock,
   Trash2,
 } from "react-bootstrap-icons";
