@@ -9,7 +9,6 @@ import {
   FaUser,
   FaQrcode,
   FaGlobe,
-  FaClock,
   FaArrowRight,
   FaFacebook,
   FaTwitter,
@@ -290,16 +289,16 @@ const HelpSupportPage = () => {
             </p>
             
             <div className="flex justify-center space-x-6">
-              <a href="#" className="text-blue-600 hover:text-blue-700">
+              <a href="/" className="text-blue-600 hover:text-blue-700">
                 <FaFacebook size={28} />
               </a>
-              <a href="#" className="text-blue-400 hover:text-blue-500">
+              <a href="/" className="text-blue-400 hover:text-blue-500">
                 <FaTwitter size={28} />
               </a>
-              <a href="#" className="text-pink-600 hover:text-pink-700">
+              <a href="/" className="text-pink-600 hover:text-pink-700">
                 <FaInstagram size={28} />
               </a>
-              <a href="#" className="text-blue-700 hover:text-blue-800">
+              <a href="/" className="text-blue-700 hover:text-blue-800">
                 <FaLinkedin size={28} />
               </a>
             </div>

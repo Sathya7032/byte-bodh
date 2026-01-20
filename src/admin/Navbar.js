@@ -7,7 +7,6 @@ import {
   ChevronDown,
   LogOut,
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { getUser, logout } from "../services/auth";
 

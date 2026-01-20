@@ -55,7 +55,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import QRCode from "react-qr-code";
-import * as htmlToImage from 'html-to-image';
 import { saveAs } from "file-saver";
 
 const Portfolio = () => {
