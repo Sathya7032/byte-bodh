@@ -58,7 +58,7 @@ const Profile = () => {
   const [previewUrl, setPreviewUrl] = useState("");
   const [profileImage, setProfileImage] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
-  const [uploadingImage, setUploadingImage] = useState(false);
+  
 
   const defaultEducation = {
     degree: "",
@@ -511,7 +511,7 @@ const Profile = () => {
                       accept="image/*"
                       className="hidden"
                       onChange={handleImageChange}
-                      disabled={uploadingImage}
+                      
                     />
                   </label>
                 </div>

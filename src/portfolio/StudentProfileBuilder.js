@@ -16,6 +16,41 @@ import {
   Github
 } from 'lucide-react'
 
+const resumeTemplates = [
+  {
+    id: 1,
+    name: 'Modern Professional',
+    description: 'Clean and contemporary design for tech professionals',
+    color: 'bg-blue-50 border-blue-200',
+    thumbnail: '📄',
+    style: 'modern'
+  },
+  {
+    id: 2,
+    name: 'Creative Portfolio',
+    description: 'Visually appealing with emphasis on projects',
+    color: 'bg-purple-50 border-purple-200',
+    thumbnail: '🎨',
+    style: 'creative'
+  },
+  {
+    id: 3,
+    name: 'Academic',
+    description: 'Traditional format with focus on education',
+    color: 'bg-green-50 border-green-200',
+    thumbnail: '📚',
+    style: 'academic'
+  },
+  {
+    id: 4,
+    name: 'Minimalist',
+    description: 'Simple and elegant with maximum content',
+    color: 'bg-gray-50 border-gray-200',
+    thumbnail: '⚪',
+    style: 'minimalist'
+  }
+]
+
 const StudentProfileBuilder = () => {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -38,41 +73,6 @@ const StudentProfileBuilder = () => {
   useEffect(() => {
     fetchProfile()
   }, [fetchProfile])
-
-  const resumeTemplates = [
-    {
-      id: 1,
-      name: 'Modern Professional',
-      description: 'Clean and contemporary design for tech professionals',
-      color: 'bg-blue-50 border-blue-200',
-      thumbnail: '📄',
-      style: 'modern'
-    },
-    {
-      id: 2,
-      name: 'Creative Portfolio',
-      description: 'Visually appealing with emphasis on projects',
-      color: 'bg-purple-50 border-purple-200',
-      thumbnail: '🎨',
-      style: 'creative'
-    },
-    {
-      id: 3,
-      name: 'Academic',
-      description: 'Traditional format with focus on education',
-      color: 'bg-green-50 border-green-200',
-      thumbnail: '📚',
-      style: 'academic'
-    },
-    {
-      id: 4,
-      name: 'Minimalist',
-      description: 'Simple and elegant with maximum content',
-      color: 'bg-gray-50 border-gray-200',
-      thumbnail: '⚪',
-      style: 'minimalist'
-    }
-  ]
 
   const formatDate = (month, year) => {
     if (!year) return 'Present'
