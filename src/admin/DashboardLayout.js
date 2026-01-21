@@ -6,7 +6,7 @@ import Navbar from './Navbar';
 const DashboardLayout = ({ children, pageTitle = "Dashboard", onNavigate }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [activePage, setActivePage] = useState('dashboard');
+  
 
   useEffect(() => {
     const checkMobile = () => {
@@ -25,7 +25,7 @@ const DashboardLayout = ({ children, pageTitle = "Dashboard", onNavigate }) => {
   };
 
   const handleNavigate = (pageId) => {
-    setActivePage(pageId);
+    
     onNavigate?.(pageId);
   };
 

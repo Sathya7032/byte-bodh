@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "react-bootstrap-icons";
 import DashboardLayout from "../DashboardLayout";
@@ -32,14 +32,7 @@ const JobNotificationForm = () => {
     isActive: true,
   });
 
-  // Fetch job notification if in edit mode
-  useEffect(() => {
-    if (isEditMode) {
-      fetchJobNotification();
-    }
-  }, [id]);
-
-  const fetchJobNotification = async () => {
+  const fetchJobNotification = useCallback(async () => {
     setLoading(true);
     try {
       const res = await getJobNotificationById(id);
@@ -55,7 +48,14 @@ const JobNotificationForm = () => {
       setError("Failed to load job notification");
     }
     setLoading(false);
-  };
+  }, [id]);
+
+  // Fetch job notification if in edit mode
+  useEffect(() => {
+    if (isEditMode) {
+      fetchJobNotification();
+    }
+  }, [isEditMode, fetchJobNotification]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -20,11 +20,7 @@ const JobNotificationDetail = () => {
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetchJobNotification();
-  }, [id]);
-
-  const fetchJobNotification = async () => {
+  const fetchJobNotification = useCallback(async () => {
     setLoading(true);
     try {
       const res = await getJobNotificationById(id);
@@ -33,7 +29,11 @@ const JobNotificationDetail = () => {
       console.error("Failed to fetch job notification:", error);
     }
     setLoading(false);
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchJobNotification();
+  }, [fetchJobNotification]);
 
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this job notification?"))

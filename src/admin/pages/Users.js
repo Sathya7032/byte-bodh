@@ -1,5 +1,5 @@
 // Users.jsx (enhanced UI component with React Icons)
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import DashboardLayout from "../DashboardLayout";
 import { getUsers, deleteUser } from "../../api/users";
 import {
@@ -28,14 +28,6 @@ const Users = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  useEffect(() => {
-    filterAndSortUsers();
-  }, [users, searchTerm, selectedRole, sortConfig]);
-
   const fetchUsers = async () => {
     try {
       setLoading(true);
@@ -50,7 +42,11 @@ const Users = () => {
     }
   };
 
-  const filterAndSortUsers = () => {
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const filterAndSortUsers = useCallback(() => {
     let result = [...users];
 
     // Apply search filter
@@ -85,7 +81,11 @@ const Users = () => {
 
     setFilteredUsers(result);
     setCurrentPage(1);
-  };
+  }, [users, searchTerm, selectedRole, sortConfig]);
+
+  useEffect(() => {
+    filterAndSortUsers();
+  }, [filterAndSortUsers]);
 
   const handleSort = (key) => {
     setSortConfig((prev) => ({

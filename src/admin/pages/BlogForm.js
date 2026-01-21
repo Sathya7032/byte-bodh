@@ -1,5 +1,5 @@
 // pages/BlogForm.js
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuill } from "react-quilljs";
 import "quill/dist/quill.snow.css";
@@ -86,7 +86,7 @@ const BlogForm = () => {
         quill.off("text-change", handleTextChange);
       };
     }
-  }, [quill, isEditMode]);
+  }, [quill, isEditMode, formData.description]);
 
   // Update Quill content when formData.description changes (for edit mode)
   useEffect(() => {
