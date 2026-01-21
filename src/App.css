@@ -548,3 +548,257 @@
     padding: 2rem 0;
   }
 }
+
+/* Quill Rich Text Editor Styling */
+.ql-editor {
+  font-size: 1rem;
+  min-height: 200px;
+}
+
+/* Rich Text Content Display Styles */
+.rich-text-content,
+.prose {
+  /* Headings */
+}
+
+.rich-text-content h1,
+.rich-text-content h2,
+.rich-text-content h3,
+.rich-text-content h4,
+.rich-text-content h5,
+.rich-text-content h6 {
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.rich-text-content h1 {
+  font-size: 2rem;
+  color: #1f2937;
+}
+
+.rich-text-content h2 {
+  font-size: 1.75rem;
+  color: #1f2937;
+}
+
+.rich-text-content h3 {
+  font-size: 1.5rem;
+  color: #374151;
+}
+
+.rich-text-content h4 {
+  font-size: 1.25rem;
+  color: #374151;
+}
+
+.rich-text-content h5 {
+  font-size: 1.1rem;
+  color: #4b5563;
+}
+
+.rich-text-content h6 {
+  font-size: 1rem;
+  color: #4b5563;
+}
+
+/* Paragraphs and text */
+.rich-text-content p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  color: #374151;
+}
+
+/* Bold and Italic */
+.rich-text-content strong,
+.rich-text-content b {
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.rich-text-content em,
+.rich-text-content i {
+  font-style: italic;
+  color: #4b5563;
+}
+
+/* Underline and Strikethrough */
+.rich-text-content u {
+  text-decoration: underline;
+}
+
+.rich-text-content s {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+
+/* Lists */
+.rich-text-content ul,
+.rich-text-content ol {
+  margin-left: 2rem;
+  margin-bottom: 1rem;
+}
+
+.rich-text-content ul {
+  list-style-type: disc;
+}
+
+.rich-text-content ol {
+  list-style-type: decimal;
+}
+
+.rich-text-content li {
+  margin-bottom: 0.5rem;
+  color: #374151;
+  line-height: 1.6;
+}
+
+/* Blockquotes */
+.rich-text-content blockquote {
+  border-left: 4px solid #3b82f6;
+  padding-left: 1rem;
+  margin-left: 0;
+  margin-bottom: 1rem;
+  color: #6b7280;
+  font-style: italic;
+  background-color: #f3f4f6;
+  padding: 1rem;
+  border-radius: 0.25rem;
+}
+
+/* Code blocks */
+.rich-text-content code {
+  background-color: #f3f4f6;
+  color: #dc2626;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+}
+
+.rich-text-content pre {
+  background-color: #1f2937;
+  color: #f3f4f6;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.rich-text-content pre code {
+  background-color: transparent;
+  color: #f3f4f6;
+  padding: 0;
+}
+
+/* Links */
+.rich-text-content a {
+  color: #3b82f6;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.rich-text-content a:hover {
+  color: #1d4ed8;
+}
+
+/* Images */
+.rich-text-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+}
+
+/* Video embeds */
+.rich-text-content iframe {
+  max-width: 100%;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+}
+
+/* Colored text from Quill */
+.rich-text-content [style*="color"] {
+  font-weight: inherit;
+}
+
+/* Background color */
+.rich-text-content [style*="background-color"] {
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+}
+
+/* Apply rich-text styling to prose elements */
+.prose.prose-lg {
+  font-size: 1rem;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+  color: #1f2937;
+}
+
+.prose strong {
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.prose em {
+  font-style: italic;
+  color: #4b5563;
+}
+
+.prose blockquote {
+  border-left-color: #3b82f6;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.prose code {
+  color: #dc2626;
+  background-color: #f3f4f6;
+}
+
+.prose a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.prose a:hover {
+  color: #1d4ed8;
+}
+
+.prose ul,
+.prose ol {
+  margin-left: 2rem;
+  margin-bottom: 1rem;
+}
+
+.prose li {
+  margin-bottom: 0.5rem;
+  color: #374151;
+  line-height: 1.6;
+}
+
+/* Quill specific formatting */
+.ql-snow .ql-stroke {
+  stroke: #444;
+}
+
+.ql-snow .ql-fill,
+.ql-snow .ql-stroke.ql-fill {
+  fill: #444;
+}
+
+.ql-snow .ql-picker label {
+  color: #444;
+}

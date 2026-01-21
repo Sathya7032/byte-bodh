@@ -237,7 +237,7 @@ function JobDetail() {
                   <div className="mb-10">
                     <h3 className="text-3xl font-bold text-slate-900 mb-6">Job Description</h3>
                     <div 
-                      className="prose prose-lg max-w-none text-gray-600 leading-relaxed"
+                      className="rich-text-content prose prose-lg max-w-none text-gray-600 leading-relaxed"
                       dangerouslySetInnerHTML={{ __html: job.description }}
                     />
                   </div>
@@ -248,7 +248,7 @@ function JobDetail() {
                   <div className="mb-10 pt-8 border-t border-gray-200">
                     <h3 className="text-3xl font-bold text-slate-900 mb-6">Requirements</h3>
                     <div 
-                      className="prose prose-lg max-w-none text-gray-600 leading-relaxed"
+                      className="rich-text-content prose prose-lg max-w-none text-gray-600 leading-relaxed"
                       dangerouslySetInnerHTML={{ __html: job.requirements }}
                     />
                   </div>

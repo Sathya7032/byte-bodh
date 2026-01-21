@@ -153,9 +153,10 @@ const JobNotificationDetail = () => {
               <h3 className="text-lg font-bold text-gray-800 mb-3">
                 Job Description
               </h3>
-              <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                {job.jobDescription}
-              </p>
+              <div 
+                className="rich-text-content prose prose-lg max-w-none text-gray-700 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: job.jobDescription }}
+              />
             </div>
 
             {/* Skills */}
@@ -183,9 +184,10 @@ const JobNotificationDetail = () => {
                 <h3 className="text-lg font-bold text-gray-800 mb-3">
                   Requirements
                 </h3>
-                <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                  {job.requirements}
-                </p>
+                <div 
+                  className="rich-text-content prose prose-lg max-w-none text-gray-700 leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: job.requirements }}
+                />
               </div>
             )}
           </div>

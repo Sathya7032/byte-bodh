@@ -1,12 +1,15 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft } from "react-bootstrap-icons";
+import { ArrowLeft, X } from "react-bootstrap-icons";
+import { useQuill } from "react-quilljs";
+import "quill/dist/quill.snow.css";
 import DashboardLayout from "../DashboardLayout";
 import {
   getJobNotificationById,
   createJobNotification,
   updateJobNotification,
 } from "../../api/jobNotifications";
+
 
 const JobNotificationForm = () => {
   const { id } = useParams();
@@ -32,8 +35,92 @@ const JobNotificationForm = () => {
     isActive: true,
   });
 
+  const [skillInput, setSkillInput] = useState("");
+  const [skills, setSkills] = useState([]);
+  const [hasSetInitialContent, setHasSetInitialContent] = useState(false);
+
+  // Quill editor configuration
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      [{ font: [] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ color: [] }, { background: [] }],
+      [{ script: "sub" }, { script: "super" }],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      [{ align: [] }],
+      ["blockquote", "code-block"],
+      ["link", "image", "video"],
+      ["clean"],
+    ],
+  };
+
+  const formats = [
+    "header", "font", "size",
+    "bold", "italic", "underline", "strike",
+    "color", "background",
+    "script",
+    "list", "bullet", "indent",
+    "link", "image", "video", "align",
+    "blockquote", "code-block"
+  ];
+
+  const { quillRef: descriptionQuillRef, quill: descriptionQuill } = useQuill({ 
+    theme: "snow", 
+    modules, 
+    formats, 
+    placeholder: "Write job description here..." 
+  });
+
+  const { quillRef: requirementsQuillRef, quill: requirementsQuill } = useQuill({ 
+    theme: "snow", 
+    modules, 
+    formats, 
+    placeholder: "Write requirements here..." 
+  });
+
+  // Handle description editor content changes
+  useEffect(() => {
+    if (descriptionQuill) {
+      const handleTextChange = () => {
+        const content = descriptionQuill.root.innerHTML;
+        setFormData(prev => ({
+          ...prev,
+          jobDescription: content,
+        }));
+      };
+
+      descriptionQuill.on("text-change", handleTextChange);
+
+      return () => {
+        descriptionQuill.off("text-change", handleTextChange);
+      };
+    }
+  }, [descriptionQuill]);
+
+  // Handle requirements editor content changes
+  useEffect(() => {
+    if (requirementsQuill) {
+      const handleTextChange = () => {
+        const content = requirementsQuill.root.innerHTML;
+        setFormData(prev => ({
+          ...prev,
+          requirements: content,
+        }));
+      };
+
+      requirementsQuill.on("text-change", handleTextChange);
+
+      return () => {
+        requirementsQuill.off("text-change", handleTextChange);
+      };
+    }
+  }, [requirementsQuill]);
+
   const fetchJobNotification = useCallback(async () => {
     setLoading(true);
+    setHasSetInitialContent(false);
     try {
       const res = await getJobNotificationById(id);
       const job = res.data.data;
@@ -56,6 +143,59 @@ const JobNotificationForm = () => {
       fetchJobNotification();
     }
   }, [isEditMode, fetchJobNotification]);
+
+  // Set initial content in description editor when data is loaded
+  useEffect(() => {
+    if (descriptionQuill && formData.jobDescription && !hasSetInitialContent && isEditMode) {
+      descriptionQuill.clipboard.dangerouslyPasteHTML(formData.jobDescription);
+      setHasSetInitialContent(true);
+    }
+  }, [descriptionQuill, formData.jobDescription, hasSetInitialContent, isEditMode]);
+
+  // Set initial content in requirements editor when data is loaded
+  useEffect(() => {
+    if (requirementsQuill && formData.requirements && !hasSetInitialContent && isEditMode) {
+      requirementsQuill.clipboard.dangerouslyPasteHTML(formData.requirements);
+    }
+  }, [requirementsQuill, formData.requirements, hasSetInitialContent, isEditMode]);
+
+  // Initialize skills from formData when fetched
+  useEffect(() => {
+    if (formData.requiredSkills) {
+      const skillsArray = typeof formData.requiredSkills === 'string'
+        ? formData.requiredSkills.split(',').map(s => s.trim()).filter(s => s)
+        : [];
+      setSkills(skillsArray);
+    }
+  }, [formData.requiredSkills, isEditMode]);
+
+  const addSkill = () => {
+    if (skillInput.trim() && !skills.includes(skillInput.trim())) {
+      const newSkills = [...skills, skillInput.trim()];
+      setSkills(newSkills);
+      setFormData(prev => ({
+        ...prev,
+        requiredSkills: newSkills.join(', ')
+      }));
+      setSkillInput("");
+    }
+  };
+
+  const removeSkill = (index) => {
+    const newSkills = skills.filter((_, i) => i !== index);
+    setSkills(newSkills);
+    setFormData(prev => ({
+      ...prev,
+      requiredSkills: newSkills.join(', ')
+    }));
+  };
+
+  const handleSkillKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addSkill();
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -267,37 +407,55 @@ const JobNotificationForm = () => {
             </div>
 
             {/* Job Description */}
-            <div className="md:col-span-2">
+            <div className="md:col-span-2 mb-10">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Job Description <span className="text-red-500">*</span>
               </label>
-              <textarea
-                name="jobDescription"
-                value={formData.jobDescription}
-                onChange={handleChange}
-                required
-                rows="5"
-                placeholder="Provide a detailed job description..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-              />
+              <div ref={descriptionQuillRef} className="bg-white rounded-lg border border-gray-300 h-48" />
+              <p className="text-xs text-gray-500 mt-2">Use the editor to format your job description with rich text options</p>
             </div>
 
             {/* Required Skills */}
-            <div className="md:col-span-2">
+            <div className="md:col-span-2 mt-10">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Required Skills
               </label>
-              <textarea
-                name="requiredSkills"
-                value={formData.requiredSkills}
-                onChange={handleChange}
-                rows="3"
-                placeholder="e.g., React, JavaScript, REST APIs, PostgreSQL"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Separate multiple skills with commas
-              </p>
+              <div className="flex gap-2 mb-3">
+                <input
+                  type="text"
+                  value={skillInput}
+                  onChange={(e) => setSkillInput(e.target.value)}
+                  onKeyPress={handleSkillKeyPress}
+                  placeholder="Type a skill and press Enter or click Add"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  type="button"
+                  onClick={addSkill}
+                  className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Add
+                </button>
+              </div>
+              {skills.length > 0 && (
+                <div className="flex flex-wrap gap-2 p-3 bg-gray-50 rounded-lg border border-gray-300">
+                  {skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium"
+                    >
+                      {skill}
+                      <button
+                        type="button"
+                        onClick={() => removeSkill(index)}
+                        className="hover:text-blue-600 transition-colors"
+                      >
+                        <X size={14} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Requirements */}
@@ -305,14 +463,8 @@ const JobNotificationForm = () => {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Requirements
               </label>
-              <textarea
-                name="requirements"
-                value={formData.requirements}
-                onChange={handleChange}
-                rows="3"
-                placeholder="e.g., Bachelor's degree in Computer Science, 3+ years of experience..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-              />
+              <div ref={requirementsQuillRef} className="bg-white rounded-lg border border-gray-300 h-48" />
+              <p className="text-xs text-gray-500 mt-2">Use the editor to format your requirements with rich text options</p>
             </div>
 
             {/* Active Status */}
