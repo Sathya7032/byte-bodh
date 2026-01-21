@@ -1,5 +1,5 @@
 // pages/BlogDetail.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { getBlogById, deleteBlog } from "../../api/blogs";
 import DashboardLayout from "../DashboardLayout";
@@ -10,11 +10,7 @@ const AdminBlogDetail = () => {
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchBlog();
-  }, [id]);
-
-  const fetchBlog = async () => {
+  const fetchBlog = useCallback(async () => {
     try {
       const res = await getBlogById(id);
       setBlog(res.data.data);
@@ -23,7 +19,11 @@ const AdminBlogDetail = () => {
       navigate("/blogs");
     }
     setLoading(false);
-  };
+  }, [id, navigate]);
+
+  useEffect(() => {
+    fetchBlog();
+  }, [fetchBlog]);
 
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this blog?")) return;
