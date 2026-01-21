@@ -13,12 +13,20 @@ function JobDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Extract actual ID from slug (slug format: "job-title-123" -> extract 123)
+  const extractIdFromSlug = (slug) => {
+    const parts = slug.split('-');
+    return parts[parts.length - 1]; // Get the last part which is the ID
+  };
+
+  const actualId = extractIdFromSlug(id);
+
   useEffect(() => {
     const fetchJob = async () => {
       try {
         setLoading(true);
         // Use new API
-        const res = await getJobNotificationById(id);
+        const res = await getJobNotificationById(actualId);
         let jobData = res.data.data;
         
         // Transform data to match UI expectations
@@ -48,7 +56,7 @@ function JobDetail() {
     };
 
     fetchJob();
-  }, [id]);
+  }, [actualId]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -154,10 +162,12 @@ function JobDetail() {
                   <h3 className="text-2xl font-bold text-slate-900 mb-6">Job Details</h3>
                   
                   {/* Experience Level */}
-                  {job.experienceRequired && (
+                  {job.experienceRequired !== undefined && job.experienceRequired !== null && (
                     <div className="mb-6 pb-6 border-b border-gray-200">
                       <p className="text-sm font-semibold text-gray-500 uppercase mb-2">Experience Level</p>
-                      <p className="text-lg font-medium text-slate-900">{job.experienceRequired}</p>
+                      <p className="text-lg font-medium text-slate-900">
+                        {job.experienceRequired === 0 ? 'Fresher' : `${job.experienceRequired} Years`}
+                      </p>
                     </div>
                   )}
 
@@ -200,19 +210,10 @@ function JobDetail() {
                   )}
 
                   {/* Skills Required */}
-                  {job.requiredSkills && Array.isArray(job.requiredSkills) && job.requiredSkills.length > 0 && (
+                  {job.requiredSkills && (
                     <div className="mb-6">
-                      <p className="text-sm font-semibold text-gray-500 uppercase mb-3">Required Skills</p>
-                      <div className="flex flex-wrap gap-2">
-                        {job.requiredSkills.map((skill, idx) => (
-                          <span 
-                            key={idx}
-                            className="inline-flex items-center bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium"
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
+                      <p className="text-sm font-semibold text-gray-500 uppercase mb-2">Required Skills</p>
+                      <p className="text-base text-slate-700 leading-relaxed">{job.requiredSkills}</p>
                     </div>
                   )}
 

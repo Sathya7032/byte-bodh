@@ -6,6 +6,17 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { getJobNotifications } from '../api/jobNotifications';
 
+// Helper function to create URL-friendly slug
+const createSlug = (title, id) => {
+  const slug = title
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-'); // Replace multiple hyphens with single hyphen
+  return `${slug}-${id}`;
+};
+
 function Jobs() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -151,7 +162,7 @@ function Jobs() {
                 ) : (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {filteredJobs.map((job) => (
-                      <Link key={job.id} to={`/jobs/${job.id}`}>
+                      <Link key={job.id} to={`/jobs/${createSlug(job.title, job.id)}`}>
                         <div className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow h-full overflow-hidden">
                           <div className="p-6 flex flex-col h-full">
 
