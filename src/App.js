@@ -42,6 +42,7 @@ import CodeEditor from "./products/CodeEditor";
 import JobNotifications from "./admin/pages/JobNotifications";
 import JobNotificationForm from "./admin/pages/JobNotificationForm";
 import JobNotificationDetail from "./admin/pages/JobNotificationDetail";
+import PageNotFound from "./pages/PageNotFound";
 
 const App = () => {
   const googleClientId =
@@ -102,6 +103,9 @@ const App = () => {
 
           {/* ===== ADMIN LOGIN ===== */}
           <Route path="/admin-login" element={<AdminLogin />} />
+          
+          {/* ===== 404 PAGE NOT FOUND ===== */}
+          <Route path="*" element={<PageNotFound />} />
         </Routes>
         <Analytics />
       </BrowserRouter>
