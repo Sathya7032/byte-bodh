@@ -7,8 +7,6 @@ import {
   FaMobile,
   FaSearch,
   FaRocket,
-  FaUsers,
-  FaChartLine,
   FaExternalLinkAlt,
   FaCheckCircle,
 } from "react-icons/fa";
@@ -24,14 +22,14 @@ function Products() {
       id: 1,
       title: "QR Code Generator",
       description:
-        "Create professional, customizable QR codes instantly with logo support, color customization, and multiple download formats.",
+        "Generate custom QR codes for links, business cards, and products. Track scans and see who contacts you.",
       icon: <FaQrcode className="text-2xl" />,
       category: "Marketing Tools",
       features: [
-        "Custom Colors",
-        "Logo Upload",
-        "Multiple Formats",
-        "Instant Download",
+        "Track scan analytics",
+        "See contact details",
+        "Export QR codes",
+        "Custom designs",
       ],
       status: "Live",
       path: "/qr",
@@ -39,83 +37,49 @@ function Products() {
     },
     {
       id: 2,
-      title: "Resume Maker Pro",
+      title: "Portfolio Maker",
       description:
-        "Create professional resumes with beautiful templates, AI-powered suggestions, and easy customization options.",
+        "Create professional portfolios and resumes. See who views your profile and download contact details.",
       icon: <FaFileAlt className="text-2xl" />,
       category: "Career Tools",
       features: [
-        "15+ Templates",
-        "AI Suggestions",
-        "PDF Export",
-        "ATS Friendly",
+        "Multiple resume templates",
+        "View recruiter contacts",
+        "Export PDF/Word formats",
+        "Portfolio showcase",
       ],
       status: "Live",
-      path: "/resume-builder",
-      color: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-    },
-    {
-      id: 3,
-      title: "Student Portfolio Builder",
-      description:
-        "Build stunning digital portfolios for students with project showcases, skill tracking, and academic achievements.",
-      icon: <FaBusinessTime className="text-2xl" />,
-      category: "Student Tools",
-      features: [
-        "Project Showcase",
-        "Skill Tracking",
-        "Academic Achievements",
-        "Social Integration",
-      ],
-      status: "Live",
-      path: "/profile",
-      color: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-    },
-    {
-      id: 4,
-      title: "QR Scanner Pro",
-      description:
-        "Advanced QR code scanner with batch scanning, history tracking, and business card detection.",
-      icon: <FaMobile className="text-2xl" />,
-      category: "Utility Tools",
-      features: ["Batch Scan", "History", "Export Data", "Offline Mode"],
-      status: "In Development",
-      path: "/coming-soon",
+      path: "/login",
       color: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
     },
     {
-      id: 5,
-      title: "Digital Business Cards",
+      id: 3,
+      title: "Online Code Editor",
       description:
-        "Create interactive digital business cards that can be shared via QR codes, links, or NFC.",
-      icon: <FaUsers className="text-2xl" />,
-      category: "Networking Tools",
+        "Practice programming directly in your browser with a powerful online code editor. Write, run, and test code across multiple programming languages without setup.",
+      icon: <FaBusinessTime className="text-2xl" />,
+      category: "Developer Tools",
       features: [
-        "Interactive Cards",
-        "QR Sharing",
-        "Analytics",
-        "Contact Sync",
+        "Supports multiple programming languages",
+        "Write and run code instantly",
+        "No installation required",
+        "Syntax highlighting",
       ],
-      status: "Planned",
-      path: "/coming-soon",
-      color: "linear-gradient(135deg, #ec4899 0%, #db2777 100%)",
+      status: "Live",
+      path: "/code-editor",
+      color: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
     },
     {
-      id: 6,
-      title: "Marketing Analytics",
+      id: 4,
+      title: "Image Compressor",
       description:
-        "Track QR code performance, campaign analytics, and customer engagement metrics.",
-      icon: <FaChartLine className="text-2xl" />,
-      category: "Analytics Tools",
-      features: [
-        "QR Analytics",
-        "Campaign Tracking",
-        "Real-time Data",
-        "Export Reports",
-      ],
-      status: "Planned",
-      path: "/coming-soon",
-      color: "linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)",
+        "Reduce image file sizes without losing quality. Perfect for optimizing photos for web, email, or storage.",
+      icon: <FaMobile className="text-2xl" />,
+      category: "Utility Tools",
+      features: ["Batch compression support", "Quality control options", "Fast and secure processing", "Multiple formats"],
+      status: "Live",
+      path: "/image-compressor",
+      color: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
     },
   ];
 
@@ -236,7 +200,7 @@ function Products() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+              <div className="grid grid-cols-1 gap-6 mb-12 max-w-4xl mx-auto">
                 {filteredProducts.map((product) => (
                   <div
                     key={product.id}

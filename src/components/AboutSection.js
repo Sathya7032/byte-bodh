@@ -1,36 +1,98 @@
 import React from 'react';
-import { FaUser } from 'react-icons/fa';
+import { FaUser, FaRocket, FaChartLine, FaUsers } from 'react-icons/fa';
 
 function AboutSection() {
   return (
-    <section className="bytebodh-about bg-gradient-to-br from-white to-gray-100 relative py-20">
+    <section className="bytebodh-about bg-gradient-to-br from-white to-gray-100 relative py-20 px-20">
       <div className="container mx-auto px-4">
-        <div className="flex justify-center py-20">
-          <div className="lg:w-10/12 text-center">
-            <div className="bytebodh-about-badge inline-flex items-center bg-gradient-to-br from-blue-600 to-indigo-500 text-white py-2 px-6 rounded-full mb-6">
-              <FaUser className="mr-2" />
-              About Us
+        {/* Section Header */}
+        <div className="text-center mb-16">
+          <div className="bytebodh-about-badge inline-flex items-center bg-gradient-to-br from-blue-600 to-indigo-500 text-white py-2 px-6 rounded-full mb-6">
+            <FaUser className="mr-2" />
+            About Us
+          </div>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+            Empowering Your Digital Journey
+          </h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Building powerful tools for businesses and students to succeed
+          </p>
+        </div>
+
+        {/* Main Content - Image & Text Side by Side */}
+        <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
+          {/* Image Side */}
+          <div className="order-2 md:order-1">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+              <img 
+                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
+                alt="Team collaboration" 
+                className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-indigo-500/20"></div>
             </div>
+          </div>
 
-            <h2 className="bytebodh-about-title text-4xl font-bold leading-tight text-gray-800 mb-6">
-              Empowering Businesses and Students Through Smart Digital Tools
-            </h2>
-
-            <p className="bytebodh-about-description text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto mb-6">
-              At <strong>ByteBodh</strong>, we create powerful, easy-to-use digital tools designed for both growing businesses and ambitious students. Whether you're an entrepreneur streamlining workflows or a student enhancing productivity, our solutions are built to simplify tasks, improve efficiency, and support your long-term goals.
+          {/* Text Side */}
+          <div className="order-1 md:order-2 space-y-6">
+            <h3 className="text-3xl font-bold text-gray-800 leading-tight">
+              Smart Digital Tools for Modern Challenges
+            </h3>
+            
+            <p className="text-lg text-gray-600 leading-relaxed">
+              At <strong className="text-blue-600">ByteBodh</strong>, we create powerful, easy-to-use digital tools designed for both growing businesses and ambitious students. Whether you're an entrepreneur streamlining workflows or a student enhancing productivity, our solutions are built to simplify tasks, improve efficiency, and support your long-term goals.
             </p>
 
-            <p className="bytebodh-about-description text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto mb-10">
+            <p className="text-lg text-gray-600 leading-relaxed">
               We build practical, affordable, and scalable tools that solve real problems — from business automation to student-friendly utilities that boost learning and project management. No complexity, no high costs — just tools that help you work smarter, stay organized, and grow confidently.
             </p>
 
-            <div className="bytebodh-cta bg-gradient-to-br from-blue-600 to-indigo-500 text-white py-10 px-6 rounded-lg mt-12">
-              <p className="bytebodh-cta-text text-xl leading-relaxed">
-                <strong>Ready to take the next step?</strong> Let ByteBodh empower your journey with smart tools made for both business growth and student success.
-              </p>
+            {/* Feature Highlights */}
+            <div className="grid grid-cols-2 gap-4 mt-8">
+              <div className="flex items-start space-x-3">
+                <div className="bg-blue-100 p-3 rounded-lg">
+                  <FaRocket className="text-blue-600 text-xl" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-800">Fast & Efficient</h4>
+                  <p className="text-sm text-gray-600">Streamlined workflows</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <div className="bg-indigo-100 p-3 rounded-lg">
+                  <FaChartLine className="text-indigo-600 text-xl" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-800">Scalable</h4>
+                  <p className="text-sm text-gray-600">Grow with your needs</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <div className="bg-purple-100 p-3 rounded-lg">
+                  <FaUsers className="text-purple-600 text-xl" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-800">User-Friendly</h4>
+                  <p className="text-sm text-gray-600">Easy to use</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <div className="bg-pink-100 p-3 rounded-lg">
+                  <FaUser className="text-pink-600 text-xl" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-800">For Everyone</h4>
+                  <p className="text-sm text-gray-600">Students & businesses</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+
+       
       </div>
 
       <style jsx>{`
