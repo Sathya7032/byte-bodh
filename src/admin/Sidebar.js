@@ -14,7 +14,8 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  Briefcase
+  Briefcase,
+  ClipboardList
 } from 'lucide-react';
 import { getUser, logout } from '../services/auth';
 
@@ -34,6 +35,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile }) => {
     { path: '/admin-blogs', icon: <ShoppingCart size={20} />, label: 'Blogs' },
     { path: '/admin/job-notifications', icon: <Briefcase size={20} />, label: 'Job Notifications' },
     { path: '/admin-contacts', icon: <Package size={20} />, label: 'Contacts' },
+    { path: '/admin-quiz', icon: <ClipboardList size={20} />, label: 'Quiz' },
   ];
 
   const secondaryItems = [

@@ -42,6 +42,7 @@ import CodeEditor from "./products/CodeEditor";
 import JobNotifications from "./admin/pages/JobNotifications";
 import JobNotificationForm from "./admin/pages/JobNotificationForm";
 import JobNotificationDetail from "./admin/pages/JobNotificationDetail";
+import Quiz from "./admin/pages/Quiz";
 import PageNotFound from "./pages/PageNotFound";
 
 const App = () => {
@@ -99,6 +100,7 @@ const App = () => {
             <Route path="/admin/job-notifications/create" element={<JobNotificationForm />} />
             <Route path="/admin/job-notifications/:id" element={<JobNotificationDetail />} />
             <Route path="/admin/job-notifications/:id/edit" element={<JobNotificationForm />} />
+            <Route path="/admin-quiz" element={<Quiz />} />
           </Route>
 
           {/* ===== ADMIN LOGIN ===== */}
