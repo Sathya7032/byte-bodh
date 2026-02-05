@@ -67,6 +67,7 @@ const Quiz = () => {
     e.preventDefault();
     try {
       const response = await axios.post('/quizzes', formData);
+      console.log('Quiz created:', response.data);
       alert('Quiz created successfully!');
       setShowCreateModal(false);
       fetchQuizzes();
@@ -81,6 +82,7 @@ const Quiz = () => {
     e.preventDefault();
     try {
       const response = await axios.put(`/quizzes/${editQuizId}`, formData);
+      console.log('Quiz updated:', response.data);
       alert('Quiz updated successfully!');
       setShowCreateModal(false);
       setIsEditMode(false);
