@@ -13,6 +13,7 @@ import DashboardLayout from "../DashboardLayout";
 import {
   getJobNotifications,
   deleteJobNotification,
+  updateActiveStatus,
 } from "../../api/jobNotifications";
 import { Edit, MapPin } from "lucide-react";
 
@@ -22,6 +23,9 @@ const JobNotifications = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all"); // all, active, inactive
+  const [showModal, setShowModal] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [newActiveStatus, setNewActiveStatus] = useState(false);
 
   const fetchNotifications = async () => {
     setLoading(true);
@@ -55,6 +59,31 @@ const JobNotifications = () => {
 
   const handleView = (id) => {
     navigate(`/admin/job-notifications/${id}`);
+  };
+
+  const handleToggleActive = (job) => {
+    setSelectedJob(job);
+    setNewActiveStatus(!job.isActive);
+    setShowModal(true);
+  };
+
+  const confirmStatusUpdate = async () => {
+    if (!selectedJob) return;
+    try {
+      await updateActiveStatus(selectedJob.id, newActiveStatus);
+      setShowModal(false);
+      setSelectedJob(null);
+      fetchNotifications();
+    } catch (error) {
+      console.error("Failed to update active status:", error);
+      alert("Failed to update status");
+    }
+  };
+
+  const cancelStatusUpdate = () => {
+    setShowModal(false);
+    setSelectedJob(null);
+    setNewActiveStatus(false);
   };
 
   const filteredNotifications = notifications.filter((job) => {
@@ -230,17 +259,23 @@ const JobNotifications = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        {job.isActive ? (
-                          <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full flex items-center gap-1 w-fit">
-                            <Badge3d size={14} />
-                            Active
-                          </span>
-                        ) : (
-                          <span className="px-3 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full flex items-center gap-1 w-fit">
-                            <Badge3d size={14} />
-                            Inactive
-                          </span>
-                        )}
+                        <button
+                          onClick={() => handleToggleActive(job)}
+                          className="group relative"
+                          title="Click to change status"
+                        >
+                          {job.isActive ? (
+                            <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full flex items-center gap-1 w-fit group-hover:bg-green-200 transition-colors cursor-pointer">
+                              <Badge3d size={14} />
+                              Active
+                            </span>
+                          ) : (
+                            <span className="px-3 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full flex items-center gap-1 w-fit group-hover:bg-red-200 transition-colors cursor-pointer">
+                              <Badge3d size={14} />
+                              Inactive
+                            </span>
+                          )}
+                        </button>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex justify-center gap-2">
@@ -274,6 +309,46 @@ const JobNotifications = () => {
             </div>
           )}
         </div>
+
+        {/* Confirmation Modal */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+              <div className="mb-4">
+                <h3 className="text-xl font-bold text-gray-800 mb-2">
+                  Confirm Status Change
+                </h3>
+                <p className="text-gray-600">
+                  Are you sure you want to change the status of{" "}
+                  <span className="font-semibold">{selectedJob?.jobTitle}</span>{" "}
+                  to{" "}
+                  <span className={`font-semibold ${newActiveStatus ? 'text-green-600' : 'text-red-600'}`}>
+                    {newActiveStatus ? 'Active' : 'Inactive'}
+                  </span>?
+                </p>
+              </div>
+              
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={cancelStatusUpdate}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmStatusUpdate}
+                  className={`px-4 py-2 text-white rounded-lg transition-colors ${
+                    newActiveStatus
+                      ? 'bg-green-600 hover:bg-green-700'
+                      : 'bg-red-600 hover:bg-red-700'
+                  }`}
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

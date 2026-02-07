@@ -52,3 +52,4 @@ export const getJobNotificationById = (id) => api.get(`/api/job-notifications/${
 export const createJobNotification = (data) => api.post("/api/job-notifications", data);
 export const updateJobNotification = (id, data) => api.put(`/api/job-notifications/${id}`, data);
 export const deleteJobNotification = (id) => api.delete(`/api/job-notifications/${id}`);
+export const updateActiveStatus = (id, isActive) => api.patch(`/api/job-notifications/${id}/active?isActive=${isActive}`);
