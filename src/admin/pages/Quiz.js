@@ -21,11 +21,13 @@ const Quiz = () => {
     categoryName: '',
     difficulty: 'Easy',
     timeLimitMinutes: 10,
+    quizAttemptCoins: '',
     expiryDate: '',
+    startTime: '',
     prizes: [
-      { position: 1, prizeAmount: '', prizeDetails: '' },
-      { position: 2, prizeAmount: '', prizeDetails: '' },
-      { position: 3, prizeAmount: '', prizeDetails: '' }
+      { position: 1, prizeCoins: '', prizeType: 'WINNER', attemptRewardCoins: 0 },
+      { position: 2, prizeCoins: '', prizeType: 'WINNER', attemptRewardCoins: 0 },
+      { position: 3, prizeCoins: '', prizeType: 'WINNER', attemptRewardCoins: 0 }
     ],
     questions: [
       {
@@ -66,7 +68,28 @@ const Quiz = () => {
   const handleCreateQuiz = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/quizzes', formData);
+      // Prepare payload to match backend expectations
+      const payload = {
+        ...formData,
+        quizAttemptCoins: formData.quizAttemptCoins === '' ? 0 : Number(formData.quizAttemptCoins),
+        expiryDate: formData.expiryDate ? new Date(formData.expiryDate).toISOString() : null,
+        startTime: formData.startTime ? new Date(formData.startTime).toISOString() : null,
+        prizes: formData.prizes.map(p => ({
+          position: p.position,
+          prizeCoins: p.prizeCoins === '' ? 0 : Number(p.prizeCoins),
+          prizeType: p.prizeType,
+          attemptRewardCoins: p.attemptRewardCoins === '' ? 0 : Number(p.attemptRewardCoins)
+        })),
+        questions: formData.questions.map(q => ({
+          questionText: q.questionText,
+          marks: q.marks,
+          options: q.options.map(o => ({
+            optionText: o.optionText,
+            correct: o.correct
+          }))
+        }))
+      };
+      const response = await axios.post('/quizzes', payload);
       console.log('Quiz created:', response.data);
       alert('Quiz created successfully!');
       setShowCreateModal(false);
@@ -81,7 +104,27 @@ const Quiz = () => {
   const handleUpdateQuiz = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put(`/quizzes/${editQuizId}`, formData);
+      const payload = {
+        ...formData,
+        quizAttemptCoins: formData.quizAttemptCoins === '' ? 0 : Number(formData.quizAttemptCoins),
+        expiryDate: formData.expiryDate ? new Date(formData.expiryDate).toISOString() : null,
+        startTime: formData.startTime ? new Date(formData.startTime).toISOString() : null,
+        prizes: formData.prizes.map(p => ({
+          position: p.position,
+          prizeCoins: p.prizeCoins === '' ? 0 : Number(p.prizeCoins),
+          prizeType: p.prizeType,
+          attemptRewardCoins: p.attemptRewardCoins === '' ? 0 : Number(p.attemptRewardCoins)
+        })),
+        questions: formData.questions.map(q => ({
+          questionText: q.questionText,
+          marks: q.marks,
+          options: q.options.map(o => ({
+            optionText: o.optionText,
+            correct: o.correct
+          }))
+        }))
+      };
+      const response = await axios.put(`/quizzes/${editQuizId}`, payload);
       console.log('Quiz updated:', response.data);
       alert('Quiz updated successfully!');
       setShowCreateModal(false);
@@ -109,13 +152,27 @@ const Quiz = () => {
         categoryName: quizData.categoryName || '',
         difficulty: quizData.difficulty || 'Easy',
         timeLimitMinutes: quizData.timeLimitMinutes || 10,
+        quizAttemptCoins: quizData.quizAttemptCoins ?? '',
         expiryDate: expiryDate,
-        prizes: quizData.prizes && quizData.prizes.length > 0 ? quizData.prizes : [
-          { position: 1, prizeAmount: '', prizeDetails: '' },
-          { position: 2, prizeAmount: '', prizeDetails: '' },
-          { position: 3, prizeAmount: '', prizeDetails: '' }
+        startTime: quizData.startTime ? new Date(quizData.startTime).toISOString().slice(0, 16) : '',
+        prizes: quizData.prizes && quizData.prizes.length > 0 ? quizData.prizes.map(p => ({
+          position: p.position,
+          prizeCoins: p.prizeCoins,
+          prizeType: p.prizeType || 'WINNER',
+          attemptRewardCoins: p.attemptRewardCoins || 0
+        })) : [
+          { position: 1, prizeCoins: '', prizeType: 'WINNER', attemptRewardCoins: 0 },
+          { position: 2, prizeCoins: '', prizeType: 'WINNER', attemptRewardCoins: 0 },
+          { position: 3, prizeCoins: '', prizeType: 'WINNER', attemptRewardCoins: 0 }
         ],
-        questions: quizData.questions && quizData.questions.length > 0 ? quizData.questions : [
+        questions: quizData.questions && quizData.questions.length > 0 ? quizData.questions.map(q => ({
+          questionText: q.questionText,
+          marks: q.marks,
+          options: q.options.map(o => ({
+            optionText: o.optionText,
+            correct: o.correct
+          }))
+        })) : [
           {
             questionText: '',
             marks: 5,
@@ -168,11 +225,13 @@ const Quiz = () => {
       categoryName: '',
       difficulty: 'Easy',
       timeLimitMinutes: 10,
+      quizAttemptCoins: '',
       expiryDate: '',
+      startTime: '',
       prizes: [
-        { position: 1, prizeAmount: '', prizeDetails: '' },
-        { position: 2, prizeAmount: '', prizeDetails: '' },
-        { position: 3, prizeAmount: '', prizeDetails: '' }
+        { position: 1, prizeCoins: '', prizeType: 'WINNER', attemptRewardCoins: 0 },
+        { position: 2, prizeCoins: '', prizeType: 'WINNER', attemptRewardCoins: 0 },
+        { position: 3, prizeCoins: '', prizeType: 'WINNER', attemptRewardCoins: 0 }
       ],
       questions: [
         {
@@ -198,7 +257,11 @@ const Quiz = () => {
 
   const handlePrizeChange = (index, field, value) => {
     const newPrizes = [...formData.prizes];
-    newPrizes[index][field] = value;
+    if (field === 'prizeCoins' || field === 'attemptRewardCoins') {
+      newPrizes[index][field] = value === '' ? '' : Number(value);
+    } else {
+      newPrizes[index][field] = value;
+    }
     setFormData(prev => ({ ...prev, prizes: newPrizes }));
   };
 
@@ -484,6 +547,19 @@ const Quiz = () => {
                   </div>
 
                   <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Quiz Attempt Coins *</label>
+                    <input
+                      type="number"
+                      name="quizAttemptCoins"
+                      value={formData.quizAttemptCoins}
+                      onChange={handleInputChange}
+                      required
+                      min="0"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Expiry Date *</label>
                     <input
                       type="datetime-local"
@@ -491,6 +567,16 @@ const Quiz = () => {
                       value={formData.expiryDate}
                       onChange={handleInputChange}
                       required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
+                    <input
+                      type="datetime-local"
+                      name="startTime"
+                      value={formData.startTime}
+                      onChange={handleInputChange}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -505,7 +591,7 @@ const Quiz = () => {
                 </h3>
                 <div className="space-y-4">
                   {formData.prizes.map((prize, index) => (
-                    <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+                    <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Position</label>
                         <input
@@ -516,23 +602,37 @@ const Quiz = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Prize Amount</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Prize Coins *</label>
                         <input
-                          type="text"
-                          value={prize.prizeAmount}
-                          onChange={(e) => handlePrizeChange(index, 'prizeAmount', e.target.value)}
-                          placeholder="e.g., ₹1000"
+                          type="number"
+                          value={prize.prizeCoins}
+                          onChange={(e) => handlePrizeChange(index, 'prizeCoins', e.target.value)}
+                          placeholder="e.g., 1000"
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          required
+                          min="0"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Prize Details</label>
-                        <input
-                          type="text"
-                          value={prize.prizeDetails}
-                          onChange={(e) => handlePrizeChange(index, 'prizeDetails', e.target.value)}
-                          placeholder="e.g., Amazon Gift Card"
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Prize Type *</label>
+                        <select
+                          value={prize.prizeType}
+                          onChange={(e) => handlePrizeChange(index, 'prizeType', e.target.value)}
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="WINNER">WINNER</option>
+                          <option value="PARTICIPATION">PARTICIPATION</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Attempt Reward Coins</label>
+                        <input
+                          type="number"
+                          value={prize.attemptRewardCoins}
+                          onChange={(e) => handlePrizeChange(index, 'attemptRewardCoins', e.target.value)}
+                          placeholder="e.g., 50"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          min="0"
                         />
                       </div>
                     </div>
@@ -680,7 +780,12 @@ const Quiz = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <p className="text-gray-700"><strong>Difficulty:</strong> <span className={`px-2 py-1 rounded text-xs ${getDifficultyColor(selectedQuiz.difficulty)}`}>{selectedQuiz.difficulty}</span></p>
                     <p className="text-gray-700"><strong>Time Limit:</strong> {selectedQuiz.timeLimitMinutes} minutes</p>
-                    <p className="text-gray-700"><strong>Expiry Date:</strong> {new Date(selectedQuiz.expiryDate).toLocaleString()}</p>
+                    <p className="text-gray-700"><strong>Expiry Date:</strong> {selectedQuiz.expiryDate ? new Date(selectedQuiz.expiryDate).toLocaleString() : '-'}</p>
+                    <p className="text-gray-700"><strong>Start Time:</strong> {selectedQuiz.startTime ? new Date(selectedQuiz.startTime).toLocaleString() : '-'}</p>
+                    <p className="text-gray-700"><strong>Participants:</strong> {selectedQuiz.participants ?? 0}</p>
+                    <p className="text-gray-700"><strong>Total Questions:</strong> {selectedQuiz.totalQuestions ?? (selectedQuiz.questions ? selectedQuiz.questions.length : 0)}</p>
+                    <p className="text-gray-700"><strong>Total Marks:</strong> {selectedQuiz.totalMarks ?? '-'}</p>
+                    <p className="text-gray-700"><strong>Quiz Attempt Coins:</strong> {selectedQuiz.quizAttemptCoins ?? 0}</p>
                   </div>
                 </div>
               </div>
@@ -696,7 +801,7 @@ const Quiz = () => {
                     {selectedQuiz.prizes.map((prize, index) => (
                       <div key={index} className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                         <span className="font-semibold text-gray-800">Position {prize.position}</span>
-                        <span className="text-gray-700">{prize.prizeAmount} - {prize.prizeDetails}</span>
+                        <span className="text-gray-700">{prize.prizeCoins} coins - {prize.prizeType} {prize.attemptRewardCoins ? `(Attempt: ${prize.attemptRewardCoins})` : ''}</span>
                       </div>
                     ))}
                   </div>
