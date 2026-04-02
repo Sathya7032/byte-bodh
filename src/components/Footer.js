@@ -1,23 +1,23 @@
 import React from 'react';
-import { 
-  FaEnvelope, 
-  FaPhone, 
-  FaFacebook, 
-  FaLinkedin, 
+import {
+  FaEnvelope,
+  FaPhone,
+  FaFacebook,
+  FaLinkedin,
   FaInstagram,
   FaYoutube,
   FaGithub
 } from 'react-icons/fa';
 
 function Footer() {
-  // Services data
-  const SERVICES = [
-    { id: 1, title: 'IT Tutorials & Courses' },
-    { id: 2, title: 'Websites' },
-    { id: 3, title: 'Android Applications' },
-    { id: 4, title: 'IOS Applications' },
-    { id: 5, title: 'Cloud' },
-    { id: 6, title: 'Mobile Apps' }
+  // Features data
+  const FEATURES = [
+    { id: 1, title: 'Java Tutorials', href: '/blogs' },
+    { id: 2, title: 'Job Notifications', href: '/jobs' },
+    { id: 3, title: 'Online Portfolio', href: '/login' },
+    { id: 4, title: 'Resume Builder', href: '/login' },
+    { id: 5, title: 'Code Editor', href: '/code-editor' },
+    { id: 6, title: 'QR Code Generator', href: '/qr' },
   ];
 
   return (
@@ -34,8 +34,7 @@ function Footer() {
               </div>
             </div>
             <p className="bytebodh-footer-description mb-6 text-sm text-gray-300">
-              Professional IT tutorials and powerful tools designed for small businesses and startups 
-              to thrive in the digital landscape. Empowering your journey with cutting-edge technology education.
+              A mobile app for IT students and tech learners. Master Java, Android, and IT technologies, get job notifications, and build your online portfolio — all in one place.
             </p>
             <div className="bytebodh-footer-social flex gap-4">
               <a href="https://www.facebook.com/share/1AE1wkgx2m/?mibextid=wwXIfr" className="bytebodh-social-link hover:bg-blue-600 p-2 rounded-full">
@@ -57,11 +56,11 @@ function Footer() {
           </div>
 
           <div className="lg:col-span-1 mb-8">
-            <h6 className="bytebodh-footer-heading text-white mb-3 text-lg font-semibold">Services</h6>
+            <h6 className="bytebodh-footer-heading text-white mb-3 text-lg font-semibold">Features</h6>
             <ul className="bytebodh-footer-list">
-              {SERVICES.slice(0, 4).map((service) => (
-                <li key={service.id} className="mb-2">
-                  <a href="#!" className="bytebodh-footer-link hover:text-blue-400">{service.title}</a>
+              {FEATURES.slice(0, 4).map((feature) => (
+                <li key={feature.id} className="mb-2">
+                  <a href={feature.href} className="bytebodh-footer-link hover:text-blue-400">{feature.title}</a>
                 </li>
               ))}
             </ul>
@@ -97,6 +96,16 @@ function Footer() {
               <div className="bytebodh-contact-item flex items-center mb-4">
                 <FaPhone className="bytebodh-contact-icon text-blue-400 mr-3" />
                 <span className="bytebodh-contact-text">+91 8519965746</span>
+              </div>
+              <div className="mt-4">
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.bytebodh.bytebodh&pcampaignid=web_share"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors"
+                >
+                  Download on Google Play
+                </a>
               </div>
             </div>
           </div>

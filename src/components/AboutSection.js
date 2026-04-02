@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaUser, FaRocket, FaChartLine, FaUsers } from 'react-icons/fa';
+import { FaUser, FaBriefcase, FaMobileAlt, FaLaptopCode } from 'react-icons/fa';
 
 function AboutSection() {
   return (
@@ -12,10 +12,10 @@ function AboutSection() {
             About Us
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-            Empowering Your Digital Journey
+            Empowering Tech Learners & IT Students
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Building powerful tools for businesses and students to succeed
+            Your all-in-one platform to learn IT technologies, get job alerts, and build a standout portfolio
           </p>
         </div>
 
@@ -24,9 +24,9 @@ function AboutSection() {
           {/* Image Side */}
           <div className="order-2 md:order-1">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-              <img 
-                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
-                alt="Team collaboration" 
+              <img
+                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+                alt="Tech learners collaborating"
                 className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-indigo-500/20"></div>
@@ -36,56 +36,56 @@ function AboutSection() {
           {/* Text Side */}
           <div className="order-1 md:order-2 space-y-6">
             <h3 className="text-3xl font-bold text-gray-800 leading-tight">
-              Smart Digital Tools for Modern Challenges
+              Learn Java, Android & More IT Technologies
             </h3>
-            
+
             <p className="text-lg text-gray-600 leading-relaxed">
-              At <strong className="text-blue-600">ByteBodh</strong>, we create powerful, easy-to-use digital tools designed for both growing businesses and ambitious students. Whether you're an entrepreneur streamlining workflows or a student enhancing productivity, our solutions are built to simplify tasks, improve efficiency, and support your long-term goals.
+              At <strong className="text-blue-600">ByteBodh</strong>, we've built a mobile app designed specifically for IT students and tech enthusiasts. Whether you're learning Java from scratch, exploring Android development, or preparing for your first tech job, Byte Bodh is the companion you need on your journey.
             </p>
 
             <p className="text-lg text-gray-600 leading-relaxed">
-              We build practical, affordable, and scalable tools that solve real problems — from business automation to student-friendly utilities that boost learning and project management. No complexity, no high costs — just tools that help you work smarter, stay organized, and grow confidently.
+              Stay ahead with real-time job notifications, create a professional online portfolio to showcase your skills, and download your resume directly — all within one app. No distractions, just focused learning and career growth for the next generation of developers.
             </p>
 
             {/* Feature Highlights */}
             <div className="grid grid-cols-2 gap-4 mt-8">
               <div className="flex items-start space-x-3">
                 <div className="bg-blue-100 p-3 rounded-lg">
-                  <FaRocket className="text-blue-600 text-xl" />
+                  <FaLaptopCode className="text-blue-600 text-xl" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-800">Fast & Efficient</h4>
-                  <p className="text-sm text-gray-600">Streamlined workflows</p>
+                  <h4 className="font-semibold text-gray-800">IT Tutorials</h4>
+                  <p className="text-sm text-gray-600">Java, Android & more</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-3">
                 <div className="bg-indigo-100 p-3 rounded-lg">
-                  <FaChartLine className="text-indigo-600 text-xl" />
+                  <FaBriefcase className="text-indigo-600 text-xl" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-800">Scalable</h4>
-                  <p className="text-sm text-gray-600">Grow with your needs</p>
+                  <h4 className="font-semibold text-gray-800">Job Notifications</h4>
+                  <p className="text-sm text-gray-600">Latest IT openings</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-3">
                 <div className="bg-purple-100 p-3 rounded-lg">
-                  <FaUsers className="text-purple-600 text-xl" />
+                  <FaUser className="text-purple-600 text-xl" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-800">User-Friendly</h4>
-                  <p className="text-sm text-gray-600">Easy to use</p>
+                  <h4 className="font-semibold text-gray-800">Online Portfolio</h4>
+                  <p className="text-sm text-gray-600">Showcase your skills</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-3">
                 <div className="bg-pink-100 p-3 rounded-lg">
-                  <FaUser className="text-pink-600 text-xl" />
+                  <FaMobileAlt className="text-pink-600 text-xl" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-800">For Everyone</h4>
-                  <p className="text-sm text-gray-600">Students & businesses</p>
+                  <h4 className="font-semibold text-gray-800">Mobile App</h4>
+                  <p className="text-sm text-gray-600">Available on Play Store</p>
                 </div>
               </div>
             </div>

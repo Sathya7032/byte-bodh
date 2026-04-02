@@ -15,10 +15,10 @@ function ProductsSection() {
         {/* Simple Header */}
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-800 mb-3">
-            Our Products
+            Our Features & Tools
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Simple tools for developers and students to build and grow.
+            Powerful tools built for IT students and tech learners to practice, build, and showcase their skills.
           </p>
         </div>
 
@@ -212,22 +212,16 @@ function ProductsSection() {
           </div>
         </div>
 
-        {/* Additional Navigation Links */}
+        {/* App Download CTA */}
         <div className="text-center mt-10">
-          <div className="inline-flex items-center space-x-6">
-            <Link
-              to="/services"
-              className="text-blue-600 hover:text-blue-800 font-medium text-lg transition-colors"
-            >
-              View All Services →
-            </Link>
-            <Link
-              to="/pricing"
-              className="text-gray-700 hover:text-gray-900 font-medium text-lg transition-colors"
-            >
-              See Pricing Plans
-            </Link>
-          </div>
+          <a
+            href="https://play.google.com/store/apps/details?id=com.bytebodh.bytebodh&pcampaignid=web_share"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold px-8 py-3 rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 transform"
+          >
+            Download Byte Bodh App on Play Store →
+          </a>
         </div>
       </div>
     </section>

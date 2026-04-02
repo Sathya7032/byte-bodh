@@ -10,36 +10,36 @@ function FAQSection() {
 
   const faqs = [
     {
-      question: "What types of projects do you work on?",
-      answer: "We specialize in helping solo entrepreneurs, startups, and small businesses with web development, mobile apps, e-commerce solutions, and custom software. Our focus is on affordable, scalable solutions for businesses with limited budgets."
+      question: "What is Byte Bodh?",
+      answer: "Byte Bodh is a mobile app designed for IT students and tech learners. It provides tutorials on Java and other IT technologies, real-time job notifications, an online portfolio builder, and useful tools like a QR code generator and code editor — all in one place."
     },
     {
-      question: "How much do your services cost?",
-      answer: "Our services start from as low as ₹999 for basic tutorials and go up to ₹50,000 for complete website development. We offer flexible pricing models including one-time projects, monthly retainers, and pay-as-you-go options to fit any budget."
+      question: "What IT technologies does Byte Bodh cover?",
+      answer: "Byte Bodh covers a wide range of IT technologies including Java, Android development, web technologies, data structures, algorithms, and more. Content is structured for beginners to advanced learners so you can grow at your own pace."
     },
     {
-      question: "How long does it take to complete a project?",
-      answer: "Most small projects (like basic websites) take 1-2 weeks. Medium projects (e-commerce sites, mobile apps) take 3-6 weeks. Complex projects may take 2-3 months. We provide clear timelines upfront and keep you updated throughout the process."
+      question: "How do job notifications work?",
+      answer: "Byte Bodh aggregates the latest IT job openings and internships and sends notifications directly to you. You can browse job listings, check eligibility, and apply — all without leaving the app."
     },
     {
-      question: "Do you provide ongoing support after project completion?",
-      answer: "Yes! We offer 30 days of free support after project delivery. After that, we have affordable monthly maintenance plans starting from ₹1,999/month that include updates, security patches, and technical support."
+      question: "Can I build an online portfolio with Byte Bodh?",
+      answer: "Yes! Byte Bodh includes an online portfolio builder where you can create a professional profile showcasing your skills, projects, and experience. You can share your portfolio link with recruiters and download your resume in PDF format."
     },
     {
-      question: "Can I see examples of your previous work?",
-      answer: "Absolutely! Check out our portfolio section above where you can see live websites and projects we've delivered. We also provide case studies and client testimonials upon request."
+      question: "Where can I download the Byte Bodh app?",
+      answer: "Byte Bodh is available on the Google Play Store. Simply search for 'Byte Bodh' or use the download link on this website. The app is free to download and get started."
     },
     {
-      question: "What technologies do you work with?",
-      answer: "We work with modern technologies including React, Next.js, Node.js, Python, MongoDB, Firebase, and more. We choose the best technology stack based on your project requirements and budget constraints."
+      question: "Is Byte Bodh suitable for beginners?",
+      answer: "Absolutely! Byte Bodh is built with students in mind. Whether you're just starting with Java or looking to advance your Android development skills, the tutorials are designed to be easy to follow with practical examples."
     },
     {
-      question: "Do you work with clients outside India?",
-      answer: "Yes, we work with clients worldwide. We've successfully delivered projects for clients in the US, UK, Canada, Australia, and Europe. We're comfortable working across different time zones."
+      question: "What tools are available on the Byte Bodh website?",
+      answer: "The Byte Bodh website offers several free tools including an Online Code Editor to practice programming in multiple languages, a QR Code Generator, an Image Compressor, and a Portfolio/Resume Builder to help you get job-ready."
     },
     {
-      question: "How do I get started with my project?",
-      answer: "Simply contact us through our contact form or schedule a free consultation call. We'll discuss your requirements, provide a detailed quote, and create a project timeline. No upfront payment is required until we agree on the scope."
+      question: "How do I create an account?",
+      answer: "You can register for free on the Byte Bodh website or directly in the app. Sign up with your email or use Google Sign-In for a quick start. Once registered, you'll have access to your portfolio, job alerts, and all features."
     }
   ];
 
@@ -56,7 +56,7 @@ function FAQSection() {
             Get Answers to <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-indigo-600">Common Questions</span>
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Find quick answers to the most common questions about our services, pricing, and process. Can't find what you're looking for? Contact us directly.
+            Find quick answers to the most common questions about the Byte Bodh app, IT learning, job notifications, and portfolio features. Can't find what you're looking for? Contact us directly.
           </p>
         </div>
 
@@ -95,7 +95,7 @@ function FAQSection() {
           <div className="text-center">
             <h3 className="text-2xl font-bold text-gray-800 mb-3">Still have questions?</h3>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              We're here to help you with any questions you might have about our services or how we can assist with your project.
+              We're here to help you with any questions about the Byte Bodh app, learning resources, job notifications, or your portfolio.
             </p>
             <button className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-3 px-8 rounded-full hover:shadow-lg transition-all duration-300 hover:scale-105 transform">
               Contact Us Now
