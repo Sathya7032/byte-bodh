@@ -24,7 +24,6 @@ import Profile from "./portfolio/Profile";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import ProfileTemplate from "./portfolio/ProfileTemplate";
-import Portfolio from "./portfolio/Portfolio";
 import Contacts from "./portfolio/Contacts";
 import Tasks from "./portfolio/Tasks";
 import HelpSupportPage from "./portfolio/HelpSupportPage";
@@ -44,10 +43,44 @@ import JobNotificationForm from "./admin/pages/JobNotificationForm";
 import JobNotificationDetail from "./admin/pages/JobNotificationDetail";
 import Quiz from "./admin/pages/Quiz";
 import PageNotFound from "./pages/PageNotFound";
+import PublicPortfolioPage from "./bytebodh-folio/PublicPortfolioPage";
+
+function isSubdomainPortfolio() {
+  const hostname = window.location.hostname;
+
+  // user1.localhost
+  if (hostname.endsWith(".localhost")) {
+    return true;
+  }
+
+  // user1.bytebodh.in
+  if (hostname.endsWith(".bytebodh.in")) {
+    const subdomain = hostname.replace(".bytebodh.in", "");
+    return subdomain && subdomain !== "www";
+  }
+
+  return false;
+}
+
 
 const App = () => {
   const googleClientId =
     "514767744864-96k6mjju1fu0hjbd0qj31nq95gugg8t9.apps.googleusercontent.com";
+
+  if (isSubdomainPortfolio()) {
+    return (
+      <GoogleOAuthProvider clientId={googleClientId}>
+        <BrowserRouter>
+          <ToastContainer position="top-right" theme="colored" />
+          <Routes>
+            <Route path="/" element={<PublicPortfolioPage />} />
+            <Route path="*" element={<PageNotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </GoogleOAuthProvider>
+    );
+  }
+
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
       <BrowserRouter>
@@ -60,7 +93,6 @@ const App = () => {
           <Route path="/qr" element={<ByteBodhQRGenerator />} />
           <Route path="/blogs" element={<Blog />} />
           <Route path="/blogs/:slug" element={<BlogDetail />} />
-          <Route path="/portfolio/:username" element={<Portfolio />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route
             path="/terms-and-conditions"
