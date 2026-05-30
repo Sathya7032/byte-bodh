@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import TemplateOne from "./TemplateOne";
 import TemplateThree from "./TemplateThree";
 import TemplateFour from "./TemplateFour";
@@ -23,13 +24,14 @@ function getUsernameFromDomain() {
 }
 
 function PublicPortfolioPage() {
+  const { username: urlUsername } = useParams();
   const [profile, setProfile] = useState(null);
   const [templateId, setTemplateId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const username = getUsernameFromDomain();
+    const username = urlUsername || getUsernameFromDomain();
 
     if (!username) {
       setError("Invalid domain format");
@@ -60,7 +62,7 @@ function PublicPortfolioPage() {
       .finally(() => {
         setLoading(false);
       });
-  }, []);
+  }, [urlUsername]);
 
   if (loading) {
     return (

@@ -24,6 +24,7 @@ import Profile from "./portfolio/Profile";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import ProfileTemplate from "./portfolio/ProfileTemplate";
+import PortfolioTemplates from "./portfolio/PortfolioTemplates";
 import Contacts from "./portfolio/Contacts";
 import Tasks from "./portfolio/Tasks";
 import HelpSupportPage from "./portfolio/HelpSupportPage";
@@ -47,11 +48,6 @@ import PublicPortfolioPage from "./bytebodh-folio/PublicPortfolioPage";
 
 function isSubdomainPortfolio() {
   const hostname = window.location.hostname;
-
-  // user1.localhost
-  if (hostname.endsWith(".localhost")) {
-    return true;
-  }
 
   // user1.bytebodh.in
   if (hostname.endsWith(".bytebodh.in")) {
@@ -114,6 +110,7 @@ const App = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile-template" element={<ProfileTemplate />} />
+            <Route path="/portfolio-templates" element={<PortfolioTemplates />} />
             <Route path="/resume-builder" element={<StudentProfileBuilder />} />
 
             <Route path="/contacts" element={<Contacts />} />
@@ -137,6 +134,9 @@ const App = () => {
 
           {/* ===== ADMIN LOGIN ===== */}
           <Route path="/admin-login" element={<AdminLogin />} />
+          
+          {/* ===== PUBLIC PORTFOLIO PAGE ===== */}
+          <Route path="/:username" element={<PublicPortfolioPage />} />
           
           {/* ===== 404 PAGE NOT FOUND ===== */}
           <Route path="*" element={<PageNotFound />} />

@@ -2,21 +2,55 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import DashboardLayout from "../portfolio/components/DashboardLayout";
 import { getUser, getAccessToken } from "../services/auth";
-import { dashboardStats } from "../api/profileService";
+import { dashboardStats, getMyProfile } from "../api/profileService";
+import { toast } from "react-toastify";
 import { 
   FaEye, 
   FaTasks, 
-  FaClock, 
-  FaCheckCircle, 
-  FaLightbulb, 
-  FaCalendarAlt, 
-  FaBell, 
-  FaChartLine,
   FaArrowRight,
   FaSpinner,
-  FaStar,
-  FaTerminal
+  FaPalette,
+  FaCopy,
+  FaExternalLinkAlt,
+  FaUserEdit,
+  FaFilePdf,
+  FaEnvelopeOpen,
+  FaListUl,
+  FaGlobe
 } from "react-icons/fa";
+
+const quotes = [
+  {
+    text: "Success is the sum of small efforts, repeated day-in and day-out.",
+    author: "Robert Collier",
+    category: "Consistency"
+  },
+  {
+    text: "The only place where success comes before work is in the dictionary.",
+    author: "Vidal Sassoon",
+    category: "Hard Work"
+  },
+  {
+    text: "It does not matter how slowly you go as long as you do not stop.",
+    author: "Confucius",
+    category: "Persistence"
+  },
+  {
+    text: "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+    author: "Winston Churchill",
+    category: "Resilience"
+  },
+  {
+    text: "The way to get started is to quit talking and begin doing.",
+    author: "Walt Disney",
+    category: "Action"
+  },
+  {
+    text: "Twenty years from now you will be more disappointed by the things you didn't do than by the ones you did do.",
+    author: "Mark Twain",
+    category: "Opportunity"
+  }
+];
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -29,72 +63,10 @@ const Dashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [currentQuote, setCurrentQuote] = useState(0);
-  
-  // Collection of motivational quotes from inspirational figures[citation:1][citation:4][citation:9]
-  const quotes = [
-    {
-      text: "Success is the sum of small efforts, repeated day-in and day-out.",
-      author: "Robert Collier",
-      category: "Consistency"
-    },
-    {
-      text: "The only place where success comes before work is in the dictionary.",
-      author: "Vidal Sassoon",
-      category: "Hard Work"
-    },
-    {
-      text: "It does not matter how slowly you go as long as you do not stop.",
-      author: "Confucius",
-      category: "Persistence"
-    },
-    {
-      text: "Success is not final, failure is not fatal: it is the courage to continue that counts.",
-      author: "Winston Churchill",
-      category: "Resilience"
-    },
-    {
-      text: "The way to get started is to quit talking and begin doing.",
-      author: "Walt Disney",
-      category: "Action"
-    },
-    {
-      text: "Twenty years from now you will be more disappointed by the things you didn't do than by the ones you did do.",
-      author: "Mark Twain",
-      category: "Opportunity"
-    }
-  ];
+  const [copied, setCopied] = useState(false);
+  const [username, setUsername] = useState("");
 
-  // Upcoming features placeholder
-  const upcomingFeatures = [
-    {
-      title: "Analytics Dashboard",
-      description: "Detailed insights into profile performance",
-      icon: <FaChartLine className="w-5 h-5" />,
-      status: "Coming Soon",
-      color: "from-blue-500 to-cyan-500"
-    },
-    {
-      title: "Task Reminders",
-      description: "Set reminders for pending tasks and deadlines",
-      icon: <FaBell className="w-5 h-5" />,
-      status: "In Development",
-      color: "from-purple-500 to-pink-500"
-    },
-    {
-      title: "Achievement Badges",
-      description: "Earn badges for completing milestones",
-      icon: <FaCheckCircle className="w-5 h-5" />,
-      status: "Planned",
-      color: "from-green-500 to-emerald-500"
-    },
-    {
-      title: "Progress Timeline",
-      description: "Visual timeline of your learning journey",
-      icon: <FaCalendarAlt className="w-5 h-5" />,
-      status: "Planned",
-      color: "from-orange-500 to-amber-500"
-    }
-  ];
+
 
   useEffect(() => {
     const token = getAccessToken();
@@ -108,19 +80,24 @@ const Dashboard = () => {
     setUser(storedUser);
     fetchDashboardStats();
     
-    // Rotate quotes every 30 seconds
     const quoteInterval = setInterval(() => {
       setCurrentQuote((prev) => (prev + 1) % quotes.length);
     }, 30000);
 
     return () => clearInterval(quoteInterval);
-  }, [navigate, quotes.length]);
+  }, [navigate]);
 
   const fetchDashboardStats = async () => {
     try {
       const response = await dashboardStats();
       if (response.data.success) {
         setStats(response.data.data);
+      }
+      
+      const profileResponse = await getMyProfile();
+      const profileData = profileResponse.data || {};
+      if (profileData.user?.username) {
+        setUsername(profileData.user.username);
       }
     } catch (err) {
       console.error("Error fetching dashboard stats:", err);
@@ -137,19 +114,28 @@ const Dashboard = () => {
     setCurrentQuote((prev) => (prev - 1 + quotes.length) % quotes.length);
   };
 
+  const handleCopyLink = () => {
+    const liveUrl = `http://localhost:3001/${username || 'profile'}`;
+    navigator.clipboard.writeText(liveUrl);
+    setCopied(true);
+    toast.success("Portfolio link copied!");
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+
+
   if (!user || loading) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="relative">
-              <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <div className="w-16 h-16 border-4 border-[#6C63FF] border-t-transparent rounded-full animate-spin mx-auto"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <FaSpinner className="text-blue-600 text-2xl animate-spin" />
+                <FaSpinner className="text-[#6C63FF] text-2xl animate-spin" />
               </div>
             </div>
-            <p className="text-lg text-gray-600 mt-6 font-medium">Loading your dashboard...</p>
-            <p className="text-sm text-gray-500 mt-2">Fetching your latest statistics</p>
+            <p className="text-lg text-slate-600 mt-6 font-medium">Loading your dashboard...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -163,495 +149,368 @@ const Dashboard = () => {
 
   const userName = user?.fullName || user?.name || "User";
   const userInitial = userName.charAt(0).toUpperCase();
+  const portfolioUrl = `http://localhost:3001/${username}`;
+
+  // SVG circular loader variables
+  const radius = 24;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (completionPercent / 100) * circumference;
 
   return (
-    <DashboardLayout>
-      {/* Welcome Header */}
-      <div className="mb-8">
-        <div className="dashboard-welcome-header flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-              <span className="text-white text-2xl font-bold">{userInitial}</span>
-            </div>
-            <div>
-              <h1 className="dashboard-welcome-title text-3xl md:text-4xl font-bold text-gray-900">
-                Welcome back, <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{userName}</span>! 👋
-              </h1>
-              <p className="dashboard-welcome-subtitle text-gray-600 mt-2 text-lg">Here's what's happening with your portfolio today</p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-3">
-            <div className="dashboard-active-status hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-blue-700 text-sm font-medium">Active Now</span>
-            </div>
-            <span className="dashboard-date-display px-4 py-2 bg-white border border-gray-200 rounded-xl text-gray-700 text-sm font-medium shadow-sm">
-              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Motivational Quote Section */}
-      <div className="mb-8">
-        <div className="dashboard-quote-section relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-8 text-white shadow-2xl overflow-hidden">
-          {/* Animated Background Pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -mr-32 -mt-32"></div>
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-white rounded-full -ml-48 -mb-48"></div>
-          </div>
+    <DashboardLayout containerClassName="w-full min-h-screen bg-slate-50/50 space-y-6">
+      <div className="max-w-7xl mx-auto w-full space-y-8 flex flex-col p-4 md:p-6 animate-fadeIn">
           
-          <div className="relative z-10 flex flex-col gap-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
-                  <FaLightbulb className="w-5 h-5 text-yellow-300" />
+          {/* PREMIUM BANNER CARD */}
+          <div className="bg-gradient-to-r from-slate-900 via-[#1e1b4b] to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800 animate-fadeIn text-left">
+            <div className="absolute -top-[10%] -left-[10%] w-[250px] h-[250px] rounded-full bg-[#6C63FF]/10 blur-[60px] pointer-events-none"></div>
+            <div className="absolute -bottom-[20%] -right-[15%] w-[350px] h-[350px] rounded-full bg-indigo-500/10 blur-[80px] pointer-events-none"></div>
+
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-[#6C63FF] rounded-2xl flex items-center justify-center font-black text-2xl shadow-lg shadow-[#6C63FF]/30">
+                  {userInitial}
                 </div>
-                <span className="text-sm font-semibold bg-white/25 backdrop-blur-sm px-4 py-2 rounded-full border border-white/30">
-                  Daily Inspiration
-                </span>
-              </div>
-              <blockquote className="dashboard-quote-text text-2xl md:text-3xl font-semibold mb-4 leading-relaxed">
-                "{quotes[currentQuote].text}"
-              </blockquote>
-              <div className="dashboard-quote-controls flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <p className="dashboard-quote-author text-base opacity-95 font-medium">— {quotes[currentQuote].author}</p>
-                  <span className="inline-block mt-2 text-xs font-semibold bg-white/25 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/30">
-                    {quotes[currentQuote].category}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-2xl font-black tracking-tight">{userName}</h1>
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-400 tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                      LIVE
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 font-semibold mt-1">Manage your digital identity & layout parameters</p>
+                </div>
+              </div>
+
+              {/* Share widget */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-white/5 border border-white/10 rounded-2xl p-2 max-w-xl w-full">
+                <div className="flex items-center gap-2 pl-3 flex-1 overflow-hidden min-w-0">
+                  <FaGlobe className="text-[#6C63FF] flex-shrink-0 text-sm" />
+                  <span className="text-xs font-semibold text-slate-200 truncate">{portfolioUrl}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button 
-                    onClick={handlePrevQuote}
-                    className="p-3 hover:bg-white/25 rounded-xl transition-all duration-200 backdrop-blur-sm border border-white/20 hover:scale-105"
-                    aria-label="Previous quote"
+                  <button
+                    onClick={handleCopyLink}
+                    className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer"
                   >
-                    <FaArrowRight className="w-4 h-4 rotate-180" />
+                    <FaCopy className="text-indigo-200" /> {copied ? "Copied!" : "Copy"}
                   </button>
-                  <div className="dashboard-quote-dots flex gap-1">
-                    {quotes.map((_, idx) => (
-                      <div 
-                        key={idx}
-                        className={`w-2 h-2 rounded-full transition-all ${
-                          idx === currentQuote ? 'bg-white w-6' : 'bg-white/50'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <button 
-                    onClick={handleNextQuote}
-                    className="p-3 hover:bg-white/25 rounded-xl transition-all duration-200 backdrop-blur-sm border border-white/20 hover:scale-105"
-                    aria-label="Next quote"
+                  <a
+                    href={portfolioUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-4 py-2 bg-[#6C63FF] hover:bg-[#5b52e6] text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md shadow-[#6C63FF]/20 hover:shadow-lg hover:shadow-[#6C63FF]/30 active:scale-95"
                   >
-                    <FaArrowRight className="w-4 h-4" />
-                  </button>
+                    <FaExternalLinkAlt size={10} /> View Site
+                  </a>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Stats Cards Grid */}
-      <div className="dashboard-stats-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Profile Views Card */}
-        <div className="group relative bg-white rounded-2xl border border-gray-200 shadow-sm p-6 hover:shadow-xl hover:border-blue-200 transition-all duration-300 overflow-hidden">
-          {/* Gradient Background on Hover */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-cyan-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          
-          <div className="relative z-10 flex justify-between items-start mb-4">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                  <FaEye className="w-4 h-4 text-blue-600" />
-                </div>
-                <h6 className="dashboard-stat-title text-gray-600 text-sm font-semibold uppercase tracking-wide">
-                  Profile Views
-                </h6>
-              </div>
-              <h3 className="dashboard-stat-number text-4xl font-bold text-gray-900 mb-2">{stats.profileViews}</h3>
-              <p className="dashboard-stat-desc text-sm text-gray-500">Total portfolio visitors</p>
-            </div>
-            <div className="dashboard-stat-icon w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
-              <FaEye className="dashboard-stat-icon-content w-6 h-6 text-white" />
-            </div>
-          </div>
-          <div className="relative z-10 pt-4 border-t border-gray-100">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm">
-                <FaTerminal className="w-4 h-4 text-green-600" />
-                <span className="text-green-600 font-semibold">+12%</span>
-                <span className="text-gray-500">from last month</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Tasks Completed Card */}
-        <div className="group relative bg-white rounded-2xl border border-gray-200 shadow-sm p-6 hover:shadow-xl hover:border-amber-200 transition-all duration-300 overflow-hidden">
-          {/* Gradient Background on Hover */}
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-50 to-orange-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          
-          <div className="relative z-10 flex justify-between items-start mb-4">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="p-2 bg-amber-100 rounded-lg group-hover:bg-amber-200 transition-colors">
-                  <FaTasks className="w-4 h-4 text-amber-600" />
-                </div>
-                <h6 className="dashboard-stat-title text-gray-600 text-sm font-semibold uppercase tracking-wide">
-                  Tasks Progress
-                </h6>
-              </div>
-              <h3 className="dashboard-stat-number text-4xl font-bold text-gray-900 mb-2">
-                {stats.completedTasks}<span className="text-2xl text-gray-400">/{stats.totalTasks}</span>
-              </h3>
-              <p className="dashboard-stat-desc text-sm text-gray-500">Overall completion</p>
-            </div>
-            <div className="dashboard-stat-icon relative w-16 h-16">
-              <svg className="transform -rotate-90 w-full h-full" viewBox="0 0 60 60">
-                <circle
-                  cx="30"
-                  cy="30"
-                  r="26"
-                  fill="none"
-                  stroke="#fef3c7"
-                  strokeWidth="6"
-                />
-                <circle
-                  cx="30"
-                  cy="30"
-                  r="26"
-                  fill="none"
-                  stroke="#f59e0b"
-                  strokeWidth="6"
-                  strokeLinecap="round"
-                  strokeDasharray={Math.PI * 2 * 26}
-                  strokeDashoffset={
-                    Math.PI * 2 * 26 * ((100 - completionPercent) / 100)
-                  }
-                  className="transition-all duration-1000"
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-xs font-bold text-amber-700">{completionPercent}%</div>
-              </div>
-            </div>
-          </div>
-          <div className="relative z-10 pt-4 border-t border-gray-100">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-amber-700 font-semibold">{completionPercent}% complete</span>
-              <span className="text-gray-500">{stats.pendingTasks} remaining</span>
-            </div>
-            <div className="mt-2 w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-              <div 
-                className="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full transition-all duration-1000"
-                style={{ width: `${completionPercent}%` }}
-              ></div>
-            </div>
-          </div>
-        </div>
-
-        {/* Pending Tasks Card */}
-        <div className="group relative bg-white rounded-2xl border border-gray-200 shadow-sm p-6 hover:shadow-xl hover:border-red-200 transition-all duration-300 overflow-hidden">
-          {/* Gradient Background on Hover */}
-          <div className="absolute inset-0 bg-gradient-to-br from-red-50 to-pink-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          
-          <div className="relative z-10 flex justify-between items-start mb-4">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="p-2 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
-                  <FaClock className="w-4 h-4 text-red-600" />
-                </div>
-                <h6 className="dashboard-stat-title text-gray-600 text-sm font-semibold uppercase tracking-wide">
-                  Pending Tasks
-                </h6>
-              </div>
-              <h3 className="dashboard-stat-number text-4xl font-bold text-gray-900 mb-2">{stats.pendingTasks}</h3>
-              <p className="dashboard-stat-desc text-sm text-gray-500">Require your attention</p>
-            </div>
-            <div className="dashboard-stat-icon w-14 h-14 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
-              <FaClock className="dashboard-stat-icon-content w-6 h-6 text-white" />
-            </div>
-          </div>
-          <div className="relative z-10 pt-4 border-t border-gray-100">
-            <div className="flex items-center gap-2 text-sm">
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-              <span className="text-red-600 font-semibold">Due soon: {Math.min(stats.pendingTasks, 3)}</span>
-              <span className="text-gray-500">tasks</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Completed Tasks Card */}
-        <div className="group relative bg-white rounded-2xl border border-gray-200 shadow-sm p-6 hover:shadow-xl hover:border-green-200 transition-all duration-300 overflow-hidden">
-          {/* Gradient Background on Hover */}
-          <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          
-          <div className="relative z-10 flex justify-between items-start mb-4">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                  <FaCheckCircle className="w-4 h-4 text-green-600" />
-                </div>
-                <h6 className="dashboard-stat-title text-gray-600 text-sm font-semibold uppercase tracking-wide">
-                  Completed
-                </h6>
-              </div>
-              <h3 className="dashboard-stat-number text-4xl font-bold text-gray-900 mb-2">{stats.completedTasks}</h3>
-              <p className="dashboard-stat-desc text-sm text-gray-500">Tasks finished successfully</p>
-            </div>
-            <div className="dashboard-stat-icon w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
-              <FaCheckCircle className="dashboard-stat-icon-content w-6 h-6 text-white" />
-            </div>
-          </div>
-          <div className="relative z-10 pt-4 border-t border-gray-100">
-            <div className="flex items-center gap-2 text-sm">
-              <FaStar className="w-4 h-4 text-yellow-500" />
-              <span className="text-green-600 font-semibold">+{stats.completedTasks} this month</span>
-              <span className="text-gray-500">Keep it up!</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Two Column Layout */}
-      <div className="dashboard-main-layout grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Content - 2/3 width */}
-        <div className="lg:col-span-2">
-          {/* Upcoming Features Section */}
-          <div className="dashboard-card bg-white rounded-2xl border border-gray-200 shadow-lg p-8 mb-8 hover:shadow-xl transition-shadow duration-300">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                  <span className="text-3xl">🚀</span> Upcoming Features
-                </h2>
-                <p className="text-gray-600 mt-2">Exciting new tools coming to your dashboard</p>
-              </div>
-              <span className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold rounded-full shadow-md whitespace-nowrap">
-                Beta Access
-              </span>
-            </div>
+          {/* BENTO GRID ANALYTICS */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
             
-            <div className="dashboard-features-grid grid grid-cols-1 md:grid-cols-2 gap-6">
-              {upcomingFeatures.map((feature, index) => (
-                <div 
-                  key={index} 
-                  className="dashboard-feature-card group relative border border-gray-200 rounded-2xl p-5 hover:border-blue-300 hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-white to-gray-50"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className={`dashboard-feature-icon p-3 bg-gradient-to-r ${feature.color} rounded-xl text-white shadow-lg transform group-hover:scale-110 transition-transform`}>
-                      {feature.icon}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between mb-2">
-                        <h4 className="dashboard-feature-title font-bold text-gray-900 text-lg">{feature.title}</h4>
-                        <span className={`text-xs px-3 py-1 rounded-full font-semibold whitespace-nowrap ${
-                          feature.status === 'Coming Soon' ? 'bg-blue-100 text-blue-700' :
-                          feature.status === 'In Development' ? 'bg-purple-100 text-purple-700' :
-                          'bg-green-100 text-green-700'
-                        }`}>
-                          {feature.status}
-                        </span>
-                      </div>
-                      <p className="dashboard-feature-desc text-sm text-gray-600 mb-3 leading-relaxed">{feature.description}</p>
-                      <div className="flex items-center text-xs text-gray-500">
-                        <FaCalendarAlt className="w-3 h-3 mr-1" />
-                        <span>Estimated: Q{(index % 4) + 1} 2024</span>
-                      </div>
-                    </div>
+            {/* CARD 1: VIEWS */}
+            <div className="group relative bg-white border border-slate-200 rounded-3xl p-5 hover:shadow-xl hover:border-[#6C63FF]/30 transition-all duration-300 overflow-hidden shadow-sm flex flex-col justify-between">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/20 to-purple-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative z-10">
+                <div className="flex justify-between items-start">
+                  <div className="p-2 bg-indigo-50 border border-indigo-100 text-[#6C63FF] rounded-xl inline-flex items-center justify-center mb-3">
+                    <FaEye className="w-4 h-4" />
+                  </div>
+                  <div className="text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded-full font-bold">
+                    +14% ↗
                   </div>
                 </div>
-              ))}
-            </div>
-            
-            <div className="mt-8 pt-6 border-t border-gray-200 text-center">
-              <p className="text-sm text-gray-600">
-                Have suggestions for new features?{" "}
-                <button className="text-blue-600 hover:text-blue-800 font-semibold inline-flex items-center gap-1 transition-colors">
-                  Share your ideas <FaArrowRight className="w-3 h-3" />
-                </button>
-              </p>
-            </div>
-          </div>
-
-          {/* Recent Activity Table Section */}
-          <div className="dashboard-card bg-white rounded-2xl border border-gray-200 shadow-lg p-8 hover:shadow-xl transition-shadow duration-300">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Recent Activity</h2>
-                <p className="text-gray-600 mt-1 text-sm">Track your latest portfolio interactions</p>
+                <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">Total Profile Views</span>
+                <h3 className="text-3xl font-black text-slate-800 mt-1">{stats.profileViews}</h3>
               </div>
-              <Link 
-                to="/profile" 
-                className="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center gap-1 whitespace-nowrap"
-              >
-                View All <FaArrowRight className="w-3 h-3" />
+              {/* Mini Sparkline Chart */}
+              <div className="mt-4 -mx-5 -mb-5 h-12 overflow-hidden opacity-80 group-hover:opacity-100 transition-opacity">
+                <svg className="w-full h-full text-emerald-500 overflow-visible" viewBox="0 0 100 30" fill="none" preserveAspectRatio="none">
+                  <path
+                    d="M0,28 C10,25 18,5 30,18 C42,31 55,8 70,22 C85,36 90,10 100,5"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M0,28 C10,25 18,5 30,18 C42,31 55,8 70,22 C85,36 90,10 100,5 L100,30 L0,30 Z"
+                    fill="url(#sparkline-grad)"
+                    opacity="0.1"
+                  />
+                  <defs>
+                    <linearGradient id="sparkline-grad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10B981" />
+                      <stop offset="100%" stopColor="#10B981" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+            </div>
+
+            {/* CARD 2: COMPLETENESS */}
+            <div className="group relative bg-white border border-slate-200 rounded-3xl p-5 hover:shadow-xl hover:border-amber-200 transition-all duration-300 overflow-hidden shadow-sm">
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-50/20 to-orange-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative z-10 flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="p-2 bg-amber-50 border border-amber-100 text-amber-600 rounded-xl inline-flex items-center justify-center mb-3">
+                    <FaTasks className="w-4 h-4" />
+                  </div>
+                  <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Setup Progress</span>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <h3 className="text-3xl font-black text-slate-800">{completionPercent}%</h3>
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-bold">({stats.completedTasks}/{stats.totalTasks} Done)</span>
+                </div>
+                {/* SVG circular indicator */}
+                <div className="relative flex items-center justify-center w-14 h-14 mt-1">
+                  <svg className="w-full h-full transform -rotate-90">
+                    <circle
+                      cx="28"
+                      cy="28"
+                      r={radius}
+                      className="text-slate-100"
+                      strokeWidth="3.5"
+                      stroke="currentColor"
+                      fill="transparent"
+                    />
+                    <circle
+                      cx="28"
+                      cy="28"
+                      r={radius}
+                      className="text-amber-500 transition-all duration-1000"
+                      strokeWidth="3.5"
+                      strokeDasharray={circumference}
+                      strokeDashoffset={strokeDashoffset}
+                      strokeLinecap="round"
+                      stroke="currentColor"
+                      fill="transparent"
+                    />
+                  </svg>
+                  <span className="absolute text-[10px] font-black text-slate-700">{completionPercent}%</span>
+                </div>
+              </div>
+            </div>
+
+            {/* CARD 3: ACTIVE TEMPLATE */}
+            <div className="group relative bg-white border border-slate-200 rounded-3xl p-5 hover:shadow-xl hover:border-purple-200 transition-all duration-300 overflow-hidden shadow-sm flex flex-col justify-between">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-50/20 to-indigo-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative z-10">
+                <div className="p-2 bg-purple-50 border border-purple-100 text-purple-600 rounded-xl inline-flex items-center justify-center mb-3">
+                  <FaPalette className="w-4 h-4" />
+                </div>
+                <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Active Design Layout</span>
+                <h3 className="text-base font-black text-slate-800 mt-2 truncate flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#6C63FF] inline-block"></span>
+                  Premium Portfolio
+                </h3>
+              </div>
+              <div className="flex flex-col gap-1.5 mt-4">
+                <Link to="/portfolio-templates" className="text-[10px] text-[#6C63FF] font-extrabold hover:underline flex items-center gap-1">
+                  Change Template <FaArrowRight size={8} />
+                </Link>
+                {username && (
+                  <a 
+                    href={`http://localhost:3001/${username}`} 
+                    target="_blank" 
+                    rel="noreferrer" 
+                    className="text-[10px] text-emerald-600 font-extrabold hover:underline flex items-center gap-1"
+                  >
+                    View Live Site <FaExternalLinkAlt size={8} />
+                  </a>
+                )}
+              </div>
+            </div>
+
+            {/* CARD 4: RECRUITER INBOX */}
+            <div className="group relative bg-white border border-slate-200 rounded-3xl p-5 hover:shadow-xl hover:border-emerald-200 transition-all duration-300 overflow-hidden shadow-sm flex flex-col justify-between">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/20 to-green-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative z-10">
+                <div className="flex justify-between items-start">
+                  <div className="p-2 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl inline-flex items-center justify-center mb-3">
+                    <FaEnvelopeOpen className="w-4 h-4" />
+                  </div>
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                </div>
+                <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Recruiter Messages</span>
+                <h3 className="text-xl font-black text-slate-800 mt-2">Inbox</h3>
+              </div>
+              <Link to="/contacts" className="text-[10px] text-emerald-600 font-extrabold hover:underline flex items-center gap-1 mt-4">
+                Open Messages <FaArrowRight size={8} />
               </Link>
             </div>
-            <div className="overflow-x-auto">
-              <table className="dashboard-activity-table w-full">
-                <thead>
-                  <tr className="border-b-2 border-gray-200">
-                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-700 uppercase tracking-wider">Activity</th>
-                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-700 uppercase tracking-wider">Date</th>
-                    <th className="text-left py-4 px-4 text-sm font-semibold text-gray-700 uppercase tracking-wider">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  <tr className="hover:bg-blue-50 transition-colors duration-150">
-                    <td className="py-4 px-4">
-                      <div className="dashboard-activity-row-content flex items-center gap-4">
-                        <div className="dashboard-activity-row-icon w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
-                          <FaEye className="w-5 h-5 text-white" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-semibold text-gray-900 break-words">Profile viewed by recruiter</p>
-                          <p className="text-sm text-gray-600 mt-1">Tech Solutions Inc.</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className="text-gray-700 font-medium whitespace-nowrap">Today, 10:30 AM</span>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className="px-3 py-1.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full border border-green-200 whitespace-nowrap">
-                        Viewed
-                      </span>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-amber-50 transition-colors duration-150">
-                    <td className="py-4 px-4">
-                      <div className="dashboard-activity-row-content flex items-center gap-4">
-                        <div className="dashboard-activity-row-icon w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
-                          <FaTasks className="w-5 h-5 text-white" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-semibold text-gray-900 break-words">Task completed: Update skills</p>
-                          <p className="text-sm text-gray-600 mt-1">Added 3 new skills to profile</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className="text-gray-700 font-medium whitespace-nowrap">Yesterday, 3:45 PM</span>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className="px-3 py-1.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full border border-green-200 whitespace-nowrap">
-                        Completed
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+
+          </div>
+
+          {/* BUILDER MODULES */}
+          <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-sm">
+            <h2 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2">
+              <span className="text-xl">🛠️</span> Portfolio Builder Modules
+            </h2>
+            
+            <div className="grid sm:grid-cols-2 gap-5">
+              <Link
+                to="/profile"
+                className="group border border-slate-100 hover:border-[#6C63FF] hover:bg-[#6C63FF]/5 rounded-2xl p-5 transition-all duration-300 flex items-start gap-4 transform hover:-translate-y-0.5 shadow-sm hover:shadow-md"
+              >
+                <div className="w-12 h-12 bg-indigo-50 text-[#6C63FF] group-hover:bg-[#6C63FF] group-hover:text-white rounded-xl flex items-center justify-center text-lg shadow-sm transition-all flex-shrink-0">
+                  <FaUserEdit />
+                </div>
+                <div className="min-w-0 text-left">
+                  <h4 className="font-bold text-slate-800 text-sm group-hover:text-[#6C63FF] transition-colors">Bio & Contact Details</h4>
+                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">Update your name, bio summaries, phone, and social coordinates.</p>
+                </div>
+              </Link>
+
+              <Link
+                to="/resume-builder"
+                className="group border border-slate-100 hover:border-[#6C63FF] hover:bg-[#6C63FF]/5 rounded-2xl p-5 transition-all duration-300 flex items-start gap-4 transform hover:-translate-y-0.5 shadow-sm hover:shadow-md"
+              >
+                <div className="w-12 h-12 bg-indigo-50 text-[#6C63FF] group-hover:bg-[#6C63FF] group-hover:text-white rounded-xl flex items-center justify-center text-lg shadow-sm transition-all flex-shrink-0">
+                  <FaFilePdf />
+                </div>
+                <div className="min-w-0 text-left">
+                  <h4 className="font-bold text-slate-800 text-sm group-hover:text-[#6C63FF] transition-colors">Resume PDF Exporter</h4>
+                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">Compile credentials to download offline ATS-ready resumes.</p>
+                </div>
+              </Link>
+
+              <Link
+                to="/portfolio-templates"
+                className="group border border-slate-100 hover:border-[#6C63FF] hover:bg-[#6C63FF]/5 rounded-2xl p-5 transition-all duration-300 flex items-start gap-4 transform hover:-translate-y-0.5 shadow-sm hover:shadow-md"
+              >
+                <div className="w-12 h-12 bg-indigo-50 text-[#6C63FF] group-hover:bg-[#6C63FF] group-hover:text-white rounded-xl flex items-center justify-center text-lg shadow-sm transition-all flex-shrink-0">
+                  <FaPalette />
+                </div>
+                <div className="min-w-0 text-left">
+                  <h4 className="font-bold text-slate-800 text-sm group-hover:text-[#6C63FF] transition-colors">Design & Theme Layouts</h4>
+                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">Unlock premium layouts, monospace, and modern grid styles.</p>
+                </div>
+              </Link>
+
+              <Link
+                to="/tasks"
+                className="group border border-slate-100 hover:border-[#6C63FF] hover:bg-[#6C63FF]/5 rounded-2xl p-5 transition-all duration-300 flex items-start gap-4 transform hover:-translate-y-0.5 shadow-sm hover:shadow-md"
+              >
+                <div className="w-12 h-12 bg-indigo-50 text-[#6C63FF] group-hover:bg-[#6C63FF] group-hover:text-white rounded-xl flex items-center justify-center text-lg shadow-sm transition-all flex-shrink-0">
+                  <FaListUl />
+                </div>
+                <div className="min-w-0 text-left">
+                  <h4 className="font-bold text-slate-800 text-sm group-hover:text-[#6C63FF] transition-colors">Project & Skill Checklist</h4>
+                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">Mark pending milestones and complete your portfolio setup.</p>
+                </div>
+              </Link>
             </div>
           </div>
-        </div>
 
-        {/* Sidebar - 1/3 width */}
-        <div className="dashboard-sidebar lg:col-span-1 space-y-6">
-          {/* Quick Stats Summary */}
-          <div className="dashboard-card bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl p-6 text-white shadow-2xl border border-gray-700">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
-                <FaChartLine className="w-5 h-5" />
-              </div>
-              <h3 className="text-xl font-bold">Quick Stats</h3>
-            </div>
-            <div className="space-y-6">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-300 font-medium">Profile Completion</span>
-                  <span className="font-bold text-lg">85%</span>
-                </div>
-                <div className="dashboard-progress-bar w-full bg-gray-700 rounded-full h-3 overflow-hidden">
-                  <div className="bg-gradient-to-r from-blue-500 to-cyan-500 h-3 rounded-full transition-all duration-1000 shadow-lg" style={{width: '85%'}}></div>
-                </div>
-              </div>
-              
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-300 font-medium">Avg. Daily Views</span>
-                  <span className="font-bold text-lg">12</span>
-                </div>
-                <div className="dashboard-progress-bar w-full bg-gray-700 rounded-full h-3 overflow-hidden">
-                  <div className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-1000 shadow-lg" style={{width: '60%'}}></div>
-                </div>
-              </div>
-              
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-gray-300 font-medium">Task Completion</span>
-                  <span className="font-bold text-lg">{completionPercent}%</span>
-                </div>
-                <div className="dashboard-progress-bar w-full bg-gray-700 rounded-full h-3 overflow-hidden">
-                  <div className="bg-gradient-to-r from-amber-500 to-orange-500 h-3 rounded-full transition-all duration-1000 shadow-lg" style={{width: `${completionPercent}%`}}></div>
-                </div>
-              </div>
-            </div>
+          {/* INSPIRATION & CHECKLIST */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
             
-            <div className="mt-6 pt-6 border-t border-gray-700">
-              <div className="flex items-start gap-3">
-                <FaLightbulb className="w-5 h-5 text-yellow-400 mt-1 flex-shrink-0" />
-                <p className="text-sm text-gray-300 leading-relaxed">
-                  "Success is the sum of small efforts, repeated day-in and day-out." 
-                  <span className="block text-gray-400 mt-2 font-medium">— Robert Collier</span>
+            {/* ROTATING QUOTE BANNER */}
+            <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-6 text-white relative overflow-hidden shadow-lg border border-white/10 flex flex-col justify-between">
+              <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+              
+              <div className="relative z-10">
+                <span className="px-2.5 py-1 bg-white/20 border border-white/20 text-white text-[9px] font-black uppercase tracking-widest rounded-full">
+                  Daily Inspiration
+                </span>
+                <p className="text-base font-bold mt-5 italic leading-relaxed">
+                  "{quotes[currentQuote].text}"
                 </p>
               </div>
-            </div>
-          </div>
 
-          {/* Quick Actions */}
-          <div className="dashboard-card bg-white rounded-2xl border border-gray-200 shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg">
-                <span className="text-2xl">⚡</span>
+              <div className="relative z-10 flex items-center justify-between mt-6 pt-4 border-t border-white/10">
+                <p className="text-[10px] opacity-75 font-semibold">— {quotes[currentQuote].author}</p>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={handlePrevQuote}
+                    className="p-2 bg-white/15 hover:bg-white/25 border border-white/10 rounded-xl transition-all cursor-pointer active:scale-90"
+                    aria-label="Previous quote"
+                  >
+                    <FaArrowRight className="w-3 h-3 rotate-180" />
+                  </button>
+                  <button
+                    onClick={handleNextQuote}
+                    className="p-2 bg-white/15 hover:bg-white/25 border border-white/10 rounded-xl transition-all cursor-pointer active:scale-90"
+                    aria-label="Next quote"
+                  >
+                    <FaArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-900">Quick Actions</h3>
             </div>
-            <div className="space-y-3">
-              <Link 
-                to="/portfolio" 
-                className="dashboard-quick-action group w-full flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50 transition-all duration-200"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                    <FaEye className="w-5 h-5 text-white" />
+
+            {/* SETUP TIMELINE CHECKLIST */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+              <div>
+                <h3 className="text-base font-black text-slate-800 mb-4 flex items-center gap-2">
+                  <span>📋</span> Setup Checklist
+                </h3>
+                
+                <div className="space-y-3.5">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-400">
+                    <span>Site Completion</span>
+                    <span className="text-[#6C63FF]">{completionPercent}%</span>
                   </div>
-                  <span className="font-semibold text-gray-900">Preview Portfolio</span>
-                </div>
-                <FaArrowRight className="text-gray-400 group-hover:text-blue-600 transition-colors flex-shrink-0" />
-              </Link>
-              
-              <Link 
-                to="/tasks" 
-                className="dashboard-quick-action group w-full flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl hover:border-green-300 hover:bg-green-50 transition-all duration-200"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                    <FaCheckCircle className="w-5 h-5 text-white" />
+                  <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-[#6C63FF] h-full rounded-full transition-all duration-1000" style={{ width: `${completionPercent}%` }}></div>
                   </div>
-                  <span className="font-semibold text-gray-900">Complete Tasks</span>
-                </div>
-                <FaArrowRight className="text-gray-400 group-hover:text-green-600 transition-colors flex-shrink-0" />
-              </Link>
-              
-              <Link 
-                to="/analytics" 
-                className="dashboard-quick-action group w-full flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl hover:border-purple-300 hover:bg-purple-50 transition-all duration-200"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                    <FaChartLine className="w-5 h-5 text-white" />
+
+                  <div className="space-y-2.5 pt-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-4 h-4 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 text-[9px] font-bold">
+                        ✓
+                      </div>
+                      <span className="text-xs text-slate-400 font-medium line-through">Create profile credentials</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-4 h-4 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 text-[9px] font-bold">
+                        ✓
+                      </div>
+                      <span className="text-xs text-slate-400 font-medium line-through">Claim public portfolio path</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
+                        stats.completedTasks > 0 ? "bg-emerald-50 border border-emerald-200 text-emerald-600" : "bg-slate-50 border border-slate-200 text-slate-400"
+                      }`}>
+                        {stats.completedTasks > 0 ? "✓" : "○"}
+                      </div>
+                      <span className={`text-xs font-semibold ${stats.completedTasks > 0 ? "text-slate-400 line-through" : "text-slate-600"}`}>
+                        Add core technical skills
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-4 h-4 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 text-[9px] font-bold">
+                        ○
+                      </div>
+                      <span className="text-xs text-slate-600 font-semibold">Link developer repositories</span>
+                    </div>
                   </div>
-                  <span className="font-semibold text-gray-900">View Analytics</span>
                 </div>
-                <FaArrowRight className="text-gray-400 group-hover:text-purple-600 transition-colors flex-shrink-0" />
-              </Link>
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 mt-4 flex justify-between items-center">
+                <Link
+                  to="/help"
+                  className="inline-flex items-center gap-1 text-xs text-[#6C63FF] font-bold hover:underline"
+                >
+                  Need some guidance? <FaArrowRight size={8} />
+                </Link>
+              </div>
+            </div>
+
             </div>
           </div>
-        </div>
-      </div>
-    </DashboardLayout>
+        </DashboardLayout>
   );
 };
 

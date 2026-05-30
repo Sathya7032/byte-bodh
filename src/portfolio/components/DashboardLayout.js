@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import StudentDashboardNavbar from "./StudentDashboardNavbar";
 import StudentDashboardSidebar from "./StudentDashboardSidebar";
 
-const DashboardLayout = ({ children }) => {
+const DashboardLayout = ({ children, containerClassName }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeMenuItem, setActiveMenuItem] = useState("dashboard");
   const [isMobile, setIsMobile] = useState(false);
@@ -74,7 +74,7 @@ const DashboardLayout = ({ children }) => {
 
         {/* ===== PAGE CONTENT ===== */}
         <div className="flex-1 overflow-y-auto p-4 md:p-6">
-          <div className="bg-white rounded-xl shadow-sm p-6 min-h-[500px]">
+          <div className={containerClassName !== undefined ? containerClassName : "bg-white rounded-xl shadow-sm p-6 min-h-[500px]"}>
             {children}
           </div>
         </div>
