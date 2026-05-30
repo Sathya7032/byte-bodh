@@ -69,6 +69,7 @@ export const saveAuthData = (authData) => {
     fullName: authData.fullName,
     email: authData.email,
     role: authData.role,
+    username: authData.username || (authData.user && authData.user.username) || "",
   }));
 };
 

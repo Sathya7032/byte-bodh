@@ -8,6 +8,7 @@ import {
   QuestionCircle,
   XLg,
   Collection,
+  QrCode,
 } from "react-bootstrap-icons";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -24,6 +25,7 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
     if (path === "/resume-builder") return "resume-templates";
     if (path === "/contacts") return "contacts";
     if (path === "/profile-views") return "profile-views";
+    if (path === "/qr-code") return "qr-code";
     if (path === "/tasks") return "tasks";
     if (path === "/resources") return "resources";
     if (path === "/settings") return "settings";
@@ -70,6 +72,12 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
       label: "Tasks & Projects",
       icon: <CalendarCheck size={20} />,
       path: "/tasks",
+    },
+    {
+      id: "qr-code",
+      label: "Portfolio QR",
+      icon: <QrCode size={20} />,
+      path: "/qr-code",
     },
   ];
 

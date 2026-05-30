@@ -209,7 +209,7 @@ const PortfolioTemplates = () => {
   );
 
   return (
-    <DashboardLayout>
+    <DashboardLayout containerClassName="w-full space-y-8 flex flex-col bg-transparent animate-fadeIn">
       {/* Header */}
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>

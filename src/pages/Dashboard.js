@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import DashboardLayout from "../portfolio/components/DashboardLayout";
 import { getUser, getAccessToken } from "../services/auth";
 import { dashboardStats, getMyProfile } from "../api/profileService";
+import { getPortfolioUrl } from "../config/api";
 import { toast } from "react-toastify";
 import { 
   FaEye, 
@@ -115,14 +116,12 @@ const Dashboard = () => {
   };
 
   const handleCopyLink = () => {
-    const liveUrl = `http://localhost:3001/${username || 'profile'}`;
+    const liveUrl = getPortfolioUrl(username || 'profile');
     navigator.clipboard.writeText(liveUrl);
     setCopied(true);
     toast.success("Portfolio link copied!");
     setTimeout(() => setCopied(false), 2000);
   };
-
-
 
   if (!user || loading) {
     return (
@@ -149,7 +148,7 @@ const Dashboard = () => {
 
   const userName = user?.fullName || user?.name || "User";
   const userInitial = userName.charAt(0).toUpperCase();
-  const portfolioUrl = `http://localhost:3001/${username}`;
+  const portfolioUrl = getPortfolioUrl(username);
 
   // SVG circular loader variables
   const radius = 24;
@@ -157,8 +156,7 @@ const Dashboard = () => {
   const strokeDashoffset = circumference - (completionPercent / 100) * circumference;
 
   return (
-    <DashboardLayout containerClassName="w-full min-h-screen bg-slate-50/50 space-y-6">
-      <div className="max-w-7xl mx-auto w-full space-y-8 flex flex-col p-4 md:p-6 animate-fadeIn">
+    <DashboardLayout containerClassName="w-full space-y-8 flex flex-col bg-transparent animate-fadeIn">
           
           {/* PREMIUM BANNER CARD */}
           <div className="bg-gradient-to-r from-slate-900 via-[#1e1b4b] to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800 animate-fadeIn text-left">
@@ -317,7 +315,7 @@ const Dashboard = () => {
                 </Link>
                 {username && (
                   <a 
-                    href={`http://localhost:3001/${username}`} 
+                    href={getPortfolioUrl(username)} 
                     target="_blank" 
                     rel="noreferrer" 
                     className="text-[10px] text-emerald-600 font-extrabold hover:underline flex items-center gap-1"
@@ -348,7 +346,6 @@ const Dashboard = () => {
                 Open Messages <FaArrowRight size={8} />
               </Link>
             </div>
-
           </div>
 
           {/* BUILDER MODULES */}
@@ -506,8 +503,6 @@ const Dashboard = () => {
                   Need some guidance? <FaArrowRight size={8} />
                 </Link>
               </div>
-            </div>
-
             </div>
           </div>
         </DashboardLayout>

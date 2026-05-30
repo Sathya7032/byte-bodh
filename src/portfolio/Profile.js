@@ -4,6 +4,7 @@ import {
   getMyProfile,
   updateProfile,
 } from "../api/profileService";
+import { getPortfolioUrl } from "../config/api";
 import { toast } from "react-toastify";
 import {
   FaUser,
@@ -127,7 +128,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (profile.username) {
-      const url = `http://localhost:3001/${profile.username}`;
+      const url = getPortfolioUrl(profile.username);
       setPreviewUrl(url);
     }
   }, [profile.username]);
@@ -1820,8 +1821,7 @@ const Profile = () => {
   }
 
   return (
-    <DashboardLayout containerClassName="w-full min-h-screen bg-slate-50/50 space-y-6">
-      <div className="p-4 sm:p-6 max-w-7xl mx-auto text-left animate-fadeIn">
+    <DashboardLayout containerClassName="w-full space-y-8 flex flex-col bg-transparent animate-fadeIn text-left">
         <div className="mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
@@ -1963,7 +1963,6 @@ const Profile = () => {
             </div>
           </div>
         </div>
-      </div>
       
       {/* ===== MOBILE PREVIEW SCREEN DRAWER MODAL ===== */}
       {mobilePreviewOpen && (

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "./components/DashboardLayout";
+import { toast } from "react-toastify";
 import {
   createTask,
   getTasks,
   updateTask,
   deleteTask,
   completeTask
-} from "../api/profileService"; // Import your API service
+} from "../api/profileService";
 import {
   Calendar,
   Clock,
@@ -50,6 +51,7 @@ const Tasks = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [operationLoading, setOperationLoading] = useState(false);
+  const [tagInput, setTagInput] = useState("");
 
   // Fetch tasks from API
   const fetchTasks = async () => {
@@ -83,8 +85,10 @@ const Tasks = () => {
     pending: tasks.filter(task => task.status === "PENDING").length,
     inProgress: tasks.filter(task => task.status === "IN_PROGRESS").length,
     overdue: tasks.filter(task => {
+      if (!task.dueDate) return false;
       const dueDate = new Date(task.dueDate);
       const today = new Date();
+      today.setHours(0, 0, 0, 0);
       return dueDate < today && task.status !== "COMPLETED";
     }).length,
   };
@@ -112,7 +116,7 @@ const Tasks = () => {
     
     // Validate required fields
     if (!newTask.title.trim() || !newTask.dueDate) {
-      setError("Title and due date are required");
+      toast.warning("Title and due date are required.");
       return;
     }
 
@@ -120,17 +124,14 @@ const Tasks = () => {
     
     try {
       let response;
-      
       if (editingTask) {
-        // Update existing task
         response = await updateTask(editingTask.id, newTask);
       } else {
-        // Create new task
         response = await createTask(newTask);
       }
       
       if (response.data?.success) {
-        // Refresh task list
+        toast.success(editingTask ? "Milestone updated!" : "Milestone created!");
         await fetchTasks();
         
         // Reset form and close modal
@@ -143,13 +144,14 @@ const Tasks = () => {
           category: "ACADEMIC",
           tags: []
         });
+        setTagInput("");
         setEditingTask(null);
         setIsModalOpen(false);
         setError(null);
       }
     } catch (err) {
       console.error("Error saving task:", err);
-      setError(err.response?.data?.message || "Failed to save task");
+      toast.error(err.response?.data?.message || "Failed to save milestone.");
     } finally {
       setOperationLoading(false);
     }
@@ -176,13 +178,13 @@ const Tasks = () => {
     
     try {
       const response = await deleteTask(id);
-      
       if (response.data?.success) {
-        await fetchTasks(); // Refresh list
+        toast.success("Milestone deleted successfully.");
+        await fetchTasks();
       }
     } catch (err) {
       console.error("Error deleting task:", err);
-      setError("Failed to delete task");
+      toast.error("Failed to delete milestone.");
     }
   };
 
@@ -190,33 +192,31 @@ const Tasks = () => {
   const handleToggleStatus = async (id, currentStatus) => {
     try {
       if (currentStatus === "PENDING" || currentStatus === "IN_PROGRESS") {
-        // Mark as completed
         await completeTask(id);
+        toast.success("Task completed!");
         await fetchTasks();
       } else if (currentStatus === "COMPLETED") {
-        // Reopen task (set to pending)
         const taskToUpdate = tasks.find(t => t.id === id);
         await updateTask(id, { ...taskToUpdate, status: "PENDING" });
+        toast.info("Task reopened.");
         await fetchTasks();
       }
     } catch (err) {
       console.error("Error updating task status:", err);
-      setError("Failed to update task status");
+      toast.error("Failed to update task status");
     }
   };
-
-  
 
   const getStatusIcon = (status) => {
     switch(status) {
       case "COMPLETED":
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
+        return <CheckCircle className="w-5 h-5 text-emerald-500 hover:scale-115 transition-transform" />;
       case "IN_PROGRESS":
-        return <div className="w-5 h-5 border-2 border-blue-500 rounded-full animate-spin" />;
+        return <div className="w-5 h-5 border-2 border-[#6C63FF] border-t-transparent rounded-full animate-spin" />;
       case "PENDING":
-        return <Circle className="w-5 h-5 text-gray-400" />;
+        return <Circle className="w-5 h-5 text-slate-300 hover:text-emerald-550 transition-colors" />;
       default:
-        return <Circle className="w-5 h-5 text-gray-400" />;
+        return <Circle className="w-5 h-5 text-slate-300" />;
     }
   };
 
@@ -224,6 +224,7 @@ const Tasks = () => {
     if (!dateString) return "No date";
     const date = new Date(dateString);
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
@@ -232,425 +233,358 @@ const Tasks = () => {
     } else if (date.toDateString() === tomorrow.toDateString()) {
       return "Tomorrow";
     }
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   const isOverdue = (dueDate) => {
     if (!dueDate) return false;
     const due = new Date(dueDate);
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     return due < today;
   };
 
-  // Loading state
-  if (loading && tasks.length === 0) {
-    return (
-      <DashboardLayout>
-        <div className="min-h-screen bg-gray-50 p-4 md:p-6 flex items-center justify-center">
-          <div className="text-center">
-            <Loader className="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" />
-            <p className="text-gray-600">Loading your tasks...</p>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  const addTag = () => {
+    if (tagInput.trim() && !newTask.tags.includes(tagInput.trim())) {
+      setNewTask({ ...newTask, tags: [...newTask.tags, tagInput.trim()] });
+      setTagInput("");
+    }
+  };
+
+  const removeTag = (tagToRemove) => {
+    setNewTask({ ...newTask, tags: newTask.tags.filter(t => t !== tagToRemove) });
+  };
 
   return (
-    <DashboardLayout>
-      <div className="min-h-screen bg-gray-50 p-4 md:p-6">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center gap-3">
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <Target className="w-6 h-6 text-purple-600" />
-                  </div>
-                  Task Manager
-                </h1>
-                <p className="text-gray-600 mt-2">
-                  Organize, track, and complete your academic tasks efficiently
-                </p>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={fetchTasks}
-                  disabled={loading}
-                  className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                  title="Refresh tasks"
-                >
-                  <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
-                </button>
-                
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="inline-flex items-center gap-2 px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                >
-                  <Plus className="w-5 h-5" />
-                  Add New Task
-                </button>
-              </div>
+    <DashboardLayout containerClassName="w-full space-y-6 animate-fadeIn text-left">
+      {/* Header Banner */}
+      <div className="bg-gradient-to-r from-slate-900 via-[#1e1b4b] to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800">
+        <div className="absolute -top-[10%] -left-[10%] w-[200px] h-[200px] rounded-full bg-[#6C63FF]/10 blur-[50px] pointer-events-none"></div>
+        <div className="absolute -bottom-[20%] -right-[10%] w-[250px] h-[250px] rounded-full bg-indigo-500/10 blur-[60px] pointer-events-none"></div>
+        
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div className="flex items-center gap-4 text-left">
+            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-[#6C63FF] rounded-2xl flex items-center justify-center shadow-lg shadow-[#6C63FF]/30">
+              <Target className="w-7 h-7 text-white" />
             </div>
-
-            {/* Error Display */}
-            {error && (
-              <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
-                <div className="flex items-center gap-3">
-                  <AlertTriangle className="w-5 h-5 text-red-600" />
-                  <p className="text-red-700">{error}</p>
-                  <button 
-                    onClick={() => setError(null)}
-                    className="ml-auto text-red-600 hover:text-red-800"
-                  >
-                    ✕
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Total Tasks</p>
-                    <p className="text-2xl font-bold text-gray-900 mt-1">{stats.total}</p>
-                  </div>
-                  <div className="p-2 bg-blue-50 rounded-lg">
-                    <Target className="w-5 h-5 text-blue-600" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Completed</p>
-                    <p className="text-2xl font-bold text-green-600 mt-1">{stats.completed}</p>
-                  </div>
-                  <div className="p-2 bg-green-50 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">In Progress</p>
-                    <p className="text-2xl font-bold text-blue-600 mt-1">{stats.inProgress}</p>
-                  </div>
-                  <div className="p-2 bg-blue-50 rounded-lg">
-                    <Clock className="w-5 h-5 text-blue-600" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Pending</p>
-                    <p className="text-2xl font-bold text-yellow-600 mt-1">{stats.pending}</p>
-                  </div>
-                  <div className="p-2 bg-yellow-50 rounded-lg">
-                    <AlertCircle className="w-5 h-5 text-yellow-600" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Overdue</p>
-                    <p className="text-2xl font-bold text-red-600 mt-1">{stats.overdue}</p>
-                  </div>
-                  <div className="p-2 bg-red-50 rounded-lg">
-                    <Flag className="w-5 h-5 text-red-600" />
-                  </div>
-                </div>
-              </div>
+            <div>
+              <h1 className="text-2xl font-black tracking-tight">Milestones & Projects</h1>
+              <p className="text-xs text-slate-400 font-semibold mt-1">Organize checkpoints, assignments, and goals to build your record.</p>
             </div>
           </div>
-
-          {/* Filters and Search */}
-          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="text"
-                    placeholder="Search tasks by title, description, or tags..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-              
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => setFilter("all")}
-                  className={`px-4 py-2 rounded-lg transition-colors ${filter === "all" ? "bg-purple-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
-                >
-                  All Tasks
-                </button>
-                <button
-                  onClick={() => setFilter("PENDING")}
-                  className={`px-4 py-2 rounded-lg transition-colors ${filter === "PENDING" ? "bg-yellow-100 text-yellow-800" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
-                >
-                  Pending
-                </button>
-                <button
-                  onClick={() => setFilter("HIGH")}
-                  className={`px-4 py-2 rounded-lg transition-colors ${filter === "HIGH" ? "bg-red-100 text-red-800" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
-                >
-                  High Priority
-                </button>
-                <button
-                  onClick={() => setFilter("ACADEMIC")}
-                  className={`px-4 py-2 rounded-lg transition-colors ${filter === "ACADEMIC" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
-                >
-                  Academic
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Tasks List */}
-          <div className="space-y-4">
-            {loading ? (
-              <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
-                <Loader className="w-8 h-8 text-purple-600 animate-spin mx-auto mb-4" />
-                <p className="text-gray-600">Loading tasks...</p>
-              </div>
-            ) : filteredTasks.length === 0 ? (
-              <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
-                <div className="max-w-sm mx-auto">
-                  <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                    <Target className="w-8 h-8 text-gray-400" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    No tasks found
-                  </h3>
-                  <p className="text-gray-600">
-                    {searchTerm || filter !== "all" 
-                      ? "Try adjusting your search or filter criteria"
-                      : "You're all caught up! Add a new task to get started"}
-                  </p>
-                  <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Add Your First Task
-                  </button>
-                </div>
-              </div>
-            ) : (
-              filteredTasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                >
-                  <div className="p-5">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-4 flex-1">
-                        <button
-                          onClick={() => handleToggleStatus(task.id, task.status)}
-                          className="mt-1 flex-shrink-0"
-                          disabled={operationLoading}
-                        >
-                          {getStatusIcon(task.status)}
-                        </button>
-                        
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className={`font-semibold ${task.status === "COMPLETED" ? "text-gray-500 line-through" : "text-gray-900"}`}>
-                              {task.title}
-                            </h3>
-                            <div className="flex items-center gap-2">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                task.priority === "HIGH" ? "bg-red-100 text-red-800" :
-                                task.priority === "MEDIUM" ? "bg-yellow-100 text-yellow-800" :
-                                "bg-green-100 text-green-800"
-                              }`}>
-                                {task.priority.toLowerCase()} priority
-                              </span>
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                task.category === "ACADEMIC" ? "bg-blue-100 text-blue-800" :
-                                task.category === "EXAM" ? "bg-purple-100 text-purple-800" :
-                                task.category === "GROUP" ? "bg-indigo-100 text-indigo-800" :
-                                "bg-gray-100 text-gray-800"
-                              }`}>
-                                {task.category.toLowerCase()}
-                              </span>
-                            </div>
-                          </div>
-                          
-                          <p className="text-gray-600 mb-3">{task.description}</p>
-                          
-                          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-4 h-4" />
-                              <span className={isOverdue(task.dueDate) && task.status !== "COMPLETED" ? "text-red-600 font-medium" : ""}>
-                                Due: {formatDate(task.dueDate)}
-                                {isOverdue(task.dueDate) && task.status !== "COMPLETED" && " (Overdue)"}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
-                              <span>{task.estimatedTime || "No time estimate"}</span>
-                            </div>
-                            {task.tags && task.tags.length > 0 && (
-                              <div className="flex items-center gap-2">
-                                {task.tags.map((tag, index) => (
-                                  <span key={index} className="px-2 py-1 bg-gray-100 rounded text-xs">
-                                    {tag}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 ml-4">
-                        <button
-                          onClick={() => handleEditTask(task)}
-                          disabled={operationLoading}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50"
-                          title="Edit task"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteTask(task.id)}
-                          disabled={operationLoading}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                          title="Delete task"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setExpandedTask(expandedTask === task.id ? null : task.id)}
-                          className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                        >
-                          {expandedTask === task.id ? (
-                            <ChevronDown className="w-4 h-4" />
-                          ) : (
-                            <ChevronRight className="w-4 h-4" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                    
-                    {/* Expanded Details */}
-                    {expandedTask === task.id && (
-                      <div className="mt-4 pt-4 border-t border-gray-100">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div>
-                            <h4 className="text-sm font-medium text-gray-900 mb-2">Task Details</h4>
-                            <div className="space-y-2 text-sm">
-                              <div className="flex justify-between">
-                                <span className="text-gray-600">Created:</span>
-                                <span className="font-medium">{formatDate(task.createdAt)}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-600">Status:</span>
-                                <span className={`font-medium ${
-                                  task.status === "COMPLETED" ? "text-green-600" :
-                                  task.status === "IN_PROGRESS" ? "text-blue-600" :
-                                  "text-yellow-600"
-                                }`}>
-                                  {task.status.toLowerCase().replace('_', ' ')}
-                                </span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-gray-600">Progress:</span>
-                                <div className="w-24 bg-gray-200 rounded-full h-2">
-                                  <div 
-                                    className={`h-full rounded-full ${
-                                      task.status === "COMPLETED" ? "bg-green-500 w-full" :
-                                      task.status === "IN_PROGRESS" ? "bg-blue-500 w-2/3" :
-                                      "bg-yellow-500 w-1/3"
-                                    }`}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <h4 className="text-sm font-medium text-gray-900 mb-2">Category</h4>
-                            <div className="flex items-center gap-2">
-                              <div className={`p-2 rounded-lg ${
-                                task.category === "ACADEMIC" ? "bg-blue-50" :
-                                task.category === "EXAM" ? "bg-purple-50" :
-                                task.category === "GROUP" ? "bg-indigo-50" :
-                                "bg-gray-50"
-                              }`}>
-                                {task.category === "ACADEMIC" ? <Book className="w-5 h-5 text-blue-600" /> :
-                                 task.category === "GROUP" ? <Users className="w-5 h-5 text-indigo-600" /> :
-                                 <BarChart className="w-5 h-5 text-purple-600" />}
-                              </div>
-                              <div>
-                                <p className="font-medium text-gray-900">{task.category.toLowerCase()}</p>
-                                <p className="text-sm text-gray-600">
-                                  {task.category === "ACADEMIC" ? "Academic assignments and coursework" :
-                                   task.category === "EXAM" ? "Exam preparation and study" :
-                                   task.category === "GROUP" ? "Group projects and collaboration" :
-                                   "Other academic activities"}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <h4 className="text-sm font-medium text-gray-900 mb-2">Actions</h4>
-                            <div className="space-y-2">
-                              <button
-                                onClick={() => handleToggleStatus(task.id, task.status)}
-                                disabled={operationLoading}
-                                className={`w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                  task.status === "COMPLETED" 
-                                    ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                                    : "bg-green-100 text-green-700 hover:bg-green-200"
-                                } disabled:opacity-50`}
-                              >
-                                {task.status === "COMPLETED" ? "Reopen Task" : "Mark as Complete"}
-                              </button>
-                              <button
-                                onClick={() => handleEditTask(task)}
-                                disabled={operationLoading}
-                                className="w-full px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors disabled:opacity-50"
-                              >
-                                Edit Task Details
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
+          
+          <div className="flex items-center gap-3">
+            <button
+              onClick={fetchTasks}
+              disabled={loading}
+              className="p-2.5 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl transition-all cursor-pointer text-white active:scale-95"
+              title="Refresh checklist"
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            </button>
+            
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all cursor-pointer active:scale-95 whitespace-nowrap"
+            >
+              <Plus className="w-4 h-4" />
+              Add Milestone
+            </button>
           </div>
         </div>
       </div>
 
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3">
+          <AlertTriangle className="w-5 h-5 text-red-650 flex-shrink-0" />
+          <p className="text-xs text-red-700 font-semibold">{error}</p>
+          <button 
+            onClick={() => setError(null)}
+            className="ml-auto text-red-650 hover:text-red-800 text-xs font-bold"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* Stats Checklist Bento */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        {[
+          { label: "Total Tasks", val: stats.total, color: "text-slate-800", bg: "bg-slate-50 border-slate-100", icon: <Target className="w-5 h-5 text-slate-400" /> },
+          { label: "Completed", val: stats.completed, color: "text-emerald-600", bg: "bg-emerald-50 border-emerald-100", icon: <CheckCircle className="w-5 h-5 text-emerald-500" /> },
+          { label: "In Progress", val: stats.inProgress, color: "text-blue-600", bg: "bg-blue-50 border-blue-100", icon: <Clock className="w-5 h-5 text-blue-500" /> },
+          { label: "Pending", val: stats.pending, color: "text-amber-500", bg: "bg-amber-50 border-amber-100", icon: <AlertCircle className="w-5 h-5 text-amber-500" /> },
+          { label: "Overdue", val: stats.overdue, color: "text-rose-600", bg: "bg-rose-50 border-rose-100", icon: <Flag className="w-5 h-5 text-rose-500" /> }
+        ].map((item, idx) => (
+          <div key={idx} className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center justify-between">
+            <div>
+              <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">{item.label}</span>
+              <p className={`text-2xl font-black mt-1 ${item.color}`}>{item.val}</p>
+            </div>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${item.bg}`}>
+              {item.icon}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Search & Filter Toolbar */}
+      <div className="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-sm">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Search checklist..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 focus:border-[#6C63FF] rounded-xl text-xs font-semibold focus:ring-4 focus:ring-[#6C63FF]/10 transition-all placeholder-slate-400"
+              />
+            </div>
+          </div>
+          
+          <div className="flex flex-wrap gap-2">
+            {[
+              { id: "all", label: "All Milestones", activeClass: "bg-[#6C63FF] text-white shadow-md shadow-[#6C63FF]/15" },
+              { id: "PENDING", label: "Pending", activeClass: "bg-amber-100 text-amber-800 border-amber-200" },
+              { id: "HIGH", label: "High Priority", activeClass: "bg-rose-100 text-rose-800 border-rose-200" },
+              { id: "ACADEMIC", label: "Academic", activeClass: "bg-blue-100 text-blue-800 border-blue-200" }
+            ].map((btn) => (
+              <button
+                key={btn.id}
+                onClick={() => setFilter(btn.id)}
+                className={`px-4 py-2.5 border rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  filter === btn.id 
+                    ? btn.activeClass 
+                    : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                {btn.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Tasks Content List */}
+      <div className="space-y-4">
+        {loading ? (
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-16 text-center shadow-sm">
+            <Loader className="w-8 h-8 text-[#6C63FF] animate-spin mx-auto mb-4" />
+            <p className="text-slate-500 font-bold">Refreshing database feed...</p>
+          </div>
+        ) : filteredTasks.length === 0 ? (
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-16 text-center shadow-sm flex flex-col items-center">
+            <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center text-2xl mb-4">
+              🎯
+            </div>
+            <h3 className="text-lg font-black text-slate-800">No milestones found</h3>
+            <p className="text-xs text-slate-400 font-semibold mt-1 max-w-sm text-center">
+              {searchTerm || filter !== "all" 
+                ? "Try adjusting search queries or selected filter tags."
+                : "You're all caught up! Add a new task checkpoint to begin."}
+            </p>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md cursor-pointer transition-all active:scale-95"
+            >
+              <Plus className="w-4 h-4" />
+              Add Milestone Checkpoint
+            </button>
+          </div>
+        ) : (
+          filteredTasks.map((task) => (
+            <div
+              key={task.id}
+              className="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden hover:shadow-md transition-shadow"
+            >
+              <div className="p-5">
+                <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                  <div className="flex items-start gap-4 flex-1">
+                    <button
+                      onClick={() => handleToggleStatus(task.id, task.status)}
+                      className="mt-0.5 flex-shrink-0 cursor-pointer"
+                      disabled={operationLoading}
+                    >
+                      {getStatusIcon(task.status)}
+                    </button>
+                    
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                        <h3 className={`text-sm font-bold leading-tight ${task.status === "COMPLETED" ? "text-slate-400 line-through" : "text-slate-800"}`}>
+                          {task.title}
+                        </h3>
+                        <div className="flex items-center gap-1.5">
+                          <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider border ${
+                            task.priority === "HIGH" ? "bg-rose-50 border-rose-100 text-rose-600" :
+                            task.priority === "MEDIUM" ? "bg-amber-50 border-amber-100 text-amber-500" :
+                            "bg-emerald-50 border-emerald-100 text-emerald-600"
+                          }`}>
+                            {task.priority}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider border bg-slate-50 border-slate-100 text-slate-500">
+                            {task.category}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <p className="text-xs text-slate-500 font-semibold mb-3 leading-relaxed">{task.description}</p>
+                      
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-slate-450">
+                        <div className="flex items-center gap-1 font-semibold">
+                          <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                          <span className={isOverdue(task.dueDate) && task.status !== "COMPLETED" ? "text-rose-600 font-bold" : ""}>
+                            Due: {formatDate(task.dueDate)}
+                            {isOverdue(task.dueDate) && task.status !== "COMPLETED" && " (Overdue)"}
+                          </span>
+                        </div>
+                        {task.estimatedTime && (
+                          <div className="flex items-center gap-1 font-semibold">
+                            <Clock className="w-3.5 h-3.5 text-slate-400" />
+                            <span>{task.estimatedTime}</span>
+                          </div>
+                        )}
+                        {task.tags && task.tags.length > 0 && (
+                          <div className="flex items-center gap-1.5">
+                            {task.tags.map((tag, index) => (
+                              <span key={index} className="px-2 py-0.5 bg-slate-100/70 border border-slate-150 rounded-lg text-[9px] font-bold text-slate-500">
+                                #{tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 self-end sm:self-start shrink-0">
+                    <button
+                      onClick={() => handleEditTask(task)}
+                      disabled={operationLoading}
+                      className="p-2 text-indigo-600 hover:bg-indigo-50 border border-slate-50 hover:border-indigo-100 rounded-xl transition-all disabled:opacity-50 cursor-pointer"
+                      title="Edit Milestone"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTask(task.id)}
+                      disabled={operationLoading}
+                      className="p-2 text-rose-600 hover:bg-rose-50 border border-slate-50 hover:border-rose-100 rounded-xl transition-all disabled:opacity-50 cursor-pointer"
+                      title="Delete Milestone"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setExpandedTask(expandedTask === task.id ? null : task.id)}
+                      className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer"
+                    >
+                      {expandedTask === task.id ? (
+                        <ChevronDown className="w-4 h-4" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Expanded Details Section */}
+                {expandedTask === task.id && (
+                  <div className="mt-4 pt-4 border-t border-slate-100 animate-slideUp">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-slate-600">
+                      <div>
+                        <h4 className="font-bold text-slate-800 mb-2 uppercase tracking-wide text-[9px]">Timeline Progress</h4>
+                        <div className="space-y-2 font-semibold">
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Created Date:</span>
+                            <span className="text-slate-700">{formatDate(task.createdAt)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Status State:</span>
+                            <span className={`font-bold uppercase ${
+                              task.status === "COMPLETED" ? "text-emerald-600" :
+                              task.status === "IN_PROGRESS" ? "text-blue-600" :
+                              "text-amber-500"
+                            }`}>
+                              {task.status.toLowerCase().replace('_', ' ')}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-slate-400">Progress Tracker:</span>
+                            <div className="w-24 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                              <div 
+                                className={`h-full rounded-full transition-all duration-500 ${
+                                  task.status === "COMPLETED" ? "bg-emerald-500 w-full" :
+                                  task.status === "IN_PROGRESS" ? "bg-blue-500 w-2/3" :
+                                  "bg-amber-500 w-1/3"
+                                }`}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-bold text-slate-800 mb-2 uppercase tracking-wide text-[9px]">Scope Classification</h4>
+                        <div className="flex items-center gap-2">
+                          <div className="p-2 rounded-xl bg-slate-50 border border-slate-100 text-slate-400">
+                            {task.category === "ACADEMIC" ? <Book className="w-4 h-4 text-blue-500" /> :
+                             task.category === "GROUP" ? <Users className="w-4 h-4 text-indigo-500" /> :
+                             <BarChart className="w-4 h-4 text-amber-500" />}
+                          </div>
+                          <div className="font-semibold">
+                            <p className="font-bold text-slate-800 capitalize">{task.category.toLowerCase()}</p>
+                            <p className="text-[10px] text-slate-400 leading-normal">
+                              {task.category === "ACADEMIC" ? "Assignments & academic deliverables" :
+                               task.category === "EXAM" ? "Milestone reviews & exams" :
+                               task.category === "GROUP" ? "Collaborations & group projects" :
+                               "Other portfolio checklist actions"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-bold text-slate-800 mb-2 uppercase tracking-wide text-[9px]">Checklist Actions</h4>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <button
+                            onClick={() => handleToggleStatus(task.id, task.status)}
+                            disabled={operationLoading}
+                            className={`flex-1 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-95 ${
+                              task.status === "COMPLETED" 
+                                ? "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                : "bg-emerald-50 border border-emerald-100 text-emerald-600 hover:bg-emerald-100"
+                            } disabled:opacity-50`}
+                          >
+                            {task.status === "COMPLETED" ? "Reopen Milestone" : "Mark Completed"}
+                          </button>
+                          <button
+                            onClick={() => handleEditTask(task)}
+                            disabled={operationLoading}
+                            className="flex-1 px-3 py-2 bg-indigo-50 border border-indigo-150 text-[#6C63FF] rounded-xl text-xs font-bold hover:bg-indigo-100 transition-all cursor-pointer active:scale-95"
+                          >
+                            Edit Properties
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
       {/* Add/Edit Task Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl border border-slate-100">
+            <div className="p-6 border-b border-slate-150 bg-slate-50/50">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900">
-                  {editingTask ? "Edit Task" : "Add New Task"}
+                <h2 className="text-base font-black text-slate-850 tracking-tight">
+                  {editingTask ? "Update Checklist Milestone" : "New Milestone Checkpoint"}
                 </h2>
                 <button
                   onClick={() => {
@@ -665,8 +599,9 @@ const Tasks = () => {
                       category: "ACADEMIC",
                       tags: []
                     });
+                    setTagInput("");
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-slate-400 hover:text-slate-650 cursor-pointer"
                   disabled={operationLoading}
                 >
                   ✕
@@ -674,69 +609,69 @@ const Tasks = () => {
               </div>
             </div>
             
-            <form onSubmit={handleAddTask} className="p-6 space-y-4">
+            <form onSubmit={handleAddTask} className="p-6 space-y-4 overflow-y-auto flex-1 text-left">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Task Title *
+                <label className="block text-xs font-bold text-slate-600 mb-1.5">
+                  Milestone Title <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
                   value={newTask.title}
                   onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="e.g., Complete Math Assignment"
+                  className="w-full px-3.5 py-2.5 border border-slate-200 focus:border-[#6C63FF] rounded-xl text-xs font-semibold focus:ring-4 focus:ring-[#6C63FF]/10 transition-all placeholder-slate-400"
+                  placeholder="e.g., Complete AWS Practitioner review"
                   disabled={operationLoading}
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
+                <label className="block text-xs font-bold text-slate-600 mb-1.5">
+                  Scope Description
                 </label>
                 <textarea
                   value={newTask.description}
                   onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-3.5 py-2.5 border border-slate-200 focus:border-[#6C63FF] rounded-xl text-xs font-semibold focus:ring-4 focus:ring-[#6C63FF]/10 transition-all placeholder-slate-400 resize-none"
                   rows="3"
-                  placeholder="Add details about the task..."
+                  placeholder="Details and objectives of this milestone..."
                   disabled={operationLoading}
                 />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Priority
+                  <label className="block text-xs font-bold text-slate-600 mb-1.5">
+                    Priority Tier
                   </label>
                   <select
                     value={newTask.priority}
                     onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:ring-4 focus:ring-[#6C63FF]/10 transition-all"
                     disabled={operationLoading}
                   >
-                    <option value="HIGH">High</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="LOW">Low</option>
+                    <option value="HIGH">High Priority</option>
+                    <option value="MEDIUM">Medium Priority</option>
+                    <option value="LOW">Low Priority</option>
                   </select>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Category
+                  <label className="block text-xs font-bold text-slate-600 mb-1.5">
+                    Category Tag
                   </label>
                   <select
                     value={newTask.category}
                     onChange={(e) => setNewTask({ ...newTask, category: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:ring-4 focus:ring-[#6C63FF]/10 transition-all"
                     disabled={operationLoading}
                   >
                     <option value="ACADEMIC">Academic</option>
-                    <option value="EXAM">Exam</option>
+                    <option value="EXAM">Exam Review</option>
                     <option value="GROUP">Group Project</option>
                     <option value="RESEARCH">Research</option>
-                    <option value="PORTFOLIO">Portfolio</option>
-                    <option value="PERSONAL">Personal</option>
+                    <option value="PORTFOLIO">Portfolio Setup</option>
+                    <option value="PERSONAL">Personal Goal</option>
                     <option value="OTHER">Other</option>
                   </select>
                 </div>
@@ -744,27 +679,27 @@ const Tasks = () => {
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Due Date *
+                  <label className="block text-xs font-bold text-slate-600 mb-1.5">
+                    Target Due Date <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="date"
                     required
                     value={newTask.dueDate}
                     onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-4 focus:ring-[#6C63FF]/10 transition-all"
                     disabled={operationLoading}
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Estimated Time
+                  <label className="block text-xs font-bold text-slate-600 mb-1.5">
+                    Est. Duration
                   </label>
                   <select
                     value={newTask.estimatedTime}
                     onChange={(e) => setNewTask({ ...newTask, estimatedTime: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:ring-4 focus:ring-[#6C63FF]/10 transition-all"
                     disabled={operationLoading}
                   >
                     <option value="">Select duration</option>
@@ -777,8 +712,54 @@ const Tasks = () => {
                   </select>
                 </div>
               </div>
+
+              {/* Tags Section */}
+              <div>
+                <label className="block text-xs font-bold text-slate-600 mb-1.5">
+                  Checklist Hashtags
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    className="flex-1 px-3.5 py-2.5 border border-slate-200 focus:border-[#6C63FF] rounded-xl text-xs font-semibold focus:ring-4 focus:ring-[#6C63FF]/10 transition-all placeholder-slate-400"
+                    placeholder="e.g., theory, aws"
+                    disabled={operationLoading}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addTag();
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={addTag}
+                    className="px-4 py-2.5 border border-slate-200 bg-slate-50 text-slate-650 hover:bg-slate-100 text-xs font-bold rounded-xl transition-all cursor-pointer"
+                  >
+                    Add
+                  </button>
+                </div>
+                {newTask.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2.5">
+                    {newTask.tags.map((tag, idx) => (
+                      <span key={idx} className="flex items-center gap-1 px-2.5 py-1 bg-indigo-50 border border-indigo-100 rounded-xl text-[10px] font-bold text-[#6C63FF]">
+                        #{tag}
+                        <button
+                          type="button"
+                          onClick={() => removeTag(tag)}
+                          className="hover:text-rose-600 font-extrabold cursor-pointer text-xs"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
               
-              <div className="pt-4 flex justify-end gap-3">
+              <div className="pt-4 flex justify-end gap-3 border-t border-slate-100 mt-6">
                 <button
                   type="button"
                   onClick={() => {
@@ -793,24 +774,25 @@ const Tasks = () => {
                       category: "ACADEMIC",
                       tags: []
                     });
+                    setTagInput("");
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                  className="px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-50 transition-all cursor-pointer disabled:opacity-50"
                   disabled={operationLoading}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
+                  className="px-5 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-[#6C63FF]/25 cursor-pointer disabled:opacity-50"
                   disabled={operationLoading}
                 >
                   {operationLoading ? (
-                    <span className="flex items-center gap-2">
-                      <Loader className="w-4 h-4 animate-spin" />
+                    <span className="flex items-center gap-1.5">
+                      <Loader className="w-3.5 h-3.5 animate-spin" />
                       {editingTask ? "Updating..." : "Creating..."}
                     </span>
                   ) : (
-                    editingTask ? "Update Task" : "Add Task"
+                    editingTask ? "Update Checkpoint" : "Add Checkpoint"
                   )}
                 </button>
               </div>

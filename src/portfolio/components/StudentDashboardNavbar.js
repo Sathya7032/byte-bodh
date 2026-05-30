@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   PersonCircle,
   BoxArrowRight,
@@ -10,6 +10,7 @@ import {
   XLg,
 } from "react-bootstrap-icons";
 import { getUser, logout } from "../../services/auth";
+import { getMyProfile } from "../../api/profileService";
 
 const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSidebarOpen }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -17,10 +18,34 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
   const dropdownRef = useRef(null);
 
   const user = getUser();
+  const [username, setUsername] = useState(user?.username || "");
 
   const fullName = user?.fullName || "User";
   const email = user?.email || "user@example.com";
   const role = user?.role || "Student";
+
+  useEffect(() => {
+    // If username isn't cached in localStorage, fetch it from profile
+    if (!username) {
+      getMyProfile()
+        .then((res) => {
+          if (res.data?.success && res.data?.data?.user?.username) {
+            const newUsername = res.data.data.user.username;
+            setUsername(newUsername);
+            
+            // Sync with local storage
+            try {
+              const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+              storedUser.username = newUsername;
+              localStorage.setItem("user", JSON.stringify(storedUser));
+            } catch (e) {
+              console.error("Error saving username to localStorage:", e);
+            }
+          }
+        })
+        .catch((err) => console.error("Error fetching username in navbar:", err));
+    }
+  }, [username]);
 
   const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
     fullName
@@ -108,7 +133,7 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
 
                 <div className="hidden md:block text-left">
                   <div className="text-xs font-bold text-slate-800">
-                    {fullName}
+                    {username ? `@${username}` : fullName}
                   </div>
                   <div className="text-[10px] text-slate-400 flex items-center gap-0.5 font-bold tracking-wider uppercase">
                     {role}
@@ -129,8 +154,11 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
                         className="w-12 h-12 rounded-full border-2 border-white shadow-sm"
                       />
                       <div>
-                        <h3 className="font-bold text-slate-800 text-sm">{fullName}</h3>
-                        <p className="text-xs text-slate-500 truncate max-w-[170px]">{email}</p>
+                        <h3 className="font-bold text-slate-800 text-sm leading-tight">{fullName}</h3>
+                        {username && (
+                          <p className="text-[10px] font-bold text-[#6C63FF] mt-0.5">@{username}</p>
+                        )}
+                        <p className="text-xs text-slate-500 truncate max-w-[170px] mt-0.5">{email}</p>
                         <span className="inline-block mt-1.5 px-2 py-0.5 bg-[#6C63FF]/10 text-[#6C63FF] text-[10px] font-bold rounded-full">
                           {role}
                         </span>
