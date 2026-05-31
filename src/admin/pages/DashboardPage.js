@@ -4,6 +4,7 @@ import DashboardLayout from '../DashboardLayout';
 import { getBlogs } from '../../api/blogs';
 import { getUsers } from '../../api/users';
 import { getAllContacts } from '../../api/blogs';
+import { getAllTemplates } from '../../api/templateService';
 import {
   FaBlog,
   FaUsers,
@@ -12,6 +13,7 @@ import {
   FaArrowUp,
   FaSpinner,
   FaExclamationCircle,
+  FaLayerGroup,
 } from 'react-icons/fa';
 
 const DashboardPage = () => {
@@ -20,6 +22,7 @@ const DashboardPage = () => {
     totalUsers: 0,
     totalContacts: 0,
     featuredBlogs: 0,
+    totalTemplates: 0,
     loading: true,
     error: null,
   });
@@ -35,16 +38,18 @@ const DashboardPage = () => {
       setStats((prev) => ({ ...prev, loading: true, error: null }));
 
       // Fetch all data in parallel
-      const [blogsRes, usersRes, contactsRes] = await Promise.all([
+      const [blogsRes, usersRes, contactsRes, templatesRes] = await Promise.all([
         getBlogs(),
         getUsers(),
         getAllContacts(),
+        getAllTemplates().catch(() => ({ data: { success: true, data: [] } })),
       ]);
 
       // Extract data based on API response structure
       const blogs = blogsRes.data?.data || blogsRes.data || [];
       const users = usersRes.data?.data || usersRes.data || [];
       const contacts = contactsRes.data?.data || contactsRes.data || [];
+      const templates = templatesRes.data?.data || templatesRes.data || [];
 
       // Calculate stats
       const featuredBlogs = blogs.filter(
@@ -81,6 +86,7 @@ const DashboardPage = () => {
         totalUsers: users.length,
         totalContacts: contacts.length,
         featuredBlogs,
+        totalTemplates: templates.length,
         loading: false,
         error: null,
       });
@@ -161,76 +167,94 @@ const DashboardPage = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           {/* Total Blogs Card */}
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-white bg-opacity-20 rounded-xl p-3">
-                <FaBlog className="text-2xl" />
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg p-5 text-white transform hover:scale-105 transition-all duration-200">
+            <div className="flex items-center justify-between mb-3">
+              <div className="bg-white bg-opacity-20 rounded-xl p-2.5">
+                <FaBlog className="text-xl" />
               </div>
               <div className="text-right">
-                <span className="text-blue-100 text-sm font-medium">Total</span>
-                <p className="text-3xl font-bold">{stats.totalBlogs}</p>
+                <span className="text-blue-100 text-xs font-medium">Total</span>
+                <p className="text-2xl font-bold">{stats.totalBlogs}</p>
               </div>
             </div>
-            <h3 className="text-lg font-semibold mb-2">Blog Posts</h3>
-            <div className="flex items-center text-blue-100 text-sm">
+            <h3 className="text-base font-semibold mb-1">Blog Posts</h3>
+            <div className="flex items-center text-blue-100 text-xs">
               <FaChartLine className="mr-1" />
-              <span>{stats.featuredBlogs} featured posts</span>
+              <span>{stats.featuredBlogs} featured</span>
             </div>
           </div>
 
           {/* Total Users Card */}
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-white bg-opacity-20 rounded-xl p-3">
-                <FaUsers className="text-2xl" />
+          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg p-5 text-white transform hover:scale-105 transition-all duration-200">
+            <div className="flex items-center justify-between mb-3">
+              <div className="bg-white bg-opacity-20 rounded-xl p-2.5">
+                <FaUsers className="text-xl" />
               </div>
               <div className="text-right">
-                <span className="text-purple-100 text-sm font-medium">Total</span>
-                <p className="text-3xl font-bold">{stats.totalUsers}</p>
+                <span className="text-purple-100 text-xs font-medium">Total</span>
+                <p className="text-2xl font-bold">{stats.totalUsers}</p>
               </div>
             </div>
-            <h3 className="text-lg font-semibold mb-2">Registered Users</h3>
-            <div className="flex items-center text-purple-100 text-sm">
+            <h3 className="text-base font-semibold mb-1">Registered Users</h3>
+            <div className="flex items-center text-purple-100 text-xs">
               <FaUsers className="mr-1" />
               <span>All platform users</span>
             </div>
           </div>
 
           {/* Total Contacts Card */}
-          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-white bg-opacity-20 rounded-xl p-3">
-                <FaEnvelope className="text-2xl" />
+          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg p-5 text-white transform hover:scale-105 transition-all duration-200">
+            <div className="flex items-center justify-between mb-3">
+              <div className="bg-white bg-opacity-20 rounded-xl p-2.5">
+                <FaEnvelope className="text-xl" />
               </div>
               <div className="text-right">
-                <span className="text-green-100 text-sm font-medium">Total</span>
-                <p className="text-3xl font-bold">{stats.totalContacts}</p>
+                <span className="text-green-100 text-xs font-medium">Total</span>
+                <p className="text-2xl font-bold">{stats.totalContacts}</p>
               </div>
             </div>
-            <h3 className="text-lg font-semibold mb-2">Contact Inquiries</h3>
-            <div className="flex items-center text-green-100 text-sm">
+            <h3 className="text-base font-semibold mb-1">Contacts</h3>
+            <div className="flex items-center text-green-100 text-xs">
               <FaEnvelope className="mr-1" />
-              <span>From website contact form</span>
+              <span>Inquiries received</span>
+            </div>
+          </div>
+
+          {/* Total Templates Card */}
+          <div className="bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl shadow-lg p-5 text-white transform hover:scale-105 transition-all duration-200">
+            <div className="flex items-center justify-between mb-3">
+              <div className="bg-white bg-opacity-20 rounded-xl p-2.5">
+                <FaLayerGroup className="text-xl" />
+              </div>
+              <div className="text-right">
+                <span className="text-pink-100 text-xs font-medium">Total</span>
+                <p className="text-2xl font-bold">{stats.totalTemplates || 0}</p>
+              </div>
+            </div>
+            <h3 className="text-base font-semibold mb-1">Templates</h3>
+            <div className="flex items-center text-pink-100 text-xs">
+              <FaLayerGroup className="mr-1" />
+              <span>Portfolio designs</span>
             </div>
           </div>
 
           {/* Featured Blogs Card */}
-          <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl shadow-lg p-6 text-white transform hover:scale-105 transition-all duration-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="bg-white bg-opacity-20 rounded-xl p-3">
-                <FaChartLine className="text-2xl" />
+          <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl shadow-lg p-5 text-white transform hover:scale-105 transition-all duration-200">
+            <div className="flex items-center justify-between mb-3">
+              <div className="bg-white bg-opacity-20 rounded-xl p-2.5">
+                <FaChartLine className="text-xl" />
               </div>
               <div className="text-right">
-                <span className="text-orange-100 text-sm font-medium">Featured</span>
-                <p className="text-3xl font-bold">{stats.featuredBlogs}</p>
+                <span className="text-orange-100 text-xs font-medium">Featured</span>
+                <p className="text-2xl font-bold">{stats.featuredBlogs}</p>
               </div>
             </div>
-            <h3 className="text-lg font-semibold mb-2">Featured Posts</h3>
-            <div className="flex items-center text-orange-100 text-sm">
+            <h3 className="text-base font-semibold mb-1">Featured</h3>
+            <div className="flex items-center text-orange-100 text-xs">
               <FaArrowUp className="mr-1" />
-              <span>Highlighted content</span>
+              <span>Highlighted posts</span>
             </div>
           </div>
         </div>
@@ -264,7 +288,12 @@ const DashboardPage = () => {
                 <p className="text-2xl font-bold text-gray-900">{stats.totalContacts}</p>
                 <p className="text-xs text-gray-500 mt-1">Form submissions</p>
               </div>
-              <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
+              <div className="bg-pink-50 rounded-xl p-4 border border-pink-100">
+                <p className="text-pink-600 text-sm font-medium mb-1">Templates</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalTemplates || 0}</p>
+                <p className="text-xs text-gray-500 mt-1">Available layout options</p>
+              </div>
+              <div className="bg-orange-50 rounded-xl p-4 border border-orange-100 col-span-2 sm:col-span-1">
                 <p className="text-orange-600 text-sm font-medium mb-1">Featured</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.featuredBlogs}</p>
                 <p className="text-xs text-gray-500 mt-1">Highlighted posts</p>

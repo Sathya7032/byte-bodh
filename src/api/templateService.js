@@ -49,6 +49,9 @@ api.interceptors.response.use(
 export const getAllTemplates = () => api.get("/api/templates");
 export const getTemplateById = (id) => api.get(`/api/templates/${id}`);
 export const activateTemplate = (id) => api.post(`/api/templates/${id}/activate`);
+export const createTemplate = (data) => api.post("/api/templates", data);
+export const updateTemplate = (id, data) => api.put(`/api/templates/${id}`, data);
+export const deleteTemplate = (id) => api.delete(`/api/templates/${id}`);
 
 // Payment APIs
 export const createPaymentOrder = (dto) => api.post("/api/payment/create-order", dto);

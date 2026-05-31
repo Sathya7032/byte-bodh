@@ -307,14 +307,12 @@ const PortfolioTemplates = () => {
                     />
                     {/* Dark gradient overlay on hover */}
                     <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-                      <a
-                        href={previewUrl}
-                        target="_blank"
-                        rel="noreferrer"
+                      <button
+                        onClick={() => window.open(`/templates/preview/${template.id}`, '_blank')}
                         className="px-4 py-2 bg-white text-slate-800 rounded-xl text-xs font-bold hover:bg-slate-100 shadow-lg flex items-center gap-1.5 transition-all"
                       >
-                        <FaEye /> Full View
-                      </a>
+                        <FaEye /> Live Preview
+                      </button>
                     </div>
 
                     {/* Price/Status Tag */}

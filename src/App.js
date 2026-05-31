@@ -44,6 +44,7 @@ import JobNotifications from "./admin/pages/JobNotifications";
 import JobNotificationForm from "./admin/pages/JobNotificationForm";
 import JobNotificationDetail from "./admin/pages/JobNotificationDetail";
 import Quiz from "./admin/pages/Quiz";
+import Templates from "./admin/pages/Templates";
 import PageNotFound from "./pages/PageNotFound";
 import PublicPortfolioPage from "./bytebodh-folio/PublicPortfolioPage";
 
@@ -114,6 +115,7 @@ const App = () => {
             <Route path="/admin-dashboard" element={<DashboardPage />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/admin-blogs" element={<Blogs />} />
+            <Route path="/admin-templates" element={<Templates />} />
             <Route path="/admin-blogs/:id" element={<AdminBlogDetail />} />
             <Route path="/admin-blogs/create" element={<BlogForm />} />
             <Route path="/admin-blogs/edit/:id" element={<BlogForm />} />
@@ -129,6 +131,9 @@ const App = () => {
           {/* ===== ADMIN LOGIN ===== */}
           <Route path="/admin-login" element={<AdminLogin />} />
           
+          {/* ===== TEMPLATE PREVIEW PAGE ===== */}
+          <Route path="/templates/preview/:templateId" element={<PublicPortfolioPage isPreview={true} />} />
+
           {/* ===== PUBLIC PORTFOLIO PAGE ===== */}
           <Route path="/:username" element={<PublicPortfolioPage />} />
           
