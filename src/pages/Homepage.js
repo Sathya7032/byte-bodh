@@ -2,21 +2,21 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   FaArrowRight,
-  FaCheckCircle,
   FaMobileAlt,
   FaRocket,
-  FaCode,
   FaFilePdf,
   FaChevronRight,
-  FaGlobe,
   FaStar,
-  FaChartLine,
-  FaSearch,
   FaChevronDown,
   FaChevronUp,
-  FaBolt
+  FaBolt,
+  FaInstagram,
+  FaLinkedin,
+  FaGithub,
+  FaFacebook,
+  FaGooglePlay
 } from "react-icons/fa";
-import { motion, AnimatePresence } from "framer-motion";
+import hero from "../assets/images/hero.png"
 
 // Testimonial & Mock Data
 const testimonials = [
@@ -51,7 +51,7 @@ const templateCatalog = [
     id: "t1",
     name: "Academic Minimalist",
     category: "Students",
-    thumbnail: "📄",
+    thumbnail: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=600&q=80",
     tag: "ATS Friendly",
     desc: "Structured layouts putting research, GPA, and hackathons front and center."
   },
@@ -59,7 +59,7 @@ const templateCatalog = [
     id: "t2",
     name: "Hacker Command Line",
     category: "Developers",
-    thumbnail: "💻",
+    thumbnail: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&w=600&q=80",
     tag: "Geek Favorite",
     desc: "A responsive monospace terminal dashboard. Swaps between folders instantly."
   },
@@ -67,7 +67,7 @@ const templateCatalog = [
     id: "t3",
     name: "Creative Gallery",
     category: "Designers",
-    thumbnail: "🎨",
+    thumbnail: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=600&q=80",
     tag: "Visual Rich",
     desc: "Frosted-glass frames, grid galleries, and video embeds to highlight visual assets."
   },
@@ -75,7 +75,7 @@ const templateCatalog = [
     id: "t4",
     name: "Executive Brand",
     category: "Working Professionals",
-    thumbnail: "👔",
+    thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80",
     tag: "Premium Clean",
     desc: "Split layouts with timeline, corporate metrics, and custom reference slots."
   },
@@ -83,7 +83,7 @@ const templateCatalog = [
     id: "t5",
     name: "Product Spec Sheet",
     category: "Product Managers",
-    thumbnail: "📈",
+    thumbnail: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=600&q=80",
     tag: "Case Study Focus",
     desc: "Designed around structured case studies, execution stats, and roadmap logs."
   },
@@ -91,7 +91,7 @@ const templateCatalog = [
     id: "t6",
     name: "Insight Model",
     category: "Data Scientists",
-    thumbnail: "📊",
+    thumbnail: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80",
     tag: "Math & Code",
     desc: "Embed charts, technical repositories, and Kaggle scores in a clean layout."
   }
@@ -148,7 +148,6 @@ const Homepage = () => {
   const [selectedTemplateTab, setSelectedTemplateTab] = useState("Students");
   const [faqOpen, setFaqOpen] = useState(null);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [previewRole, setPreviewRole] = useState("Developer"); // Developer, Student, Designer
 
   useEffect(() => {
     const handleScroll = () => {
@@ -198,7 +197,6 @@ const Homepage = () => {
             <a href="#students-section" className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-[#6C63FF] transition-colors">Students</a>
             <a href="#professionals-section" className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-[#6C63FF] transition-colors">Professionals</a>
             <a href="#features-section" className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-[#6C63FF] transition-colors">Features</a>
-            <a href="#pricing-section" className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-[#6C63FF] transition-colors">Pricing</a>
             <a href="#testimonials-section" className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-[#6C63FF] transition-colors">Testimonials</a>
           </div>
 
@@ -263,137 +261,13 @@ const Homepage = () => {
             </div>
           </div>
 
-          {/* Hero Right Visuals: Interactive 3D Floating Mockups */}
-          <div className="lg:col-span-6 relative">
-            {/* Selector tabs for hero visual */}
-            <div className="flex justify-center gap-2 mb-6 bg-white/60 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200/50 shadow-sm max-w-xs mx-auto">
-              {["Developer", "Student", "Designer"].map((role) => (
-                <button
-                  key={role}
-                  onClick={() => setPreviewRole(role)}
-                  className={`px-4 py-1.5 rounded-xl text-xs font-extrabold transition-all duration-300 ${previewRole === role
-                    ? "bg-[#6C63FF] text-white shadow-sm"
-                    : "text-slate-500 hover:text-slate-900"
-                    }`}
-                >
-                  {role}
-                </button>
-              ))}
-            </div>
-
-            {/* Container for mockups */}
-            <div className="relative aspect-[4/3] w-full max-w-[500px] mx-auto bg-white/40 backdrop-blur-md border border-slate-200/50 rounded-3xl p-4 shadow-xl flex items-center justify-center">
-
-              <AnimatePresence mode="wait">
-                {previewRole === "Developer" && (
-                  <motion.div
-                    key="dev"
-                    initial={{ opacity: 0, scale: 0.9, y: 15 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: -15 }}
-                    transition={{ duration: 0.4 }}
-                    className="w-full h-full bg-slate-950 text-emerald-400 font-mono p-5 rounded-2xl border border-slate-800 shadow-2xl relative overflow-hidden"
-                  >
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4 text-xs">
-                      <span>$ npm run dev</span>
-                      <span className="text-slate-500">bytebodh.in/rohan</span>
-                    </div>
-                    <div className="space-y-4 text-xs md:text-sm text-left">
-                      <p><span className="text-slate-500">{"// Profile Card"}</span></p>
-                      <h3 className="text-white text-base font-bold">Rohan Deshmukh | Software Engineer</h3>
-                      <p className="text-emerald-500/80">Ex-Intern @Microsoft | 3rd Year B.Tech CSE</p>
-                      <p className="text-slate-400 leading-relaxed text-xs">Built microservices with Spring Boot, optimized REST APIs, and managed Docker clusters.</p>
-                      <div className="flex flex-wrap gap-2 pt-2">
-                        {["Java", "Spring Boot", "Docker", "Kubernetes"].map((s) => (
-                          <span key={s} className="px-2 py-0.5 bg-emerald-950/60 border border-emerald-900 text-emerald-400 text-[10px] rounded">
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {previewRole === "Student" && (
-                  <motion.div
-                    key="stud"
-                    initial={{ opacity: 0, scale: 0.9, y: 15 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: -15 }}
-                    transition={{ duration: 0.4 }}
-                    className="w-full h-full bg-white text-slate-800 font-sans p-6 rounded-2xl border border-slate-200 shadow-2xl relative overflow-hidden flex flex-col justify-between"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="text-xl font-black text-slate-900 leading-none">Anya Sharma</h3>
-                        <p className="text-[10px] font-bold text-[#6C63FF] tracking-wider uppercase mt-1">Computer Science Student</p>
-                        <p className="text-[9px] text-slate-400 font-bold mt-0.5">IIT Bombay (CGPA: 9.4/10.0)</p>
-                      </div>
-                      <span className="px-2.5 py-1 bg-green-50 border border-green-200 text-green-700 text-[9px] font-extrabold rounded-full"> Seeking Internships </span>
-                    </div>
-
-                    <div className="space-y-3 text-left">
-                      <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Academics & Highlights</h4>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className="p-2.5 bg-slate-50 border border-slate-200/60 rounded-xl">
-                          <span className="text-lg block">🎖️</span>
-                          <span className="font-bold text-slate-900 block mt-1">Smart India Hackathon</span>
-                          <span className="text-[9px] text-slate-400">1st Place Winner</span>
-                        </div>
-                        <div className="p-2.5 bg-slate-50 border border-slate-200/60 rounded-xl">
-                          <span className="text-lg block">📜</span>
-                          <span className="font-bold text-slate-900 block mt-1">AWS Cloud Practitioner</span>
-                          <span className="text-[9px] text-slate-400">Certified 2025</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="pt-2 border-t border-slate-100 flex justify-between items-center text-[10px] text-slate-400 font-bold">
-                      <span>bytebodh.in/anya</span>
-                      <span className="text-[#6C63FF]">View Credentials ↗</span>
-                    </div>
-                  </motion.div>
-                )}
-
-                {previewRole === "Designer" && (
-                  <motion.div
-                    key="des"
-                    initial={{ opacity: 0, scale: 0.9, y: 15 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: -15 }}
-                    transition={{ duration: 0.4 }}
-                    className="w-full h-full bg-[#0a0a0c] text-white font-sans p-6 rounded-2xl border border-white/10 shadow-2xl relative overflow-hidden flex flex-col justify-between"
-                  >
-                    {/* Glowing design ambient */}
-                    <div className="absolute top-[-10%] right-[-10%] w-[100px] h-[100px] rounded-full bg-[#6C63FF]/30 blur-[40px]"></div>
-
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="text-xl font-bold tracking-tight">Karan Shah</h3>
-                        <p className="text-xs text-[#6C63FF] font-semibold mt-0.5">Interaction & UI/UX Designer</p>
-                      </div>
-                      <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-sm font-bold">KS</div>
-                    </div>
-
-                    <div className="space-y-2 text-left">
-                      <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Featured Prototype</h4>
-                      <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-between">
-                        <div>
-                          <span className="text-xs font-bold text-white block">FinPay App UX Case Study</span>
-                          <span className="text-[9px] text-slate-400">Design System & Wireframes</span>
-                        </div>
-                        <span className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center text-xs">🚀</span>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold">
-                      <span>bytebodh.in/karan</span>
-                      <span className="text-[#6C63FF]">Explore Dribbble ↗</span>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+          {/* Hero Right Visuals: Hero Image Preview */}
+          <div className="lg:col-span-6 relative flex items-center justify-center">
+            <img
+              src={hero}
+              alt="ByteBodh Portfolio Platform"
+              className="w-full max-w-[620px] lg:max-w-[680px] h-auto object-contain hover:scale-[1.02] transition-transform duration-500 pointer-events-none select-none"
+            />
           </div>
         </div>
       </section>
@@ -493,8 +367,12 @@ const Homepage = () => {
               >
                 <div>
                   {/* Template Visual frame representation */}
-                  <div className="aspect-[4/3] bg-slate-50 border border-slate-100 rounded-2xl mb-6 flex items-center justify-center text-4xl shadow-inner relative overflow-hidden group-hover:border-[#6C63FF]/30 transition-all duration-300">
-                    <span className="relative z-10 transition-transform duration-300 group-hover:scale-125">{template.thumbnail}</span>
+                  <div className="aspect-[4/3] bg-slate-50 border border-slate-100 rounded-2xl mb-6 shadow-inner relative overflow-hidden group-hover:border-[#6C63FF]/30 transition-all duration-300">
+                    <img
+                      src={template.thumbnail}
+                      alt={template.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
 
                     {/* Floating template details grid simulated */}
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-100/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
@@ -553,33 +431,13 @@ const Homepage = () => {
               },
               {
                 title: "Responsive Design",
-                desc: "Your portfolio automatically adjusts to render perfectly across smartphones, tablets, tablets, and desktop resolutions.",
+                desc: "Your portfolio automatically adjusts to render perfectly across smartphones, tablets, and desktop resolutions.",
                 icon: <FaMobileAlt className="text-blue-500 text-lg" />
-              },
-              {
-                title: "Custom Domain Support",
-                desc: "Publish under a free URL (e.g. `bytebodh.in/yourname`) or map your custom domain in the dashboard easily.",
-                icon: <FaGlobe className="text-emerald-500 text-lg" />
-              },
-              {
-                title: "SEO Optimized",
-                desc: "Superfast static site speeds and semantic layout structures ensure search engines index your brand.",
-                icon: <FaSearch className="text-amber-500 text-lg" />
               },
               {
                 title: "Resume Integration",
                 desc: "Compile your web portfolio details back into perfectly structured offline PDF resumes in a single click.",
                 icon: <FaFilePdf className="text-rose-500 text-lg" />
-              },
-              {
-                title: "Project Showcase",
-                desc: "Add rich description sheets, tech stack tags, repository links, mock gallery files, and YouTube embeds.",
-                icon: <FaCode className="text-indigo-500 text-lg" />
-              },
-              {
-                title: "Analytics Dashboard",
-                desc: "Track real-time visitor demographics, country, referral site visits, and visitor metrics from your companion dashboard.",
-                icon: <FaChartLine className="text-cyan-500 text-lg" />
               },
               {
                 title: "One-Click Publishing",
@@ -877,129 +735,100 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* 10. STATISTICS SECTION */}
-      <section className="py-16 bg-[#6C63FF]/10 border-t border-b border-[#6C63FF]/20 relative overflow-hidden">
-        {/* Ambient aura */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[100px] bg-white/20 rounded-full blur-[80px]"></div>
+      {/* 11. MOBILE APP COMING SOON SECTION */}
+      <section className="py-20 bg-slate-950 text-white relative overflow-hidden border-t border-b border-slate-900">
+        {/* Soft glowing backdrop */}
+        <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[350px] h-[350px] bg-[#6C63FF]/10 rounded-full blur-[100px] pointer-events-none"></div>
+        <div className="absolute bottom-0 right-1/4 w-[350px] h-[350px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-8 text-center relative z-10">
-          <div>
-            <p className="text-4xl md:text-5xl font-black text-[#6C63FF]">25,000+</p>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-2">Portfolios Created</p>
-          </div>
-          <div>
-            <p className="text-4xl md:text-5xl font-black text-[#6C63FF]">1 Million+</p>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-2">Portfolio Views</p>
-          </div>
-          <div>
-            <p className="text-4xl md:text-5xl font-black text-[#6C63FF]">95%</p>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-2">Placement Success</p>
-          </div>
-          <div>
-            <p className="text-4xl md:text-5xl font-black text-[#6C63FF]">120+</p>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-2">Template Layouts</p>
-          </div>
-        </div>
-      </section>
-
-      {/* 11. PRICING SECTION */}
-      <section id="pricing-section" className="py-24 bg-white relative">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
-            <span className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider">
-              Pricing Options
+        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-12 items-center relative z-10">
+          {/* Text Content */}
+          <div className="lg:col-span-7 space-y-6 text-left">
+            <span className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#8c85ff] text-xs font-bold uppercase tracking-wider">
+              On The Go
             </span>
-            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
-              Simple Pricing for Everyone
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
+              ByteBodh Mobile App <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8c85ff] to-blue-400">Coming Soon</span>
             </h2>
-            <p className="text-lg text-slate-500">
-              No hidden fees. Select the plan that matches your current career stage.
+            <p className="text-slate-400 text-base md:text-lg leading-relaxed max-w-xl">
+              Create, update, and monitor your personal portfolio directly from your mobile device. Edit projects, check analytics, and share your QR code link instantly from anywhere.
             </p>
+            
+            {/* Google Play Badges & Features */}
+            <div className="flex flex-wrap items-center gap-4 pt-4">
+              <div className="inline-flex items-center gap-3 px-5 py-3 bg-slate-900/80 border border-slate-800 rounded-2xl text-left cursor-not-allowed hover:bg-slate-900 transition-colors shadow-xl group">
+                <FaGooglePlay className="text-white text-2xl group-hover:text-[#6C63FF] transition-colors" />
+                <div>
+                  <span className="text-[10px] text-slate-500 uppercase font-extrabold tracking-wider block">Get it on</span>
+                  <span className="text-sm font-bold text-white block">Google Play</span>
+                </div>
+              </div>
+              <span className="text-xs text-slate-500 font-extrabold uppercase bg-slate-900/40 px-3 py-1 border border-slate-800/40 rounded-full">
+                Registering for Beta
+              </span>
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Free Plan */}
-            <div className="bg-slate-50/70 border border-slate-200/50 p-8 rounded-3xl flex flex-col justify-between hover:shadow-lg transition-all duration-300">
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-xl font-bold text-slate-900">Free Plan</h3>
-                  <p className="text-xs text-slate-400 mt-1">Perfect to get started</p>
-                </div>
-                <div className="flex items-baseline text-slate-900">
-                  <span className="text-4xl font-black">₹0</span>
-                  <span className="text-sm text-slate-500 ml-1">/ month</span>
-                </div>
-                <ul className="space-y-3 text-xs text-slate-500 font-semibold pt-4 border-t border-slate-200/60">
-                  <li className="flex items-center gap-2 text-slate-900 font-bold"><FaCheckCircle className="text-[#6C63FF]" /> 1 Template Choice</li>
-                  <li className="flex items-center gap-2">✓ Basic Details Editor</li>
-                  <li className="flex items-center gap-2">✓ Free Portfolio Hosting</li>
-                  <li className="flex items-center gap-2">✓ ByteBodh Footer Branding</li>
-                  <li className="flex items-center gap-2 text-slate-300">✗ Custom Domain Mapping</li>
-                </ul>
-              </div>
-              <Link
-                to="/register"
-                className="w-full mt-8 py-3 text-center bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors"
-              >
-                Start Free
-              </Link>
-            </div>
+          {/* Visual Showcase (Mockup) */}
+          <div className="lg:col-span-5 flex justify-center w-full">
+            <div className="relative w-full max-w-[280px] aspect-[9/19] bg-slate-900 border-[6px] border-slate-800 rounded-[2.5rem] shadow-2xl p-3 flex flex-col justify-between overflow-hidden group">
+              {/* Speaker & camera slot */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 h-5 w-24 bg-slate-800 rounded-b-2xl z-20"></div>
 
-            {/* Pro Plan */}
-            <div className="bg-white border-2 border-[#6C63FF] p-8 rounded-3xl flex flex-col justify-between shadow-xl relative transform hover:scale-[1.02] transition-all duration-300">
-              <span className="absolute top-4 right-6 px-3 py-1 bg-[#6C63FF] text-white text-[9px] font-extrabold uppercase rounded-full tracking-wider">
-                Popular
-              </span>
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-xl font-bold text-slate-900">Pro Plan</h3>
-                  <p className="text-xs text-slate-400 mt-1">For active job seekers</p>
-                </div>
-                <div className="flex items-baseline text-slate-900">
-                  <span className="text-4xl font-black">₹299</span>
-                  <span className="text-sm text-slate-500 ml-1">/ month</span>
-                </div>
-                <ul className="space-y-3 text-xs text-slate-500 font-semibold pt-4 border-t border-slate-200/60">
-                  <li className="flex items-center gap-2 text-slate-950 font-bold"><FaCheckCircle className="text-[#6C63FF]" /> 3 Premium Templates</li>
-                  <li className="flex items-center gap-2 text-slate-950"><FaCheckCircle className="text-[#6C63FF]" /> Swap designs anytime</li>
-                  <li className="flex items-center gap-2 text-slate-950"><FaCheckCircle className="text-[#6C63FF]" /> Custom Domain mapping</li>
-                  <li className="flex items-center gap-2 text-slate-950"><FaCheckCircle className="text-[#6C63FF]" /> Visitor Analytics</li>
-                  <li className="flex items-center gap-2 text-slate-950"><FaCheckCircle className="text-[#6C63FF]" /> AI Bio Enhancement</li>
-                </ul>
-              </div>
-              <Link
-                to="/register"
-                className="w-full mt-8 py-3.5 text-center bg-[#6C63FF] hover:bg-[#5b52e6] text-white rounded-xl text-xs font-bold shadow-lg shadow-[#6C63FF]/20 transition-all"
-              >
-                Go Pro
-              </Link>
-            </div>
+              {/* Internal Mockup Content */}
+              <div className="flex-1 rounded-[1.8rem] bg-slate-950 border border-slate-800/50 p-4 pt-8 flex flex-col justify-between relative overflow-hidden text-xs">
+                {/* Glow inside mobile */}
+                <div className="absolute top-[-20%] right-[-20%] w-32 h-32 bg-[#6C63FF]/20 rounded-full blur-2xl"></div>
 
-            {/* Lifetime Plan */}
-            <div className="bg-slate-50/70 border border-slate-200/50 p-8 rounded-3xl flex flex-col justify-between hover:shadow-lg transition-all duration-300">
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-xl font-bold text-slate-900">Lifetime Plan</h3>
-                  <p className="text-xs text-slate-400 mt-1">One-time payment</p>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[8px] font-black tracking-widest text-[#6C63FF] uppercase">ByteBodh App</span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  </div>
+
+                  {/* Profile mini preview */}
+                  <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800/60 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6C63FF] to-blue-500 flex items-center justify-center font-bold text-[10px]">BB</div>
+                      <div>
+                        <h4 className="font-bold text-white text-[10px]">Your Portfolio</h4>
+                        <p className="text-[8px] text-[#6C63FF]">bytebodh.in/username</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1.5 text-[8px] pt-1">
+                      <div className="bg-slate-950 p-1.5 rounded border border-slate-800">
+                        <span className="text-slate-500 block">Total Views</span>
+                        <span className="font-extrabold text-white text-[9px]">1,240</span>
+                      </div>
+                      <div className="bg-slate-950 p-1.5 rounded border border-slate-800">
+                        <span className="text-slate-500 block">Templates</span>
+                        <span className="font-extrabold text-[#6C63FF] text-[9px]">Hacker Terminal</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Feature status list */}
+                  <div className="space-y-2 text-[9px]">
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <div className="w-4 h-4 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-[8px]">✓</div>
+                      <span>Live Site Analytics Tracker</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <div className="w-4 h-4 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-[8px]">✓</div>
+                      <span>Instant QR Code Generation</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <div className="w-4 h-4 rounded-full bg-[#6C63FF]/15 text-[#8c85ff] flex items-center justify-center text-[8px]">⏰</div>
+                      <span>AI Bio Editor (Version 2.0)</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-baseline text-slate-900">
-                  <span className="text-4xl font-black">₹1,999</span>
-                  <span className="text-sm text-slate-500 ml-1">once</span>
+
+                <div className="w-full py-2 bg-[#6C63FF] hover:bg-[#5b52e6] text-white font-extrabold text-center rounded-xl text-[9px] cursor-pointer transition-colors mt-4">
+                  Beta Testing Live
                 </div>
-                <ul className="space-y-3 text-xs text-slate-500 font-semibold pt-4 border-t border-slate-200/60">
-                  <li className="flex items-center gap-2 text-slate-900 font-bold"><FaCheckCircle className="text-[#6C63FF]" /> All 120+ Templates</li>
-                  <li className="flex items-center gap-2">✓ Unlimited swaps forever</li>
-                  <li className="flex items-center gap-2">✓ All future releases</li>
-                  <li className="flex items-center gap-2">✓ Multiple portfolios</li>
-                  <li className="flex items-center gap-2">✓ Priority VIP support</li>
-                </ul>
               </div>
-              <Link
-                to="/register"
-                className="w-full mt-8 py-3 text-center bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors"
-              >
-                Get Lifetime Access
-              </Link>
             </div>
           </div>
         </div>
@@ -1121,10 +950,22 @@ const Homepage = () => {
               ByteBodh is an AI-powered portfolio website builder designed to help fresh graduates and software engineers deploy hiring-ready personal websites.
             </p>
             <div className="flex gap-4">
-              {["Twitter", "LinkedIn", "GitHub", "Facebook"].map((soc) => (
-                <span key={soc} className="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-xs font-bold text-slate-500 hover:text-white hover:border-[#6C63FF] cursor-pointer transition-all">
-                  {soc[0]}
-                </span>
+              {[
+                { icon: <FaInstagram className="w-4 h-4" />, url: "https://instagram.com/bytebodh", label: "Instagram" },
+                { icon: <FaLinkedin className="w-4 h-4" />, url: "https://linkedin.com/company/bytebodh", label: "LinkedIn" },
+                { icon: <FaGithub className="w-4 h-4" />, url: "https://github.com/bytebodh", label: "GitHub" },
+                { icon: <FaFacebook className="w-4 h-4" />, url: "https://facebook.com/bytebodh", label: "Facebook" }
+              ].map((soc) => (
+                <a
+                  key={soc.label}
+                  href={soc.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={soc.label}
+                  className="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500 hover:text-white hover:border-[#6C63FF] transition-all"
+                >
+                  {soc.icon}
+                </a>
               ))}
             </div>
           </div>
@@ -1134,9 +975,8 @@ const Homepage = () => {
             <h5 className="font-extrabold text-white text-xs uppercase tracking-widest mb-4">Product</h5>
             <ul className="space-y-3 text-xs">
               <li><a href="#templates-section" className="hover:text-white transition-colors">Templates</a></li>
-              <li><a href="#features-section" className="hover:text-white transition-colors">AI Writer</a></li>
-              <li><a href="#pricing-section" className="hover:text-white transition-colors">Pricing Options</a></li>
-              <li><a href="#pricing-section" className="hover:text-white transition-colors">Lifetime Deal</a></li>
+              <li><a href="#features-section" className="hover:text-white transition-colors">Core Features</a></li>
+              <li><a href="#faq" className="hover:text-white transition-colors">FAQs</a></li>
             </ul>
           </div>
 

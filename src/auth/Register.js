@@ -411,11 +411,11 @@ const Register = () => {
               />
               <label htmlFor="terms" className="ml-2 text-xs text-slate-500 font-semibold cursor-pointer">
                 I agree to the{" "}
-                <Link to="/terms" className="text-[#6C63FF] font-bold hover:underline">
+                <Link to="/terms-and-conditions" className="text-[#6C63FF] font-bold hover:underline">
                   Terms of Service
                 </Link>{" "}
                 and{" "}
-                <Link to="/privacy" className="text-[#6C63FF] font-bold hover:underline">
+                <Link to="/privacy-policy" className="text-[#6C63FF] font-bold hover:underline">
                   Privacy Policy
                 </Link>
               </label>
