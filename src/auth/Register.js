@@ -176,7 +176,7 @@ const Register = () => {
             </h1>
             
             <p className="text-slate-500 text-base mb-10 leading-relaxed font-medium">
-              Create your account in seconds and unlock custom portfolio subdomains, premium template catalog and one-click PDF resumes.
+              Create your account in seconds and unlock custom portfolios, premium template catalog and one-click PDF resumes.
             </p>
 
             {/* Simulated mini timeline panel */}
@@ -189,7 +189,7 @@ const Register = () => {
                 <div className="relative">
                   <div className="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-[#6C63FF] border-4 border-white shadow"></div>
                   <h4 className="text-xs font-bold text-slate-800 leading-none">Register & Verify</h4>
-                  <p className="text-[10px] text-slate-400 mt-1">Claim your custom subdomain link instantly.</p>
+                  <p className="text-[10px] text-slate-400 mt-1">Claim your custom portfolio link instantly.</p>
                 </div>
                 <div className="relative">
                   <div className="absolute -left-[31px] top-0.5 w-4 h-4 rounded-full bg-slate-300 border-4 border-white shadow"></div>

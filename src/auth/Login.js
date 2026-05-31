@@ -157,7 +157,7 @@ const Login = () => {
             </h1>
             
             <p className="text-slate-500 text-base mb-10 leading-relaxed font-medium">
-              Join thousands of students and working professionals deploying fast, responsive portfolio subdomains on ByteBodh.
+              Join thousands of students and working professionals deploying fast, responsive portfolios on ByteBodh.
             </p>
 
             {/* Simulated mini preview panel */}

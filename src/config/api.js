@@ -26,13 +26,12 @@ export const getPortfolioUrl = (username) => {
   const hostname = window.location.hostname;
   const protocol = window.location.protocol;
 
-  // Production environment (subdomains on bytebodh.in)
+  // Deployed production environment on bytebodh.in (strips subdomains like app. or username.)
   if (hostname.endsWith("bytebodh.in")) {
-    return `${protocol}//${username}.bytebodh.in`;
+    return `${protocol}//bytebodh.in/${username}`;
   }
 
   // Local/development environment
-  // Keep the same port (3000/3001) that the user is currently browsing from
   const port = window.location.port ? `:${window.location.port}` : "";
   return `${protocol}//${hostname}${port}/${username}`;
 };

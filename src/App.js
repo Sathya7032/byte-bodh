@@ -48,14 +48,6 @@ import PageNotFound from "./pages/PageNotFound";
 import PublicPortfolioPage from "./bytebodh-folio/PublicPortfolioPage";
 
 function isSubdomainPortfolio() {
-  const hostname = window.location.hostname;
-
-  // user1.bytebodh.in
-  if (hostname.endsWith(".bytebodh.in")) {
-    const subdomain = hostname.replace(".bytebodh.in", "");
-    return subdomain && subdomain !== "www";
-  }
-
   return false;
 }
 

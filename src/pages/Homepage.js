@@ -24,7 +24,7 @@ const testimonials = [
     name: "Vikram Malhotra",
     role: "CSE Student at BITS Pilani",
     avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80",
-    quote: "ByteBodh was a lifesaver for placement season. I filled in my credentials, selected the 'Academic Std' template, and recruiters were blown away by my custom subdomain portfolio link!",
+    quote: "ByteBodh was a lifesaver for placement season. I filled in my credentials, selected the 'Academic Std' template, and recruiters were blown away by my custom portfolio link!",
     rating: 5,
     tag: "Student"
   },
@@ -296,7 +296,7 @@ const Homepage = () => {
                   >
                     <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4 text-xs">
                       <span>$ npm run dev</span>
-                      <span className="text-slate-500">rohan.bytebodh.in</span>
+                      <span className="text-slate-500">bytebodh.in/rohan</span>
                     </div>
                     <div className="space-y-4 text-xs md:text-sm text-left">
                       <p><span className="text-slate-500">{"// Profile Card"}</span></p>
@@ -349,7 +349,7 @@ const Homepage = () => {
                     </div>
 
                     <div className="pt-2 border-t border-slate-100 flex justify-between items-center text-[10px] text-slate-400 font-bold">
-                      <span>anya.bytebodh.in</span>
+                      <span>bytebodh.in/anya</span>
                       <span className="text-[#6C63FF]">View Credentials ↗</span>
                     </div>
                   </motion.div>
@@ -387,7 +387,7 @@ const Homepage = () => {
                     </div>
 
                     <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold">
-                      <span>karan.design.bytebodh.in</span>
+                      <span>bytebodh.in/karan</span>
                       <span className="text-[#6C63FF]">Explore Dribbble ↗</span>
                     </div>
                   </motion.div>
@@ -446,7 +446,7 @@ const Homepage = () => {
               </div>
               <h3 className="text-xl font-bold text-slate-900">Publish Instantly</h3>
               <p className="text-sm text-slate-500 leading-relaxed">
-                Deploy your live portfolio subdomain URL (e.g. `yourname.bytebodh.in`) in seconds. Instantly ready to share.
+                Deploy your live portfolio URL (e.g. `bytebodh.in/yourname`) in seconds. Instantly ready to share.
               </p>
             </div>
           </div>
@@ -558,7 +558,7 @@ const Homepage = () => {
               },
               {
                 title: "Custom Domain Support",
-                desc: "Publish under a free subdomain (e.g. `yourname.bytebodh.in`) or map your custom domain in the dashboard easily.",
+                desc: "Publish under a free URL (e.g. `bytebodh.in/yourname`) or map your custom domain in the dashboard easily.",
                 icon: <FaGlobe className="text-emerald-500 text-lg" />
               },
               {
@@ -651,7 +651,7 @@ const Homepage = () => {
           <div className="lg:col-span-6 flex justify-center w-full">
             <div className="w-full max-w-[480px] bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
               <div className="absolute top-2 left-6 text-[9px] text-slate-400 font-bold uppercase tracking-wider">
-                Student Profile Preview (Live Subdomain)
+                Student Profile Preview (Live URL)
               </div>
               <div className="flex justify-between items-center border-b border-slate-100 pb-4 mb-4 mt-4">
                 <div>
@@ -742,7 +742,7 @@ const Homepage = () => {
               Built for Professionals
             </h2>
             <p className="text-lg text-slate-500 leading-relaxed">
-              Showcase case studies, leadership highlights, and executive timelines. Stand out on LinkedIn with a professional custom subdomain.
+              Showcase case studies, leadership highlights, and executive timelines. Stand out on LinkedIn with a professional custom portfolio link.
             </p>
 
             {/* Highlights Grid */}
@@ -932,7 +932,7 @@ const Homepage = () => {
                 <ul className="space-y-3 text-xs text-slate-500 font-semibold pt-4 border-t border-slate-200/60">
                   <li className="flex items-center gap-2 text-slate-900 font-bold"><FaCheckCircle className="text-[#6C63FF]" /> 1 Template Choice</li>
                   <li className="flex items-center gap-2">✓ Basic Details Editor</li>
-                  <li className="flex items-center gap-2">✓ Free Subdomain Hosting</li>
+                  <li className="flex items-center gap-2">✓ Free Portfolio Hosting</li>
                   <li className="flex items-center gap-2">✓ ByteBodh Footer Branding</li>
                   <li className="flex items-center gap-2 text-slate-300">✗ Custom Domain Mapping</li>
                 </ul>
@@ -990,7 +990,7 @@ const Homepage = () => {
                   <li className="flex items-center gap-2 text-slate-900 font-bold"><FaCheckCircle className="text-[#6C63FF]" /> All 120+ Templates</li>
                   <li className="flex items-center gap-2">✓ Unlimited swaps forever</li>
                   <li className="flex items-center gap-2">✓ All future releases</li>
-                  <li className="flex items-center gap-2">✓ Multiple subdomains</li>
+                  <li className="flex items-center gap-2">✓ Multiple portfolios</li>
                   <li className="flex items-center gap-2">✓ Priority VIP support</li>
                 </ul>
               </div>
