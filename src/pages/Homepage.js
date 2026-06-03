@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   FaArrowRight,
   FaMobileAlt,
   FaRocket,
   FaFilePdf,
-  FaChevronRight,
   FaStar,
   FaChevronDown,
   FaChevronUp,
+  FaChevronLeft,
+  FaChevronRight,
   FaBolt,
   FaInstagram,
   FaLinkedin,
@@ -17,6 +18,11 @@ import {
   FaGooglePlay
 } from "react-icons/fa";
 import hero from "../assets/images/hero.png"
+import freeTemplate from "../assets/images/FreeTemplate.png"
+import template2 from "../assets/images/Template2.png"
+import template3 from "../assets/images/Template3.png"
+import template4 from "../assets/images/Template4.png"
+import template5 from "../assets/images/Template5.png"
 
 // Testimonial & Mock Data
 const testimonials = [
@@ -40,114 +46,73 @@ const testimonials = [
     name: "Aisha Sen",
     role: "Lead Product Manager",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80",
-    quote: "The SEO optimization works like magic. My portfolio ranked on page 1 of Google search within a week! Love the clean white SaaS aesthetic of the Executive templates.",
+    quote: "This platform is truly a 2-minute portfolio maker. I filled in my background details, chose a layout, and had a stunning live portfolio online instantly. Highly recommend!",
     rating: 5,
     tag: "Professional"
   }
 ];
 
-const templateCatalog = [
-  {
-    id: "t1",
-    name: "Academic Minimalist",
-    category: "Students",
-    thumbnail: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=600&q=80",
-    tag: "ATS Friendly",
-    desc: "Structured layouts putting research, GPA, and hackathons front and center."
-  },
-  {
-    id: "t2",
-    name: "Hacker Command Line",
-    category: "Developers",
-    thumbnail: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&w=600&q=80",
-    tag: "Geek Favorite",
-    desc: "A responsive monospace terminal dashboard. Swaps between folders instantly."
-  },
-  {
-    id: "t3",
-    name: "Creative Gallery",
-    category: "Designers",
-    thumbnail: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=600&q=80",
-    tag: "Visual Rich",
-    desc: "Frosted-glass frames, grid galleries, and video embeds to highlight visual assets."
-  },
-  {
-    id: "t4",
-    name: "Executive Brand",
-    category: "Working Professionals",
-    thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80",
-    tag: "Premium Clean",
-    desc: "Split layouts with timeline, corporate metrics, and custom reference slots."
-  },
-  {
-    id: "t5",
-    name: "Product Spec Sheet",
-    category: "Product Managers",
-    thumbnail: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=600&q=80",
-    tag: "Case Study Focus",
-    desc: "Designed around structured case studies, execution stats, and roadmap logs."
-  },
-  {
-    id: "t6",
-    name: "Insight Model",
-    category: "Data Scientists",
-    thumbnail: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80",
-    tag: "Math & Code",
-    desc: "Embed charts, technical repositories, and Kaggle scores in a clean layout."
-  }
-];
 
-const liveExamples = [
+
+const templatesShowcase = [
   {
-    name: "Rahul Sen",
-    role: "Software Engineer",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
-    template: "Hacker Command Line",
-    preview: {
-      accent: "text-emerald-400",
-      bg: "bg-black border-emerald-950",
-      content: "$ npx profile --show\nRahul Sen (Full-Stack Engineer)\nSkills: Node, React, Docker\nProjects: CloudDeploy (1.2k Stars)"
-    }
+    name: "Academic Minimalist",
+    image: freeTemplate,
+    category: "Students & Freshers",
+    desc: "A clean, ATS-friendly minimalist layout emphasizing education, publications, and technical skills.",
+    accent: "border-slate-200",
+    badge: "Free"
   },
   {
-    name: "Aisha Patel",
-    role: "UI/UX Designer",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80",
-    template: "Creative Gallery",
-    preview: {
-      accent: "text-purple-600",
-      bg: "bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-100",
-      content: "Aisha's Portfolio\nCreative Art Director\nProjects: FinPay UX, MediApp Design\nMockups: Figma, Adobe 3D"
-    }
+    name: "Hacker Terminal",
+    image: template2,
+    category: "Developers & Sysadmins",
+    desc: "A responsive monospace command-line interface. Highly interactive folder navigation styling.",
+    accent: "border-emerald-500/20",
+    badge: "Developer Fav"
   },
   {
-    name: "Vikram Malhotra",
-    role: "Data Analyst",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80",
-    template: "Insight Model",
-    preview: {
-      accent: "text-blue-600",
-      bg: "bg-slate-50 border-blue-100",
-      content: "Model Insights\nKaggle Notebooks & Reports\nSkills: Pandas, Python, SQL\nData Viz: Streamlit Dashboards"
-    }
+    name: "Creative Gallery",
+    image: template3,
+    category: "Designers & Artists",
+    desc: "A visual grid layout with frosted glass controls, portfolio images, and embedded media assets.",
+    accent: "border-purple-500/20",
+    badge: "Visual Rich"
   },
   {
-    name: "Neha Rao",
-    role: "MBA Student",
-    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80",
-    template: "Academic Minimalist",
-    preview: {
-      accent: "text-slate-800",
-      bg: "bg-white border-slate-200",
-      content: "Neha Rao | MBA Candidate\nIIM Bangalore\nEx-Consultant @Deloitte\nPublications: Market Study 2025"
-    }
+    name: "Executive Brand",
+    image: template4,
+    category: "Product Managers & Leads",
+    desc: "A premium corporate layout with timeline progress tracking, corporate KPIs, and details.",
+    accent: "border-[#f97316]/20",
+    badge: "Premium Clean"
+  },
+  {
+    name: "Developer IDE Studio",
+    image: template5,
+    category: "Software Engineers",
+    desc: "A fully immersive VS Code styled portfolio layout featuring tabs, explorer, and a live compiler mode.",
+    accent: "border-sky-500/20",
+    badge: "New Release"
   }
 ];
 
 const Homepage = () => {
-  const [selectedTemplateTab, setSelectedTemplateTab] = useState("Students");
   const [faqOpen, setFaqOpen] = useState(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const scrollContainerRef = useRef(null);
+
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -500, behavior: "smooth" });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 500, behavior: "smooth" });
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -161,9 +126,7 @@ const Homepage = () => {
     setFaqOpen(faqOpen === index ? null : index);
   };
 
-  const filteredTemplates = templateCatalog.filter(
-    (t) => t.category === selectedTemplateTab || selectedTemplateTab === "Working Professionals"
-  );
+
 
   return (
     <div className="min-h-screen bg-slate-50/50 text-slate-800 font-sans antialiased overflow-x-hidden selection:bg-[#6C63FF]/20 selection:text-[#6C63FF]">
@@ -228,7 +191,7 @@ const Homepage = () => {
             {/* Trust Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm text-xs font-semibold text-slate-600">
               <span className="text-amber-500">⭐</span>
-              <span>Trusted by 25,000+ users</span>
+              <span>Trusted by students & Professionals</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6.5xl font-black leading-[1.1] text-slate-900 tracking-tight">
@@ -327,78 +290,83 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* 4. TEMPLATE SHOWCASE SECTION */}
-      <section id="templates-section" className="py-24 bg-slate-50/50 border-t border-slate-100">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-            <span className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider">
-              Templates Catalog
-            </span>
-            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
-              Templates Designed for Every Career
-            </h2>
-            <p className="text-lg text-slate-500">
-              Hand-crafted layout formats tailored to represent your specific profession with clean styles.
-            </p>
-          </div>
+      {/* 4. TEMPLATE HORIZONTAL SLIDING SHOWCASE */}
+      <section id="templates-section" className="py-24 bg-slate-50/50 border-t border-slate-100 overflow-hidden">
+        <style>{`
+          .no-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
 
-          {/* Career Tabs */}
-          <div className="flex flex-wrap justify-center gap-2 mb-12 max-w-4xl mx-auto bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
-            {["Students", "Developers", "Designers", "Product Managers", "Data Scientists", "Working Professionals"].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setSelectedTemplateTab(tab)}
-                className={`px-5 py-2 rounded-xl text-xs font-extrabold transition-all duration-300 ${selectedTemplateTab === tab
-                  ? "bg-[#6C63FF] text-white shadow-sm shadow-[#6C63FF]/20"
-                  : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
-                  }`}
+        <div className="max-w-7xl mx-auto px-6 mb-16 text-center space-y-4">
+          <span className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider">
+            Templates Catalog
+          </span>
+          <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
+            Templates Designed for Every Career
+          </h2>
+          <p className="text-lg text-slate-500 max-w-2xl mx-auto">
+            Choose from our premium designs, optimized to display your career milestones with rich aesthetics. Click on any template to preview it live.
+          </p>
+        </div>
+
+        <div className="relative w-full group">
+          {/* Left Arrow Button */}
+          <button
+            onClick={scrollLeft}
+            className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/95 border border-slate-200 shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#6C63FF] hover:text-white hover:border-[#6C63FF] transition-all duration-300 transform active:scale-95 opacity-0 group-hover:opacity-100 focus:opacity-100 cursor-pointer hidden md:flex"
+            aria-label="Scroll Left"
+          >
+            <FaChevronLeft size={16} />
+          </button>
+
+          {/* Right Arrow Button */}
+          <button
+            onClick={scrollRight}
+            className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/95 border border-slate-200 shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#6C63FF] hover:text-white hover:border-[#6C63FF] transition-all duration-300 transform active:scale-95 opacity-0 group-hover:opacity-100 focus:opacity-100 cursor-pointer hidden md:flex"
+            aria-label="Scroll Right"
+          >
+            <FaChevronRight size={16} />
+          </button>
+
+          {/* Fade overlays on left/right for smooth transition visual look */}
+          <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-slate-50 via-slate-50/20 to-transparent z-10 pointer-events-none hidden md:block"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-slate-50 via-slate-50/20 to-transparent z-10 pointer-events-none hidden md:block"></div>
+
+          {/* Horizontally scrollable container */}
+          <div
+            ref={scrollContainerRef}
+            className="flex gap-6 overflow-x-auto px-6 md:px-24 pb-8 snap-x snap-mandatory scroll-smooth no-scrollbar"
+            style={{
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+              WebkitOverflowScrolling: "touch"
+            }}
+          >
+            {[freeTemplate, template2, template3, template4, template5].map((img, idx) => (
+              <a
+                key={idx}
+                href={`/templates/preview/${idx + 1}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0 w-[290px] sm:w-[450px] md:w-[600px] aspect-[16/10] rounded-3xl overflow-hidden border border-slate-200 shadow-lg hover:shadow-2xl hover:border-[#6C63FF]/30 transition-all duration-300 hover:scale-[1.01] snap-center bg-white group relative block"
               >
-                {tab}
-              </button>
-            ))}
-          </div>
+                <img
+                  src={img}
+                  alt={`Template ${idx + 1} screenshot`}
+                  className="w-full h-full object-cover select-none pointer-events-none"
+                />
 
-          {/* Templates Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredTemplates.map((template) => (
-              <div
-                key={template.id}
-                className="bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-xl transition-all duration-300 flex flex-col justify-between group"
-              >
-                <div>
-                  {/* Template Visual frame representation */}
-                  <div className="aspect-[4/3] bg-slate-50 border border-slate-100 rounded-2xl mb-6 shadow-inner relative overflow-hidden group-hover:border-[#6C63FF]/30 transition-all duration-300">
-                    <img
-                      src={template.thumbnail}
-                      alt={template.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-
-                    {/* Floating template details grid simulated */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-100/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-                      <span className="px-4 py-2 bg-[#6C63FF] text-white text-xs font-extrabold rounded-xl shadow-lg">Preview Structure</span>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-lg font-bold text-slate-950">{template.name}</h3>
-                    <span className="px-2 py-0.5 bg-[#6C63FF]/10 text-[#6C63FF] text-[9px] font-extrabold uppercase rounded">
-                      {template.tag}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500 leading-relaxed">{template.desc}</p>
+                {/* Floating Preview Overlay on Hover */}
+                <div className="absolute inset-0 bg-[#0f172a]/45 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-2">
+                  <span className="px-5 py-2.5 bg-white text-slate-900 text-xs font-black rounded-2xl shadow-xl transform translate-y-3 group-hover:translate-y-0 transition-all duration-300 flex items-center gap-1.5 hover:bg-slate-50">
+                    Live Preview 👁️
+                  </span>
+                  <span className="text-[10px] text-white/80 font-semibold tracking-wider drop-shadow-md">
+                    Template {idx + 1}
+                  </span>
                 </div>
-
-                <div className="mt-6 pt-4 border-t border-slate-100">
-                  <Link
-                    to="/register"
-                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-[#6C63FF]/10 hover:bg-[#6C63FF] text-[#6C63FF] hover:text-white rounded-xl text-xs font-extrabold transition-all duration-300"
-                  >
-                    Use Template
-                    <FaChevronRight size={10} />
-                  </Link>
-                </div>
-              </div>
+              </a>
             ))}
           </div>
         </div>
@@ -634,49 +602,62 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* 8. LIVE EXAMPLE SHOWCASE */}
+      {/* 8. TEMPLATE PREVIEW SHOWCASE */}
       <section className="py-24 bg-slate-50/50 border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-            <span className="px-4 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-bold uppercase tracking-wider">
-              Live Showcase
+            <span className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider">
+              Template Gallery
             </span>
             <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
-              See What Users Built
+              Explore Our Live Layouts
             </h2>
             <p className="text-lg text-slate-500">
-              Real online portfolios created by developers, students, and professionals on our platform.
+              Choose from our premium designs, optimized to display your career milestones with rich aesthetics.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {liveExamples.map((ex, idx) => (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {templatesShowcase.map((tpl, idx) => (
               <div
                 key={idx}
-                className="bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+                className="bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group"
               >
                 <div>
-                  {/* Simulated card preview sheet */}
-                  <div className={`aspect-[4/3] rounded-2xl mb-4 p-4 border text-[9px] text-left overflow-hidden relative ${ex.preview.bg}`}>
-                    <pre className="font-mono text-[8px] leading-relaxed whitespace-pre-wrap">{ex.preview.content}</pre>
+                  <div className="aspect-[16/10] bg-slate-50 border border-slate-150 rounded-2xl mb-5 overflow-hidden relative shadow-inner">
+                    <img
+                      src={tpl.image}
+                      alt={tpl.name}
+                      className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                    />
+                    <div className="absolute top-3 right-3">
+                      <span className="px-2.5 py-1 bg-slate-950/80 text-white text-[10px] font-black uppercase rounded-lg backdrop-blur-sm border border-white/10 shadow">
+                        {tpl.badge}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={ex.avatar}
-                      alt={ex.name}
-                      className="w-10 h-10 rounded-full object-cover border border-slate-200"
-                    />
-                    <div>
-                      <h4 className="font-bold text-slate-900 text-sm leading-none">{ex.name}</h4>
-                      <p className="text-[10px] text-slate-400 mt-1 font-semibold">{ex.role}</p>
-                    </div>
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+                      {tpl.category}
+                    </span>
+                    <h3 className="text-lg font-black text-slate-900 group-hover:text-[#6C63FF] transition-colors leading-snug">
+                      {tpl.name}
+                    </h3>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                      {tpl.desc}
+                    </p>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-[10px] font-bold">
-                  <span className="text-slate-400">Template: {ex.template}</span>
-                  <span className="text-[#6C63FF] hover:underline cursor-pointer">Live Preview</span>
+                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-[10px] text-slate-400 font-extrabold uppercase">Template {idx + 1}</span>
+                  <Link
+                    to="/register"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6C63FF] hover:underline"
+                  >
+                    Select Design <FaArrowRight size={10} />
+                  </Link>
                 </div>
               </div>
             ))}
@@ -754,7 +735,7 @@ const Homepage = () => {
             <p className="text-slate-400 text-base md:text-lg leading-relaxed max-w-xl">
               Create, update, and monitor your personal portfolio directly from your mobile device. Edit projects, check analytics, and share your QR code link instantly from anywhere.
             </p>
-            
+
             {/* Google Play Badges & Features */}
             <div className="flex flex-wrap items-center gap-4 pt-4">
               <div className="inline-flex items-center gap-3 px-5 py-3 bg-slate-900/80 border border-slate-800 rounded-2xl text-left cursor-not-allowed hover:bg-slate-900 transition-colors shadow-xl group">
@@ -857,7 +838,7 @@ const Homepage = () => {
               },
               {
                 q: "Can I use my own domain?",
-                a: "Absolutely! Pro and Lifetime plan holders can map their custom domains (e.g. `yourname.com`) directly in the profile settings panel, with SSL certificates provided free."
+                a: "Currently, custom domains are not supported. All portfolios are instantly published directly under the official ByteBodh domain (e.g., bytebodh.in/yourname), providing you with a clean, fast, and unified link to share."
               },
               {
                 q: "Can I edit later?",

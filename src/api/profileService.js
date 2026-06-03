@@ -76,6 +76,8 @@ export const createContactMessage = (data) => axios.post(`${API_BASE_URL}/api/co
 
 export const getContactMessages = () => api.get("/api/contact/my-messages");
 
+export const getUserStats = () => api.get("/api/users/me/stats");
+
 /* =========================
    TASK APIs
 ========================= */

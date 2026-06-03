@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import DashboardLayout from "../portfolio/components/DashboardLayout";
 import { getUser, getAccessToken } from "../services/auth";
-import { dashboardStats, getMyProfile } from "../api/profileService";
+import { getUserStats, getMyProfile } from "../api/profileService";
 import { getPortfolioUrl } from "../config/api";
 import { toast } from "react-toastify";
 import { 
@@ -17,7 +17,9 @@ import {
   FaFilePdf,
   FaEnvelopeOpen,
   FaListUl,
-  FaGlobe
+  FaGlobe,
+  FaUsers,
+  FaGift
 } from "react-icons/fa";
 
 const quotes = [
@@ -61,10 +63,15 @@ const Dashboard = () => {
     totalTasks: 0,
     pendingTasks: 0,
     completedTasks: 0,
+    totalTemplatesOwned: 0,
+    activeTemplateName: "None",
+    referralCount: 0,
+    referralCode: ""
   });
   const [loading, setLoading] = useState(true);
   const [currentQuote, setCurrentQuote] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [copiedReferral, setCopiedReferral] = useState(false);
   const [username, setUsername] = useState("");
 
 
@@ -90,7 +97,7 @@ const Dashboard = () => {
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await dashboardStats();
+      const response = await getUserStats();
       if (response.data.success) {
         setStats(response.data.data);
       }
@@ -105,6 +112,14 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCopyReferral = (code) => {
+    if (!code) return;
+    navigator.clipboard.writeText(code);
+    setCopiedReferral(true);
+    toast.success("Referral code copied!");
+    setTimeout(() => setCopiedReferral(false), 2000);
   };
 
   const handleNextQuote = () => {
@@ -304,10 +319,11 @@ const Dashboard = () => {
                   <FaPalette className="w-4 h-4" />
                 </div>
                 <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Active Design Layout</span>
-                <h3 className="text-base font-black text-slate-800 mt-2 truncate flex items-center gap-1.5">
+                <h3 className="text-base font-black text-slate-800 mt-2 truncate flex items-center gap-1.5" title={stats.activeTemplateName || "None"}>
                   <span className="w-2.5 h-2.5 rounded-full bg-[#6C63FF] inline-block"></span>
-                  Premium Portfolio
+                  {stats.activeTemplateName || "None"}
                 </h3>
+                <span className="block text-[10px] text-slate-400 font-semibold mt-1">Owned: {stats.totalTemplatesOwned || 0} template(s)</span>
               </div>
               <div className="flex flex-col gap-1.5 mt-4">
                 <Link to="/portfolio-templates" className="text-[10px] text-[#6C63FF] font-extrabold hover:underline flex items-center gap-1">
@@ -345,6 +361,47 @@ const Dashboard = () => {
               <Link to="/contacts" className="text-[10px] text-emerald-600 font-extrabold hover:underline flex items-center gap-1 mt-4">
                 Open Messages <FaArrowRight size={8} />
               </Link>
+            </div>
+          </div>
+
+          {/* REFERRALS CARD */}
+          <div className="group relative bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-xl hover:border-indigo-200 transition-all duration-300 overflow-hidden shadow-sm flex flex-col justify-between md:flex-row md:items-center gap-6 text-left">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/20 to-purple-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative z-10 flex-1">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-indigo-50 border border-indigo-100 text-indigo-600 rounded-xl inline-flex items-center justify-center">
+                  <FaUsers className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Referral Stats</span>
+                  <div className="flex items-baseline gap-2 mt-1">
+                    <h3 className="text-3xl font-black text-slate-800">{stats.referralCount || 0}</h3>
+                    <span className="text-xs text-slate-500 font-semibold">referred user(s)</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2 text-xs font-semibold text-slate-500">
+                <FaGift className="text-indigo-500 text-xs animate-bounce" />
+                <span>Share your code to invite your friends!</span>
+              </div>
+            </div>
+            
+            <div className="relative z-10 flex flex-col gap-2 min-w-[200px]">
+              <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Your Referral Code</span>
+              <div className="bg-slate-50 border border-slate-200/80 rounded-xl px-3.5 py-2 flex items-center justify-between gap-3 shadow-inner">
+                <span className="font-mono text-sm font-extrabold text-indigo-600 tracking-wider">
+                  {stats.referralCode || "N/A"}
+                </span>
+                {stats.referralCode && (
+                  <button
+                    onClick={() => handleCopyReferral(stats.referralCode)}
+                    className="p-1.5 hover:bg-slate-200/80 text-slate-500 hover:text-indigo-600 rounded-lg transition-colors cursor-pointer"
+                    title="Copy referral code"
+                  >
+                    <FaCopy size={12} className={copiedReferral ? "text-emerald-500 scale-110" : "transition-transform active:scale-90"} />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 

@@ -230,6 +230,7 @@ const Portfolio = ({ profile: propProfile }) => {
 
     try {
       const contactData = {
+        id: profile?.user?.id,
         name: formData.name,
         email: formData.email,
         message: formData.message,

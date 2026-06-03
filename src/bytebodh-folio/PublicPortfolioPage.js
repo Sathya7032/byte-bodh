@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import TemplateOne from "./TemplateOne";
 import TemplateThree from "./TemplateThree";
 import TemplateFour from "./TemplateFour";
+import TemplateFive from "./TemplateFive";
 import Portfolio from "../portfolio/Portfolio";
 import { getPublicProfileByUsername } from "../api/profileService";
 
@@ -255,6 +256,85 @@ const templateFourMock = {
   ]
 };
 
+const templateFiveMock = {
+  fullName: "Sathya Prakash",
+  headline: "Lead Full-Stack Developer & DevOps Specialist",
+  email: "sathya@bytebodh.in",
+  mobileNumber: "+91 94444 55555",
+  location: "Bangalore, India",
+  summary: "Architecting microservices, serverless APIs, and reactive frontend experiences. Fan of clean code, automated pipelines, and VS Code dark themes.",
+  pictureUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=150&q=80",
+  skills: [
+    { name: "React & Next.js", proficiency: 95 },
+    { name: "Node.js & TypeScript", proficiency: 92 },
+    { name: "Python & FastAPIs", proficiency: 88 },
+    { name: "Docker & Kubernetes", proficiency: 85 },
+    { name: "AWS & Terraform", proficiency: 80 }
+  ],
+  experience: [
+    {
+      position: "Lead Full-Stack Developer",
+      company: "ByteBodh Tech Labs",
+      startDate: "2023-01",
+      endDate: "Present",
+      location: "Bangalore, India",
+      description: "Directing UI architecture redesigns, optimizing webpack/vite compile times, and mentoring 6 backend and frontend developers on TypeScript modules."
+    },
+    {
+      position: "Senior Systems Engineer",
+      company: "TechScale Solutions",
+      startDate: "2021-02",
+      endDate: "2022-12",
+      location: "Chennai, India",
+      description: "Implemented high-throughput messaging brokers (RabbitMQ/Kafka) and optimized MySQL database queries to reduce API latency spikes by 40%."
+    }
+  ],
+  education: [
+    {
+      degree: "B.E. in Computer Science & Engineering",
+      institution: "Anna University",
+      fieldOfStudy: "Computer Science",
+      startDate: "2017",
+      endDate: "2021",
+      gpa: "8.9/10"
+    }
+  ],
+  projects: [
+    {
+      title: "ByteBodh folio CMS Engine",
+      description: "A headless CMS system parsing static JSON configurations into dynamic SEO-optimized developer portfolios.",
+      techStack: "React, Express, MongoDB, TailwindCSS",
+      technologies: ["React", "Express", "MongoDB", "TailwindCSS"],
+      link: "https://github.com/bytebodh/cms-engine",
+      projectUrl: "https://github.com/bytebodh/cms-engine"
+    },
+    {
+      title: "Auto-Deploy DevOps Webhook",
+      description: "Simulated CI/CD container orchestrator syncing github webhook events with local Kubernetes clusters.",
+      techStack: "Go, Kubernetes, GitHub API",
+      technologies: ["Go", "Kubernetes", "GitHub API"],
+      link: "https://github.com/bytebodh/devops-webhook",
+      projectUrl: "https://github.com/bytebodh/devops-webhook"
+    }
+  ],
+  certifications: [
+    {
+      name: "HashiCorp Certified Terraform Associate",
+      issuingOrganization: "HashiCorp",
+      issueDate: "2024"
+    },
+    {
+      name: "Certified Kubernetes Administrator (CKA)",
+      issuingOrganization: "The Linux Foundation",
+      issueDate: "2023"
+    }
+  ],
+  socialMediaLinks: [
+    { platform: "GITHUB", url: "https://github.com/bytebodh", profileUrl: "https://github.com/bytebodh" },
+    { platform: "LINKEDIN", url: "https://linkedin.com", profileUrl: "https://linkedin.com" }
+  ]
+};
+
 function PublicPortfolioPage({ isPreview }) {
   const { username: urlUsername, templateId: previewTemplateId } = useParams();
   const [profile, setProfile] = useState(null);
@@ -271,6 +351,7 @@ function PublicPortfolioPage({ isPreview }) {
       if (tId === 2) mockProfile = templateTwoMock;
       if (tId === 3) mockProfile = templateThreeMock;
       if (tId === 4) mockProfile = templateFourMock;
+      if (tId === 5) mockProfile = templateFiveMock;
       
       setProfile(mockProfile);
       setLoading(false);
@@ -338,7 +419,7 @@ function PublicPortfolioPage({ isPreview }) {
     <div className="bg-slate-950 border-b border-slate-900 text-white px-6 py-3 flex items-center justify-between sticky top-0 z-50 shadow-md text-xs font-bold font-sans">
       <div className="flex items-center gap-2">
         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span>BYTEBODH TEMPLATE PREVIEW: {profile.fullName} ({templateId === 1 ? "Academic Minimalist" : templateId === 2 ? "Hacker Terminal" : templateId === 3 ? "Creative Gallery" : "Executive Brand"})</span>
+        <span>BYTEBODH TEMPLATE PREVIEW: {profile.fullName} ({templateId === 1 ? "Academic Minimalist" : templateId === 2 ? "Hacker Terminal" : templateId === 3 ? "Creative Gallery" : templateId === 4 ? "Executive Brand" : "Developer IDE"})</span>
       </div>
       <div className="flex items-center gap-4 text-slate-400">
         <span className="hidden sm:inline">💡 Previewing complete sample layout</span>
@@ -365,6 +446,9 @@ function PublicPortfolioPage({ isPreview }) {
 
       case 4:
         return <TemplateFour profile={profile} />;
+
+      case 5:
+        return <TemplateFive profile={profile} />;
 
       default:
         return <TemplateOne profile={profile} />;

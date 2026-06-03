@@ -110,10 +110,10 @@ const TemplateThree = ({ profile }) => {
       gradient: "linear-gradient(135deg, #34d399 0%, #059669 100%)"
     },
     neutral: {
-      50: "#090d16",  // Background darkest
-      100: "#0f172a", // Background dark slate
-      200: "#1e293b", // Slate 800 (borders / light card bg)
-      300: "#334155", // Slate 700
+      50: "#06070a",  // Background darkest
+      100: "#0b0c15", // Background dark slate
+      200: "#141725", // Slate 800 (borders / light card bg)
+      300: "#1c2035", // Slate 700
       400: "#475569", // Slate 600
       500: "#64748b", // Slate 500
       600: "#94a3b8", // Slate 400
@@ -209,6 +209,7 @@ const TemplateThree = ({ profile }) => {
 
     try {
       const contactData = {
+        id: profile?.user?.id,
         name: formData.name,
         email: formData.email,
         message: formData.message,
@@ -867,7 +868,7 @@ const TemplateThree = ({ profile }) => {
                           whileHover={{ y: -5 }}
                           className="group"
                         >
-                          <div className="portfolio-skill-card rounded-xl shadow-sm hover:shadow-lg p-6 transition-all duration-300 border h-full flex flex-col items-center bg-slate-900/60 hover:bg-slate-900"
+                          <div className="portfolio-skill-card rounded-2xl shadow-xl hover:shadow-indigo-500/5 p-6 transition-all duration-500 border h-full flex flex-col items-center bg-[#141725]/30 backdrop-blur-xl hover:bg-[#141725]/60 hover:scale-[1.03]"
                                style={{ 
                                  borderColor: colorsCat.border
                                }}>
@@ -919,7 +920,7 @@ const TemplateThree = ({ profile }) => {
                   whileHover={{ y: -8 }}
                   className="group"
                 >
-                  <div className="portfolio-card rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border h-full flex flex-col bg-slate-900/80 hover:bg-slate-900 border-slate-800">
+                  <div className="portfolio-card rounded-3xl shadow-2xl hover:shadow-indigo-500/5 transition-all duration-500 overflow-hidden border h-full flex flex-col bg-[#141725]/40 backdrop-blur-xl hover:bg-[#141725]/60 border-white/5 hover:border-indigo-500/20">
                     {/* Project Header */}
                     <div className="portfolio-project-header h-48 relative overflow-hidden flex items-center justify-center p-4"
                          style={{ background: colors.primary.gradient }}>
@@ -1025,7 +1026,7 @@ const TemplateThree = ({ profile }) => {
                     </div>
 
                     <div className="portfolio-experience-card lg:w-1/2 lg:px-12">
-                      <div className="rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300 border border-slate-800 bg-slate-900/80 h-full">
+                      <div className="rounded-3xl shadow-2xl p-8 hover:shadow-indigo-500/5 transition-all duration-500 border border-white/5 hover:border-indigo-500/20 bg-[#141725]/40 backdrop-blur-xl hover:bg-[#141725]/60 h-full">
                         {/* Experience Header */}
                         <div className="flex items-start justify-between mb-6">
                           <div>
@@ -1098,7 +1099,7 @@ const TemplateThree = ({ profile }) => {
                   whileHover={{ scale: 1.02 }}
                   className="group"
                 >
-                  <div className="portfolio-education-card rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border border-slate-800 bg-slate-900/80 h-full">
+                  <div className="portfolio-education-card rounded-3xl shadow-2xl hover:shadow-indigo-500/5 transition-all duration-500 overflow-hidden border border-white/5 hover:border-indigo-500/20 bg-[#141725]/40 backdrop-blur-xl hover:bg-[#141725]/60 h-full">
                     <div className="p-8">
                       {/* Header */}
                       <div className="flex items-start justify-between mb-8">
@@ -1288,7 +1289,7 @@ const TemplateThree = ({ profile }) => {
             </p>
           </div>
 
-          <div className="rounded-2xl shadow-xl p-8 lg:p-12 max-w-4xl mx-auto bg-slate-900/80 border border-slate-800">
+          <div className="rounded-3xl shadow-2xl p-8 lg:p-12 max-w-4xl mx-auto bg-[#141725]/30 backdrop-blur-xl border border-white/5 hover:border-indigo-500/20 transition-colors duration-500">
             <div className="portfolio-contact-container grid lg:grid-cols-2 gap-12">
               {/* Contact Info */}
               <div className="portfolio-contact-info">
