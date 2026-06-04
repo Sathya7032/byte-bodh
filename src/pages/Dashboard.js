@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import DashboardLayout from "../portfolio/components/DashboardLayout";
 import { getUser, getAccessToken } from "../services/auth";
-import { getUserStats, getMyProfile } from "../api/profileService";
+import { getUserStats, getMyProfile, getContactMessages } from "../api/profileService";
+import { getPaymentHistory } from "../api/templateService";
 import { getPortfolioUrl } from "../config/api";
+import QRCode from "react-qr-code";
 import { toast } from "react-toastify";
 import { 
   FaEye, 
@@ -13,10 +15,7 @@ import {
   FaPalette,
   FaCopy,
   FaExternalLinkAlt,
-  FaUserEdit,
-  FaFilePdf,
   FaEnvelopeOpen,
-  FaListUl,
   FaGlobe,
   FaUsers,
   FaGift
@@ -73,8 +72,8 @@ const Dashboard = () => {
   const [copied, setCopied] = useState(false);
   const [copiedReferral, setCopiedReferral] = useState(false);
   const [username, setUsername] = useState("");
-
-
+  const [recentMessages, setRecentMessages] = useState([]);
+  const [recentPayments, setRecentPayments] = useState([]);
 
   useEffect(() => {
     const token = getAccessToken();
@@ -97,15 +96,29 @@ const Dashboard = () => {
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await getUserStats();
-      if (response.data.success) {
-        setStats(response.data.data);
+      // Fetch stats, profile, messages and payments in parallel
+      const [statsRes, profileRes, messagesRes, paymentsRes] = await Promise.all([
+        getUserStats().catch(err => ({ data: { success: false } })),
+        getMyProfile().catch(err => ({ data: { success: false } })),
+        getContactMessages().catch(err => ({ data: { success: false } })),
+        getPaymentHistory().catch(err => ({ data: { success: false } }))
+      ]);
+
+      if (statsRes.data?.success) {
+        setStats(statsRes.data.data);
       }
       
-      const profileResponse = await getMyProfile();
-      const profileData = profileResponse.data || {};
+      const profileData = profileRes.data || {};
       if (profileData.user?.username) {
         setUsername(profileData.user.username);
+      }
+
+      if (messagesRes.data?.success) {
+        setRecentMessages((messagesRes.data.data || []).slice(0, 3));
+      }
+
+      if (paymentsRes.data?.success) {
+        setRecentPayments((paymentsRes.data.data || []).slice(0, 3));
       }
     } catch (err) {
       console.error("Error fetching dashboard stats:", err);
@@ -161,7 +174,7 @@ const Dashboard = () => {
       ? Math.round((stats.completedTasks / stats.totalTasks) * 100)
       : 0;
 
-  const userName = user?.fullName || user?.name || "User";
+  const userName = user?.username || username || user?.fullName || user?.name || "User";
   const userInitial = userName.charAt(0).toUpperCase();
   const portfolioUrl = getPortfolioUrl(username);
 
@@ -405,79 +418,109 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* BUILDER MODULES */}
-          <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-sm">
-            <h2 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2">
-              <span className="text-xl">🛠️</span> Portfolio Builder Modules
-            </h2>
-            
-            <div className="grid sm:grid-cols-2 gap-5">
-              <Link
-                to="/profile"
-                className="group border border-slate-100 hover:border-[#6C63FF] hover:bg-[#6C63FF]/5 rounded-2xl p-5 transition-all duration-300 flex items-start gap-4 transform hover:-translate-y-0.5 shadow-sm hover:shadow-md"
-              >
-                <div className="w-12 h-12 bg-indigo-50 text-[#6C63FF] group-hover:bg-[#6C63FF] group-hover:text-white rounded-xl flex items-center justify-center text-lg shadow-sm transition-all flex-shrink-0">
-                  <FaUserEdit />
+          {/* MIDDLE GRID: QR CODE HUB & RECENT BILLINGS */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 text-left">
+            {/* COLUMN 1: QR HUB */}
+            <div className="lg:col-span-5 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col justify-between items-center text-center">
+              <div className="w-full text-left flex justify-between items-center mb-4">
+                <div>
+                  <h3 className="text-sm font-black text-slate-800 flex items-center gap-2">
+                    <span>📱</span> Shareable QR Code
+                  </h3>
+                  <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Let others scan to view your live profile</p>
                 </div>
-                <div className="min-w-0 text-left">
-                  <h4 className="font-bold text-slate-800 text-sm group-hover:text-[#6C63FF] transition-colors">Bio & Contact Details</h4>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">Update your name, bio summaries, phone, and social coordinates.</p>
+                <Link to="/qr-code" className="text-[10px] text-[#6C63FF] font-extrabold hover:underline">
+                  Customize
+                </Link>
+              </div>
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex flex-col items-center justify-center shadow-inner max-w-[180px] w-full">
+                <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                  <QRCode
+                    id="dashboard-qr-code-svg"
+                    value={portfolioUrl || "https://bytebodh.in"}
+                    size={120}
+                    level="H"
+                    fgColor="#6C63FF"
+                    bgColor="transparent"
+                  />
                 </div>
-              </Link>
+              </div>
+              <div className="w-full mt-4 pt-3 border-t border-slate-100 text-center flex flex-col gap-2">
+                <span className="text-[9px] text-slate-400 font-bold tracking-widest uppercase">
+                  Scan to preview on mobile
+                </span>
+                <button
+                  onClick={handleCopyLink}
+                  className="w-full py-2 bg-indigo-50 border border-indigo-105 hover:bg-indigo-100 text-[#6C63FF] rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <FaCopy size={11} /> Copy Public Link
+                </button>
+              </div>
+            </div>
 
-              <Link
-                to="/resume-builder"
-                className="group border border-slate-100 hover:border-[#6C63FF] hover:bg-[#6C63FF]/5 rounded-2xl p-5 transition-all duration-300 flex items-start gap-4 transform hover:-translate-y-0.5 shadow-sm hover:shadow-md"
-              >
-                <div className="w-12 h-12 bg-indigo-50 text-[#6C63FF] group-hover:bg-[#6C63FF] group-hover:text-white rounded-xl flex items-center justify-center text-lg shadow-sm transition-all flex-shrink-0">
-                  <FaFilePdf />
+            {/* COLUMN 2: RECENT BILLINGS & PAYMENTS */}
+            <div className="lg:col-span-7 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="flex justify-between items-center mb-5">
+                  <h3 className="text-sm font-black text-slate-800 flex items-center gap-2">
+                    <span>💳</span> Recent Payments
+                  </h3>
+                  <Link to="/billings" className="text-[10px] text-[#6C63FF] font-extrabold hover:underline">
+                    View All
+                  </Link>
                 </div>
-                <div className="min-w-0 text-left">
-                  <h4 className="font-bold text-slate-800 text-sm group-hover:text-[#6C63FF] transition-colors">Resume PDF Exporter</h4>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">Compile credentials to download offline ATS-ready resumes.</p>
-                </div>
-              </Link>
 
-              <Link
-                to="/portfolio-templates"
-                className="group border border-slate-100 hover:border-[#6C63FF] hover:bg-[#6C63FF]/5 rounded-2xl p-5 transition-all duration-300 flex items-start gap-4 transform hover:-translate-y-0.5 shadow-sm hover:shadow-md"
-              >
-                <div className="w-12 h-12 bg-indigo-50 text-[#6C63FF] group-hover:bg-[#6C63FF] group-hover:text-white rounded-xl flex items-center justify-center text-lg shadow-sm transition-all flex-shrink-0">
-                  <FaPalette />
-                </div>
-                <div className="min-w-0 text-left">
-                  <h4 className="font-bold text-slate-800 text-sm group-hover:text-[#6C63FF] transition-colors">Design & Theme Layouts</h4>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">Unlock premium layouts, monospace, and modern grid styles.</p>
-                </div>
-              </Link>
-
-              <Link
-                to="/tasks"
-                className="group border border-slate-100 hover:border-[#6C63FF] hover:bg-[#6C63FF]/5 rounded-2xl p-5 transition-all duration-300 flex items-start gap-4 transform hover:-translate-y-0.5 shadow-sm hover:shadow-md"
-              >
-                <div className="w-12 h-12 bg-indigo-50 text-[#6C63FF] group-hover:bg-[#6C63FF] group-hover:text-white rounded-xl flex items-center justify-center text-lg shadow-sm transition-all flex-shrink-0">
-                  <FaListUl />
-                </div>
-                <div className="min-w-0 text-left">
-                  <h4 className="font-bold text-slate-800 text-sm group-hover:text-[#6C63FF] transition-colors">Project & Skill Checklist</h4>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">Mark pending milestones and complete your portfolio setup.</p>
-                </div>
-              </Link>
+                {recentPayments.length === 0 ? (
+                  <div className="text-center py-10 flex flex-col items-center justify-center h-[160px]">
+                    <span className="text-2xl mb-2">💸</span>
+                    <p className="text-xs text-slate-400 font-bold">No payments found</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Explore premium templates to get started.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3.5">
+                    {recentPayments.map((p) => {
+                      const s = (p.status || "").toUpperCase();
+                      const statusColor = 
+                        s === "SUCCESS" || s === "COMPLETED" || s === "PAID"
+                          ? "text-emerald-600 bg-emerald-50 border-emerald-100"
+                          : s === "PENDING" || s === "CREATED"
+                          ? "text-amber-600 bg-amber-50 border-amber-100"
+                          : "text-rose-600 bg-rose-50 border-rose-100";
+                      
+                      return (
+                        <div key={p.id} className="flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-2xl hover:shadow-sm transition-shadow">
+                          <div className="min-w-0 flex-1 pr-3">
+                            <h4 className="text-xs font-bold text-slate-800 truncate">{p.templateName}</h4>
+                            <p className="text-[10px] text-slate-400 font-semibold mt-0.5">ID: #{p.id} • {new Date(p.date).toLocaleDateString()}</p>
+                          </div>
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-xs font-extrabold text-slate-900">
+                              {new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(p.amount)}
+                            </span>
+                            <span className={`px-2 py-0.5 text-[8px] font-black uppercase rounded-lg border ${statusColor}`}>
+                              {s}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* INSPIRATION & CHECKLIST */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
-            
+          {/* LOWER GRID: INSPIRATION & RECRUITER INBOX */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
             {/* ROTATING QUOTE BANNER */}
-            <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-6 text-white relative overflow-hidden shadow-lg border border-white/10 flex flex-col justify-between">
+            <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-6 text-white relative overflow-hidden shadow-lg border border-white/10 flex flex-col justify-between min-h-[200px]">
               <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
               
               <div className="relative z-10">
                 <span className="px-2.5 py-1 bg-white/20 border border-white/20 text-white text-[9px] font-black uppercase tracking-widest rounded-full">
                   Daily Inspiration
                 </span>
-                <p className="text-base font-bold mt-5 italic leading-relaxed">
+                <p className="text-sm font-bold mt-5 italic leading-relaxed">
                   "{quotes[currentQuote].text}"
                 </p>
               </div>
@@ -503,62 +546,44 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* SETUP TIMELINE CHECKLIST */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+            {/* RECRUITER MESSAGES INBOX */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col justify-between min-h-[200px]">
               <div>
-                <h3 className="text-base font-black text-slate-800 mb-4 flex items-center gap-2">
-                  <span>📋</span> Setup Checklist
-                </h3>
-                
-                <div className="space-y-3.5">
-                  <div className="flex items-center justify-between text-[11px] font-bold text-slate-400">
-                    <span>Site Completion</span>
-                    <span className="text-[#6C63FF]">{completionPercent}%</span>
-                  </div>
-                  <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                    <div className="bg-[#6C63FF] h-full rounded-full transition-all duration-1000" style={{ width: `${completionPercent}%` }}></div>
-                  </div>
-
-                  <div className="space-y-2.5 pt-2">
-                    <div className="flex items-center gap-3">
-                      <div className="w-4 h-4 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 text-[9px] font-bold">
-                        ✓
-                      </div>
-                      <span className="text-xs text-slate-400 font-medium line-through">Create profile credentials</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-4 h-4 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 text-[9px] font-bold">
-                        ✓
-                      </div>
-                      <span className="text-xs text-slate-400 font-medium line-through">Claim public portfolio path</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
-                        stats.completedTasks > 0 ? "bg-emerald-50 border border-emerald-200 text-emerald-600" : "bg-slate-50 border border-slate-200 text-slate-400"
-                      }`}>
-                        {stats.completedTasks > 0 ? "✓" : "○"}
-                      </div>
-                      <span className={`text-xs font-semibold ${stats.completedTasks > 0 ? "text-slate-400 line-through" : "text-slate-600"}`}>
-                        Add core technical skills
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-4 h-4 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 text-[9px] font-bold">
-                        ○
-                      </div>
-                      <span className="text-xs text-slate-600 font-semibold">Link developer repositories</span>
-                    </div>
-                  </div>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-sm font-black text-slate-800 flex items-center gap-2">
+                    <span>📩</span> Recruiter Inbox
+                  </h3>
+                  <Link to="/contacts" className="text-[10px] text-[#6C63FF] font-extrabold hover:underline">
+                    View All
+                  </Link>
                 </div>
-              </div>
 
-              <div className="pt-4 border-t border-slate-100 mt-4 flex justify-between items-center">
-                <Link
-                  to="/help"
-                  className="inline-flex items-center gap-1 text-xs text-[#6C63FF] font-bold hover:underline"
-                >
-                  Need some guidance? <FaArrowRight size={8} />
-                </Link>
+                {recentMessages.length === 0 ? (
+                  <div className="text-center py-8 flex flex-col items-center justify-center">
+                    <span className="text-xl mb-1">📬</span>
+                    <p className="text-xs text-slate-400 font-bold">No messages received yet</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Recruiter messages from your portfolio will display here.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {recentMessages.map((msg) => {
+                      const initials = msg.name ? msg.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) : "?";
+                      return (
+                        <div key={msg.id} className="flex items-start gap-3 p-2.5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                          <div className="w-7 h-7 bg-indigo-50 border border-indigo-100 text-[#6C63FF] rounded-lg flex items-center justify-center text-[10px] font-bold">
+                            {initials}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex justify-between items-baseline gap-1.5">
+                              <h4 className="text-[11px] font-bold text-slate-850 truncate">{msg.name}</h4>
+                            </div>
+                            <p className="text-[10px] text-slate-500 font-medium line-clamp-1 mt-0.5">{msg.message}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           </div>

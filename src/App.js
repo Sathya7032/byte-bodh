@@ -29,6 +29,7 @@ import Contacts from "./portfolio/Contacts";
 import Tasks from "./portfolio/Tasks";
 import HelpSupportPage from "./portfolio/HelpSupportPage";
 import QRCodePage from "./portfolio/QRCodePage";
+import BillingsPage from "./portfolio/BillingsPage";
 import AdminLogin from "./admin/AdminLogin";
 import DashboardPage from "./admin/pages/DashboardPage";
 import InvoiceGenerator from "./products/InvoiceGenerator";
@@ -111,6 +112,7 @@ const App = () => {
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/help" element={<HelpSupportPage />} />
             <Route path="/qr-code" element={<QRCodePage />} />
+            <Route path="/billings" element={<BillingsPage />} />
 
             <Route path="/admin-dashboard" element={<DashboardPage />} />
             <Route path="/categories" element={<Categories />} />

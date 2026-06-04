@@ -18,14 +18,12 @@ import {
   activateTemplate,
   createPaymentOrder,
   verifyPayment,
-  recordPaymentFailure,
-  getUserStats
+  recordPaymentFailure
 } from "../api/templateService";
 
 const PortfolioTemplates = () => {
   const [templates, setTemplates] = useState([]);
   const [userTemplates, setUserTemplates] = useState([]);
-  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -58,10 +56,9 @@ const PortfolioTemplates = () => {
     try {
       setLoading(true);
       setError("");
-      const [allRes, userRes, statsRes] = await Promise.all([
+      const [allRes, userRes] = await Promise.all([
         getAllTemplates(),
-        getUserTemplates(),
-        getUserStats().catch(() => ({ data: { success: true, data: { views: 0 } } })) // Handle fallback if stats API is missing
+        getUserTemplates()
       ]);
 
       if (allRes.data?.success) {
@@ -74,10 +71,6 @@ const PortfolioTemplates = () => {
         setUserTemplates(userRes.data.data || []);
       } else {
         setUserTemplates(userRes.data || []);
-      }
-
-      if (statsRes.data?.success) {
-        setStats(statsRes.data.data);
       }
     } catch (err) {
       console.error(err);
@@ -220,17 +213,6 @@ const PortfolioTemplates = () => {
             Choose a professional template to represent your online resume.
           </p>
         </div>
-        {stats && (
-          <div className="flex items-center gap-4 bg-[#6C63FF]/5 border border-[#6C63FF]/15 px-4 py-2.5 rounded-2xl">
-            <div className="w-10 h-10 rounded-xl bg-[#6C63FF] text-white flex items-center justify-center font-bold shadow-md shadow-[#6C63FF]/20">
-              <FaEye />
-            </div>
-            <div>
-              <span className="block text-[10px] text-gray-400 font-bold uppercase tracking-wider leading-none">Total Views</span>
-              <span className="text-lg font-black text-gray-800">{stats.views || 0}</span>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Categories filter tabs */}

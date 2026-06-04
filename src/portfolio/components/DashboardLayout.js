@@ -56,6 +56,8 @@ const DashboardLayout = ({ children, containerClassName }) => {
       crumbs.push({ label: "Contacts", path: "/contacts" });
     } else if (path === "/tasks") {
       crumbs.push({ label: "Tasks & Projects", path: "/tasks" });
+    } else if (path === "/billings") {
+      crumbs.push({ label: "Billings", path: "/billings" });
     } else if (path === "/help") {
       crumbs.push({ label: "Help & Support", path: "/help" });
     } else {

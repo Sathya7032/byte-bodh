@@ -21,6 +21,7 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
   const [username, setUsername] = useState(user?.username || "");
 
   const fullName = user?.fullName || "User";
+  const displayName = (user?.fullName && user?.fullName !== "User") ? user.fullName : (user?.name || "");
   const email = user?.email || "user@example.com";
   const role = user?.role || "Student";
 
@@ -132,8 +133,13 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
                 </div>
 
                 <div className="hidden md:block text-left">
-                  <div className="text-xs font-bold text-slate-800">
-                    {username ? `@${username}` : fullName}
+                  <div className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <span>{displayName || (username ? `@${username}` : "User")}</span>
+                    {displayName && username && (
+                      <span className="text-[9px] text-[#6C63FF] font-black bg-[#6C63FF]/10 border border-[#6C63FF]/15 px-1.5 py-0.5 rounded-lg tracking-wide">
+                        @{username}
+                      </span>
+                    )}
                   </div>
                   <div className="text-[10px] text-slate-400 flex items-center gap-0.5 font-bold tracking-wider uppercase">
                     {role}

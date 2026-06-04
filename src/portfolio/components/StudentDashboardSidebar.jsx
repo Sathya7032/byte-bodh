@@ -9,6 +9,7 @@ import {
   XLg,
   Collection,
   QrCode,
+  CreditCard,
 } from "react-bootstrap-icons";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -27,6 +28,7 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
     if (path === "/profile-views") return "profile-views";
     if (path === "/qr-code") return "qr-code";
     if (path === "/tasks") return "tasks";
+    if (path === "/billings") return "billings";
     if (path === "/resources") return "resources";
     if (path === "/settings") return "settings";
     if (path === "/help") return "help";
@@ -78,6 +80,12 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
       label: "Portfolio QR",
       icon: <QrCode size={20} />,
       path: "/qr-code",
+    },
+    {
+      id: "billings",
+      label: "Billings",
+      icon: <CreditCard size={20} />,
+      path: "/billings",
     },
   ];
 
