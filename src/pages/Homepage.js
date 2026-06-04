@@ -129,13 +129,13 @@ const Homepage = () => {
 
 
   return (
-    <div className="min-h-screen bg-slate-50/50 text-slate-800 font-sans antialiased overflow-x-hidden selection:bg-[#6C63FF]/20 selection:text-[#6C63FF]">
+    <div className="min-h-screen bg-white text-slate-800 font-sans antialiased overflow-x-hidden selection:bg-[#6C63FF]/20 selection:text-[#6C63FF]">
 
       {/* 1. NAVIGATION BAR */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-          ? "bg-white/80 backdrop-blur-md border-b border-slate-200/50 py-3 shadow-sm"
-          : "bg-transparent py-5"
+          ? "bg-white/95 backdrop-blur-md border-b border-slate-200/50 py-3 shadow-md"
+          : "bg-white/80 backdrop-blur-sm border-b border-transparent py-5"
           }`}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
@@ -145,7 +145,7 @@ const Homepage = () => {
               BB
             </div>
             <div>
-              <span className="text-xl font-black bg-gradient-to-r from-slate-900 to-slate-800 bg-clip-text text-transparent">
+              <span className="text-xl font-black bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
                 ByteBodh
               </span>
               <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider leading-none">
@@ -179,7 +179,7 @@ const Homepage = () => {
       </nav>
 
       {/* 2. HERO SECTION */}
-      <section className="relative pt-32 pb-24 md:pt-44 md:pb-32 overflow-hidden bg-gradient-to-tr from-indigo-50/20 via-white to-purple-50/30">
+      <section className="relative pt-32 pb-24 md:pt-44 md:pb-32 overflow-hidden bg-gradient-to-br from-indigo-50/30 via-white to-purple-50/30">
         {/* Soft glowing ambient circles */}
         <div className="absolute top-[20%] left-[-15%] w-[45%] h-[45%] rounded-full bg-[#6C63FF]/5 blur-[120px] pointer-events-none"></div>
         <div className="absolute bottom-[10%] right-[-15%] w-[45%] h-[45%] rounded-full bg-blue-500/5 blur-[120px] pointer-events-none"></div>
@@ -191,7 +191,7 @@ const Homepage = () => {
             {/* Trust Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm text-xs font-semibold text-slate-600">
               <span className="text-amber-500">⭐</span>
-              <span>Trusted by students & Professionals</span>
+              <span>Trusted by 10,000+ students & professionals</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6.5xl font-black leading-[1.1] text-slate-900 tracking-tight">
@@ -226,11 +226,14 @@ const Homepage = () => {
 
           {/* Hero Right Visuals: Hero Image Preview */}
           <div className="lg:col-span-6 relative flex items-center justify-center">
-            <img
-              src={hero}
-              alt="ByteBodh Portfolio Platform"
-              className="w-full max-w-[620px] lg:max-w-[680px] h-auto object-contain hover:scale-[1.02] transition-transform duration-500 pointer-events-none select-none"
-            />
+            <div className="relative rounded-2xl shadow-2xl shadow-slate-300/20">
+              <img
+                src={hero}
+                alt="ByteBodh Portfolio Platform"
+                className="w-full max-w-[620px] lg:max-w-[680px] h-auto object-contain hover:scale-[1.02] transition-transform duration-500 pointer-events-none select-none"
+              />
+              <div className="absolute inset-0 rounded-2xl ring-1 ring-slate-200/50"></div>
+            </div>
           </div>
         </div>
       </section>

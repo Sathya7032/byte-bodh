@@ -20,6 +20,7 @@ import Dashboard from "./pages/Dashboard";
 import GoogleSuccess from "./auth/GoogleSuccess";
 import PrivateRoutes from "./services/PrivateRoutes";
 import Register from "./auth/Register";
+import ForgotPassword from "./auth/ForgotPassword";
 import Profile from "./portfolio/Profile";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
@@ -30,6 +31,8 @@ import Tasks from "./portfolio/Tasks";
 import HelpSupportPage from "./portfolio/HelpSupportPage";
 import QRCodePage from "./portfolio/QRCodePage";
 import BillingsPage from "./portfolio/BillingsPage";
+import Settings from "./portfolio/Settings";
+import Referrals from "./portfolio/Referrals";
 import AdminLogin from "./admin/AdminLogin";
 import DashboardPage from "./admin/pages/DashboardPage";
 import InvoiceGenerator from "./products/InvoiceGenerator";
@@ -100,6 +103,7 @@ const App = () => {
 
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/google-success" element={<GoogleSuccess />} />
           <Route element={<PrivateRoutes />}>
             <Route path="/dashboard" element={<Dashboard />} />
@@ -113,6 +117,8 @@ const App = () => {
             <Route path="/help" element={<HelpSupportPage />} />
             <Route path="/qr-code" element={<QRCodePage />} />
             <Route path="/billings" element={<BillingsPage />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/referrals" element={<Referrals />} />
 
             <Route path="/admin-dashboard" element={<DashboardPage />} />
             <Route path="/categories" element={<Categories />} />

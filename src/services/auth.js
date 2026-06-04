@@ -206,6 +206,69 @@ export const logout = () => {
 };
 
 /* =========================
+   FORGOT & CHANGE PASSWORD APIs
+========================= */
+export const forgotPassword = async (email) => {
+  try {
+    const res = await api.post("/forgot-password", null, {
+      params: { email },
+    });
+    return {
+      success: true,
+      message: res.data?.message || "OTP sent to email",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to send OTP. Please try again.",
+    };
+  }
+};
+
+export const resetPassword = async (email, otp, newPassword) => {
+  try {
+    const res = await api.post("/reset-password", null, {
+      params: { email, otp, newPassword },
+    });
+    return {
+      success: true,
+      message: res.data?.message || "Password reset successful",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error.response?.data?.message ||
+        error.message ||
+        "Password reset failed. Please try again.",
+    };
+  }
+};
+
+export const changePassword = async (oldPassword, newPassword) => {
+  try {
+    const res = await api.post("/change-password", null, {
+      params: { oldPassword, newPassword },
+    });
+    return {
+      success: true,
+      message: res.data?.message || "Password changed successfully",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to change password. Please try again.",
+    };
+  }
+};
+
+/* =========================
    AUTH UTILITIES
 ========================= */
 export const getAccessToken = () => localStorage.getItem("accessToken");

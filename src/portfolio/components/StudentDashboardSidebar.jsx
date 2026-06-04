@@ -10,6 +10,8 @@ import {
   Collection,
   QrCode,
   CreditCard,
+  Gear,
+  Gift,
 } from "react-bootstrap-icons";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -29,6 +31,7 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
     if (path === "/qr-code") return "qr-code";
     if (path === "/tasks") return "tasks";
     if (path === "/billings") return "billings";
+    if (path === "/referrals") return "referrals";
     if (path === "/resources") return "resources";
     if (path === "/settings") return "settings";
     if (path === "/help") return "help";
@@ -86,6 +89,18 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
       label: "Billings",
       icon: <CreditCard size={20} />,
       path: "/billings",
+    },
+    {
+      id: "referrals",
+      label: "Referrals",
+      icon: <Gift size={20} />,
+      path: "/referrals",
+    },
+    {
+      id: "settings",
+      label: "Settings",
+      icon: <Gear size={20} />,
+      path: "/settings",
     },
   ];
 

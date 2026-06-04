@@ -108,3 +108,12 @@ export const dashboardStats = () =>
 export const contact =(data)=>{
   api.post('/api/contact', data)
 }
+
+/* =========================
+   REFERRAL APIs
+========================= */
+export const getMyReferrals = () => 
+  api.get('/api/referrals/my-referrals');
+
+export const applyReferralCode = (referralCode) => 
+  api.post('/api/referrals/apply-referral-code', { referralCode });
