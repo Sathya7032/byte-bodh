@@ -19,6 +19,7 @@ import Login from "./auth/Login";
 import Dashboard from "./pages/Dashboard";
 import GoogleSuccess from "./auth/GoogleSuccess";
 import PrivateRoutes from "./services/PrivateRoutes";
+import AdminPrivateRoutes from "./services/AdminPrivateRoutes";
 import Register from "./auth/Register";
 import ForgotPassword from "./auth/ForgotPassword";
 import Profile from "./portfolio/Profile";
@@ -26,6 +27,10 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import ProfileTemplate from "./portfolio/ProfileTemplate";
 import PortfolioTemplates from "./portfolio/PortfolioTemplates";
+import DashboardJobs from "./portfolio/DashboardJobs";
+import DashboardJobDetail from "./portfolio/DashboardJobDetail";
+import DashboardBlogs from "./portfolio/DashboardBlogs";
+import DashboardBlogDetail from "./portfolio/DashboardBlogDetail";
 import Contacts from "./portfolio/Contacts";
 import Tasks from "./portfolio/Tasks";
 import HelpSupportPage from "./portfolio/HelpSupportPage";
@@ -49,6 +54,8 @@ import JobNotificationForm from "./admin/pages/JobNotificationForm";
 import JobNotificationDetail from "./admin/pages/JobNotificationDetail";
 import Quiz from "./admin/pages/Quiz";
 import Templates from "./admin/pages/Templates";
+import AdminUserTemplates from "./admin/pages/AdminUserTemplates";
+import AdminPayments from "./admin/pages/AdminPayments";
 import PageNotFound from "./pages/PageNotFound";
 import PublicPortfolioPage from "./bytebodh-folio/PublicPortfolioPage";
 
@@ -114,16 +121,24 @@ const App = () => {
 
             <Route path="/contacts" element={<Contacts />} />
             <Route path="/tasks" element={<Tasks />} />
+            <Route path="/dashboard-jobs" element={<DashboardJobs />} />
+            <Route path="/dashboard-jobs/:id" element={<DashboardJobDetail />} />
+            <Route path="/dashboard-blogs" element={<DashboardBlogs />} />
+            <Route path="/dashboard-blogs/:slug" element={<DashboardBlogDetail />} />
             <Route path="/help" element={<HelpSupportPage />} />
             <Route path="/qr-code" element={<QRCodePage />} />
             <Route path="/billings" element={<BillingsPage />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/referrals" element={<Referrals />} />
+          </Route>
 
+          <Route element={<AdminPrivateRoutes />}>
             <Route path="/admin-dashboard" element={<DashboardPage />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/admin-blogs" element={<Blogs />} />
             <Route path="/admin-templates" element={<Templates />} />
+            <Route path="/admin-user-templates" element={<AdminUserTemplates />} />
+            <Route path="/admin-payments" element={<AdminPayments />} />
             <Route path="/admin-blogs/:id" element={<AdminBlogDetail />} />
             <Route path="/admin-blogs/create" element={<BlogForm />} />
             <Route path="/admin-blogs/edit/:id" element={<BlogForm />} />

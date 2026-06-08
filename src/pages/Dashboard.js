@@ -75,6 +75,7 @@ const Dashboard = () => {
   const [recentMessages, setRecentMessages] = useState([]);
   const [recentPayments, setRecentPayments] = useState([]);
   const [recentTasks, setRecentTasks] = useState([]);
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
     const token = getAccessToken();
@@ -171,6 +172,12 @@ const Dashboard = () => {
         setUsername(profileData.user.username);
       }
 
+      // Look for the actual profile data payload, which could be nested or direct
+      const profilePayload = profileRes.data?.success ? profileRes.data.data : profileRes.data;
+      if (profilePayload) {
+        setProfile(profilePayload);
+      }
+
       if (messagesRes.data?.success) {
         setRecentMessages((messagesRes.data.data || []).slice(0, 3));
       }
@@ -241,8 +248,31 @@ const Dashboard = () => {
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (completionPercent / 100) * circumference;
 
+  const isProfileComplete = profile && (
+    profile.fullName &&
+    profile.headline &&
+    profile.summary &&
+    profile.skills?.length > 0 &&
+    profile.education?.length > 0 &&
+    (profile.isFresher || profile.experience?.length > 0)
+  );
+
   return (
     <DashboardLayout containerClassName="w-full space-y-8 flex flex-col bg-transparent animate-fadeIn">
+
+      {/* PROFILE INCOMPLETE BANNER */}
+      {!loading && !isProfileComplete && (
+        <div className="bg-amber-50 border border-amber-200 rounded-3xl p-6 text-left shadow-sm flex items-start gap-4">
+          <div className="p-3 bg-amber-100 rounded-full text-amber-600 shrink-0">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          </div>
+          <div>
+            <h3 className="text-lg font-black text-amber-800">Your profile is incomplete!</h3>
+            <p className="text-sm font-medium text-amber-700 mt-1">Please add your full name, headline, summary, education, skills, and experience to unlock all features and improve your visibility.</p>
+            <Link to="/profile" className="inline-block mt-3 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-amber-500/20 active:scale-95">Complete Profile Now</Link>
+          </div>
+        </div>
+      )}
 
       {/* PREMIUM BANNER CARD */}
       <div className="bg-gradient-to-r from-slate-900 via-[#1e1b4b] to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800 animate-fadeIn text-left">

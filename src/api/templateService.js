@@ -58,9 +58,11 @@ export const createPaymentOrder = (dto) => api.post("/api/payment/create-order",
 export const verifyPayment = (dto) => api.post("/api/payment/verify", dto);
 export const recordPaymentFailure = (dto) => api.post("/api/payment/failure", dto);
 export const getPaymentHistory = () => api.get("/api/payment/history");
+export const getAllPayments = () => api.get("/api/payment/admin/payments");
 
 // Stats API
 export const getUserStats = () => api.get("/api/users/me/stats");
 
 // User Templates API
 export const getUserTemplates = () => api.get("/api/users/me/templates");
+export const getAllUserTemplates = () => api.get("/api/templates/admin/user-templates");

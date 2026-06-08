@@ -163,7 +163,8 @@ const StudentProfileBuilder = () => {
       }
       
       // Save PDF
-      const filename = `${profile.fullName.replace(/\s+/g, '_')}_Resume_${templateToUse.name.replace(/\s+/g, '_')}.pdf`
+      const safeName = profile?.fullName || "User"
+      const filename = `${safeName.replace(/\s+/g, '_')}_Resume_${templateToUse.name.replace(/\s+/g, '_')}.pdf`
       pdf.save(filename)
       toast.update(toastId, { render: 'Resume PDF downloaded successfully!', type: 'success', isLoading: false, autoClose: 3000 })
       
@@ -615,8 +616,28 @@ const StudentProfileBuilder = () => {
     )
   }
 
+  const isProfileComplete = 
+    profile.fullName &&
+    profile.headline &&
+    profile.summary &&
+    profile.skills?.length > 0 &&
+    profile.education?.length > 0 &&
+    (profile.isFresher || profile.experience?.length > 0);
+
   return (
     <DashboardLayout containerClassName="w-full space-y-8 flex flex-col bg-transparent animate-fadeIn">
+        {!isProfileComplete && (
+          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-3 text-left">
+            <div className="p-2 bg-amber-100 rounded-full text-amber-600">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <div>
+              <h3 className="text-amber-800 font-bold text-sm">Your profile is incomplete!</h3>
+              <p className="text-amber-700 text-xs mt-0.5">Please add your full name, headline, summary, education, skills, and experience (if applicable) in "My Portfolio" to complete your resume.</p>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="bg-gradient-to-r from-slate-900 via-[#1e1b4b] to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl mb-8 relative overflow-hidden border border-slate-800 text-left">
           <div className="absolute -top-[10%] -left-[10%] w-[200px] h-[200px] rounded-full bg-[#6C63FF]/10 blur-[50px] pointer-events-none"></div>
@@ -693,7 +714,7 @@ const StudentProfileBuilder = () => {
                   />
                 ) : (
                   <div className="w-20 h-20 bg-indigo-50 text-[#6C63FF] rounded-2xl flex items-center justify-center text-3xl font-black">
-                    {profile.fullName.charAt(0)}
+                    {profile?.fullName?.charAt(0) || "U"}
                   </div>
                 )}
                 <div className="flex-1">

@@ -16,16 +16,18 @@ import {
   ChevronRight,
   Briefcase,
   ClipboardList,
-  Layers
+  Layers,
+  LayoutTemplate,
+  CreditCard
 } from 'lucide-react';
-import { getUser, logout } from '../services/auth';
+import { getAdmin, adminLogout } from '../services/auth';
 
 const Sidebar = ({ isCollapsed, toggleSidebar, isMobile }) => {
   
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const userData = getUser();
+    const userData = getAdmin();
     setUser(userData);
   }, []);
 
@@ -35,6 +37,8 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile }) => {
     { path: '/categories', icon: <BarChart3 size={20} />, label: 'Categories' },
     { path: '/admin-blogs', icon: <ShoppingCart size={20} />, label: 'Blogs' },
     { path: '/admin-templates', icon: <Layers size={20} />, label: 'Templates' },
+    { path: '/admin-user-templates', icon: <LayoutTemplate size={20} />, label: 'User Templates' },
+    { path: '/admin-payments', icon: <CreditCard size={20} />, label: 'Payments' },
     { path: '/admin/job-notifications', icon: <Briefcase size={20} />, label: 'Job Notifications' },
     { path: '/admin-contacts', icon: <Package size={20} />, label: 'Contacts' },
     { path: '/admin-quiz', icon: <ClipboardList size={20} />, label: 'Quiz' },
@@ -46,7 +50,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile }) => {
 
   const handleLogout = () => {
     if (window.confirm('Are you sure you want to logout?')) {
-      logout();
+      adminLogout();
     }
   };
 

@@ -8,7 +8,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { getUser, logout } from "../services/auth";
+import { getAdmin, adminLogout } from "../services/auth";
 
 const Navbar = ({ 
   toggleSidebar, 
@@ -30,12 +30,12 @@ const Navbar = ({
   useEffect(() => {
     const loadUserData = () => {
       try {
-        const userData = getUser();
+        const userData = getAdmin();
         if (userData) {
           setUser({
             name: userData.fullName || "Admin User",
             email: userData.email || "admin@bytebodh.com",
-            role: userData.role === 'admin' ? "Administrator" : userData.role || "User"
+            role: userData.role === 'ADMIN' ? "Administrator" : userData.role || "Admin"
           });
         }
       } catch (error) {
@@ -70,7 +70,7 @@ const Navbar = ({
 
     // Add a small delay before actual logout
     setTimeout(() => {
-      logout(); // This will clear auth data and redirect to /login
+      adminLogout(); // This will clear auth data and redirect to /admin-login
     }, 1500);
   };
 

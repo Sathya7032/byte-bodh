@@ -12,6 +12,8 @@ import {
   CreditCard,
   Gear,
   Gift,
+  Briefcase,
+  Book,
 } from "react-bootstrap-icons";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -30,6 +32,8 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
     if (path === "/profile-views") return "profile-views";
     if (path === "/qr-code") return "qr-code";
     if (path === "/tasks") return "tasks";
+    if (path === "/dashboard-jobs") return "dashboard-jobs";
+    if (path === "/dashboard-blogs") return "dashboard-blogs";
     if (path === "/billings") return "billings";
     if (path === "/referrals") return "referrals";
     if (path === "/resources") return "resources";
@@ -79,6 +83,18 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
       path: "/tasks",
     },
     {
+      id: "dashboard-jobs",
+      label: "Job Notifications",
+      icon: <Briefcase size={20} />,
+      path: "/dashboard-jobs",
+    },
+    {
+      id: "dashboard-blogs",
+      label: "Blogs",
+      icon: <Book size={20} />,
+      path: "/dashboard-blogs",
+    },
+    {
       id: "qr-code",
       label: "Portfolio QR",
       icon: <QrCode size={20} />,
@@ -111,11 +127,11 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
 
   return (
     <div
-      className={`fixed top-0 left-0 h-screen bg-slate-50/90 border-r border-slate-200/60 backdrop-blur-md transition-all duration-300 z-50 lg:static
+      className={`fixed top-0 left-0 h-screen bg-slate-50/90 border-r border-slate-200/60 backdrop-blur-md transition-all duration-300 z-50 lg:static flex flex-col
         ${isOpen ? "w-[280px]" : "w-[80px]"}`}
     >
       {/* ===== BRAND ===== */}
-      <div className="p-4 border-b border-slate-200/60 flex items-center justify-between bg-white/50">
+      <div className="p-4 border-b border-slate-200/60 flex items-center justify-between bg-white/50 flex-shrink-0">
         {isOpen ? (
           <>
             <div className="flex items-center">
@@ -144,7 +160,7 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
       </div>
 
       {/* ===== MENU ===== */}
-      <nav className="p-3 space-y-1.5">
+      <nav className="p-3 space-y-1.5 flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-300">
         {menuItems.map((item) => (
           <button
             key={item.id}
@@ -177,7 +193,7 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
       </nav>
 
       {/* ===== SETTINGS & HELP ===== */}
-      <div className="absolute bottom-0 w-full border-t border-slate-200/60 p-3 bg-slate-50/95 backdrop-blur-sm">
+      <div className="w-full border-t border-slate-200/60 p-3 bg-slate-50/95 backdrop-blur-sm flex-shrink-0">
         <button
           onClick={() => handleNavigate("help", "/help")}
           className={`w-full cursor-pointer flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-300 transform active:scale-95

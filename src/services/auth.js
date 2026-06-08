@@ -268,6 +268,60 @@ export const changePassword = async (oldPassword, newPassword) => {
   }
 };
 
+export const adminLogout = () => {
+
+  localStorage.removeItem("adminAccessToken");
+  localStorage.removeItem("adminRefreshToken");
+  localStorage.removeItem("admin");
+
+  window.location.href = "/admin-login";
+};
+
+export const adminLogin = async (loginData) => {
+  try {
+    const res = await axios.post(
+      `${API_ENDPOINTS.ADMIN_AUTH}/login`,
+      loginData
+    );
+
+    const authData = res.data;
+
+    if (authData?.accessToken) {
+
+      localStorage.setItem("adminAccessToken", authData.accessToken);
+      localStorage.setItem("adminRefreshToken", authData.refreshToken);
+
+      localStorage.setItem(
+        "admin",
+        JSON.stringify({
+          fullName: authData.fullName,
+          email: authData.email,
+          role: authData.role,
+        })
+      );
+
+      return {
+        success: true,
+        message: "Admin login successful",
+        data: authData,
+      };
+    }
+
+    return {
+      success: false,
+      message: "Admin login failed",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error.response?.data?.message ||
+        "Invalid admin credentials",
+    };
+  }
+};
+
+
 /* =========================
    AUTH UTILITIES
 ========================= */
@@ -297,4 +351,32 @@ export const isAuthenticated = () => {
   }
   
   return !!token;
+};
+
+
+export const getAdminAccessToken = () =>
+  localStorage.getItem("adminAccessToken");
+
+export const getAdminRefreshToken = () =>
+  localStorage.getItem("adminRefreshToken");
+
+export const getAdmin = () => {
+  const admin = localStorage.getItem("admin");
+  return admin ? JSON.parse(admin) : null;
+};
+
+export const isAdminAuthenticated = () => {
+
+  const token = getAdminAccessToken();
+
+  if (!token) return false;
+
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+
+    return payload.exp * 1000 > Date.now();
+
+  } catch {
+    return false;
+  }
 };

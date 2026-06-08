@@ -17,6 +17,7 @@ export const getApiUrl = (path = "") => {
 export const API_ENDPOINTS = {
   AUTH: `${API_BASE_URL}/auth`,
   API: `${API_BASE_URL}/api`,
+  ADMIN_AUTH: `${API_BASE_URL}/auth/admin`,
 };
 
 // Helper to get portfolio URL based on environment (production vs. local development)

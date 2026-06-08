@@ -3,7 +3,7 @@ import { Lock, User, Eye, EyeOff, Shield, Briefcase } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { loginUser } from '../services/auth';
+import { adminLogin } from '../services/auth';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -68,11 +68,11 @@ const AdminLogin = () => {
     try {
       // Login logic
       const loginData = {
-        username: formData.username,
+        email: formData.username,
         password: formData.password
       };
 
-      const response = await loginUser(loginData);
+      const response = await adminLogin(loginData);
 
       if (response.success) {
         toast.success(response.message || "Admin login successful!", {
