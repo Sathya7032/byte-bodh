@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   FaArrowRight,
   FaMobileAlt,
@@ -23,6 +24,21 @@ import template2 from "../assets/images/Template2.png"
 import template3 from "../assets/images/Template3.png"
 import template4 from "../assets/images/Template4.png"
 import template5 from "../assets/images/Template5.png"
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15
+    }
+  }
+};
 
 // Testimonial & Mock Data
 const testimonials = [
@@ -187,31 +203,38 @@ const Homepage = () => {
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-16 items-center relative z-10">
 
           {/* Hero Left Content */}
-          <div className="lg:col-span-6 space-y-8 text-left">
+          <motion.div 
+            className="lg:col-span-6 space-y-8 text-left"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+          >
             {/* Trust Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm text-xs font-semibold text-slate-600">
+            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm text-xs font-semibold text-slate-600">
               <span className="text-amber-500">⭐</span>
               <span>Trusted by 10,000+ students & professionals</span>
-            </div>
+            </motion.div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6.5xl font-black leading-[1.1] text-slate-900 tracking-tight">
+            <motion.h1 variants={fadeInUp} className="text-4xl sm:text-5xl lg:text-6.5xl font-black leading-[1.1] text-slate-900 tracking-tight">
               Your Portfolio.<br />
               Your Story.<br />
               Built by{" "}
               <span className="bg-gradient-to-r from-[#6C63FF] to-blue-500 bg-clip-text text-transparent">
                 ByteBodh
               </span>
-            </h1>
+            </motion.h1>
 
-            <p className="text-lg md:text-xl text-slate-500 font-medium leading-relaxed max-w-xl">
+            <motion.p variants={fadeInUp} className="text-lg md:text-xl text-slate-500 font-medium leading-relaxed max-w-xl">
               Create a professional portfolio website in minutes. Just enter your details, choose a template, and publish instantly.
-            </p>
+            </motion.p>
 
-            <div className="flex flex-col sm:flex-row items-center gap-4">
+            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center gap-4">
               <Link
                 to="/register"
-                className="w-full sm:w-auto text-center px-8 py-4 bg-[#6C63FF] hover:bg-[#5b52e6] text-white font-bold rounded-2xl shadow-xl shadow-[#6C63FF]/20 hover:shadow-2xl hover:shadow-[#6C63FF]/30 transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center gap-2"
+                className="w-full sm:w-auto text-center px-8 py-4 bg-[#6C63FF] hover:bg-[#5b52e6] text-white font-bold rounded-2xl shadow-xl shadow-[#6C63FF]/20 hover:shadow-2xl hover:shadow-[#6C63FF]/30 transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center gap-2 relative overflow-hidden group"
               >
+                <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></span>
                 Create My Portfolio
                 <FaArrowRight size={14} />
               </Link>
@@ -221,75 +244,98 @@ const Homepage = () => {
               >
                 Explore Templates
               </a>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Hero Right Visuals: Hero Image Preview */}
-          <div className="lg:col-span-6 relative flex items-center justify-center">
-            <div className="relative rounded-2xl shadow-2xl shadow-slate-300/20">
+          <motion.div 
+            className="lg:col-span-6 relative flex items-center justify-center"
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            whileInView={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <div className="relative rounded-2xl shadow-2xl shadow-[#6C63FF]/20 group">
+              {/* Floating animated blobs behind the image */}
+              <div className="absolute -inset-4 bg-gradient-to-r from-[#6C63FF] to-blue-400 rounded-[2rem] blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-700 animate-pulse"></div>
+              
               <img
                 src={hero}
                 alt="ByteBodh Portfolio Platform"
-                className="w-full max-w-[620px] lg:max-w-[680px] h-auto object-contain hover:scale-[1.02] transition-transform duration-500 pointer-events-none select-none"
+                className="w-full max-w-[620px] lg:max-w-[680px] h-auto object-contain hover:scale-[1.02] transition-transform duration-500 pointer-events-none select-none relative z-10 rounded-2xl"
               />
-              <div className="absolute inset-0 rounded-2xl ring-1 ring-slate-200/50"></div>
+              <div className="absolute inset-0 rounded-2xl ring-1 ring-slate-200/50 z-20 pointer-events-none"></div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* 3. HOW IT WORKS SECTION */}
       <section className="py-24 bg-white border-t border-slate-100 relative">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
-            <span className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider">
+          <motion.div 
+            className="text-center max-w-3xl mx-auto mb-20 space-y-4"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={staggerContainer}
+          >
+            <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider inline-block">
               How It Works
-            </span>
-            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
+            </motion.span>
+            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
               Portfolio Website in 3 Simple Steps
-            </h2>
-            <p className="text-lg text-slate-500">
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-lg text-slate-500">
               Transform your accomplishments into a stunning website without writing a single line of code.
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-12 relative">
+          <motion.div 
+            className="grid md:grid-cols-3 gap-12 relative"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={staggerContainer}
+          >
             {/* Timeline connectors */}
-            <div className="hidden md:block absolute top-[28%] left-[12%] right-[12%] h-[2px] bg-gradient-to-r from-[#6C63FF]/30 to-[#6C63FF]/10 z-0"></div>
+            <div className="hidden md:block absolute top-[28%] left-[12%] right-[12%] h-[2px] bg-gradient-to-r from-transparent via-[#6C63FF]/30 to-transparent z-0 overflow-hidden">
+               <div className="w-full h-full bg-gradient-to-r from-transparent via-[#6C63FF] to-transparent opacity-50 animate-[shimmer_2s_infinite]"></div>
+            </div>
 
             {/* Step 1 */}
-            <div className="relative z-10 bg-slate-50/70 border border-slate-200/50 p-8 rounded-3xl text-center space-y-6 hover:shadow-xl transition-all duration-300 group">
-              <div className="w-16 h-16 rounded-2xl bg-white border border-slate-200 shadow-md flex items-center justify-center text-2xl font-black text-[#6C63FF] mx-auto group-hover:bg-[#6C63FF] group-hover:text-white transition-colors duration-300">
+            <motion.div variants={fadeInUp} className="relative z-10 bg-white/60 backdrop-blur-md border border-slate-200/50 p-8 rounded-3xl text-center space-y-6 hover:shadow-2xl hover:border-[#6C63FF]/30 transition-all duration-300 group hover:-translate-y-2">
+              <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 shadow-inner flex items-center justify-center text-2xl font-black text-[#6C63FF] mx-auto group-hover:bg-[#6C63FF] group-hover:text-white transition-colors duration-300 group-hover:scale-110">
                 1
               </div>
               <h3 className="text-xl font-bold text-slate-900">Choose a Template</h3>
               <p className="text-sm text-slate-500 leading-relaxed">
                 Browse curated, career-specific templates optimized for students, designers, product managers, and developers.
               </p>
-            </div>
+            </motion.div>
 
             {/* Step 2 */}
-            <div className="relative z-10 bg-slate-50/70 border border-slate-200/50 p-8 rounded-3xl text-center space-y-6 hover:shadow-xl transition-all duration-300 group">
-              <div className="w-16 h-16 rounded-2xl bg-white border border-slate-200 shadow-md flex items-center justify-center text-2xl font-black text-[#6C63FF] mx-auto group-hover:bg-[#6C63FF] group-hover:text-white transition-colors duration-300">
+            <motion.div variants={fadeInUp} className="relative z-10 bg-white/60 backdrop-blur-md border border-slate-200/50 p-8 rounded-3xl text-center space-y-6 hover:shadow-2xl hover:border-[#6C63FF]/30 transition-all duration-300 group hover:-translate-y-2">
+              <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 shadow-inner flex items-center justify-center text-2xl font-black text-[#6C63FF] mx-auto group-hover:bg-[#6C63FF] group-hover:text-white transition-colors duration-300 group-hover:scale-110">
                 2
               </div>
               <h3 className="text-xl font-bold text-slate-900">Add Your Details</h3>
               <p className="text-sm text-slate-500 leading-relaxed">
                 Fill in your profile, projects, work experiences, certifications, education, and social links in a simple dashboard.
               </p>
-            </div>
+            </motion.div>
 
             {/* Step 3 */}
-            <div className="relative z-10 bg-slate-50/70 border border-slate-200/50 p-8 rounded-3xl text-center space-y-6 hover:shadow-xl transition-all duration-300 group">
-              <div className="w-16 h-16 rounded-2xl bg-white border border-slate-200 shadow-md flex items-center justify-center text-2xl font-black text-[#6C63FF] mx-auto group-hover:bg-[#6C63FF] group-hover:text-white transition-colors duration-300">
+            <motion.div variants={fadeInUp} className="relative z-10 bg-white/60 backdrop-blur-md border border-slate-200/50 p-8 rounded-3xl text-center space-y-6 hover:shadow-2xl hover:border-[#6C63FF]/30 transition-all duration-300 group hover:-translate-y-2">
+              <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 shadow-inner flex items-center justify-center text-2xl font-black text-[#6C63FF] mx-auto group-hover:bg-[#6C63FF] group-hover:text-white transition-colors duration-300 group-hover:scale-110">
                 3
               </div>
               <h3 className="text-xl font-bold text-slate-900">Publish Instantly</h3>
               <p className="text-sm text-slate-500 leading-relaxed">
                 Deploy your live portfolio URL (e.g. `bytebodh.in/yourname`) in seconds. Instantly ready to share.
               </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
@@ -301,17 +347,23 @@ const Homepage = () => {
           }
         `}</style>
 
-        <div className="max-w-7xl mx-auto px-6 mb-16 text-center space-y-4">
-          <span className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider">
+        <motion.div 
+          className="max-w-7xl mx-auto px-6 mb-16 text-center space-y-4"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={staggerContainer}
+        >
+          <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider inline-block">
             Templates Catalog
-          </span>
-          <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
+          </motion.span>
+          <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
             Templates Designed for Every Career
-          </h2>
-          <p className="text-lg text-slate-500 max-w-2xl mx-auto">
+          </motion.h2>
+          <motion.p variants={fadeInUp} className="text-lg text-slate-500 max-w-2xl mx-auto">
             Choose from our premium designs, optimized to display your career milestones with rich aesthetics. Click on any template to preview it live.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
         <div className="relative w-full group">
           {/* Left Arrow Button */}
@@ -380,9 +432,15 @@ const Homepage = () => {
         {/* Soft glowing ambient circle */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none"></div>
 
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
-            <span className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider">
+        <motion.div 
+          className="max-w-7xl mx-auto px-6"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={staggerContainer}
+        >
+          <motion.div variants={fadeInUp} className="text-center max-w-3xl mx-auto mb-20 space-y-4">
+            <span className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider inline-block">
               Core Capabilities
             </span>
             <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
@@ -391,9 +449,9 @@ const Homepage = () => {
             <p className="text-lg text-slate-500">
               ByteBodh packs all the modern features required to launch your brand and make recruiter connections.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <motion.div variants={fadeInUp} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
                 title: "AI Portfolio Generator",
@@ -418,17 +476,20 @@ const Homepage = () => {
             ].map((feature, idx) => (
               <div
                 key={idx}
-                className="bg-white/70 border border-slate-200/50 backdrop-blur-md p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative group"
+                className="bg-white border border-slate-200/60 p-8 rounded-3xl shadow-sm hover:shadow-2xl hover:border-[#6C63FF]/30 transition-all duration-300 hover:-translate-y-2 relative group overflow-hidden"
               >
-                <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
+                {/* Subtle hover gradient background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#6C63FF]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                
+                <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 group-hover:bg-white group-hover:shadow-md transition-all duration-300 relative z-10">
                   {feature.icon}
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">{feature.title}</h3>
-                <p className="text-xs text-slate-500 leading-relaxed">{feature.desc}</p>
+                <h3 className="text-lg font-bold text-slate-900 mb-2 relative z-10">{feature.title}</h3>
+                <p className="text-xs text-slate-500 leading-relaxed relative z-10">{feature.desc}</p>
               </div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* 6. FOR STUDENTS SECTION */}
@@ -436,19 +497,25 @@ const Homepage = () => {
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-16 items-center">
 
           {/* Student Highlights (Left side) */}
-          <div className="lg:col-span-6 space-y-8 text-left">
-            <span className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider">
+          <motion.div 
+            className="lg:col-span-6 space-y-8 text-left"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={staggerContainer}
+          >
+            <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider inline-block">
               For Students & Freshers
-            </span>
-            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            </motion.span>
+            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
               Built for Students
-            </h2>
-            <p className="text-lg text-slate-500 leading-relaxed">
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-lg text-slate-500 leading-relaxed">
               Struggling to stand out in university campus placement drives? ByteBodh helps fresh graduates compile their academic credentials into a hiring-ready online portfolio.
-            </p>
+            </motion.p>
 
             {/* Highlights Grid */}
-            <div className="grid grid-cols-2 gap-4">
+            <motion.div variants={fadeInUp} className="grid grid-cols-2 gap-4">
               {[
                 { title: "Academic Achievements", desc: "Showcase CGPA, university rank, and scholarship awards." },
                 { title: "Certifications Log", desc: "Verified listings of AWS, Google, and Udemy courses." },
@@ -463,23 +530,35 @@ const Homepage = () => {
                   </div>
                 </div>
               ))}
-            </div>
+            </motion.div>
 
-            <div className="pt-4">
+            <motion.div variants={fadeInUp} className="pt-4">
               <Link
                 to="/register"
-                className="inline-flex items-center gap-2 px-6 py-3.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-sm font-bold rounded-xl shadow-lg transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-sm font-bold rounded-xl shadow-lg shadow-[#6C63FF]/20 hover:shadow-xl hover:shadow-[#6C63FF]/30 transition-all transform hover:-translate-y-1"
               >
                 Create Student Portfolio
                 <FaArrowRight size={12} />
               </Link>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Student Portfolio Mockup Preview (Right side) */}
-          <div className="lg:col-span-6 flex justify-center w-full">
-            <div className="w-full max-w-[480px] bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
-              <div className="absolute top-2 left-6 text-[9px] text-slate-400 font-bold uppercase tracking-wider">
+          <motion.div 
+            className="lg:col-span-6 flex justify-center w-full"
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            viewport={{ once: true, margin: "-50px" }}
+          >
+            <div className="w-full max-w-[480px] bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl relative overflow-hidden group hover:shadow-[#6C63FF]/10 transition-shadow duration-500">
+              {/* MacOS Window Dots */}
+              <div className="absolute top-4 left-5 flex gap-1.5 z-10">
+                <div className="w-2.5 h-2.5 rounded-full bg-rose-400"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-amber-400"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+              </div>
+              <div className="absolute top-3 right-6 text-[9px] text-slate-400 font-bold uppercase tracking-wider">
                 Student Profile Preview (Live URL)
               </div>
               <div className="flex justify-between items-center border-b border-slate-100 pb-4 mb-4 mt-4">
@@ -512,7 +591,7 @@ const Homepage = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -521,9 +600,21 @@ const Homepage = () => {
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-16 items-center">
 
           {/* Professional Portfolio Mockup Preview (Left side) */}
-          <div className="lg:col-span-6 flex justify-center order-2 lg:order-1 w-full">
-            <div className="w-full max-w-[480px] bg-slate-950 text-slate-200 border border-slate-800 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
-              <div className="absolute top-2 left-6 text-[9px] text-slate-500 font-bold uppercase tracking-wider">
+          <motion.div 
+            className="lg:col-span-6 flex justify-center order-2 lg:order-1 w-full"
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            viewport={{ once: true, margin: "-50px" }}
+          >
+            <div className="w-full max-w-[480px] bg-slate-950 text-slate-200 border border-slate-800 rounded-3xl p-6 shadow-2xl relative overflow-hidden group hover:shadow-indigo-500/10 transition-shadow duration-500">
+              {/* MacOS Window Dots */}
+              <div className="absolute top-4 left-5 flex gap-1.5 z-10">
+                <div className="w-2.5 h-2.5 rounded-full bg-rose-500/80"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+              </div>
+              <div className="absolute top-3 right-6 text-[9px] text-slate-500 font-bold uppercase tracking-wider">
                 Professional Profile Preview (Dark Theme)
               </div>
               <div className="flex justify-between items-center border-b border-slate-800 pb-4 mb-4 mt-4">
@@ -540,42 +631,48 @@ const Homepage = () => {
                 <div className="space-y-3">
                   <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Work History</h4>
                   <div className="relative pl-4 border-l border-[#6C63FF]/30 space-y-3 py-1">
-                    <div>
-                      <span className="absolute left-[-4.5px] top-1.5 w-2.5 h-2.5 rounded-full bg-[#6C63FF] border-2 border-slate-950"></span>
-                      <div className="flex justify-between text-xs text-white font-bold">
+                    <div className="hover:bg-slate-900/50 p-1.5 -ml-1.5 rounded-lg transition-colors">
+                      <span className="absolute left-[0.5px] top-3 w-2.5 h-2.5 rounded-full bg-[#6C63FF] border-2 border-slate-950 -translate-x-full"></span>
+                      <div className="flex justify-between text-xs text-white font-bold ml-1.5">
                         <span>Lead Backend Developer</span>
                         <span className="text-[10px] text-slate-500">2023 - Present</span>
                       </div>
-                      <p className="text-[10px] text-slate-400 mt-0.5">ScaleCorp Inc.</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5 ml-1.5">ScaleCorp Inc.</p>
                     </div>
-                    <div>
-                      <span className="absolute left-[-4.5px] top-1.5 w-2.5 h-2.5 rounded-full bg-slate-700 border-2 border-slate-950"></span>
-                      <div className="flex justify-between text-xs text-white font-bold">
+                    <div className="hover:bg-slate-900/50 p-1.5 -ml-1.5 rounded-lg transition-colors">
+                      <span className="absolute left-[0.5px] top-[3.25rem] w-2.5 h-2.5 rounded-full bg-slate-700 border-2 border-slate-950 -translate-x-full"></span>
+                      <div className="flex justify-between text-xs text-white font-bold ml-1.5">
                         <span>Software Engineer</span>
                         <span className="text-[10px] text-slate-500">2021 - 2023</span>
                       </div>
-                      <p className="text-[10px] text-slate-400 mt-0.5">TechDev Solutions</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5 ml-1.5">TechDev Solutions</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Professional Highlights (Right side) */}
-          <div className="lg:col-span-6 space-y-8 text-left order-1 lg:order-2">
-            <span className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider">
+          <motion.div 
+            className="lg:col-span-6 space-y-8 text-left order-1 lg:order-2"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={staggerContainer}
+          >
+            <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider inline-block">
               For Working Professionals
-            </span>
-            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            </motion.span>
+            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
               Built for Professionals
-            </h2>
-            <p className="text-lg text-slate-500 leading-relaxed">
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-lg text-slate-500 leading-relaxed">
               Showcase case studies, leadership highlights, and executive timelines. Stand out on LinkedIn with a professional custom portfolio link.
-            </p>
+            </motion.p>
 
             {/* Highlights Grid */}
-            <div className="grid grid-cols-2 gap-4">
+            <motion.div variants={fadeInUp} className="grid grid-cols-2 gap-4">
               {[
                 { title: "Work Experience Timeline", desc: "Neat vertical timelines documenting previous roles and achievements." },
                 { title: "Case Studies Focus", desc: "Explain execution metrics, team sizes, and engineering impact." },
@@ -590,18 +687,18 @@ const Homepage = () => {
                   </div>
                 </div>
               ))}
-            </div>
+            </motion.div>
 
-            <div className="pt-4">
+            <motion.div variants={fadeInUp} className="pt-4">
               <Link
                 to="/register"
-                className="inline-flex items-center gap-2 px-6 py-3.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-sm font-bold rounded-xl shadow-lg transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-sm font-bold rounded-xl shadow-lg shadow-[#6C63FF]/20 hover:shadow-xl hover:shadow-[#6C63FF]/30 transition-all transform hover:-translate-y-1"
               >
                 Build Professional Portfolio
                 <FaArrowRight size={12} />
               </Link>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
@@ -669,25 +766,39 @@ const Homepage = () => {
       </section>
 
       {/* 9. TESTIMONIALS SECTION */}
-      <section id="testimonials-section" className="py-24 bg-white border-t border-slate-100">
+      <section id="testimonials-section" className="py-24 bg-white border-t border-slate-100 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-            <span className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider">
+          <motion.div 
+            className="text-center max-w-3xl mx-auto mb-16 space-y-4"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={staggerContainer}
+          >
+            <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider inline-block">
               Reviews
-            </span>
-            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
+            </motion.span>
+            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
               Loved by Students and Professionals
-            </h2>
-            <p className="text-lg text-slate-500">
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-lg text-slate-500">
               Read how freshers and senior developers leverage ByteBodh to build their credentials.
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((t, idx) => (
+          <div className="relative">
+            {/* Fade overlays for marquee */}
+            <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+            <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+
+            {/* Marquee Container */}
+            <div className="flex overflow-hidden group">
+              <div className="flex gap-8 animate-[marquee_30s_linear_infinite] group-hover:[animation-play-state:paused]">
+                {/* Double the testimonials array for seamless looping */}
+                {[...testimonials, ...testimonials].map((t, idx) => (
               <div
                 key={idx}
-                className="bg-slate-50/70 border border-slate-200/50 p-8 rounded-3xl relative flex flex-col justify-between hover:shadow-xl transition-all duration-300"
+                className="w-[350px] shrink-0 bg-slate-50/70 border border-slate-200/50 p-8 rounded-3xl relative flex flex-col justify-between hover:shadow-2xl hover:border-[#6C63FF]/20 transition-all duration-300"
               >
                 <div>
                   <div className="flex gap-1 text-amber-400 mb-4">
@@ -715,6 +826,8 @@ const Homepage = () => {
                 </span>
               </div>
             ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -727,20 +840,26 @@ const Homepage = () => {
 
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-12 items-center relative z-10">
           {/* Text Content */}
-          <div className="lg:col-span-7 space-y-6 text-left">
-            <span className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#8c85ff] text-xs font-bold uppercase tracking-wider">
+          <motion.div 
+            className="lg:col-span-7 space-y-6 text-left"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={staggerContainer}
+          >
+            <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#8c85ff] text-xs font-bold uppercase tracking-wider inline-block">
               On The Go
-            </span>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
+            </motion.span>
+            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
               ByteBodh Mobile App <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8c85ff] to-blue-400">Coming Soon</span>
-            </h2>
-            <p className="text-slate-400 text-base md:text-lg leading-relaxed max-w-xl">
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-slate-400 text-base md:text-lg leading-relaxed max-w-xl">
               Create, update, and monitor your personal portfolio directly from your mobile device. Edit projects, check analytics, and share your QR code link instantly from anywhere.
-            </p>
+            </motion.p>
 
             {/* Google Play Badges & Features */}
-            <div className="flex flex-wrap items-center gap-4 pt-4">
+            <motion.div variants={fadeInUp} className="flex flex-wrap items-center gap-4 pt-4">
               <div className="inline-flex items-center gap-3 px-5 py-3 bg-slate-900/80 border border-slate-800 rounded-2xl text-left cursor-not-allowed hover:bg-slate-900 transition-colors shadow-xl group">
                 <FaGooglePlay className="text-white text-2xl group-hover:text-[#6C63FF] transition-colors" />
                 <div>
@@ -751,8 +870,8 @@ const Homepage = () => {
               <span className="text-xs text-slate-500 font-extrabold uppercase bg-slate-900/40 px-3 py-1 border border-slate-800/40 rounded-full">
                 Registering for Beta
               </span>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Visual Showcase (Mockup) */}
           <div className="lg:col-span-5 flex justify-center w-full">
@@ -821,17 +940,23 @@ const Homepage = () => {
       {/* 12. FAQ SECTION */}
       <section className="py-24 bg-slate-50/50 border-t border-slate-100">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="text-center mb-16 space-y-4">
-            <span className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider">
+          <motion.div 
+            className="text-center mb-16 space-y-4"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={staggerContainer}
+          >
+            <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider inline-block">
               FAQ
-            </span>
-            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
+            </motion.span>
+            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
               Frequently Asked Questions
-            </h2>
-            <p className="text-lg text-slate-500">
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-lg text-slate-500">
               Answers regarding domains, coding capabilities, and editing.
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
           <div className="space-y-4">
             {[
@@ -888,7 +1013,13 @@ const Homepage = () => {
       {/* 13. FINAL CTA SECTION */}
       <section className="py-20 bg-white border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="bg-gradient-to-tr from-[#6C63FF] via-[#5c52e6] to-[#6C63FF] rounded-[2.5rem] p-12 md:p-20 text-center text-white relative overflow-hidden shadow-2xl shadow-[#6C63FF]/20">
+          <motion.div 
+            className="bg-gradient-to-tr from-[#6C63FF] via-[#5c52e6] to-[#6C63FF] rounded-[2.5rem] p-12 md:p-20 text-center text-white relative overflow-hidden shadow-2xl shadow-[#6C63FF]/20"
+            initial={{ opacity: 0, scale: 0.95, y: 30 }}
+            whileInView={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            viewport={{ once: true, margin: "-50px" }}
+          >
             {/* Ambient glows inside CTA */}
             <div className="absolute top-[-20%] left-[-10%] w-[300px] h-[300px] bg-white/10 rounded-full blur-[80px] pointer-events-none"></div>
             <div className="absolute bottom-[-20%] right-[-10%] w-[300px] h-[300px] bg-white/10 rounded-full blur-[80px] pointer-events-none"></div>
@@ -903,8 +1034,9 @@ const Homepage = () => {
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
                 <Link
                   to="/register"
-                  className="w-full sm:w-auto text-center px-8 py-4 bg-white text-slate-900 font-bold rounded-2xl shadow-xl hover:bg-indigo-50 transition-all duration-300 transform hover:-translate-y-1"
+                  className="w-full sm:w-auto text-center px-8 py-4 bg-white text-slate-900 font-bold rounded-2xl shadow-xl hover:bg-indigo-50 transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group"
                 >
+                  <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-slate-200 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></span>
                   Create Portfolio Free
                 </Link>
                 <a
@@ -915,7 +1047,7 @@ const Homepage = () => {
                 </a>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
