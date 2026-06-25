@@ -1,128 +1,87 @@
-import React from 'react';
+import React from "react";
+import { Link } from "react-router-dom";
 import {
-  FaEnvelope,
-  FaPhone,
-  FaFacebook,
-  FaLinkedin,
   FaInstagram,
-  FaYoutube,
-  FaGithub
-} from 'react-icons/fa';
+  FaLinkedin,
+  FaGithub,
+  FaFacebook,
+} from "react-icons/fa";
 
 function Footer() {
-  // Features data
-  const FEATURES = [
-    { id: 1, title: 'Java Tutorials', href: '/blogs' },
-    { id: 2, title: 'Job Notifications', href: '/jobs' },
-    { id: 3, title: 'Online Portfolio', href: '/login' },
-    { id: 4, title: 'Resume Builder', href: '/login' },
-    { id: 5, title: 'Code Editor', href: '/code-editor' },
-    { id: 6, title: 'QR Code Generator', href: '/qr' },
-  ];
-
   return (
-    <footer className="bytebodh-footer bg-gradient-to-br from-gray-800 to-gray-900 text-gray-200 mt-auto py-10">
-      <div className="container mx-auto px-4">
-        {/* Main Footer Content */}
-        <div className="grid lg:grid-cols-5 gap-8 py-10 border-b border-gray-700">
-          <div className="lg:col-span-1 mb-8">
-            <div className="bytebodh-footer-brand mb-4">
-              <div>
-                <div className="bytebodh-footer-company-name text-xl font-bold text-white">
-                  ByteBodh
-                </div>
-              </div>
+    <footer className="bg-slate-950 text-slate-400 py-16 border-t border-slate-900 mt-auto">
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-5 gap-12 border-b border-slate-900 pb-12">
+        {/* Brand info */}
+        <div className="col-span-2 space-y-6">
+          <Link to="/" className="flex items-center space-x-3 group">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 text-white flex items-center justify-center font-bold text-xl shadow-lg">
+              BB
             </div>
-            <p className="bytebodh-footer-description mb-6 text-sm text-gray-300">
-              A mobile app for IT students and tech learners. Master Java, Android, and IT technologies, get job notifications, and build your online portfolio — all in one place.
-            </p>
-            <div className="bytebodh-footer-social flex gap-4">
-              <a href="https://www.facebook.com/share/1AE1wkgx2m/?mibextid=wwXIfr" className="bytebodh-social-link hover:bg-blue-600 p-2 rounded-full">
-                <FaFacebook size={18} />
+            <span className="text-xl font-black text-white">ByteBodh</span>
+          </Link>
+          <p className="text-xs leading-relaxed max-w-sm">
+            ByteBodh is an AI-powered portfolio website builder designed to help fresh graduates and software engineers deploy hiring-ready personal websites.
+          </p>
+          <div className="flex gap-4">
+            {[
+              { icon: <FaInstagram className="w-4 h-4" />, url: "https://instagram.com/bytebodh", label: "Instagram" },
+              { icon: <FaLinkedin className="w-4 h-4" />, url: "https://linkedin.com/company/bytebodh", label: "LinkedIn" },
+              { icon: <FaGithub className="w-4 h-4" />, url: "https://github.com/bytebodh", label: "GitHub" },
+              { icon: <FaFacebook className="w-4 h-4" />, url: "https://www.facebook.com/share/1AE1wkgx2m/?mibextid=wwXIfr", label: "Facebook" }
+            ].map((soc) => (
+              <a
+                key={soc.label}
+                href={soc.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={soc.label}
+                className="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500 hover:text-white hover:border-emerald-500 hover:bg-slate-900 transition-all"
+              >
+                {soc.icon}
               </a>
-              <a href="https://www.linkedin.com/company/bytebodh/" className="bytebodh-social-link hover:bg-blue-700 p-2 rounded-full">
-                <FaLinkedin size={18} />
-              </a>
-              <a href="https://www.instagram.com/bytebodh/" className="bytebodh-social-link hover:bg-pink-500 p-2 rounded-full">
-                <FaInstagram size={18} />
-              </a>
-              <a href="https://youtube.com/@bytebodh?si=z3Kdf8dOBZMVU9YF" className="bytebodh-social-link hover:bg-red-600 p-2 rounded-full">
-                <FaYoutube size={18} />
-              </a>
-              <a href="#github" className="bytebodh-social-link hover:bg-gray-700 p-2 rounded-full">
-                <FaGithub size={18} />
-              </a>
-            </div>
-          </div>
-
-          <div className="lg:col-span-1 mb-8">
-            <h6 className="bytebodh-footer-heading text-white mb-3 text-lg font-semibold">Features</h6>
-            <ul className="bytebodh-footer-list">
-              {FEATURES.slice(0, 4).map((feature) => (
-                <li key={feature.id} className="mb-2">
-                  <a href={feature.href} className="bytebodh-footer-link hover:text-blue-400">{feature.title}</a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="lg:col-span-1 mb-8">
-            <h6 className="bytebodh-footer-heading text-white mb-3 text-lg font-semibold">Company</h6>
-            <ul className="bytebodh-footer-list">
-              <li className="mb-2"><a href="/about" className="bytebodh-footer-link hover:text-blue-400">About Us</a></li>
-              <li className="mb-2"><a href="/about" className="bytebodh-footer-link hover:text-blue-400">Our Team</a></li>
-              <li className="mb-2"><a href="/contact" className="bytebodh-footer-link hover:text-blue-400">Careers</a></li>
-              <li className="mb-2"><a href="/blog" className="bytebodh-footer-link hover:text-blue-400">Blog</a></li>
-            </ul>
-          </div>
-
-          <div className="lg:col-span-1 mb-8">
-            <h6 className="bytebodh-footer-heading text-white mb-3 text-lg font-semibold">Support</h6>
-            <ul className="bytebodh-footer-list">
-              <li className="mb-2"><a href="/contact" className="bytebodh-footer-link hover:text-blue-400">Help Center</a></li>
-              <li className="mb-2"><a href="/contact" className="bytebodh-footer-link hover:text-blue-400">Contact Us</a></li>
-              <li className="mb-2"><a href="/privacy-policy" className="bytebodh-footer-link hover:text-blue-400">Privacy Policy</a></li>
-              <li className="mb-2"><a href="/terms-and-conditions" className="bytebodh-footer-link hover:text-blue-400">Terms of Service</a></li>
-            </ul>
-          </div>
-
-          <div className="lg:col-span-1 mb-8">
-            <h6 className="bytebodh-footer-heading text-white mb-3 text-lg font-semibold">Contact Info</h6>
-            <div className="bytebodh-contact-info text-sm">
-              <div className="bytebodh-contact-item flex items-center mb-4">
-                <FaEnvelope className="bytebodh-contact-icon text-blue-400 mr-3" />
-                <span className="bytebodh-contact-text">info@bytebodh.in</span>
-              </div>
-              <div className="bytebodh-contact-item flex items-center mb-4">
-                <FaPhone className="bytebodh-contact-icon text-blue-400 mr-3" />
-                <span className="bytebodh-contact-text">+91 8519965746</span>
-              </div>
-              <div className="mt-4">
-                <a
-                  href="https://play.google.com/store/apps/details?id=com.bytebodh.bytebodh&pcampaignid=web_share"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors"
-                >
-                  Download on Google Play
-                </a>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Footer Bottom */}
-        <div className="bytebodh-footer-bottom py-4 border-t border-gray-700">
-          <div className="flex justify-between items-center">
-            <div className="bytebodh-copyright text-sm text-gray-400">
-              © {new Date().getFullYear()} ByteBodh Technologies. All rights reserved.
-            </div>
-            <div className="bytebodh-footer-links text-sm text-gray-400">
-              <a href="/privacy-policy" className="bytebodh-footer-link hover:text-blue-400 mr-4">Privacy Policy</a>
-              <a href="/terms-and-conditions" className="bytebodh-footer-link hover:text-blue-400 mr-4">Terms of Service</a>
-              <a href="/cookie-policy" className="bytebodh-footer-link hover:text-blue-400">Cookie Policy</a>
-            </div>
-          </div>
+        {/* Links cols */}
+        <div>
+          <h5 className="font-extrabold text-white text-xs uppercase tracking-widest mb-4">Product</h5>
+          <ul className="space-y-3 text-xs">
+            <li><Link to="/#templates-section" className="hover:text-white transition-colors">Templates</Link></li>
+            <li><Link to="/#features-section" className="hover:text-white transition-colors">Core Features</Link></li>
+            <li><Link to="/#faq" className="hover:text-white transition-colors">FAQs</Link></li>
+          </ul>
+        </div>
+
+        {/* Company links */}
+        <div>
+          <h5 className="font-extrabold text-white text-xs uppercase tracking-widest mb-4">Company</h5>
+          <ul className="space-y-3 text-xs">
+            <li><Link to="/about" className="hover:text-white transition-colors">About Us</Link></li>
+            <li><Link to="/contact" className="hover:text-white transition-colors">Careers</Link></li>
+            <li><Link to="/blogs" className="hover:text-white transition-colors">Blogs</Link></li>
+            <li><Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+          </ul>
+        </div>
+
+        {/* Resources links */}
+        <div>
+          <h5 className="font-extrabold text-white text-xs uppercase tracking-widest mb-4">Resources</h5>
+          <ul className="space-y-3 text-xs">
+            <li><Link to="/#faq" className="hover:text-white transition-colors">Help Center</Link></li>
+            <li><Link to="/contact" className="hover:text-white transition-colors">Contact Support</Link></li>
+            <li><Link to="/terms-and-conditions" className="hover:text-white transition-colors">Terms of Service</Link></li>
+            <li><Link to="/cookie-policy" className="hover:text-white transition-colors">Cookie settings</Link></li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Bottom copyright */}
+      <div className="max-w-7xl mx-auto px-6 pt-8 flex flex-col md:flex-row justify-between items-center text-xs">
+        <p>© {new Date().getFullYear()} ByteBodh. All rights reserved.</p>
+        <div className="flex gap-6 mt-4 md:mt-0">
+          <span className="hover:text-white cursor-pointer transition-colors">System Online</span>
+          <span className="hover:text-white cursor-pointer transition-colors">V2026.1</span>
         </div>
       </div>
     </footer>

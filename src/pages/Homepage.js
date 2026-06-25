@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -12,18 +12,16 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaBolt,
-  FaInstagram,
-  FaLinkedin,
-  FaGithub,
-  FaFacebook,
   FaGooglePlay
 } from "react-icons/fa";
-import hero from "../assets/images/hero.png"
-import freeTemplate from "../assets/images/FreeTemplate.png"
-import template2 from "../assets/images/Template2.png"
-import template3 from "../assets/images/Template3.png"
-import template4 from "../assets/images/Template4.png"
-import template5 from "../assets/images/Template5.png"
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import hero from "../assets/images/hero.png";
+import freeTemplate from "../assets/images/FreeTemplate.png";
+import template2 from "../assets/images/Template2.png";
+import template3 from "../assets/images/Template3.png";
+import template4 from "../assets/images/Template4.png";
+import template5 from "../assets/images/Template5.png";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -68,8 +66,6 @@ const testimonials = [
   }
 ];
 
-
-
 const templatesShowcase = [
   {
     name: "Academic Minimalist",
@@ -92,7 +88,7 @@ const templatesShowcase = [
     image: template3,
     category: "Designers & Artists",
     desc: "A visual grid layout with frosted glass controls, portfolio images, and embedded media assets.",
-    accent: "border-purple-500/20",
+    accent: "border-teal-500/20",
     badge: "Visual Rich"
   },
   {
@@ -100,7 +96,7 @@ const templatesShowcase = [
     image: template4,
     category: "Product Managers & Leads",
     desc: "A premium corporate layout with timeline progress tracking, corporate KPIs, and details.",
-    accent: "border-[#f97316]/20",
+    accent: "border-[#10B981]/20",
     badge: "Premium Clean"
   },
   {
@@ -115,7 +111,6 @@ const templatesShowcase = [
 
 const Homepage = () => {
   const [faqOpen, setFaqOpen] = useState(null);
-  const [isScrolled, setIsScrolled] = useState(false);
   const scrollContainerRef = useRef(null);
 
   const scrollLeft = () => {
@@ -130,75 +125,21 @@ const Homepage = () => {
     }
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   const toggleFaq = (index) => {
     setFaqOpen(faqOpen === index ? null : index);
   };
 
-
-
   return (
-    <div className="min-h-screen bg-white text-slate-800 font-sans antialiased overflow-x-hidden selection:bg-[#6C63FF]/20 selection:text-[#6C63FF]">
-
+    <div className="min-h-screen bg-white text-slate-800 font-sans antialiased overflow-x-hidden selection:bg-emerald-500/20 selection:text-emerald-600">
+      
       {/* 1. NAVIGATION BAR */}
-      <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-          ? "bg-white/95 backdrop-blur-md border-b border-slate-200/50 py-3 shadow-md"
-          : "bg-white/80 backdrop-blur-sm border-b border-transparent py-5"
-          }`}
-      >
-        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#6C63FF] to-blue-500 text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-[#6C63FF]/25">
-              BB
-            </div>
-            <div>
-              <span className="text-xl font-black bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                ByteBodh
-              </span>
-              <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider leading-none">
-                AI Portfolio
-              </p>
-            </div>
-          </Link>
-
-          {/* Links */}
-          <div className="hidden lg:flex items-center space-x-1">
-            <a href="#templates-section" className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-[#6C63FF] transition-colors">Templates</a>
-            <a href="#students-section" className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-[#6C63FF] transition-colors">Students</a>
-            <a href="#professionals-section" className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-[#6C63FF] transition-colors">Professionals</a>
-            <a href="#features-section" className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-[#6C63FF] transition-colors">Features</a>
-            <a href="#testimonials-section" className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-[#6C63FF] transition-colors">Testimonials</a>
-          </div>
-
-          {/* Auth Actions */}
-          <div className="flex items-center space-x-4">
-            <Link to="/login" className="px-4 py-2 text-sm font-bold text-slate-700 hover:text-[#6C63FF] transition-all">
-              Login
-            </Link>
-            <Link
-              to="/register"
-              className="px-5 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-sm font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg hover:shadow-[#6C63FF]/30 transition-all transform hover:-translate-y-0.5"
-            >
-              Get Started
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Header />
 
       {/* 2. HERO SECTION */}
-      <section className="relative pt-32 pb-24 md:pt-44 md:pb-32 overflow-hidden bg-gradient-to-br from-indigo-50/30 via-white to-purple-50/30">
+      <section className="relative pt-32 pb-24 md:pt-44 md:pb-32 overflow-hidden bg-gradient-to-br from-emerald-50/30 via-white to-teal-50/30">
         {/* Soft glowing ambient circles */}
-        <div className="absolute top-[20%] left-[-15%] w-[45%] h-[45%] rounded-full bg-[#6C63FF]/5 blur-[120px] pointer-events-none"></div>
-        <div className="absolute bottom-[10%] right-[-15%] w-[45%] h-[45%] rounded-full bg-blue-500/5 blur-[120px] pointer-events-none"></div>
+        <div className="absolute top-[20%] left-[-15%] w-[45%] h-[45%] rounded-full bg-emerald-500/5 blur-[120px] pointer-events-none"></div>
+        <div className="absolute bottom-[10%] right-[-15%] w-[45%] h-[45%] rounded-full bg-teal-500/5 blur-[120px] pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-16 items-center relative z-10">
 
@@ -220,7 +161,7 @@ const Homepage = () => {
               Your Portfolio.<br />
               Your Story.<br />
               Built by{" "}
-              <span className="bg-gradient-to-r from-[#6C63FF] to-blue-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">
                 ByteBodh
               </span>
             </motion.h1>
@@ -232,7 +173,7 @@ const Homepage = () => {
             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center gap-4">
               <Link
                 to="/register"
-                className="w-full sm:w-auto text-center px-8 py-4 bg-[#6C63FF] hover:bg-[#5b52e6] text-white font-bold rounded-2xl shadow-xl shadow-[#6C63FF]/20 hover:shadow-2xl hover:shadow-[#6C63FF]/30 transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center gap-2 relative overflow-hidden group"
+                className="w-full sm:w-auto text-center px-8 py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl shadow-xl shadow-emerald-500/20 hover:shadow-2xl hover:shadow-emerald-500/30 transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center gap-2 relative overflow-hidden group"
               >
                 <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></span>
                 Create My Portfolio
@@ -255,9 +196,9 @@ const Homepage = () => {
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
             viewport={{ once: true }}
           >
-            <div className="relative rounded-2xl shadow-2xl shadow-[#6C63FF]/20 group">
+            <div className="relative rounded-2xl shadow-2xl shadow-emerald-500/20 group">
               {/* Floating animated blobs behind the image */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-[#6C63FF] to-blue-400 rounded-[2rem] blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-700 animate-pulse"></div>
+              <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-[2rem] blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-700 animate-pulse"></div>
               
               <img
                 src={hero}
@@ -280,7 +221,7 @@ const Homepage = () => {
             viewport={{ once: true, margin: "-50px" }}
             variants={staggerContainer}
           >
-            <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider inline-block">
+            <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold uppercase tracking-wider inline-block">
               How It Works
             </motion.span>
             <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
@@ -299,13 +240,13 @@ const Homepage = () => {
             variants={staggerContainer}
           >
             {/* Timeline connectors */}
-            <div className="hidden md:block absolute top-[28%] left-[12%] right-[12%] h-[2px] bg-gradient-to-r from-transparent via-[#6C63FF]/30 to-transparent z-0 overflow-hidden">
-               <div className="w-full h-full bg-gradient-to-r from-transparent via-[#6C63FF] to-transparent opacity-50 animate-[shimmer_2s_infinite]"></div>
+            <div className="hidden md:block absolute top-[28%] left-[12%] right-[12%] h-[2px] bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent z-0 overflow-hidden">
+               <div className="w-full h-full bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-50 animate-[shimmer_2s_infinite]"></div>
             </div>
 
             {/* Step 1 */}
-            <motion.div variants={fadeInUp} className="relative z-10 bg-white/60 backdrop-blur-md border border-slate-200/50 p-8 rounded-3xl text-center space-y-6 hover:shadow-2xl hover:border-[#6C63FF]/30 transition-all duration-300 group hover:-translate-y-2">
-              <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 shadow-inner flex items-center justify-center text-2xl font-black text-[#6C63FF] mx-auto group-hover:bg-[#6C63FF] group-hover:text-white transition-colors duration-300 group-hover:scale-110">
+            <motion.div variants={fadeInUp} className="relative z-10 bg-white/60 backdrop-blur-md border border-slate-200/50 p-8 rounded-3xl text-center space-y-6 hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-300 group hover:-translate-y-2">
+              <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 shadow-inner flex items-center justify-center text-2xl font-black text-emerald-500 mx-auto group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-300 group-hover:scale-110">
                 1
               </div>
               <h3 className="text-xl font-bold text-slate-900">Choose a Template</h3>
@@ -315,8 +256,8 @@ const Homepage = () => {
             </motion.div>
 
             {/* Step 2 */}
-            <motion.div variants={fadeInUp} className="relative z-10 bg-white/60 backdrop-blur-md border border-slate-200/50 p-8 rounded-3xl text-center space-y-6 hover:shadow-2xl hover:border-[#6C63FF]/30 transition-all duration-300 group hover:-translate-y-2">
-              <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 shadow-inner flex items-center justify-center text-2xl font-black text-[#6C63FF] mx-auto group-hover:bg-[#6C63FF] group-hover:text-white transition-colors duration-300 group-hover:scale-110">
+            <motion.div variants={fadeInUp} className="relative z-10 bg-white/60 backdrop-blur-md border border-slate-200/50 p-8 rounded-3xl text-center space-y-6 hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-300 group hover:-translate-y-2">
+              <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 shadow-inner flex items-center justify-center text-2xl font-black text-emerald-500 mx-auto group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-300 group-hover:scale-110">
                 2
               </div>
               <h3 className="text-xl font-bold text-slate-900">Add Your Details</h3>
@@ -326,8 +267,8 @@ const Homepage = () => {
             </motion.div>
 
             {/* Step 3 */}
-            <motion.div variants={fadeInUp} className="relative z-10 bg-white/60 backdrop-blur-md border border-slate-200/50 p-8 rounded-3xl text-center space-y-6 hover:shadow-2xl hover:border-[#6C63FF]/30 transition-all duration-300 group hover:-translate-y-2">
-              <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 shadow-inner flex items-center justify-center text-2xl font-black text-[#6C63FF] mx-auto group-hover:bg-[#6C63FF] group-hover:text-white transition-colors duration-300 group-hover:scale-110">
+            <motion.div variants={fadeInUp} className="relative z-10 bg-white/60 backdrop-blur-md border border-slate-200/50 p-8 rounded-3xl text-center space-y-6 hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-300 group hover:-translate-y-2">
+              <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 shadow-inner flex items-center justify-center text-2xl font-black text-emerald-500 mx-auto group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-300 group-hover:scale-110">
                 3
               </div>
               <h3 className="text-xl font-bold text-slate-900">Publish Instantly</h3>
@@ -354,7 +295,7 @@ const Homepage = () => {
           viewport={{ once: true, margin: "-50px" }}
           variants={staggerContainer}
         >
-          <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider inline-block">
+          <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold uppercase tracking-wider inline-block">
             Templates Catalog
           </motion.span>
           <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
@@ -369,7 +310,7 @@ const Homepage = () => {
           {/* Left Arrow Button */}
           <button
             onClick={scrollLeft}
-            className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/95 border border-slate-200 shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#6C63FF] hover:text-white hover:border-[#6C63FF] transition-all duration-300 transform active:scale-95 opacity-0 group-hover:opacity-100 focus:opacity-100 cursor-pointer hidden md:flex"
+            className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/95 border border-slate-200 shadow-xl flex items-center justify-center text-slate-700 hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all duration-300 transform active:scale-95 opacity-0 group-hover:opacity-100 focus:opacity-100 cursor-pointer hidden md:flex"
             aria-label="Scroll Left"
           >
             <FaChevronLeft size={16} />
@@ -378,7 +319,7 @@ const Homepage = () => {
           {/* Right Arrow Button */}
           <button
             onClick={scrollRight}
-            className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/95 border border-slate-200 shadow-xl flex items-center justify-center text-slate-700 hover:bg-[#6C63FF] hover:text-white hover:border-[#6C63FF] transition-all duration-300 transform active:scale-95 opacity-0 group-hover:opacity-100 focus:opacity-100 cursor-pointer hidden md:flex"
+            className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/95 border border-slate-200 shadow-xl flex items-center justify-center text-slate-700 hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all duration-300 transform active:scale-95 opacity-0 group-hover:opacity-100 focus:opacity-100 cursor-pointer hidden md:flex"
             aria-label="Scroll Right"
           >
             <FaChevronRight size={16} />
@@ -404,7 +345,7 @@ const Homepage = () => {
                 href={`/templates/preview/${idx + 1}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-shrink-0 w-[290px] sm:w-[450px] md:w-[600px] aspect-[16/10] rounded-3xl overflow-hidden border border-slate-200 shadow-lg hover:shadow-2xl hover:border-[#6C63FF]/30 transition-all duration-300 hover:scale-[1.01] snap-center bg-white group relative block"
+                className="flex-shrink-0 w-[290px] sm:w-[450px] md:w-[600px] aspect-[16/10] rounded-3xl overflow-hidden border border-slate-200 shadow-lg hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-300 hover:scale-[1.01] snap-center bg-white group relative block"
               >
                 <img
                   src={img}
@@ -430,7 +371,7 @@ const Homepage = () => {
       {/* 5. FEATURES SECTION */}
       <section id="features-section" className="py-24 bg-white border-t border-slate-100 relative">
         {/* Soft glowing ambient circle */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-teal-500/5 rounded-full blur-[100px] pointer-events-none"></div>
 
         <motion.div 
           className="max-w-7xl mx-auto px-6"
@@ -440,7 +381,7 @@ const Homepage = () => {
           variants={staggerContainer}
         >
           <motion.div variants={fadeInUp} className="text-center max-w-3xl mx-auto mb-20 space-y-4">
-            <span className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider inline-block">
+            <span className="px-4 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold uppercase tracking-wider inline-block">
               Core Capabilities
             </span>
             <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
@@ -456,12 +397,12 @@ const Homepage = () => {
               {
                 title: "AI Portfolio Generator",
                 desc: "Generate professional bios, summaries, project details, and optimized profile headers instantly with built-in AI assistant prompts.",
-                icon: <FaBolt className="text-[#6C63FF] text-lg" />
+                icon: <FaBolt className="text-emerald-500 text-lg" />
               },
               {
                 title: "Responsive Design",
                 desc: "Your portfolio automatically adjusts to render perfectly across smartphones, tablets, and desktop resolutions.",
-                icon: <FaMobileAlt className="text-blue-500 text-lg" />
+                icon: <FaMobileAlt className="text-teal-500 text-lg" />
               },
               {
                 title: "Resume Integration",
@@ -476,10 +417,10 @@ const Homepage = () => {
             ].map((feature, idx) => (
               <div
                 key={idx}
-                className="bg-white border border-slate-200/60 p-8 rounded-3xl shadow-sm hover:shadow-2xl hover:border-[#6C63FF]/30 transition-all duration-300 hover:-translate-y-2 relative group overflow-hidden"
+                className="bg-white border border-slate-200/60 p-8 rounded-3xl shadow-sm hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-300 hover:-translate-y-2 relative group overflow-hidden"
               >
                 {/* Subtle hover gradient background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#6C63FF]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 
                 <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 group-hover:bg-white group-hover:shadow-md transition-all duration-300 relative z-10">
                   {feature.icon}
@@ -504,7 +445,7 @@ const Homepage = () => {
             viewport={{ once: true, margin: "-50px" }}
             variants={staggerContainer}
           >
-            <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider inline-block">
+            <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold uppercase tracking-wider inline-block">
               For Students & Freshers
             </motion.span>
             <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
@@ -535,7 +476,7 @@ const Homepage = () => {
             <motion.div variants={fadeInUp} className="pt-4">
               <Link
                 to="/register"
-                className="inline-flex items-center gap-2 px-6 py-3.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-sm font-bold rounded-xl shadow-lg shadow-[#6C63FF]/20 hover:shadow-xl hover:shadow-[#6C63FF]/30 transition-all transform hover:-translate-y-1"
+                className="inline-flex items-center gap-2 px-6 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/30 transition-all transform hover:-translate-y-1"
               >
                 Create Student Portfolio
                 <FaArrowRight size={12} />
@@ -551,7 +492,7 @@ const Homepage = () => {
             transition={{ duration: 0.8, ease: "easeOut" }}
             viewport={{ once: true, margin: "-50px" }}
           >
-            <div className="w-full max-w-[480px] bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl relative overflow-hidden group hover:shadow-[#6C63FF]/10 transition-shadow duration-500">
+            <div className="w-full max-w-[480px] bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl relative overflow-hidden group hover:shadow-emerald-500/10 transition-shadow duration-500">
               {/* MacOS Window Dots */}
               <div className="absolute top-4 left-5 flex gap-1.5 z-10">
                 <div className="w-2.5 h-2.5 rounded-full bg-rose-400"></div>
@@ -564,9 +505,9 @@ const Homepage = () => {
               <div className="flex justify-between items-center border-b border-slate-100 pb-4 mb-4 mt-4">
                 <div>
                   <h3 className="text-xl font-black text-slate-900">Arjun Sharma</h3>
-                  <p className="text-xs text-[#6C63FF] font-bold">B.Tech Student @IIT Delhi</p>
+                  <p className="text-xs text-emerald-500 font-bold">B.Tech Student @IIT Delhi</p>
                 </div>
-                <div className="px-2 py-1 rounded bg-[#6C63FF]/10 text-[#6C63FF] text-[9px] font-bold">CGPA: 9.2</div>
+                <div className="px-2 py-1 rounded bg-emerald-500/10 text-emerald-600 text-[9px] font-bold">CGPA: 9.2</div>
               </div>
 
               <div className="space-y-4 text-left text-xs text-slate-500">
@@ -607,7 +548,7 @@ const Homepage = () => {
             transition={{ duration: 0.8, ease: "easeOut" }}
             viewport={{ once: true, margin: "-50px" }}
           >
-            <div className="w-full max-w-[480px] bg-slate-950 text-slate-200 border border-slate-800 rounded-3xl p-6 shadow-2xl relative overflow-hidden group hover:shadow-indigo-500/10 transition-shadow duration-500">
+            <div className="w-full max-w-[480px] bg-slate-950 text-slate-200 border border-slate-800 rounded-3xl p-6 shadow-2xl relative overflow-hidden group hover:shadow-emerald-500/10 transition-shadow duration-500">
               {/* MacOS Window Dots */}
               <div className="absolute top-4 left-5 flex gap-1.5 z-10">
                 <div className="w-2.5 h-2.5 rounded-full bg-rose-500/80"></div>
@@ -620,7 +561,7 @@ const Homepage = () => {
               <div className="flex justify-between items-center border-b border-slate-800 pb-4 mb-4 mt-4">
                 <div>
                   <h3 className="text-xl font-bold text-white">Devika Sen</h3>
-                  <p className="text-xs text-[#6C63FF] font-semibold">Lead Backend Engineer</p>
+                  <p className="text-xs text-emerald-500 font-semibold">Lead Backend Engineer</p>
                 </div>
                 <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs">DS</div>
               </div>
@@ -630,9 +571,9 @@ const Homepage = () => {
 
                 <div className="space-y-3">
                   <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Work History</h4>
-                  <div className="relative pl-4 border-l border-[#6C63FF]/30 space-y-3 py-1">
+                  <div className="relative pl-4 border-l border-emerald-500/30 space-y-3 py-1">
                     <div className="hover:bg-slate-900/50 p-1.5 -ml-1.5 rounded-lg transition-colors">
-                      <span className="absolute left-[0.5px] top-3 w-2.5 h-2.5 rounded-full bg-[#6C63FF] border-2 border-slate-950 -translate-x-full"></span>
+                      <span className="absolute left-[0.5px] top-3 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-slate-950 -translate-x-full"></span>
                       <div className="flex justify-between text-xs text-white font-bold ml-1.5">
                         <span>Lead Backend Developer</span>
                         <span className="text-[10px] text-slate-500">2023 - Present</span>
@@ -653,7 +594,7 @@ const Homepage = () => {
             </div>
           </motion.div>
 
-          {/* Professional Highlights (Right side) */}
+          {/* Student Highlights (Right side) */}
           <motion.div 
             className="lg:col-span-6 space-y-8 text-left order-1 lg:order-2"
             initial="hidden"
@@ -661,7 +602,7 @@ const Homepage = () => {
             viewport={{ once: true, margin: "-50px" }}
             variants={staggerContainer}
           >
-            <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider inline-block">
+            <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold uppercase tracking-wider inline-block">
               For Working Professionals
             </motion.span>
             <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
@@ -680,7 +621,7 @@ const Homepage = () => {
                 { title: "Leadership logs", desc: "Showcase mentoring achievements, speaking logs, and team sizes." }
               ].map((highlight, idx) => (
                 <div key={idx} className="flex gap-3">
-                  <div className="w-5 h-5 rounded-full bg-[#6C63FF]/10 text-[#6C63FF] flex items-center justify-center text-xs mt-1 flex-shrink-0">✓</div>
+                  <div className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-xs mt-1 flex-shrink-0">✓</div>
                   <div>
                     <h4 className="font-bold text-slate-900 text-sm">{highlight.title}</h4>
                     <p className="text-[11px] text-slate-500 mt-0.5">{highlight.desc}</p>
@@ -692,7 +633,7 @@ const Homepage = () => {
             <motion.div variants={fadeInUp} className="pt-4">
               <Link
                 to="/register"
-                className="inline-flex items-center gap-2 px-6 py-3.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-sm font-bold rounded-xl shadow-lg shadow-[#6C63FF]/20 hover:shadow-xl hover:shadow-[#6C63FF]/30 transition-all transform hover:-translate-y-1"
+                className="inline-flex items-center gap-2 px-6 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/30 transition-all transform hover:-translate-y-1"
               >
                 Build Professional Portfolio
                 <FaArrowRight size={12} />
@@ -706,7 +647,7 @@ const Homepage = () => {
       <section className="py-24 bg-slate-50/50 border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-            <span className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider">
+            <span className="px-4 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold uppercase tracking-wider">
               Template Gallery
             </span>
             <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
@@ -741,7 +682,7 @@ const Homepage = () => {
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
                       {tpl.category}
                     </span>
-                    <h3 className="text-lg font-black text-slate-900 group-hover:text-[#6C63FF] transition-colors leading-snug">
+                    <h3 className="text-lg font-black text-slate-900 group-hover:text-emerald-500 transition-colors leading-snug">
                       {tpl.name}
                     </h3>
                     <p className="text-xs text-slate-500 leading-relaxed">
@@ -754,7 +695,7 @@ const Homepage = () => {
                   <span className="text-[10px] text-slate-400 font-extrabold uppercase">Template {idx + 1}</span>
                   <Link
                     to="/register"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6C63FF] hover:underline"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-500 hover:underline"
                   >
                     Select Design <FaArrowRight size={10} />
                   </Link>
@@ -775,7 +716,7 @@ const Homepage = () => {
             viewport={{ once: true, margin: "-50px" }}
             variants={staggerContainer}
           >
-            <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider inline-block">
+            <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold uppercase tracking-wider inline-block">
               Reviews
             </motion.span>
             <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
@@ -796,36 +737,36 @@ const Homepage = () => {
               <div className="flex gap-8 animate-[marquee_30s_linear_infinite] group-hover:[animation-play-state:paused]">
                 {/* Double the testimonials array for seamless looping */}
                 {[...testimonials, ...testimonials].map((t, idx) => (
-              <div
-                key={idx}
-                className="w-[350px] shrink-0 bg-slate-50/70 border border-slate-200/50 p-8 rounded-3xl relative flex flex-col justify-between hover:shadow-2xl hover:border-[#6C63FF]/20 transition-all duration-300"
-              >
-                <div>
-                  <div className="flex gap-1 text-amber-400 mb-4">
-                    {[...Array(t.rating)].map((_, i) => (
-                      <FaStar key={i} size={14} />
-                    ))}
-                  </div>
-                  <p className="text-sm text-slate-600 leading-relaxed italic">"{t.quote}"</p>
-                </div>
+                  <div
+                    key={idx}
+                    className="w-[350px] shrink-0 bg-slate-50/70 border border-slate-200/50 p-8 rounded-3xl relative flex flex-col justify-between hover:shadow-2xl hover:border-emerald-500/20 transition-all duration-300"
+                  >
+                    <div>
+                      <div className="flex gap-1 text-amber-400 mb-4">
+                        {[...Array(t.rating)].map((_, i) => (
+                          <FaStar key={i} size={14} />
+                        ))}
+                      </div>
+                      <p className="text-sm text-slate-600 leading-relaxed italic">"{t.quote}"</p>
+                    </div>
 
-                <div className="flex items-center gap-4 mt-8 pt-4 border-t border-slate-200/40">
-                  <img
-                    src={t.avatar}
-                    alt={t.name}
-                    className="w-12 h-12 rounded-full object-cover border border-slate-200"
-                  />
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-sm leading-none">{t.name}</h4>
-                    <p className="text-[10px] text-slate-400 mt-1 font-semibold">{t.role}</p>
-                  </div>
-                </div>
+                    <div className="flex items-center gap-4 mt-8 pt-4 border-t border-slate-200/40">
+                      <img
+                        src={t.avatar}
+                        alt={t.name}
+                        className="w-12 h-12 rounded-full object-cover border border-slate-200"
+                      />
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-sm leading-none">{t.name}</h4>
+                        <p className="text-[10px] text-slate-400 mt-1 font-semibold">{t.role}</p>
+                      </div>
+                    </div>
 
-                <span className="absolute top-6 right-8 px-2 py-0.5 bg-[#6C63FF]/10 text-[#6C63FF] text-[8px] font-extrabold uppercase rounded">
-                  {t.tag}
-                </span>
-              </div>
-            ))}
+                    <span className="absolute top-6 right-8 px-2 py-0.5 bg-emerald-500/10 text-emerald-600 text-[8px] font-extrabold uppercase rounded">
+                      {t.tag}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -835,8 +776,8 @@ const Homepage = () => {
       {/* 11. MOBILE APP COMING SOON SECTION */}
       <section className="py-20 bg-slate-950 text-white relative overflow-hidden border-t border-b border-slate-900">
         {/* Soft glowing backdrop */}
-        <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[350px] h-[350px] bg-[#6C63FF]/10 rounded-full blur-[100px] pointer-events-none"></div>
-        <div className="absolute bottom-0 right-1/4 w-[350px] h-[350px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+        <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[350px] h-[350px] bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+        <div className="absolute bottom-0 right-1/4 w-[350px] h-[350px] bg-teal-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-12 items-center relative z-10">
           {/* Text Content */}
@@ -847,12 +788,12 @@ const Homepage = () => {
             viewport={{ once: true, margin: "-50px" }}
             variants={staggerContainer}
           >
-            <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#8c85ff] text-xs font-bold uppercase tracking-wider inline-block">
+            <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-wider inline-block">
               On The Go
             </motion.span>
             <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
               ByteBodh Mobile App <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8c85ff] to-blue-400">Coming Soon</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">Coming Soon</span>
             </motion.h2>
             <motion.p variants={fadeInUp} className="text-slate-400 text-base md:text-lg leading-relaxed max-w-xl">
               Create, update, and monitor your personal portfolio directly from your mobile device. Edit projects, check analytics, and share your QR code link instantly from anywhere.
@@ -861,7 +802,7 @@ const Homepage = () => {
             {/* Google Play Badges & Features */}
             <motion.div variants={fadeInUp} className="flex flex-wrap items-center gap-4 pt-4">
               <div className="inline-flex items-center gap-3 px-5 py-3 bg-slate-900/80 border border-slate-800 rounded-2xl text-left cursor-not-allowed hover:bg-slate-900 transition-colors shadow-xl group">
-                <FaGooglePlay className="text-white text-2xl group-hover:text-[#6C63FF] transition-colors" />
+                <FaGooglePlay className="text-white text-2xl group-hover:text-emerald-500 transition-colors" />
                 <div>
                   <span className="text-[10px] text-slate-500 uppercase font-extrabold tracking-wider block">Get it on</span>
                   <span className="text-sm font-bold text-white block">Google Play</span>
@@ -882,21 +823,21 @@ const Homepage = () => {
               {/* Internal Mockup Content */}
               <div className="flex-1 rounded-[1.8rem] bg-slate-950 border border-slate-800/50 p-4 pt-8 flex flex-col justify-between relative overflow-hidden text-xs">
                 {/* Glow inside mobile */}
-                <div className="absolute top-[-20%] right-[-20%] w-32 h-32 bg-[#6C63FF]/20 rounded-full blur-2xl"></div>
+                <div className="absolute top-[-20%] right-[-20%] w-32 h-32 bg-emerald-500/20 rounded-full blur-2xl"></div>
 
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-[8px] font-black tracking-widest text-[#6C63FF] uppercase">ByteBodh App</span>
+                    <span className="text-[8px] font-black tracking-widest text-emerald-500 uppercase">ByteBodh App</span>
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                   </div>
 
                   {/* Profile mini preview */}
                   <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800/60 space-y-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6C63FF] to-blue-500 flex items-center justify-center font-bold text-[10px]">BB</div>
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-500 flex items-center justify-center font-bold text-[10px]">BB</div>
                       <div>
                         <h4 className="font-bold text-white text-[10px]">Your Portfolio</h4>
-                        <p className="text-[8px] text-[#6C63FF]">bytebodh.in/username</p>
+                        <p className="text-[8px] text-emerald-500">bytebodh.in/username</p>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-1.5 text-[8px] pt-1">
@@ -906,7 +847,7 @@ const Homepage = () => {
                       </div>
                       <div className="bg-slate-950 p-1.5 rounded border border-slate-800">
                         <span className="text-slate-500 block">Templates</span>
-                        <span className="font-extrabold text-[#6C63FF] text-[9px]">Hacker Terminal</span>
+                        <span className="font-extrabold text-emerald-500 text-[9px]">Hacker Terminal</span>
                       </div>
                     </div>
                   </div>
@@ -922,13 +863,13 @@ const Homepage = () => {
                       <span>Instant QR Code Generation</span>
                     </div>
                     <div className="flex items-center gap-2 text-slate-400">
-                      <div className="w-4 h-4 rounded-full bg-[#6C63FF]/15 text-[#8c85ff] flex items-center justify-center text-[8px]">⏰</div>
+                      <div className="w-4 h-4 rounded-full bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-[8px]">✓</div>
                       <span>AI Bio Editor (Version 2.0)</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="w-full py-2 bg-[#6C63FF] hover:bg-[#5b52e6] text-white font-extrabold text-center rounded-xl text-[9px] cursor-pointer transition-colors mt-4">
+                <div className="w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-center rounded-xl text-[9px] cursor-pointer transition-colors mt-4">
                   Beta Testing Live
                 </div>
               </div>
@@ -947,7 +888,7 @@ const Homepage = () => {
             viewport={{ once: true, margin: "-50px" }}
             variants={staggerContainer}
           >
-            <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-[#6C63FF]/10 border border-[#6C63FF]/20 text-[#6C63FF] text-xs font-bold uppercase tracking-wider inline-block">
+            <motion.span variants={fadeInUp} className="px-4 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold uppercase tracking-wider inline-block">
               FAQ
             </motion.span>
             <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
@@ -991,7 +932,7 @@ const Homepage = () => {
                 >
                   <span className="font-bold text-slate-900 text-base md:text-lg pr-4">{faq.q}</span>
                   {faqOpen === index ? (
-                    <FaChevronUp className="text-[#6C63FF] flex-shrink-0" />
+                    <FaChevronUp className="text-emerald-500 flex-shrink-0" />
                   ) : (
                     <FaChevronDown className="text-slate-400 flex-shrink-0" />
                   )}
@@ -1014,7 +955,7 @@ const Homepage = () => {
       <section className="py-20 bg-white border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div 
-            className="bg-gradient-to-tr from-[#6C63FF] via-[#5c52e6] to-[#6C63FF] rounded-[2.5rem] p-12 md:p-20 text-center text-white relative overflow-hidden shadow-2xl shadow-[#6C63FF]/20"
+            className="bg-gradient-to-tr from-emerald-500 via-emerald-600 to-emerald-500 rounded-[2.5rem] p-12 md:p-20 text-center text-white relative overflow-hidden shadow-2xl shadow-emerald-500/20"
             initial={{ opacity: 0, scale: 0.95, y: 30 }}
             whileInView={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -1034,7 +975,7 @@ const Homepage = () => {
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
                 <Link
                   to="/register"
-                  className="w-full sm:w-auto text-center px-8 py-4 bg-white text-slate-900 font-bold rounded-2xl shadow-xl hover:bg-indigo-50 transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group"
+                  className="w-full sm:w-auto text-center px-8 py-4 bg-white text-slate-900 font-bold rounded-2xl shadow-xl hover:bg-emerald-50 transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden group"
                 >
                   <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-slate-200 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></span>
                   Create Portfolio Free
@@ -1052,82 +993,7 @@ const Homepage = () => {
       </section>
 
       {/* 14. FOOTER */}
-      <footer className="bg-slate-950 text-slate-400 py-16 border-t border-slate-900">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-5 gap-12 border-b border-slate-900 pb-12">
-          {/* Brand info */}
-          <div className="col-span-2 space-y-6">
-            <Link to="/" className="flex items-center space-x-3 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#6C63FF] to-blue-500 text-white flex items-center justify-center font-bold text-xl shadow-lg">
-                BB
-              </div>
-              <span className="text-xl font-black text-white">ByteBodh</span>
-            </Link>
-            <p className="text-xs leading-relaxed max-w-sm">
-              ByteBodh is an AI-powered portfolio website builder designed to help fresh graduates and software engineers deploy hiring-ready personal websites.
-            </p>
-            <div className="flex gap-4">
-              {[
-                { icon: <FaInstagram className="w-4 h-4" />, url: "https://instagram.com/bytebodh", label: "Instagram" },
-                { icon: <FaLinkedin className="w-4 h-4" />, url: "https://linkedin.com/company/bytebodh", label: "LinkedIn" },
-                { icon: <FaGithub className="w-4 h-4" />, url: "https://github.com/bytebodh", label: "GitHub" },
-                { icon: <FaFacebook className="w-4 h-4" />, url: "https://facebook.com/bytebodh", label: "Facebook" }
-              ].map((soc) => (
-                <a
-                  key={soc.label}
-                  href={soc.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={soc.label}
-                  className="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500 hover:text-white hover:border-[#6C63FF] transition-all"
-                >
-                  {soc.icon}
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Links cols */}
-          <div>
-            <h5 className="font-extrabold text-white text-xs uppercase tracking-widest mb-4">Product</h5>
-            <ul className="space-y-3 text-xs">
-              <li><a href="#templates-section" className="hover:text-white transition-colors">Templates</a></li>
-              <li><a href="#features-section" className="hover:text-white transition-colors">Core Features</a></li>
-              <li><a href="#faq" className="hover:text-white transition-colors">FAQs</a></li>
-            </ul>
-          </div>
-
-          {/* Company links */}
-          <div>
-            <h5 className="font-extrabold text-white text-xs uppercase tracking-widest mb-4">Company</h5>
-            <ul className="space-y-3 text-xs">
-              <li><a href="/about" className="hover:text-white transition-colors">About Us</a></li>
-              <li><a href="/contact" className="hover:text-white transition-colors">Careers</a></li>
-              <li><a href="/blogs" className="hover:text-white transition-colors">Blogs</a></li>
-              <li><a href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</a></li>
-            </ul>
-          </div>
-
-          {/* Resources links */}
-          <div>
-            <h5 className="font-extrabold text-white text-xs uppercase tracking-widest mb-4">Resources</h5>
-            <ul className="space-y-3 text-xs">
-              <li><a href="#faq" className="hover:text-white transition-colors">Help Center</a></li>
-              <li><a href="/contact" className="hover:text-white transition-colors">Contact Support</a></li>
-              <li><a href="/terms-and-conditions" className="hover:text-white transition-colors">Terms of Service</a></li>
-              <li><a href="/cookie-policy" className="hover:text-white transition-colors">Cookie settings</a></li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Bottom copyright */}
-        <div className="max-w-7xl mx-auto px-6 pt-8 flex flex-col md:flex-row justify-between items-center text-xs">
-          <p>© {new Date().getFullYear()} ByteBodh. All rights reserved.</p>
-          <div className="flex gap-6 mt-4 md:mt-0">
-            <span className="hover:text-white cursor-pointer transition-colors">System Online</span>
-            <span className="hover:text-white cursor-pointer transition-colors">V2026.1</span>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

@@ -325,8 +325,32 @@ export const adminLogin = async (loginData) => {
 /* =========================
    AUTH UTILITIES
 ========================= */
-export const getAccessToken = () => localStorage.getItem("accessToken");
-export const getRefreshToken = () => localStorage.getItem("refreshToken");
+const isAdminRoute = (path) => {
+  return (
+    path.startsWith("/admin") ||
+    path === "/categories" ||
+    path.startsWith("/categories/") ||
+    path.startsWith("/admin-")
+  );
+};
+
+export const getAccessToken = () => {
+  const path = window.location.pathname;
+  if (isAdminRoute(path)) {
+    const adminToken = localStorage.getItem("adminAccessToken");
+    if (adminToken) return adminToken;
+  }
+  return localStorage.getItem("accessToken") || localStorage.getItem("adminAccessToken");
+};
+
+export const getRefreshToken = () => {
+  const path = window.location.pathname;
+  if (isAdminRoute(path)) {
+    const adminRefreshToken = localStorage.getItem("adminRefreshToken");
+    if (adminRefreshToken) return adminRefreshToken;
+  }
+  return localStorage.getItem("refreshToken") || localStorage.getItem("adminRefreshToken");
+};
 
 export const getUser = () => {
   const user = localStorage.getItem("user");

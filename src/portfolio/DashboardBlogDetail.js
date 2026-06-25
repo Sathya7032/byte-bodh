@@ -13,9 +13,18 @@ import DashboardLayout from "./components/DashboardLayout";
 import API_BASE_URL from "../config/api";
 
 function decodeHtml(html) {
-  const txt = document.createElement("textarea");
-  txt.innerHTML = html;
-  return txt.value;
+  if (!html) return "";
+  let lastHtml = "";
+  let currentHtml = html;
+  
+  // Recursively decode entities while there are ampersands indicating potential entities
+  while (currentHtml !== lastHtml && currentHtml.includes("&")) {
+    lastHtml = currentHtml;
+    const txt = document.createElement("textarea");
+    txt.innerHTML = currentHtml;
+    currentHtml = txt.value;
+  }
+  return currentHtml;
 }
 
 export default function DashboardBlogDetail() {
