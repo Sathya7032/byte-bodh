@@ -16,6 +16,7 @@ import {
 } from "react-icons/fa";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import useSEO from "../hooks/useSEO";
 import hero from "../assets/images/hero.png";
 import freeTemplate from "../assets/images/FreeTemplate.png";
 import template2 from "../assets/images/Template2.png";
@@ -110,6 +111,12 @@ const templatesShowcase = [
 ];
 
 const Homepage = () => {
+  useSEO({
+    title: "ByteBodh | AI Portfolio Builder & Career Hub for Developers & Students",
+    description: "Create a professional online portfolio website in 2 minutes. Choose from premium CLI terminal, IDE, and academic templates. Compile CVs to PDF and track views.",
+    keywords: "portfolio maker, resume builder, developer portfolio, student cv template, terminal portfolio, bytebodh"
+  });
+
   const [faqOpen, setFaqOpen] = useState(null);
   const scrollContainerRef = useRef(null);
 

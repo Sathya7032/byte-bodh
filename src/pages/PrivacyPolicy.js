@@ -1,8 +1,16 @@
 import React from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import useSEO from "../hooks/useSEO";
+
 
 function PrivacyPolicy() {
+  useSEO({
+    title: "Privacy Policy | ByteBodh - User Data Protection",
+    description: "Read the Privacy Policy of ByteBodh. Learn how we collect, store, share, and protect your personal information on our Site.",
+    keywords: "privacy policy, bytebodh privacy, user data safety, cookie collection"
+  });
+
   return (
     <div className="min-h-screen bg-white text-slate-800 font-sans antialiased overflow-x-hidden selection:bg-emerald-500/20 selection:text-emerald-600 flex flex-col justify-between">
       <Header />

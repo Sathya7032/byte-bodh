@@ -12,9 +12,18 @@ import {
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import useSEO from "../hooks/useSEO";
+
 
 function Products() {
+  useSEO({
+    title: "Our Products | ByteBodh - Tools & Tech Utilities",
+    description: "Explore our collection of utility tools including dynamic QR Code Generator, Resume/Portfolio Maker, Online Code Editor compiler, and client-side Image Compressor.",
+    keywords: "online compiler, code editor, qr generator, image shrinker, bytebodh products"
+  });
+
   const [searchTerm, setSearchTerm] = useState("");
+
 
   const products = [
     {

@@ -58,6 +58,7 @@ import AdminUserTemplates from "./admin/pages/AdminUserTemplates";
 import AdminPayments from "./admin/pages/AdminPayments";
 import PageNotFound from "./pages/PageNotFound";
 import PublicPortfolioPage from "./bytebodh-folio/PublicPortfolioPage";
+import Disclaimer from "./pages/Disclaimer";
 
 function isSubdomainPortfolio() {
   return false;
@@ -100,6 +101,7 @@ const App = () => {
             element={<TermsAndConditions />}
           />
           <Route path="/cookie-policy" element={<CookiePolicy />} />
+          <Route path="/disclaimer" element={<Disclaimer />} />
           <Route path="/invoive-generator" element={<InvoiceGenerator />} />
           <Route path="/image-compressor" element={<ImageCompressor />} />
           <Route path="/code-editor" element={<CodeEditor />} />

@@ -12,8 +12,62 @@ import axios from "axios";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import API_BASE_URL from "../config/api";
+import useSEO from "../hooks/useSEO";
+
+const FALLBACK_BLOGS = [
+  {
+    id: "f1",
+    slug: "build-perfect-developer-portfolio",
+    title: "How to Build a Perfect Developer Portfolio in 2026",
+    category: "Career Growth",
+    author: "Sathya Prakash",
+    createdAt: "2026-05-15T08:00:00.000Z",
+    excerpt: "Learn the essential components of a software engineer portfolio that captures recruiters' attention. From project presentations to live demo links, here is a complete blueprint.",
+    readTime: "6",
+    content: "Building a developer portfolio is more than just listing your skills. Recruiters look for live links, interactive layouts, clean GitHub structures, and demonstrable proof of execution. This article explores the structure of highly successful developer portfolios..."
+  },
+  {
+    id: "f2",
+    slug: "demystifying-ats-resume-screeners",
+    title: "Demystifying ATS: How to Make Your Resume Machine-Readable",
+    category: "Career Tools",
+    author: "Rohan Deshmukh",
+    createdAt: "2026-06-02T10:30:00.000Z",
+    excerpt: "Applicant Tracking Systems (ATS) filter out over 70% of resumes before a human recruiter even sees them. Understand how they parse text and how to optimize your resume templates.",
+    readTime: "5",
+    content: "Most modern enterprises use Applicant Tracking Systems (ATS) to manage job applications. ATS parsers extract text files, checking for keyword densities, layout structures, and standardized headings. Using multi-column grids or custom icons can cause parsing failures. Learn how to format headings and optimize key fields..."
+  },
+  {
+    id: "f3",
+    slug: "guide-to-writing-clean-react-code",
+    title: "The Ultimate Guide to Writing Clean React Code",
+    category: "Technology",
+    author: "ByteBodh Engineering",
+    createdAt: "2026-06-18T14:15:00.000Z",
+    excerpt: "Explore best practices in React web development. Learn about clean component architectures, state management patterns, custom hook design, and code splitting techniques.",
+    readTime: "8",
+    content: "React has dominated frontend development for years, but as codebases grow, maintaining scalability requires strict architectural discipline. From separation of concerns, writing custom hooks for logic encapsulation, to dynamic code splitting with React Lazy, here are the guidelines to writing clean components..."
+  },
+  {
+    id: "f4",
+    slug: "leveraging-qr-analytics-for-networking",
+    title: "Leveraging QR Code Analytics for Modern Professional Networking",
+    category: "Business Growth",
+    author: "Aisha Sen",
+    createdAt: "2026-06-25T11:00:00.000Z",
+    excerpt: "How adding dynamic QR codes to your physical resume or business card can help you track recruiter interest, view click analytics, and stand out in hiring drives.",
+    readTime: "4",
+    content: "Traditional networking is evolving. Instead of handing out paper resumes that get lost, modern professionals use dynamic QR codes. By linking to a tracking-ready digital portfolio, you can instantly see when and where your CV gets scanned. This article shows you how to design dynamic QR networking layouts..."
+  }
+];
 
 function Blog() {
+  useSEO({
+    title: "Blog | ByteBodh - Tutorials, Tech Guides & Career Tips",
+    description: "Browse the latest tech articles, web development tutorials, and career branding guides. Learn how to write clean React code, build portfolios, and optimize CVs.",
+    keywords: "coding articles, react tutorial, developer career guides, resume tips, bytebodh blog"
+  });
+
   const [searchTerm, setSearchTerm] = useState("");
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,14 +83,22 @@ function Blog() {
       setLoading(true);
       const res = await axios.get(`${API_BASE_URL}/api/blogs`);
       const blogsData = res.data.data || res.data || [];
-      setBlogs(blogsData);
+      if (blogsData.length > 0) {
+        setBlogs(blogsData);
+      } else {
+        setBlogs(FALLBACK_BLOGS);
+      }
+      setError(null);
     } catch (err) {
       console.error("Failed to fetch blogs:", err);
-      setError("Failed to load blogs. Please try again later.");
+      // Fallback to rich static content if the backend is down
+      setBlogs(FALLBACK_BLOGS);
+      setError(null);
     } finally {
       setLoading(false);
     }
   };
+
 
   const categories = [
     { id: 1, name: "Career Growth", post_count: 3 },

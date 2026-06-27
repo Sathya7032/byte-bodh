@@ -3,8 +3,16 @@ import { FaLightbulb, FaToolbox, FaGraduationCap, FaRocket, FaUsers, FaCode, FaQ
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import useSEO from "../hooks/useSEO";
+
 
 function AboutUs() {
+  useSEO({
+    title: "About Us | ByteBodh - Empowering Tech Careers",
+    description: "Learn more about ByteBodh. Our mission is to empower developers, students, and professionals to build custom portfolios, design professional resumes, and secure careers.",
+    keywords: "about bytebodh, resume creator team, portfolio developer, tech placement services"
+  });
+
   return (
     <div className="min-h-screen bg-white text-slate-800 font-sans antialiased overflow-x-hidden selection:bg-emerald-500/20 selection:text-emerald-600">
       <Header />

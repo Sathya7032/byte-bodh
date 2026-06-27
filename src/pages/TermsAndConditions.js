@@ -1,8 +1,16 @@
 import React from "react";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import useSEO from "../hooks/useSEO";
+
 
 function TermsAndConditions() {
+  useSEO({
+    title: "Terms and Conditions | ByteBodh - User Agreement",
+    description: "Read the Terms and Conditions of ByteBodh. Learn about access licenses, account security, limitations of liability, and service conditions.",
+    keywords: "terms and conditions, user agreement, bytebodh terms, developer tools usage"
+  });
+
   return (
     <div className="min-h-screen bg-white text-slate-800 font-sans antialiased overflow-x-hidden selection:bg-emerald-500/20 selection:text-emerald-600 flex flex-col justify-between">
       <Header />

@@ -16,6 +16,8 @@ import {
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import API_BASE_URL from "../config/api";
+import useSEO from "../hooks/useSEO";
+
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -25,8 +27,15 @@ const api = axios.create({
 });
 
 function Contact() {
+  useSEO({
+    title: "Contact Us | ByteBodh - Reach Out for Support & Queries",
+    description: "Get in touch with the ByteBodh team. Ask questions about our portfolio creator, corporate pricing, custom business tools, or request tech assistance.",
+    keywords: "contact bytebodh, customer support, business inquiry, write email bytebodh"
+  });
+
   const [formData, setFormData] = useState({
     name: "",
+
     mobileNumber: "",
     email: "",
     message: "",

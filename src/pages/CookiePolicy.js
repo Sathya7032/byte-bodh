@@ -1,8 +1,16 @@
 import React from "react";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import useSEO from "../hooks/useSEO";
+
 
 function CookiePolicy() {
+  useSEO({
+    title: "Cookie Policy | ByteBodh - Tracking & Settings",
+    description: "Read the Cookie Policy of ByteBodh. Learn how we use cookies, what cookies we track, and how you can manage cookie settings.",
+    keywords: "cookie policy, bytebodh cookies, tracking preferences, performance cookies"
+  });
+
   return (
     <div className="min-h-screen bg-white text-slate-800 font-sans antialiased overflow-x-hidden selection:bg-emerald-500/20 selection:text-emerald-600 flex flex-col justify-between">
       <Header />

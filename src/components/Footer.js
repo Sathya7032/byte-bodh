@@ -72,6 +72,7 @@ function Footer() {
             <li><Link to="/contact" className="hover:text-white transition-colors">Contact Support</Link></li>
             <li><Link to="/terms-and-conditions" className="hover:text-white transition-colors">Terms of Service</Link></li>
             <li><Link to="/cookie-policy" className="hover:text-white transition-colors">Cookie settings</Link></li>
+            <li><Link to="/disclaimer" className="hover:text-white transition-colors">Disclaimer</Link></li>
           </ul>
         </div>
       </div>
