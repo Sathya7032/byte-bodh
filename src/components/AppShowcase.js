@@ -22,7 +22,7 @@ function AppShowcase() {
       downloads: "5,000+",
       rating: "4.8",
       reviews: "2.5K+ reviews",
-      link: "https://play.google.com/store/apps/details?id=com.sathichary581.codewithsathya",
+      link: "https://play.google.com/store/apps/details?id=com.bytebodh.bytebodh&pcampaignid=web_share",
       features: [
         "Web Development",
         "Mobile App Development",

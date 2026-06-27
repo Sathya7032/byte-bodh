@@ -800,7 +800,7 @@ const Homepage = () => {
             </motion.span>
             <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
               ByteBodh Mobile App <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">Coming Soon</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">Available Now</span>
             </motion.h2>
             <motion.p variants={fadeInUp} className="text-slate-400 text-base md:text-lg leading-relaxed max-w-xl">
               Create, update, and monitor your personal portfolio directly from your mobile device. Edit projects, check analytics, and share your QR code link instantly from anywhere.
@@ -808,15 +808,20 @@ const Homepage = () => {
 
             {/* Google Play Badges & Features */}
             <motion.div variants={fadeInUp} className="flex flex-wrap items-center gap-4 pt-4">
-              <div className="inline-flex items-center gap-3 px-5 py-3 bg-slate-900/80 border border-slate-800 rounded-2xl text-left cursor-not-allowed hover:bg-slate-900 transition-colors shadow-xl group">
-                <FaGooglePlay className="text-white text-2xl group-hover:text-emerald-500 transition-colors" />
+              <a
+                href="https://play.google.com/store/apps/details?id=com.bytebodh.bytebodh&pcampaignid=web_share"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-5 py-3 bg-slate-900/80 border border-slate-800 rounded-2xl text-left hover:bg-slate-900 hover:border-emerald-500/50 transition-all shadow-xl group cursor-pointer"
+              >
+                <FaGooglePlay className="text-white text-2xl group-hover:text-emerald-400 transition-colors" />
                 <div>
                   <span className="text-[10px] text-slate-500 uppercase font-extrabold tracking-wider block">Get it on</span>
                   <span className="text-sm font-bold text-white block">Google Play</span>
                 </div>
-              </div>
-              <span className="text-xs text-slate-500 font-extrabold uppercase bg-slate-900/40 px-3 py-1 border border-slate-800/40 rounded-full">
-                Registering for Beta
+              </a>
+              <span className="text-xs text-emerald-400 font-extrabold uppercase bg-emerald-950/40 px-3.5 py-1.5 border border-emerald-500/20 rounded-full shadow-inner">
+                App Store Live
               </span>
             </motion.div>
           </motion.div>
@@ -876,9 +881,14 @@ const Homepage = () => {
                   </div>
                 </div>
 
-                <div className="w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-center rounded-xl text-[9px] cursor-pointer transition-colors mt-4">
-                  Beta Testing Live
-                </div>
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.bytebodh.bytebodh&pcampaignid=web_share"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-center rounded-xl text-[9px] cursor-pointer transition-colors mt-4 block"
+                >
+                  Download App 📱
+                </a>
               </div>
             </div>
           </div>
