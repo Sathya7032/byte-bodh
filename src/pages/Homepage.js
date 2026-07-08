@@ -23,6 +23,13 @@ import template2 from "../assets/images/Template2.png";
 import template3 from "../assets/images/Template3.png";
 import template4 from "../assets/images/Template4.png";
 import template5 from "../assets/images/Template5.png";
+import howItWorks1 from "../assets/images/how-it-works (1).jpeg";
+import howItWorks2 from "../assets/images/how-it-works (3).jpeg";
+import howItWorks3 from "../assets/images/how-it-works (2).jpeg";
+import studentImg from "../assets/images/Student.jpeg";
+import professionalImg from "../assets/images/Professional.jpeg";
+
+
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -42,25 +49,22 @@ const staggerContainer = {
 // Testimonial & Mock Data
 const testimonials = [
   {
-    name: "Vikram Malhotra",
-    role: "CSE Student at BITS Pilani",
-    avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80",
+    name: "Sai Kiran Reddy",
+    role: "CSE Student at BITS Pilani Hyderabad",
     quote: "ByteBodh was a lifesaver for placement season. I filled in my credentials, selected the 'Academic Std' template, and recruiters were blown away by my custom portfolio link!",
     rating: 5,
     tag: "Student"
   },
   {
-    name: "Rohan Deshmukh",
-    role: "Software Engineer at Google",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+    name: "Anirudh Rao",
+    role: "Software Engineer at Google Hyderabad",
     quote: "I wanted a geeky developer portfolio without spending hours writing custom CSS. The 'Hacker Terminal' template is outstanding. 1-click update on the go, plus detailed traffic analytics.",
     rating: 5,
     tag: "Professional"
   },
   {
-    name: "Aisha Sen",
-    role: "Lead Product Manager",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80",
+    name: "Harini Reddy",
+    role: "Lead Product Manager in Hyderabad",
     quote: "This platform is truly a 2-minute portfolio maker. I filled in my background details, chose a layout, and had a stunning live portfolio online instantly. Highly recommend!",
     rating: 5,
     tag: "Professional"
@@ -138,7 +142,7 @@ const Homepage = () => {
 
   return (
     <div className="min-h-screen bg-white text-slate-800 font-sans antialiased overflow-x-hidden selection:bg-emerald-500/20 selection:text-emerald-600">
-      
+
       {/* 1. NAVIGATION BAR */}
       <Header />
 
@@ -151,7 +155,7 @@ const Homepage = () => {
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-16 items-center relative z-10">
 
           {/* Hero Left Content */}
-          <motion.div 
+          <motion.div
             className="lg:col-span-6 space-y-8 text-left"
             initial="hidden"
             whileInView="visible"
@@ -196,7 +200,7 @@ const Homepage = () => {
           </motion.div>
 
           {/* Hero Right Visuals: Hero Image Preview */}
-          <motion.div 
+          <motion.div
             className="lg:col-span-6 relative flex items-center justify-center"
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             whileInView={{ opacity: 1, scale: 1, y: 0 }}
@@ -206,7 +210,7 @@ const Homepage = () => {
             <div className="relative rounded-2xl shadow-2xl shadow-emerald-500/20 group">
               {/* Floating animated blobs behind the image */}
               <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-[2rem] blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-700 animate-pulse"></div>
-              
+
               <img
                 src={hero}
                 alt="ByteBodh Portfolio Platform"
@@ -221,7 +225,7 @@ const Homepage = () => {
       {/* 3. HOW IT WORKS SECTION */}
       <section className="py-24 bg-white border-t border-slate-100 relative">
         <div className="max-w-7xl mx-auto px-6">
-          <motion.div 
+          <motion.div
             className="text-center max-w-3xl mx-auto mb-20 space-y-4"
             initial="hidden"
             whileInView="visible"
@@ -239,7 +243,7 @@ const Homepage = () => {
             </motion.p>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="grid md:grid-cols-3 gap-12 relative"
             initial="hidden"
             whileInView="visible"
@@ -248,13 +252,20 @@ const Homepage = () => {
           >
             {/* Timeline connectors */}
             <div className="hidden md:block absolute top-[28%] left-[12%] right-[12%] h-[2px] bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent z-0 overflow-hidden">
-               <div className="w-full h-full bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-50 animate-[shimmer_2s_infinite]"></div>
+              <div className="w-full h-full bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-50 animate-[shimmer_2s_infinite]"></div>
             </div>
 
             {/* Step 1 */}
-            <motion.div variants={fadeInUp} className="relative z-10 bg-white/60 backdrop-blur-md border border-slate-200/50 p-8 rounded-3xl text-center space-y-6 hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-300 group hover:-translate-y-2">
-              <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 shadow-inner flex items-center justify-center text-2xl font-black text-emerald-500 mx-auto group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-300 group-hover:scale-110">
-                1
+            <motion.div variants={fadeInUp} className="relative z-10 bg-white/60 backdrop-blur-md border border-slate-200/50 p-6 rounded-3xl text-center space-y-6 hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-300 group hover:-translate-y-2">
+              <div className="aspect-video w-full rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 shadow-inner relative">
+                <img
+                  src={howItWorks1}
+                  alt="Choose a Template"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute top-3 left-3 w-8 h-8 rounded-lg bg-emerald-500 text-white font-bold flex items-center justify-center text-sm shadow-md">
+                  1
+                </div>
               </div>
               <h3 className="text-xl font-bold text-slate-900">Choose a Template</h3>
               <p className="text-sm text-slate-500 leading-relaxed">
@@ -263,9 +274,16 @@ const Homepage = () => {
             </motion.div>
 
             {/* Step 2 */}
-            <motion.div variants={fadeInUp} className="relative z-10 bg-white/60 backdrop-blur-md border border-slate-200/50 p-8 rounded-3xl text-center space-y-6 hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-300 group hover:-translate-y-2">
-              <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 shadow-inner flex items-center justify-center text-2xl font-black text-emerald-500 mx-auto group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-300 group-hover:scale-110">
-                2
+            <motion.div variants={fadeInUp} className="relative z-10 bg-white/60 backdrop-blur-md border border-slate-200/50 p-6 rounded-3xl text-center space-y-6 hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-300 group hover:-translate-y-2">
+              <div className="aspect-video w-full rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 shadow-inner relative">
+                <img
+                  src={howItWorks2}
+                  alt="Add Your Details"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute top-3 left-3 w-8 h-8 rounded-lg bg-emerald-500 text-white font-bold flex items-center justify-center text-sm shadow-md">
+                  2
+                </div>
               </div>
               <h3 className="text-xl font-bold text-slate-900">Add Your Details</h3>
               <p className="text-sm text-slate-500 leading-relaxed">
@@ -274,9 +292,16 @@ const Homepage = () => {
             </motion.div>
 
             {/* Step 3 */}
-            <motion.div variants={fadeInUp} className="relative z-10 bg-white/60 backdrop-blur-md border border-slate-200/50 p-8 rounded-3xl text-center space-y-6 hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-300 group hover:-translate-y-2">
-              <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 shadow-inner flex items-center justify-center text-2xl font-black text-emerald-500 mx-auto group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-300 group-hover:scale-110">
-                3
+            <motion.div variants={fadeInUp} className="relative z-10 bg-white/60 backdrop-blur-md border border-slate-200/50 p-6 rounded-3xl text-center space-y-6 hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-300 group hover:-translate-y-2">
+              <div className="aspect-video w-full rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 shadow-inner relative">
+                <img
+                  src={howItWorks3}
+                  alt="Publish Instantly"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute top-3 left-3 w-8 h-8 rounded-lg bg-emerald-500 text-white font-bold flex items-center justify-center text-sm shadow-md">
+                  3
+                </div>
               </div>
               <h3 className="text-xl font-bold text-slate-900">Publish Instantly</h3>
               <p className="text-sm text-slate-500 leading-relaxed">
@@ -295,7 +320,7 @@ const Homepage = () => {
           }
         `}</style>
 
-        <motion.div 
+        <motion.div
           className="max-w-7xl mx-auto px-6 mb-16 text-center space-y-4"
           initial="hidden"
           whileInView="visible"
@@ -380,7 +405,7 @@ const Homepage = () => {
         {/* Soft glowing ambient circle */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-teal-500/5 rounded-full blur-[100px] pointer-events-none"></div>
 
-        <motion.div 
+        <motion.div
           className="max-w-7xl mx-auto px-6"
           initial="hidden"
           whileInView="visible"
@@ -428,7 +453,7 @@ const Homepage = () => {
               >
                 {/* Subtle hover gradient background */}
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                
+
                 <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 group-hover:bg-white group-hover:shadow-md transition-all duration-300 relative z-10">
                   {feature.icon}
                 </div>
@@ -445,7 +470,7 @@ const Homepage = () => {
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-16 items-center">
 
           {/* Student Highlights (Left side) */}
-          <motion.div 
+          <motion.div
             className="lg:col-span-6 space-y-8 text-left"
             initial="hidden"
             whileInView="visible"
@@ -492,14 +517,14 @@ const Homepage = () => {
           </motion.div>
 
           {/* Student Portfolio Mockup Preview (Right side) */}
-          <motion.div 
+          <motion.div
             className="lg:col-span-6 flex justify-center w-full"
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
             viewport={{ once: true, margin: "-50px" }}
           >
-            <div className="w-full max-w-[480px] bg-white border border-slate-200 rounded-3xl p-6 shadow-2xl relative overflow-hidden group hover:shadow-emerald-500/10 transition-shadow duration-500">
+            <div className="w-full max-w-[480px] bg-white border border-slate-200 rounded-3xl p-3 pt-12 shadow-2xl relative overflow-hidden group hover:shadow-emerald-500/10 transition-shadow duration-500">
               {/* MacOS Window Dots */}
               <div className="absolute top-4 left-5 flex gap-1.5 z-10">
                 <div className="w-2.5 h-2.5 rounded-full bg-rose-400"></div>
@@ -507,37 +532,13 @@ const Homepage = () => {
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
               </div>
               <div className="absolute top-3 right-6 text-[9px] text-slate-400 font-bold uppercase tracking-wider">
-                Student Profile Preview (Live URL)
+                Student Profile Preview
               </div>
-              <div className="flex justify-between items-center border-b border-slate-100 pb-4 mb-4 mt-4">
-                <div>
-                  <h3 className="text-xl font-black text-slate-900">Arjun Sharma</h3>
-                  <p className="text-xs text-emerald-500 font-bold">B.Tech Student @IIT Delhi</p>
-                </div>
-                <div className="px-2 py-1 rounded bg-emerald-500/10 text-emerald-600 text-[9px] font-bold">CGPA: 9.2</div>
-              </div>
-
-              <div className="space-y-4 text-left text-xs text-slate-500">
-                <p className="italic">"Passionate about algorithms and mobile app development. Seeking frontend roles."</p>
-
-                <div className="space-y-2">
-                  <h4 className="text-[9px] font-black uppercase text-slate-400">Certificates & Hackathons</h4>
-                  <div className="p-3 bg-slate-50 border border-slate-200/50 rounded-2xl flex items-center justify-between">
-                    <div>
-                      <span className="font-bold text-slate-800 block text-xs">AWS Developer Associate</span>
-                      <span className="text-[10px] text-slate-400">Amazon Web Services</span>
-                    </div>
-                    <span className="text-lg">🎖️</span>
-                  </div>
-                  <div className="p-3 bg-slate-50 border border-slate-200/50 rounded-2xl flex items-center justify-between">
-                    <div>
-                      <span className="font-bold text-slate-800 block text-xs">Hackout Delhi 2025</span>
-                      <span className="text-[10px] text-slate-400">Winner (Smart Contract Track)</span>
-                    </div>
-                    <span className="text-lg">🏆</span>
-                  </div>
-                </div>
-              </div>
+              <img
+                src={studentImg}
+                alt="Student Portfolio Preview"
+                className="w-full h-auto rounded-2xl border border-slate-100 shadow-sm object-cover group-hover:scale-[1.02] transition-transform duration-500"
+              />
             </div>
           </motion.div>
         </div>
@@ -548,14 +549,14 @@ const Homepage = () => {
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-16 items-center">
 
           {/* Professional Portfolio Mockup Preview (Left side) */}
-          <motion.div 
+          <motion.div
             className="lg:col-span-6 flex justify-center order-2 lg:order-1 w-full"
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
             viewport={{ once: true, margin: "-50px" }}
           >
-            <div className="w-full max-w-[480px] bg-slate-950 text-slate-200 border border-slate-800 rounded-3xl p-6 shadow-2xl relative overflow-hidden group hover:shadow-emerald-500/10 transition-shadow duration-500">
+            <div className="w-full max-w-[480px] bg-slate-900 text-slate-200 border border-slate-800 rounded-3xl p-3 pt-12 shadow-2xl relative overflow-hidden group hover:shadow-emerald-500/10 transition-shadow duration-500">
               {/* MacOS Window Dots */}
               <div className="absolute top-4 left-5 flex gap-1.5 z-10">
                 <div className="w-2.5 h-2.5 rounded-full bg-rose-500/80"></div>
@@ -563,46 +564,18 @@ const Homepage = () => {
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
               </div>
               <div className="absolute top-3 right-6 text-[9px] text-slate-500 font-bold uppercase tracking-wider">
-                Professional Profile Preview (Dark Theme)
+                Professional Profile Preview
               </div>
-              <div className="flex justify-between items-center border-b border-slate-800 pb-4 mb-4 mt-4">
-                <div>
-                  <h3 className="text-xl font-bold text-white">Devika Sen</h3>
-                  <p className="text-xs text-emerald-500 font-semibold">Lead Backend Engineer</p>
-                </div>
-                <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs">DS</div>
-              </div>
-
-              <div className="space-y-4 text-left text-xs text-slate-400">
-                <p className="leading-relaxed text-xs">"Architecting distributed database systems, scale testing APIs, and optimizing cloud container instances at ScaleCorp."</p>
-
-                <div className="space-y-3">
-                  <h4 className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Work History</h4>
-                  <div className="relative pl-4 border-l border-emerald-500/30 space-y-3 py-1">
-                    <div className="hover:bg-slate-900/50 p-1.5 -ml-1.5 rounded-lg transition-colors">
-                      <span className="absolute left-[0.5px] top-3 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-slate-950 -translate-x-full"></span>
-                      <div className="flex justify-between text-xs text-white font-bold ml-1.5">
-                        <span>Lead Backend Developer</span>
-                        <span className="text-[10px] text-slate-500">2023 - Present</span>
-                      </div>
-                      <p className="text-[10px] text-slate-400 mt-0.5 ml-1.5">ScaleCorp Inc.</p>
-                    </div>
-                    <div className="hover:bg-slate-900/50 p-1.5 -ml-1.5 rounded-lg transition-colors">
-                      <span className="absolute left-[0.5px] top-[3.25rem] w-2.5 h-2.5 rounded-full bg-slate-700 border-2 border-slate-950 -translate-x-full"></span>
-                      <div className="flex justify-between text-xs text-white font-bold ml-1.5">
-                        <span>Software Engineer</span>
-                        <span className="text-[10px] text-slate-500">2021 - 2023</span>
-                      </div>
-                      <p className="text-[10px] text-slate-400 mt-0.5 ml-1.5">TechDev Solutions</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <img
+                src={professionalImg}
+                alt="Professional Portfolio Preview"
+                className="w-full h-auto rounded-2xl border border-slate-800 shadow-sm object-cover group-hover:scale-[1.02] transition-transform duration-500"
+              />
             </div>
           </motion.div>
 
           {/* Student Highlights (Right side) */}
-          <motion.div 
+          <motion.div
             className="lg:col-span-6 space-y-8 text-left order-1 lg:order-2"
             initial="hidden"
             whileInView="visible"
@@ -716,7 +689,7 @@ const Homepage = () => {
       {/* 9. TESTIMONIALS SECTION */}
       <section id="testimonials-section" className="py-24 bg-white border-t border-slate-100 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
-          <motion.div 
+          <motion.div
             className="text-center max-w-3xl mx-auto mb-16 space-y-4"
             initial="hidden"
             whileInView="visible"
@@ -756,19 +729,12 @@ const Homepage = () => {
                       </div>
                       <p className="text-sm text-slate-600 leading-relaxed italic">"{t.quote}"</p>
                     </div>
-
-                    <div className="flex items-center gap-4 mt-8 pt-4 border-t border-slate-200/40">
-                      <img
-                        src={t.avatar}
-                        alt={t.name}
-                        className="w-12 h-12 rounded-full object-cover border border-slate-200"
-                      />
+                    <div className="flex items-center mt-8 pt-4 border-t border-slate-200/40">
                       <div>
                         <h4 className="font-bold text-slate-900 text-sm leading-none">{t.name}</h4>
-                        <p className="text-[10px] text-slate-400 mt-1 font-semibold">{t.role}</p>
+                        <p className="text-[10px] text-slate-400 mt-1.5 font-semibold">{t.role}</p>
                       </div>
                     </div>
-
                     <span className="absolute top-6 right-8 px-2 py-0.5 bg-emerald-500/10 text-emerald-600 text-[8px] font-extrabold uppercase rounded">
                       {t.tag}
                     </span>
@@ -788,7 +754,7 @@ const Homepage = () => {
 
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-12 items-center relative z-10">
           {/* Text Content */}
-          <motion.div 
+          <motion.div
             className="lg:col-span-7 space-y-6 text-left"
             initial="hidden"
             whileInView="visible"
@@ -820,10 +786,8 @@ const Homepage = () => {
                   <span className="text-sm font-bold text-white block">Google Play</span>
                 </div>
               </a>
-              <span className="text-xs text-emerald-400 font-extrabold uppercase bg-emerald-950/40 px-3.5 py-1.5 border border-emerald-500/20 rounded-full shadow-inner">
-                App Store Live
-              </span>
             </motion.div>
+
           </motion.div>
 
           {/* Visual Showcase (Mockup) */}
@@ -898,7 +862,7 @@ const Homepage = () => {
       {/* 12. FAQ SECTION */}
       <section className="py-24 bg-slate-50/50 border-t border-slate-100">
         <div className="max-w-4xl mx-auto px-6">
-          <motion.div 
+          <motion.div
             className="text-center mb-16 space-y-4"
             initial="hidden"
             whileInView="visible"
@@ -971,7 +935,7 @@ const Homepage = () => {
       {/* 13. FINAL CTA SECTION */}
       <section className="py-20 bg-white border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-6">
-          <motion.div 
+          <motion.div
             className="bg-gradient-to-tr from-emerald-500 via-emerald-600 to-emerald-500 rounded-[2.5rem] p-12 md:p-20 text-center text-white relative overflow-hidden shadow-2xl shadow-emerald-500/20"
             initial={{ opacity: 0, scale: 0.95, y: 30 }}
             whileInView={{ opacity: 1, scale: 1, y: 0 }}
