@@ -11,6 +11,7 @@ import CookiePolicy from "./pages/CookiePolicy";
 import Jobs from "./pages/Jobs";
 import JobDetail from "./pages/JobDetail";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import ByteBodhQRGenerator from "./qr-code/ByteBodhQRGenerator";
 import Products from "./pages/Products";
 import StudentProfileBuilder from "./portfolio/StudentProfileBuilder";
@@ -166,6 +167,7 @@ const App = () => {
           <Route path="*" element={<PageNotFound />} />
         </Routes>
         <Analytics />
+        <SpeedInsights />
       </BrowserRouter>
     </GoogleOAuthProvider>
   );
