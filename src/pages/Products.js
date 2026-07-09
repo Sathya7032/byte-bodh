@@ -19,7 +19,7 @@ function Products() {
   useSEO({
     title: "Our Products | ByteBodh - Tools & Tech Utilities",
     description: "Explore our collection of utility tools including dynamic QR Code Generator, Resume/Portfolio Maker, Online Code Editor compiler, and client-side Image Compressor.",
-    keywords: "online compiler, code editor, qr generator, image shrinker, bytebodh products"
+    keywords: "online compiler, code editor, qr generator, image compressor, qr code generator with tracking, free online code editor, bytebodh products, utility tools, image size reducer, browser compiler"
   });
 
   const [searchTerm, setSearchTerm] = useState("");

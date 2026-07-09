@@ -64,7 +64,7 @@ function Jobs() {
   useSEO({
     title: "Job Notifications | ByteBodh - Latest Off-Campus Tech Openings",
     description: "Explore tech job vacancies, fresher engineering drives, and software internships from top companies. Check eligibility requirements and apply directly.",
-    keywords: "off campus jobs, software jobs freshers, react developer openings, tech internships india"
+    keywords: "off campus jobs, software jobs freshers, react developer openings, tech internships india, software engineer jobs, junior developer jobs, coding jobs, tech career board, off campus drives"
   });
 
   const [jobs, setJobs] = useState([]);

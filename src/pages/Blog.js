@@ -65,7 +65,7 @@ function Blog() {
   useSEO({
     title: "Blog | ByteBodh - Tutorials, Tech Guides & Career Tips",
     description: "Browse the latest tech articles, web development tutorials, and career branding guides. Learn how to write clean React code, build portfolios, and optimize CVs.",
-    keywords: "coding articles, react tutorial, developer career guides, resume tips, bytebodh blog"
+    keywords: "coding articles, react tutorial, developer career guides, resume tips, bytebodh blog, portfolio guide, developer branding, career growth tips, tech tutorials"
   });
 
   const [searchTerm, setSearchTerm] = useState("");

@@ -118,7 +118,7 @@ const Homepage = () => {
   useSEO({
     title: "ByteBodh | AI Portfolio Builder & Career Hub for Developers & Students",
     description: "Create a professional online portfolio website in 2 minutes. Choose from premium CLI terminal, IDE, and academic templates. Compile CVs to PDF and track views.",
-    keywords: "portfolio maker, resume builder, developer portfolio, student cv template, terminal portfolio, bytebodh"
+    keywords: "portfolio builder, resume maker, online portfolio maker, developer portfolio templates, terminal portfolio builder, academic cv template, ATS-friendly resume builder, tech job notifications, bytebodh, dynamic portfolio, portfolio builder for developers, free resume maker, best developer portfolio examples, VS Code portfolio template, interactive resume, fresher resume builder, career portfolio maker, software engineer portfolio, build online portfolio free, CV maker online, student resume template, professional portfolio website builder, free online compiler, image compressor, qr code generator tracking"
   });
 
   const [faqOpen, setFaqOpen] = useState(null);
