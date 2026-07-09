@@ -33,6 +33,9 @@ const JobNotificationForm = () => {
     experienceRequired: 0,
     applicationDeadline: "",
     isActive: true,
+    metaTitle: "",
+    metaDescription: "",
+    metaKeywords: "",
   });
 
   const [skillInput, setSkillInput] = useState("");
@@ -129,6 +132,9 @@ const JobNotificationForm = () => {
         applicationDeadline: job.applicationDeadline
           ? new Date(job.applicationDeadline).toISOString().split("T")[0]
           : "",
+        metaTitle: job.seoDetails?.metaTitle || "",
+        metaDescription: job.seoDetails?.metaDescription || "",
+        metaKeywords: job.seoDetails?.metaKeywords || "",
       });
     } catch (error) {
       console.error("Failed to fetch job notification:", error);
@@ -224,6 +230,11 @@ const JobNotificationForm = () => {
         ...formData,
         applicationDeadline,
         experienceRequired: parseInt(formData.experienceRequired, 10),
+        seoDetails: {
+          metaTitle: formData.metaTitle ? formData.metaTitle.trim() : null,
+          metaDescription: formData.metaDescription ? formData.metaDescription.trim() : null,
+          metaKeywords: formData.metaKeywords ? formData.metaKeywords.trim() : null,
+        }
       };
 
       if (isEditMode) {
@@ -465,6 +476,63 @@ const JobNotificationForm = () => {
               </label>
               <div ref={requirementsQuillRef} className="bg-white rounded-lg border border-gray-300 h-48" />
               <p className="text-xs text-gray-500 mt-2">Use the editor to format your requirements with rich text options</p>
+            </div>
+
+            {/* SEO Details Section */}
+            <div className="md:col-span-2 p-6 bg-gray-50 rounded-xl border border-gray-200 mt-6 mb-6">
+              <h3 className="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">SEO Metadata Settings (Optional)</h3>
+              <div className="grid grid-cols-1 gap-6">
+                {/* Meta Title */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Meta Title
+                  </label>
+                  <input
+                    type="text"
+                    name="metaTitle"
+                    value={formData.metaTitle || ""}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter custom search engine title"
+                    disabled={submitting}
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Recommended: Under 60 characters. Defaults to the job title.</p>
+                </div>
+
+                {/* Meta Description */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Meta Description
+                  </label>
+                  <textarea
+                    name="metaDescription"
+                    value={formData.metaDescription || ""}
+                    onChange={handleChange}
+                    rows="3"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter search engine snippet description"
+                    disabled={submitting}
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Recommended: Under 160 characters. Summarize the role and company.</p>
+                </div>
+
+                {/* Meta Keywords */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Meta Keywords
+                  </label>
+                  <input
+                    type="text"
+                    name="metaKeywords"
+                    value={formData.metaKeywords || ""}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g. react developer, software engineer internship"
+                    disabled={submitting}
+                  />
+                  <p className="mt-1 text-xs text-gray-500">Comma-separated tags to help indexing.</p>
+                </div>
+              </div>
             </div>
 
             {/* Active Status */}

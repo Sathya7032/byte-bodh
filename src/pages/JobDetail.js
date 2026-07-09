@@ -4,6 +4,7 @@ import { FaMapMarkerAlt, FaCalendarAlt, FaBriefcase, FaArrowLeft, FaSpinner } fr
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { getJobNotificationById } from "../api/jobNotifications";
+import useSEO from "../hooks/useSEO";
 
 function JobDetail() {
   const { id } = useParams();
@@ -11,6 +12,12 @@ function JobDetail() {
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  useSEO({
+    title: job ? (job.seoDetails?.metaTitle || `${job.title} | ${job.company} Job Opportunity | ByteBodh`) : "Loading job...",
+    description: job ? (job.seoDetails?.metaDescription || job.description?.replace(/<[^>]*>?/gm, '').substring(0, 150)) : "",
+    keywords: job ? (job.seoDetails?.metaKeywords || "job vacancy, freshers openings, tech career") : ""
+  });
 
   // Extract actual ID from slug (slug format: "job-title-123" -> extract 123)
   const extractIdFromSlug = (slug) => {
@@ -39,7 +46,8 @@ function JobDetail() {
           experienceRequired: jobData.experienceRequired,
           requiredSkills: jobData.requiredSkills,
           requirements: jobData.requirements,
-          isActive: jobData.isActive
+          isActive: jobData.isActive,
+          seoDetails: jobData.seoDetails
         };
         
         setJob(jobData);

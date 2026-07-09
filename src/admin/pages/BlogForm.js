@@ -26,6 +26,9 @@ const BlogForm = () => {
     readTime: 5,
     isFeatured: false,
     categoryId: "",
+    metaTitle: "",
+    metaDescription: "",
+    metaKeywords: "",
   });
 
   // Quill editor configuration
@@ -153,6 +156,9 @@ const BlogForm = () => {
         readTime: blog.readTime || 5,
         isFeatured: blog.isFeatured || false,
         categoryId: blog.category?.id || "",
+        metaTitle: blog.seoDetails?.metaTitle || "",
+        metaDescription: blog.seoDetails?.metaDescription || "",
+        metaKeywords: blog.seoDetails?.metaKeywords || "",
       });
       
       if (blog.imageUrl) {
@@ -274,6 +280,11 @@ const BlogForm = () => {
         readTime: parseInt(formData.readTime) || 5,
         isFeatured: formData.isFeatured,
         categoryId: formData.categoryId,
+        seoDetails: {
+          metaTitle: formData.metaTitle.trim() || null,
+          metaDescription: formData.metaDescription.trim() || null,
+          metaKeywords: formData.metaKeywords.trim() || null,
+        }
       };
 
       console.log("Submitting blog data:", blogData);
@@ -527,6 +538,63 @@ const BlogForm = () => {
                     <li>• Image will be displayed as blog thumbnail</li>
                   </ul>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* SEO Details Section */}
+          <div className="mb-8 p-6 bg-gray-50 rounded-xl border border-gray-200">
+            <h3 className="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">SEO Metadata Settings (Optional)</h3>
+            <div className="grid grid-cols-1 gap-6">
+              {/* Meta Title */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Meta Title
+                </label>
+                <input
+                  type="text"
+                  name="metaTitle"
+                  value={formData.metaTitle || ""}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="Enter custom search engine title"
+                  disabled={submitting}
+                />
+                <p className="mt-1 text-xs text-gray-500">Recommended: Under 60 characters. Defaults to the blog title.</p>
+              </div>
+
+              {/* Meta Description */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Meta Description
+                </label>
+                <textarea
+                  name="metaDescription"
+                  value={formData.metaDescription || ""}
+                  onChange={handleInputChange}
+                  rows="3"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="Enter search engine snippet description"
+                  disabled={submitting}
+                />
+                <p className="mt-1 text-xs text-gray-500">Recommended: Under 160 characters. Summarize the post content.</p>
+              </div>
+
+              {/* Meta Keywords */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Meta Keywords
+                </label>
+                <input
+                  type="text"
+                  name="metaKeywords"
+                  value={formData.metaKeywords || ""}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="e.g. react, programming, web development"
+                  disabled={submitting}
+                />
+                <p className="mt-1 text-xs text-gray-500">Comma-separated tags to help indexing.</p>
               </div>
             </div>
           </div>

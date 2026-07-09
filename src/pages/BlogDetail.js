@@ -16,6 +16,7 @@ import axios from "axios";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import API_BASE_URL from "../config/api";
+import useSEO from "../hooks/useSEO";
 
 function decodeHtml(html) {
   if (!html) return "";
@@ -40,6 +41,12 @@ function BlogDetail() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const { slug } = useParams();
+
+  useSEO({
+    title: blog ? (blog.seoDetails?.metaTitle || `${blog.title} | ByteBodh Blog`) : "Loading blog...",
+    description: blog ? (blog.seoDetails?.metaDescription || blog.excerpt || blog.description?.replace(/<[^>]*>?/gm, '').substring(0, 150)) : "",
+    keywords: blog ? (blog.seoDetails?.metaKeywords || "bytebodh blog, coding tutorials, tech article") : ""
+  });
 
   // Fetch blog details by slug - public endpoint without authentication
   useEffect(() => {
