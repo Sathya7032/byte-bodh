@@ -4,6 +4,7 @@ import TemplateOne from "./TemplateOne";
 import TemplateThree from "./TemplateThree";
 import TemplateFour from "./TemplateFour";
 import TemplateFive from "./TemplateFive";
+import TemplateSix from "./TemplateSix";
 import Portfolio from "../portfolio/Portfolio";
 import { getPublicProfileByUsername } from "../api/profileService";
 
@@ -335,6 +336,88 @@ const templateFiveMock = {
   ]
 };
 
+const templateSixMock = {
+  fullName: "Priya Nair",
+  headline: "Data Scientist & ML Engineer",
+  email: "priya.nair@bytebodh.in",
+  mobileNumber: "+91 91234 56789",
+  location: "Hyderabad, Telangana, India",
+  summary: "Turning raw data into actionable intelligence. I design end-to-end ML pipelines, build predictive models, and deploy scalable AI solutions at the intersection of science and engineering.",
+  pictureUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=150&q=80",
+  skills: [
+    { name: "Python & NumPy", proficiency: 95 },
+    { name: "TensorFlow & PyTorch", proficiency: 90 },
+    { name: "SQL & BigQuery", proficiency: 88 },
+    { name: "MLOps & Kubeflow", proficiency: 82 },
+    { name: "Data Visualization", proficiency: 85 },
+    "Scikit-learn",
+    "Apache Spark",
+    "GCP & AWS"
+  ],
+  experience: [
+    {
+      position: "Senior ML Engineer",
+      company: "GreentechAI Labs",
+      startDate: "2023-06",
+      endDate: "Present",
+      location: "Hyderabad, India",
+      description: "Leading the development of real-time anomaly detection systems processing 50M+ events per day using Kafka streaming and TensorFlow Serving."
+    },
+    {
+      position: "Data Scientist",
+      company: "NovaStar Analytics",
+      startDate: "2021-03",
+      endDate: "2023-05",
+      location: "Pune, India",
+      description: "Built churn prediction models achieving 91% recall, reducing customer attrition by 18% in the first quarter of deployment."
+    }
+  ],
+  education: [
+    {
+      degree: "M.Tech in Artificial Intelligence",
+      institution: "IIT Hyderabad",
+      fieldOfStudy: "Machine Learning",
+      startDate: "2019",
+      endDate: "2021",
+      gpa: "9.4/10"
+    }
+  ],
+  projects: [
+    {
+      title: "EcoSentinel — Climate Risk Engine",
+      description: "Real-time climate risk scoring system using satellite imagery, LSTMs, and GIS data to predict regional flooding events 48 hrs in advance.",
+      techStack: "Python, TensorFlow, GIS, Kafka",
+      technologies: ["Python", "TensorFlow", "GIS", "Kafka"],
+      link: "https://github.com/bytebodh/ecosentinel",
+      projectUrl: "https://github.com/bytebodh/ecosentinel"
+    },
+    {
+      title: "NLPFlow — Text Analytics Platform",
+      description: "Production-grade NLP pipeline with entity recognition, sentiment scoring and summarization for enterprise document processing.",
+      techStack: "HuggingFace, FastAPI, Redis",
+      technologies: ["HuggingFace", "FastAPI", "Redis"],
+      link: "https://github.com/bytebodh/nlpflow",
+      projectUrl: "https://github.com/bytebodh/nlpflow"
+    }
+  ],
+  certifications: [
+    {
+      name: "Google Professional ML Engineer",
+      issuingOrganization: "Google Cloud",
+      issueDate: "2023"
+    },
+    {
+      name: "Deep Learning Specialization",
+      issuingOrganization: "Coursera / DeepLearning.AI",
+      issueDate: "2022"
+    }
+  ],
+  socialMediaLinks: [
+    { platform: "GITHUB", url: "https://github.com/bytebodh", profileUrl: "https://github.com/bytebodh" },
+    { platform: "LINKEDIN", url: "https://linkedin.com", profileUrl: "https://linkedin.com" }
+  ]
+};
+
 function PublicPortfolioPage({ isPreview }) {
   const { username: urlUsername, templateId: previewTemplateId } = useParams();
   const [profile, setProfile] = useState(null);
@@ -352,6 +435,7 @@ function PublicPortfolioPage({ isPreview }) {
       if (tId === 3) mockProfile = templateThreeMock;
       if (tId === 4) mockProfile = templateFourMock;
       if (tId === 5) mockProfile = templateFiveMock;
+      if (tId === 6) mockProfile = templateSixMock;
       
       setProfile(mockProfile);
       setLoading(false);
@@ -419,7 +503,7 @@ function PublicPortfolioPage({ isPreview }) {
     <div className="bg-slate-950 border-b border-slate-900 text-white px-6 py-3 flex items-center justify-between sticky top-0 z-50 shadow-md text-xs font-bold font-sans">
       <div className="flex items-center gap-2">
         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span>BYTEBODH TEMPLATE PREVIEW: {profile.fullName} ({templateId === 1 ? "Academic Minimalist" : templateId === 2 ? "Hacker Terminal" : templateId === 3 ? "Creative Gallery" : templateId === 4 ? "Executive Brand" : "Developer IDE"})</span>
+        <span>BYTEBODH TEMPLATE PREVIEW: {profile.fullName} ({templateId === 1 ? "Academic Minimalist" : templateId === 2 ? "Hacker Terminal" : templateId === 3 ? "Creative Gallery" : templateId === 4 ? "Executive Brand" : templateId === 5 ? "Developer IDE" : "Nature Aurora"})</span>
       </div>
       <div className="flex items-center gap-4 text-slate-400">
         <span className="hidden sm:inline">💡 Previewing complete sample layout</span>
@@ -449,6 +533,9 @@ function PublicPortfolioPage({ isPreview }) {
 
       case 5:
         return <TemplateFive profile={profile} />;
+
+      case 6:
+        return <TemplateSix profile={profile} />;
 
       default:
         return <TemplateOne profile={profile} />;
