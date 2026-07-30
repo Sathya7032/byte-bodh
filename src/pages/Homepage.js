@@ -89,6 +89,7 @@ const testimonials = [
 
 const templatesShowcase = [
   {
+    id: 1,
     name: "Academic Minimalist",
     image: freeTemplate,
     category: "Students & Freshers",
@@ -98,6 +99,7 @@ const templatesShowcase = [
     color: "from-blue-500 to-cyan-400"
   },
   {
+    id: 2,
     name: "Hacker Terminal",
     image: template2,
     category: "Developers & Sysadmins",
@@ -107,6 +109,7 @@ const templatesShowcase = [
     color: "from-emerald-500 to-teal-400"
   },
   {
+    id: 3,
     name: "Creative Gallery",
     image: template3,
     category: "Designers & Artists",
@@ -116,6 +119,7 @@ const templatesShowcase = [
     color: "from-purple-500 to-pink-400"
   },
   {
+    id: 4,
     name: "Executive Brand",
     image: template4,
     category: "Product Managers & Leads",
@@ -125,13 +129,113 @@ const templatesShowcase = [
     color: "from-indigo-500 to-violet-400"
   },
   {
+    id: 5,
     name: "Developer IDE Studio",
     image: template5,
     category: "Software Engineers",
     desc: "A fully immersive VS Code styled portfolio layout featuring tabs, explorer, and a live compiler mode.",
     accent: "border-emerald-500/20",
-    badge: "New Release",
+    badge: "IDE Theme",
     color: "from-blue-600 to-cyan-500"
+  },
+  {
+    id: 6,
+    name: "Nature Aurora",
+    image: null,
+    category: "Creative Freshers",
+    desc: "Fresh, organic emerald green design with floating leaf particles and smooth scroll transitions.",
+    accent: "border-emerald-500/20",
+    badge: "Nature Green",
+    color: "from-emerald-600 to-green-400",
+    bgStyle: "bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-950 text-emerald-100 border-emerald-500/30"
+  },
+  {
+    id: 7,
+    name: "Cyber HUD Matrix",
+    image: null,
+    category: "Tech & Cyber Freshers",
+    desc: "Futuristic Cyber HUD Console with matrix grid background, glowing yellow status ring, & Anime.js v4 animations.",
+    accent: "border-amber-500/40",
+    badge: "Cyber HUD • 4-Color",
+    color: "from-slate-900 via-amber-900 to-amber-500",
+    bgStyle: "bg-slate-950 text-slate-100 border-amber-500/50"
+  },
+  {
+    id: 8,
+    name: "Vintage Gazette",
+    image: null,
+    category: "Academic Chronicle",
+    desc: "Classic Newspaper Frontpage layout with 3-column editorial grid, serif drop caps, & double border rules.",
+    accent: "border-amber-800/40",
+    badge: "Gazette • 4-Color",
+    color: "from-amber-900 via-amber-800 to-yellow-500",
+    bgStyle: "bg-stone-100 text-slate-900 border-amber-800/40"
+  },
+  {
+    id: 9,
+    name: "Neo-Brutalist Tech",
+    image: null,
+    category: "High-Contrast Student",
+    desc: "Bold Neo-Brutalist Black, White & Yellow showcase with Anime.js continuous live ticker & heavy shadows.",
+    accent: "border-black",
+    badge: "Anime.js • 4-Color",
+    color: "from-yellow-400 via-amber-500 to-black",
+    bgStyle: "bg-white text-black border-4 border-black"
+  },
+  {
+    id: 10,
+    name: "Dual-Column Slate & Cocoa",
+    image: null,
+    category: "Modern Student",
+    desc: "Dual-column Dark Slate & Cocoa layout featuring Anime.js animated skill progress bars.",
+    accent: "border-amber-700/40",
+    badge: "Anime.js • 4-Color",
+    color: "from-slate-800 via-amber-900 to-yellow-500",
+    bgStyle: "bg-slate-800 text-slate-100 border-amber-600/50"
+  },
+  {
+    id: 11,
+    name: "Interactive Desktop OS",
+    image: null,
+    category: "OS Workspace Desktop",
+    desc: "Interactive Mac/NeXT-inspired OS Desktop interface (BYTEBODH OS v11.0) with dock app switcher & window pop-ins.",
+    accent: "border-blue-500/40",
+    badge: "Desktop OS • App Dock",
+    color: "from-blue-900 via-slate-900 to-amber-500",
+    bgStyle: "bg-slate-900 text-slate-100 border-blue-500/50"
+  },
+  {
+    id: 12,
+    name: "Career Roadmap Journey",
+    image: null,
+    category: "Milestone Metro Roadmap",
+    desc: "Interactive visual subway station career timeline with glowing station nodes & Anime.js v4 path animations.",
+    accent: "border-amber-500/40",
+    badge: "Station Roadmap • Metro",
+    color: "from-amber-900 via-amber-600 to-yellow-400",
+    bgStyle: "bg-slate-900 text-amber-300 border-amber-500/50"
+  },
+  {
+    id: 13,
+    name: "Railway Express Journey",
+    image: null,
+    category: "Train Express Aviation",
+    desc: "Interactive bullet train animation moving across top railway tracks with Anime.js v4 & full student portfolio sections.",
+    accent: "border-emerald-500/40",
+    badge: "Train Express • Anime.js",
+    color: "from-emerald-900 via-slate-900 to-amber-400",
+    bgStyle: "bg-slate-900 text-emerald-400 border-emerald-500/50"
+  },
+  {
+    id: 14,
+    name: "Aviation Sky Flight",
+    image: null,
+    category: "Sky Flight Aviation",
+    desc: "Interactive airplane sky flight animation flying across sky banner with Anime.js v4 & full student portfolio sections.",
+    accent: "border-sky-500/40",
+    badge: "Airplane Flight • Anime.js",
+    color: "from-sky-900 via-slate-900 to-yellow-400",
+    bgStyle: "bg-slate-900 text-sky-400 border-sky-500/50"
   }
 ];
 
@@ -448,29 +552,37 @@ const Homepage = () => {
               WebkitOverflowScrolling: "touch"
             }}
           >
-            {[freeTemplate, template2, template3, template4, template5].map((img, idx) => (
+            {templatesShowcase.map((item) => (
               <a
-                key={idx}
-                href={`/templates/preview/${idx + 1}`}
+                key={item.id}
+                href={`/templates/preview/${item.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-shrink-0 w-[280px] sm:w-[450px] md:w-[600px] aspect-[16/10] rounded-3xl overflow-hidden border border-slate-200 shadow-lg hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-300 hover:scale-[1.02] snap-center bg-white group relative"
+                className="flex-shrink-0 w-[300px] sm:w-[480px] md:w-[620px] aspect-[16/10] rounded-3xl overflow-hidden border border-slate-200 shadow-lg hover:shadow-2xl hover:border-emerald-500/40 transition-all duration-300 hover:scale-[1.02] snap-center bg-slate-900 group relative flex flex-col justify-between"
               >
-                <img
-                  src={img}
-                  alt={`Template ${idx + 1} screenshot`}
-                  className="w-full h-full object-cover select-none pointer-events-none"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-2">
-                  <span className="px-5 py-2.5 bg-white text-slate-900 text-xs font-black rounded-2xl shadow-xl transform translate-y-3 group-hover:translate-y-0 transition-all duration-300 flex items-center gap-1.5 hover:bg-slate-50">
-                    <FaPlay size={10} /> Live Preview
+                {/* Live Web Preview Iframe */}
+                <div className="w-full h-full overflow-hidden relative bg-white pointer-events-none select-none">
+                  <iframe
+                    src={`/templates/preview/${item.id}`}
+                    title={`${item.name} Live Preview`}
+                    className="w-[1280px] h-[800px] origin-top-left transform scale-[0.32] sm:scale-[0.45] md:scale-[0.5] border-0 pointer-events-none select-none"
+                    loading="lazy"
+                  />
+                </div>
+
+                {/* Hover Action Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-2 z-20">
+                  <span className="px-5 py-2.5 bg-emerald-500 text-white text-xs font-black rounded-2xl shadow-xl transform translate-y-3 group-hover:translate-y-0 transition-all duration-300 flex items-center gap-2 hover:bg-emerald-600">
+                    <FaPlay size={10} /> Open Live Preview Template #{item.id}
                   </span>
-                  <span className="text-[10px] text-white/80 font-semibold tracking-wider drop-shadow-md">
-                    Template {idx + 1}
+                  <span className="text-[11px] text-slate-200 font-bold tracking-wider drop-shadow-md">
+                    {item.name} ({item.category})
                   </span>
                 </div>
-                <div className="absolute bottom-3 left-3 px-3 py-1 bg-black/60 backdrop-blur-sm rounded-lg text-white text-[10px] font-bold uppercase tracking-wider">
-                  Template {idx + 1}
+
+                {/* Bottom Bar Info */}
+                <div className="absolute bottom-3 left-3 px-3 py-1 bg-slate-950/85 backdrop-blur-md border border-slate-700/60 rounded-lg text-white text-[10px] font-bold uppercase tracking-wider z-10">
+                  Template #{item.id} · {item.name}
                 </div>
               </a>
             ))}
@@ -718,24 +830,25 @@ const Homepage = () => {
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {templatesShowcase.map((tpl, idx) => (
+            {templatesShowcase.map((tpl) => (
               <div
-                key={idx}
+                key={tpl.id}
                 className="bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-2 hover:border-emerald-500/30"
               >
                 <div>
-                  <div className="aspect-[16/10] bg-slate-50 border border-slate-150 rounded-2xl mb-5 overflow-hidden relative shadow-inner">
-                    <img
-                      src={tpl.image}
-                      alt={tpl.name}
-                      className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                  {/* Live Web Preview Iframe */}
+                  <div className="aspect-[16/10] bg-slate-900 border border-slate-200 rounded-2xl mb-5 overflow-hidden relative shadow-inner pointer-events-none select-none">
+                    <iframe
+                      src={`/templates/preview/${tpl.id}`}
+                      title={`${tpl.name} Live Preview`}
+                      className="w-[1000px] h-[650px] origin-top-left transform scale-[0.32] sm:scale-[0.38] border-0 pointer-events-none select-none"
+                      loading="lazy"
                     />
-                    <div className="absolute top-3 right-3">
+                    <div className="absolute top-3 right-3 z-10">
                       <span className="px-3 py-1 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white text-[10px] font-black uppercase rounded-lg backdrop-blur-sm border border-white/10 shadow-lg">
                         {tpl.badge}
                       </span>
                     </div>
-                    <div className={`absolute bottom-3 left-3 w-12 h-12 rounded-xl bg-gradient-to-br ${tpl.color} opacity-80 blur-sm`}></div>
                   </div>
 
                   <div className="space-y-2">
@@ -752,13 +865,15 @@ const Homepage = () => {
                 </div>
 
                 <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-[10px] text-slate-400 font-extrabold uppercase">Template {idx + 1}</span>
-                  <Link
-                    to="/register"
+                  <span className="text-[10px] text-slate-400 font-extrabold uppercase">Template #{tpl.id}</span>
+                  <a
+                    href={`/templates/preview/${tpl.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-500 hover:text-emerald-600 transition-colors group-hover:underline"
                   >
-                    Select Design <FaArrowRight size={10} className="group-hover:translate-x-1 transition-transform" />
-                  </Link>
+                    Live Preview <FaArrowRight size={10} className="group-hover:translate-x-1 transition-transform" />
+                  </a>
                 </div>
               </div>
             ))}

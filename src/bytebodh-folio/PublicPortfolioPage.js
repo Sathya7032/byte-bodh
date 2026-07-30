@@ -5,6 +5,14 @@ import TemplateThree from "./TemplateThree";
 import TemplateFour from "./TemplateFour";
 import TemplateFive from "./TemplateFive";
 import TemplateSix from "./TemplateSix";
+import TemplateSeven from "./TemplateSeven";
+import TemplateEight from "./TemplateEight";
+import TemplateNine from "./TemplateNine";
+import TemplateTen from "./TemplateTen";
+import TemplateEleven from "./TemplateEleven";
+import TemplateTwelve from "./TemplateTwelve";
+import TemplateThirteen from "./TemplateThirteen";
+import TemplateFourteen from "./TemplateFourteen";
 import Portfolio from "../portfolio/Portfolio";
 import { getPublicProfileByUsername } from "../api/profileService";
 
@@ -435,7 +443,7 @@ function PublicPortfolioPage({ isPreview }) {
       if (tId === 3) mockProfile = templateThreeMock;
       if (tId === 4) mockProfile = templateFourMock;
       if (tId === 5) mockProfile = templateFiveMock;
-      if (tId === 6) mockProfile = templateSixMock;
+      if (tId === 6 || tId === 7 || tId === 8 || tId === 9 || tId === 10) mockProfile = templateSixMock;
       
       setProfile(mockProfile);
       setLoading(false);
@@ -503,7 +511,7 @@ function PublicPortfolioPage({ isPreview }) {
     <div className="bg-slate-950 border-b border-slate-900 text-white px-6 py-3 flex items-center justify-between sticky top-0 z-50 shadow-md text-xs font-bold font-sans">
       <div className="flex items-center gap-2">
         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span>BYTEBODH TEMPLATE PREVIEW: {profile.fullName} ({templateId === 1 ? "Academic Minimalist" : templateId === 2 ? "Hacker Terminal" : templateId === 3 ? "Creative Gallery" : templateId === 4 ? "Executive Brand" : templateId === 5 ? "Developer IDE" : "Nature Aurora"})</span>
+        <span>BYTEBODH TEMPLATE PREVIEW: {profile.fullName} (Template #{templateId})</span>
       </div>
       <div className="flex items-center gap-4 text-slate-400">
         <span className="hidden sm:inline">💡 Previewing complete sample layout</span>
@@ -536,6 +544,30 @@ function PublicPortfolioPage({ isPreview }) {
 
       case 6:
         return <TemplateSix profile={profile} />;
+
+      case 7:
+        return <TemplateSeven profile={profile} />;
+
+      case 8:
+        return <TemplateEight profile={profile} />;
+
+      case 9:
+        return <TemplateNine profile={profile} />;
+
+      case 10:
+        return <TemplateTen profile={profile} />;
+
+      case 11:
+        return <TemplateEleven profile={profile} />;
+
+      case 12:
+        return <TemplateTwelve profile={profile} />;
+
+      case 13:
+        return <TemplateThirteen profile={profile} />;
+
+      case 14:
+        return <TemplateFourteen profile={profile} />;
 
       default:
         return <TemplateOne profile={profile} />;
