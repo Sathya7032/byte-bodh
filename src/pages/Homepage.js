@@ -236,6 +236,39 @@ const templatesShowcase = [
     badge: "Airplane Flight • Anime.js",
     color: "from-sky-900 via-slate-900 to-yellow-400",
     bgStyle: "bg-slate-900 text-sky-400 border-sky-500/50"
+  },
+  {
+    id: 15,
+    name: "Playing Cards Poker Deck",
+    image: null,
+    category: "Casino Poker Royal",
+    desc: "Interactive Poker & Casino Deck theme with gold foil borders, suit badges (♠ ♥ ♦ ♣), Ace of Spades profile, & card hands.",
+    accent: "border-amber-500/40",
+    badge: "Poker Deck • ♠♥♦♣",
+    color: "from-emerald-900 via-stone-900 to-amber-400",
+    bgStyle: "bg-emerald-950 text-amber-300 border-amber-500/50"
+  },
+  {
+    id: 16,
+    name: "Monochrome Vector Noir",
+    image: null,
+    category: "B&W Vector Line Art",
+    desc: "High-contrast Black & White vector illustration theme featuring noir SVG graphics, stark line art, and developer cards.",
+    accent: "border-zinc-500/40",
+    badge: "B&W Vector Art • Noir",
+    color: "from-zinc-900 via-zinc-800 to-white",
+    bgStyle: "bg-zinc-950 text-zinc-100 border-zinc-500/50"
+  },
+  {
+    id: 17,
+    name: "Vibrant Color Vector Art",
+    image: null,
+    category: "Modern Color Vector",
+    desc: "Lively full-color vector illustration theme with vivid gradients, 2D/3D tech graphics, and colorful project banners.",
+    accent: "border-purple-500/40",
+    badge: "Color Vector • Vibrant",
+    color: "from-purple-900 via-slate-900 to-sky-400",
+    bgStyle: "bg-slate-950 text-purple-300 border-purple-500/50"
   }
 ];
 

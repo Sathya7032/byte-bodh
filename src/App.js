@@ -58,6 +58,7 @@ import Templates from "./admin/pages/Templates";
 import AdminUserTemplates from "./admin/pages/AdminUserTemplates";
 import AdminPayments from "./admin/pages/AdminPayments";
 import PageNotFound from "./pages/PageNotFound";
+import TemplatesPage from "./pages/Templates";
 import PublicPortfolioPage from "./bytebodh-folio/PublicPortfolioPage";
 import Disclaimer from "./pages/Disclaimer";
 
@@ -90,6 +91,7 @@ const App = () => {
         <ToastContainer position="top-right" theme="colored" />
         <Routes>
           <Route path="/" element={<Homepage />} />
+          <Route path="/templates" element={<TemplatesPage />} />
           <Route path="/products" element={<Products />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<Contact />} />

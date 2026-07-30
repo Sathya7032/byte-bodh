@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import TemplateOne from "./TemplateOne";
+import TemplateTwo from "./TemplateTwo";
 import TemplateThree from "./TemplateThree";
 import TemplateFour from "./TemplateFour";
 import TemplateFive from "./TemplateFive";
@@ -13,7 +14,9 @@ import TemplateEleven from "./TemplateEleven";
 import TemplateTwelve from "./TemplateTwelve";
 import TemplateThirteen from "./TemplateThirteen";
 import TemplateFourteen from "./TemplateFourteen";
-import Portfolio from "../portfolio/Portfolio";
+import TemplateFifteen from "./TemplateFifteen";
+import TemplateSixteen from "./TemplateSixteen";
+import TemplateSeventeen from "./TemplateSeventeen";
 import { getPublicProfileByUsername } from "../api/profileService";
 
 function getUsernameFromDomain() {
@@ -531,7 +534,7 @@ function PublicPortfolioPage({ isPreview }) {
         return <TemplateOne profile={profile} />;
 
       case 2:
-        return <Portfolio profile={profile} />;
+        return <TemplateTwo profile={profile} />;
 
       case 3:
         return <TemplateThree profile={profile} />;
@@ -568,6 +571,15 @@ function PublicPortfolioPage({ isPreview }) {
 
       case 14:
         return <TemplateFourteen profile={profile} />;
+
+      case 15:
+        return <TemplateFifteen profile={profile} />;
+
+      case 16:
+        return <TemplateSixteen profile={profile} />;
+
+      case 17:
+        return <TemplateSeventeen profile={profile} />;
 
       default:
         return <TemplateOne profile={profile} />;

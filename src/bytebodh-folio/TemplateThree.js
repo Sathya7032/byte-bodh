@@ -8,10 +8,6 @@ import {
   FaBriefcase,
   FaProjectDiagram,
   FaTools,
-  FaMapMarkerAlt,
-  FaCalendarAlt,
-  FaEnvelope,
-  FaPhone,
   FaHome,
   FaUser,
   FaCode,
@@ -30,7 +26,9 @@ import {
   FaWhatsapp,
   FaTwitter,
   FaLinkedinIn,
-  FaFacebook
+  FaFacebook,
+  FaSun,
+  FaMoon
 } from "react-icons/fa";
 import { 
   SiJavascript, 
@@ -79,6 +77,7 @@ const TemplateThree = ({ profile }) => {
   const [activeSection, setActiveSection] = useState("home");
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -89,39 +88,30 @@ const TemplateThree = ({ profile }) => {
   const [qrCodeValue, setQrCodeValue] = useState("");
   const [copied, setCopied] = useState(false);
 
-  // Premium Dark Mode Palette
-  const colors = {
+  // Toggle Theme Mode
+  const toggleTheme = () => setIsDarkMode((prev) => !prev);
+
+  // Dynamic Color Palette
+  const colors = useMemo(() => ({
     primary: {
       light: "#818cf8", // Indigo 400
-      main: "#6366f1", // Indigo 500
-      dark: "#4f46e5", // Indigo 600
-      gradient: "linear-gradient(135deg, #818cf8 0%, #a855f7 100%)"
+      main: "#6366f1",  // Indigo 500
+      dark: "#4f46e5",  // Indigo 600
+      gradient: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)"
     },
     secondary: {
       light: "#fdba74", // Orange 300
-      main: "#f97316", // Orange 500
-      dark: "#ea580c", // Orange 600
+      main: "#f97316",  // Orange 500
+      dark: "#ea580c",  // Orange 600
       gradient: "linear-gradient(135deg, #fdba74 0%, #f97316 100%)"
     },
     accent: {
       light: "#34d399", // Emerald 400
-      main: "#10b981", // Emerald 500
-      dark: "#059669", // Emerald 600
+      main: "#10b981",  // Emerald 500
+      dark: "#059669",  // Emerald 600
       gradient: "linear-gradient(135deg, #34d399 0%, #059669 100%)"
-    },
-    neutral: {
-      50: "#06070a",  // Background darkest
-      100: "#0b0c15", // Background dark slate
-      200: "#141725", // Slate 800 (borders / light card bg)
-      300: "#1c2035", // Slate 700
-      400: "#475569", // Slate 600
-      500: "#64748b", // Slate 500
-      600: "#94a3b8", // Slate 400
-      700: "#cbd5e1", // Slate 300
-      800: "#e2e8f0", // Slate 200
-      900: "#f8fafc"  // Slate 50 (text white)
     }
-  };
+  }), []);
 
   const sections = useMemo(() => [
     { id: "home", label: "Home", icon: <FaHome /> },
@@ -190,7 +180,7 @@ const TemplateThree = ({ profile }) => {
       toast.error("Please fill in all fields", {
         position: "top-right",
         autoClose: 3000,
-        theme: "colored"
+        theme: isDarkMode ? "dark" : "light"
       });
       return;
     }
@@ -200,7 +190,7 @@ const TemplateThree = ({ profile }) => {
       toast.error("Please enter a valid email address", {
         position: "top-right",
         autoClose: 3000,
-        theme: "colored"
+        theme: isDarkMode ? "dark" : "light"
       });
       return;
     }
@@ -222,7 +212,7 @@ const TemplateThree = ({ profile }) => {
         toast.success("Message sent successfully! I'll get back to you soon.", {
           position: "top-right",
           autoClose: 5000,
-          theme: "colored"
+          theme: isDarkMode ? "dark" : "light"
         });
 
         setFormData({
@@ -242,7 +232,7 @@ const TemplateThree = ({ profile }) => {
         {
           position: "top-right",
           autoClose: 5000,
-          theme: "colored"
+          theme: isDarkMode ? "dark" : "light"
         }
       );
     } finally {
@@ -256,13 +246,14 @@ const TemplateThree = ({ profile }) => {
     toast.success("Link copied to clipboard!", {
       position: "top-right",
       autoClose: 2000,
-      theme: "colored"
+      theme: isDarkMode ? "dark" : "light"
     });
     setTimeout(() => setCopied(false), 2000);
   };
 
   const downloadQRCode = () => {
     const svg = document.getElementById("qr-code-svg");
+    if (!svg) return;
     const svgData = new XMLSerializer().serializeToString(svg);
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
@@ -314,7 +305,6 @@ const TemplateThree = ({ profile }) => {
     const skillLower = skill.toLowerCase();
     const iconProps = { className: "w-6 h-6" };
     
-    if (skillLower.includes("java")) return <SiJavascript {...iconProps} />;
     if (skillLower.includes("javascript")) return <SiJavascript {...iconProps} />;
     if (skillLower.includes("typescript")) return <SiTypescript {...iconProps} />;
     if (skillLower.includes("python")) return <SiPython {...iconProps} />;
@@ -339,16 +329,6 @@ const TemplateThree = ({ profile }) => {
     return <FaCode {...iconProps} />;
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
   const iconByPlatform = (platform) => {
     switch (platform) {
       case "LINKEDIN":
@@ -364,17 +344,16 @@ const TemplateThree = ({ profile }) => {
     }
   };
 
-  const skills = profile.skills || [];
-  const socialMediaLinks = profile.socialMediaLinks || [];
-  const projects = profile.projects || [];
-  const experience = profile.experience || [];
-  const education = profile.education || [];
-  const certifications = profile.certifications || [];
+  const skills = profile?.skills || [];
+  const socialMediaLinks = profile?.socialMediaLinks || [];
+  const projects = profile?.projects || [];
+  const experience = profile?.experience || [];
+  const education = profile?.education || [];
+  const certifications = profile?.certifications || [];
 
   const getSkillCategory = (skill) => {
     if (!skill) return "Other";
-    
-    const skillLower = skill.toLowerCase();
+    const skillLower = typeof skill === "object" ? (skill.name || "").toLowerCase() : skill.toLowerCase();
     
     const backendKeywords = [
       "java", "spring", "node", "express", "python", "django", "flask",
@@ -410,37 +389,38 @@ const TemplateThree = ({ profile }) => {
     Other: []
   };
 
-  skills.forEach(skill => {
-    const category = getSkillCategory(skill);
-    categorizedSkills[category].push(skill);
+  skills.forEach(skillItem => {
+    const skillName = typeof skillItem === "object" ? skillItem.name : skillItem;
+    const category = getSkillCategory(skillName);
+    categorizedSkills[category].push(skillName);
   });
 
   const filteredCategories = Object.fromEntries(
-    Object.entries(categorizedSkills).filter(([_, skills]) => skills.length > 0)
+    Object.entries(categorizedSkills).filter(([_, skillList]) => skillList.length > 0)
   );
 
   const getCategoryColor = (category) => {
     switch (category) {
       case "Backend":
         return { 
-          bg: "from-red-950/20 to-orange-950/20", 
-          text: "text-red-400", 
-          border: "border-red-900/40",
-          gradient: "linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(249, 115, 22, 0.15) 100%)"
+          bg: isDarkMode ? "from-red-950/30 to-orange-950/30" : "from-red-50 to-orange-50", 
+          text: isDarkMode ? "text-red-400" : "text-red-600", 
+          border: isDarkMode ? "border-red-900/40" : "border-red-200",
+          gradient: "linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(249, 115, 22, 0.2) 100%)"
         };
       case "Frontend":
         return { 
-          bg: "from-blue-950/20 to-cyan-950/20", 
-          text: "text-blue-400", 
-          border: "border-blue-900/40",
-          gradient: "linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%)"
+          bg: isDarkMode ? "from-blue-950/30 to-cyan-950/30" : "from-blue-50 to-cyan-50", 
+          text: isDarkMode ? "text-blue-400" : "text-blue-600", 
+          border: isDarkMode ? "border-blue-900/40" : "border-blue-200",
+          gradient: "linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)"
         };
       default:
         return { 
-          bg: "from-slate-900 to-slate-950", 
-          text: "text-slate-400", 
-          border: "border-slate-800",
-          gradient: "linear-gradient(135deg, rgba(148, 163, 184, 0.1) 0%, rgba(71, 85, 105, 0.1) 100%)"
+          bg: isDarkMode ? "from-slate-900 to-slate-950" : "from-slate-100 to-slate-200", 
+          text: isDarkMode ? "text-slate-400" : "text-slate-700", 
+          border: isDarkMode ? "border-slate-800" : "border-slate-300",
+          gradient: "linear-gradient(135deg, rgba(148, 163, 184, 0.2) 0%, rgba(71, 85, 105, 0.2) 100%)"
         };
     }
   };
@@ -454,7 +434,7 @@ const TemplateThree = ({ profile }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-slate-950 bg-opacity-75 backdrop-blur-sm"
+            className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm"
             onClick={() => setShowShareModal(false)}
           />
           
@@ -463,17 +443,21 @@ const TemplateThree = ({ profile }) => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-md bg-slate-900 border border-slate-800 text-white rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
+              className={`relative w-full max-w-md border rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto ${
+                isDarkMode ? "bg-[#0d101a] border-slate-800 text-white" : "bg-white border-slate-200 text-slate-900"
+              }`}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-slate-100">
+                  <h3 className={`text-xl font-bold ${isDarkMode ? "text-slate-100" : "text-slate-900"}`}>
                     Share Portfolio
                   </h3>
                   <button
                     onClick={() => setShowShareModal(false)}
-                    className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400 hover:text-white"
+                    className={`p-2 rounded-full transition-colors ${
+                      isDarkMode ? "hover:bg-slate-800 text-slate-400 hover:text-white" : "hover:bg-slate-100 text-slate-500 hover:text-slate-900"
+                    }`}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -483,7 +467,7 @@ const TemplateThree = ({ profile }) => {
 
                 {/* QR Code */}
                 <div className="flex flex-col items-center mb-8">
-                  <div className="p-4 bg-white border border-slate-700 rounded-lg shadow-sm mb-4">
+                  <div className={`p-4 rounded-xl border shadow-sm mb-4 ${isDarkMode ? "bg-white border-slate-700" : "bg-slate-50 border-slate-200"}`}>
                     <QRCode
                       id="qr-code-svg"
                       value={qrCodeValue}
@@ -493,7 +477,7 @@ const TemplateThree = ({ profile }) => {
                       bgColor="white"
                     />
                   </div>
-                  <p className="text-sm text-slate-400 text-center">
+                  <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
                     Scan to visit portfolio
                   </p>
                 </div>
@@ -501,7 +485,7 @@ const TemplateThree = ({ profile }) => {
                 {/* Share Links */}
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
                       Share Link
                     </label>
                     <div className="flex gap-2">
@@ -509,11 +493,13 @@ const TemplateThree = ({ profile }) => {
                         type="text"
                         readOnly
                         value={qrCodeValue}
-                        className="flex-1 px-4 py-2 border border-slate-800 rounded-lg bg-slate-950 text-slate-300 text-sm"
+                        className={`flex-1 px-4 py-2 border rounded-lg text-sm outline-none ${
+                          isDarkMode ? "border-slate-800 bg-slate-950 text-slate-300" : "border-slate-300 bg-slate-50 text-slate-800"
+                        }`}
                       />
                       <button
                         onClick={copyToClipboard}
-                        className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg hover:shadow-lg transition-all flex items-center gap-2"
+                        className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-medium rounded-lg hover:shadow-lg transition-all flex items-center gap-2"
                       >
                         <FaCopy className="w-4 h-4" />
                         {copied ? "Copied!" : "Copy"}
@@ -523,51 +509,39 @@ const TemplateThree = ({ profile }) => {
 
                   {/* Social Share Buttons */}
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-3">
+                    <label className={`block text-sm font-medium mb-3 ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
                       Share on Social Media
                     </label>
                     <div className="grid grid-cols-4 gap-3">
-                      <button
-                        onClick={() => shareOnSocial('twitter')}
-                        className="flex flex-col items-center justify-center p-3 bg-slate-950 border border-slate-800/80 hover:bg-slate-800 rounded-lg transition-colors group"
-                      >
-                        <FaTwitter className="w-6 h-6 text-blue-400 mb-1" />
-                        <span className="text-[10px] text-blue-300">Twitter</span>
-                      </button>
-                      
-                      <button
-                        onClick={() => shareOnSocial('linkedin')}
-                        className="flex flex-col items-center justify-center p-3 bg-slate-950 border border-slate-800/80 hover:bg-slate-800 rounded-lg transition-colors group"
-                      >
-                        <FaLinkedinIn className="w-6 h-6 text-blue-500 mb-1" />
-                        <span className="text-[10px] text-blue-400">LinkedIn</span>
-                      </button>
-                      
-                      <button
-                        onClick={() => shareOnSocial('facebook')}
-                        className="flex flex-col items-center justify-center p-3 bg-slate-950 border border-slate-800/80 hover:bg-slate-800 rounded-lg transition-colors group"
-                      >
-                        <FaFacebook className="w-6 h-6 text-blue-600 mb-1" />
-                        <span className="text-[10px] text-blue-400">Facebook</span>
-                      </button>
-                      
-                      <button
-                        onClick={() => shareOnSocial('whatsapp')}
-                        className="flex flex-col items-center justify-center p-3 bg-slate-950 border border-slate-800/80 hover:bg-slate-800 rounded-lg transition-colors group"
-                      >
-                        <FaWhatsapp className="w-6 h-6 text-green-400 mb-1" />
-                        <span className="text-[10px] text-green-300">WhatsApp</span>
-                      </button>
+                      {[
+                        { id: "twitter", name: "Twitter", icon: FaTwitter, iconColor: "text-blue-400" },
+                        { id: "linkedin", name: "LinkedIn", icon: FaLinkedinIn, iconColor: "text-blue-600" },
+                        { id: "facebook", name: "Facebook", icon: FaFacebook, iconColor: "text-blue-700" },
+                        { id: "whatsapp", name: "WhatsApp", icon: FaWhatsapp, iconColor: "text-emerald-500" }
+                      ].map((s) => (
+                        <button
+                          key={s.id}
+                          onClick={() => shareOnSocial(s.id)}
+                          className={`flex flex-col items-center justify-center p-3 border rounded-xl transition-colors group ${
+                            isDarkMode
+                              ? "bg-slate-950 border-slate-800 hover:bg-slate-800 text-slate-300"
+                              : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700"
+                          }`}
+                        >
+                          <s.icon className={`w-5 h-5 mb-1 ${s.iconColor}`} />
+                          <span className="text-[10px] font-semibold">{s.name}</span>
+                        </button>
+                      ))}
                     </div>
                   </div>
 
                   {/* Download QR Code */}
-                  <div className="pt-4 border-t border-slate-800">
+                  <div className={`pt-4 border-t ${isDarkMode ? "border-slate-800" : "border-slate-200"}`}>
                     <button
                       onClick={downloadQRCode}
-                      className="w-full px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                      className="w-full px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2"
                     >
-                      <FaDownload className="w-5 h-5" />
+                      <FaDownload className="w-4 h-4" />
                       Download QR Code
                     </button>
                   </div>
@@ -581,90 +555,137 @@ const TemplateThree = ({ profile }) => {
   );
 
   return (
-    <div className="min-h-screen font-sans selection:bg-orange-500/20 selection:text-orange-300" style={{ background: `linear-gradient(135deg, ${colors.neutral[50]} 0%, ${colors.neutral[100]} 100%)` }}>
-      <ToastContainer />
+    <div
+      className={`min-h-screen font-sans transition-colors duration-500 selection:bg-indigo-500/20 selection:text-indigo-400 ${
+        isDarkMode ? "bg-[#07090e] text-slate-100" : "bg-[#f8fafc] text-slate-900"
+      }`}
+    >
+      <ToastContainer position="bottom-right" theme={isDarkMode ? "dark" : "light"} />
       <ShareModal />
 
       {/* TOP BAR */}
-      <div className={`portfolio-topbar fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-        isScrolled ? "bg-slate-950/90 shadow-2xl border-b border-slate-900/80 backdrop-blur-md" : "bg-transparent"
-      }`}>
+      <div
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+          isScrolled
+            ? isDarkMode
+              ? "bg-[#090b14]/90 shadow-2xl border-b border-slate-800/80 backdrop-blur-md"
+              : "bg-white/90 shadow-md border-b border-slate-200/80 backdrop-blur-md"
+            : "bg-transparent"
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo/Name */}
-            <div className="portfolio-topbar-logo flex items-center gap-3">
-              {profile.pictureUrl ? (
+            <div className="flex items-center gap-3">
+              {profile?.pictureUrl ? (
                 <img
                   src={profile.pictureUrl}
                   alt={profile.fullName || "User"}
-                  className="w-10 h-10 rounded-full border-2 border-slate-800 shadow-sm"
+                  className="w-10 h-10 rounded-full border-2 border-indigo-500/40 object-cover shadow-sm"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full" style={{ background: colors.primary.gradient }}>
-                  <span className="portfolio-topbar-logo-name text-lg font-bold text-white flex items-center justify-center h-full">
-                    {getInitials(profile.fullName)}
-                  </span>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-md" style={{ background: colors.primary.gradient }}>
+                  {getInitials(profile?.fullName)}
                 </div>
               )}
               <div>
-                <h1 className="portfolio-topbar-logo-name text-xl font-bold text-slate-100">{profile.fullName || "User"}</h1>
-                <p className="portfolio-topbar-logo-username text-xs text-slate-400">@{profile.user?.username || username}</p>
+                <h1 className={`text-base font-bold leading-tight ${isDarkMode ? "text-white" : "text-slate-900"}`}>
+                  {profile?.fullName || "User Profile"}
+                </h1>
+                <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
+                  @{profile?.user?.username || username}
+                </p>
               </div>
             </div>
 
-            {/* Desktop Navigation & Share Button */}
+            {/* Desktop Navigation & Actions */}
             <div className="hidden md:flex items-center gap-4">
               <nav className="flex items-center gap-1">
-                {sections.map((section) => (
-                  <a
-                    key={section.id}
-                    href={`#${section.id}`}
-                    onClick={() => setActiveSection(section.id)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
-                      activeSection === section.id
-                        ? "text-white"
-                        : "text-slate-400 hover:text-white hover:bg-slate-800/40"
-                    }`}
-                    style={activeSection === section.id ? { background: colors.primary.gradient } : {}}
-                  >
-                    <span className="text-sm">{section.icon}</span>
-                    <span className="text-sm font-medium">{section.label}</span>
-                  </a>
-                ))}
+                {sections.map((section) => {
+                  const isActive = activeSection === section.id;
+                  return (
+                    <a
+                      key={section.id}
+                      href={`#${section.id}`}
+                      onClick={() => setActiveSection(section.id)}
+                      className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-300 ${
+                        isActive
+                          ? "text-white shadow-sm"
+                          : isDarkMode
+                            ? "text-slate-400 hover:text-white hover:bg-slate-800/50"
+                            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                      }`}
+                      style={isActive ? { background: colors.primary.gradient } : {}}
+                    >
+                      <span className="text-sm">{section.icon}</span>
+                      <span>{section.label}</span>
+                    </a>
+                  );
+                })}
               </nav>
               
+              {/* Light/Dark Mode Switcher */}
+              <button
+                onClick={toggleTheme}
+                className={`p-2 rounded-lg border transition-all flex items-center justify-center ${
+                  isDarkMode
+                    ? "bg-slate-900 border-slate-700 text-amber-400 hover:bg-slate-800"
+                    : "bg-slate-100 border-slate-300 text-indigo-600 hover:bg-slate-200 shadow-sm"
+                }`}
+                title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              >
+                {isDarkMode ? <FaSun className="w-4 h-4" /> : <FaMoon className="w-4 h-4" />}
+              </button>
+
               <button
                 onClick={() => setShowShareModal(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 hover:shadow-md"
-                style={{ background: colors.secondary.gradient, color: "white" }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 text-xs font-semibold shadow-md hover:shadow-lg text-white"
+                style={{ background: colors.secondary.gradient }}
               >
-                <FaShareAlt className="w-4 h-4" />
-                <span className="font-medium">Share</span>
+                <FaShareAlt className="w-3.5 h-3.5" />
+                <span>Share</span>
               </button>
             </div>
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white"
-            >
-              <div className="w-6 h-6 flex flex-col justify-center gap-1">
-                <span className={`w-6 h-0.5 bg-slate-400 transition-all duration-300 ${isMenuOpen ? "rotate-45 translate-y-1.5" : ""}`}></span>
-                <span className={`w-6 h-0.5 bg-slate-400 transition-all duration-300 ${isMenuOpen ? "opacity-0" : ""}`}></span>
-                <span className={`w-6 h-0.5 bg-slate-400 transition-all duration-300 ${isMenuOpen ? "-rotate-45 -translate-y-1.5" : ""}`}></span>
-              </div>
-            </button>
+            {/* Mobile Actions & Menu Toggle */}
+            <div className="flex md:hidden items-center gap-2">
+              <button
+                onClick={toggleTheme}
+                className={`p-2 rounded-lg border transition-all ${
+                  isDarkMode
+                    ? "bg-slate-900 border-slate-700 text-amber-400"
+                    : "bg-slate-100 border-slate-300 text-indigo-600 shadow-sm"
+                }`}
+              >
+                {isDarkMode ? <FaSun className="w-4 h-4" /> : <FaMoon className="w-4 h-4" />}
+              </button>
+
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className={`p-2 rounded-lg border ${
+                  isDarkMode ? "bg-slate-900 border-slate-800 text-slate-300" : "bg-white border-slate-200 text-slate-700"
+                }`}
+              >
+                <div className="w-5 h-5 flex flex-col justify-center gap-1">
+                  <span className={`w-5 h-0.5 transition-all ${isDarkMode ? "bg-slate-300" : "bg-slate-700"} ${isMenuOpen ? "rotate-45 translate-y-1.5" : ""}`}></span>
+                  <span className={`w-5 h-0.5 transition-all ${isDarkMode ? "bg-slate-300" : "bg-slate-700"} ${isMenuOpen ? "opacity-0" : ""}`}></span>
+                  <span className={`w-5 h-0.5 transition-all ${isDarkMode ? "bg-slate-300" : "bg-slate-700"} ${isMenuOpen ? "-rotate-45 -translate-y-1.5" : ""}`}></span>
+                </div>
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation Drawer */}
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-slate-900 border-t border-slate-800"
+              className={`md:hidden border-b ${
+                isDarkMode ? "bg-[#090b14] border-slate-800 text-white" : "bg-white border-slate-200 text-slate-900 shadow-lg"
+              }`}
             >
               <div className="px-4 py-3 space-y-1">
                 {sections.map((section) => (
@@ -675,29 +696,33 @@ const TemplateThree = ({ profile }) => {
                       setActiveSection(section.id);
                       setIsMenuOpen(false);
                     }}
-                    className={`flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
+                    className={`flex items-center justify-between px-4 py-2.5 rounded-lg text-xs font-semibold transition-all ${
                       activeSection === section.id
-                        ? "bg-slate-800 text-white"
-                        : "text-slate-400 hover:bg-slate-800/40"
+                        ? "text-white"
+                        : isDarkMode
+                          ? "text-slate-400 hover:bg-slate-800/50"
+                          : "text-slate-600 hover:bg-slate-100"
                     }`}
+                    style={activeSection === section.id ? { background: colors.primary.gradient } : {}}
                   >
                     <div className="flex items-center gap-3">
                       <span>{section.icon}</span>
-                      <span className="font-medium">{section.label}</span>
+                      <span>{section.label}</span>
                     </div>
-                    <FaChevronRight className="w-4 h-4 text-slate-500" />
+                    <FaChevronRight className="w-3.5 h-3.5 opacity-60" />
                   </a>
                 ))}
+                
                 <button
                   onClick={() => {
                     setShowShareModal(true);
                     setIsMenuOpen(false);
                   }}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-all"
-                  style={{ background: colors.secondary.gradient, color: "white" }}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white shadow-md mt-2"
+                  style={{ background: colors.secondary.gradient }}
                 >
-                  <FaShareAlt className="w-4 h-4" />
-                  <span className="font-medium">Share Portfolio</span>
+                  <FaShareAlt className="w-3.5 h-3.5" />
+                  <span>Share Portfolio</span>
                 </button>
               </div>
             </motion.div>
@@ -706,125 +731,128 @@ const TemplateThree = ({ profile }) => {
       </div>
 
       {/* HERO SECTION */}
-      <section id="home" className="portfolio-section relative pt-32 pb-20 lg:pt-40 lg:pb-28">
-        <div className="absolute inset-0" style={{ 
-          background: `linear-gradient(135deg, ${colors.neutral[50]} 0%, ${colors.neutral[100]} 50%, ${colors.neutral[50]} 100%)`
-        }}></div>
-        
-        {/* Subtle grid pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `linear-gradient(90deg, ${colors.primary.dark} 1px, transparent 1px), 
-                            linear-gradient(${colors.primary.dark} 1px, transparent 1px)`,
-            backgroundSize: '50px 50px'
-          }}></div>
+      <section id="home" className="relative pt-28 pb-16 lg:pt-36 lg:pb-24">
+        {/* Ambient Grid overlay */}
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `linear-gradient(90deg, ${isDarkMode ? "#6366f133" : "#6366f120"} 1px, transparent 1px), linear-gradient(${isDarkMode ? "#6366f133" : "#6366f120"} 1px, transparent 1px)`,
+              backgroundSize: "40px 40px"
+            }}
+          ></div>
         </div>
 
-        <div className="portfolio-section-content relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="portfolio-hero-section flex flex-col lg:flex-row items-center gap-12">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col lg:flex-row items-center gap-12">
             {/* Profile Image */}
-            <div className="relative group">
-              <div className="absolute -inset-1 rounded-full opacity-20 group-hover:opacity-40 transition duration-500" 
-                   style={{ background: colors.primary.gradient, filter: 'blur(10px)' }}></div>
+            <div className="relative group shrink-0">
+              <div
+                className="absolute -inset-2 rounded-full opacity-30 group-hover:opacity-60 transition duration-500 blur-xl"
+                style={{ background: colors.primary.gradient }}
+              ></div>
               <div className="relative">
-                {profile.pictureUrl ? (
+                {profile?.pictureUrl ? (
                   <img
                     src={profile.pictureUrl}
-                    alt={profile.fullName || "User"}
-                    className="portfolio-hero-image w-64 h-64 rounded-full border-8 border-slate-800 shadow-2xl"
+                    alt={profile.fullName || "User Avatar"}
+                    className={`w-56 h-56 lg:w-64 lg:h-64 rounded-full object-cover border-4 shadow-2xl ${
+                      isDarkMode ? "border-slate-800 bg-slate-900" : "border-white bg-slate-100"
+                    }`}
                   />
                 ) : (
-                  <div className="portfolio-hero-image w-64 h-64 rounded-full border-8 border-slate-800 shadow-2xl flex items-center justify-center"
-                       style={{ background: colors.primary.gradient }}>
-                    <span className="text-7xl font-bold text-white">
-                      {getInitials(profile.fullName)}
+                  <div
+                    className={`w-56 h-56 lg:w-64 lg:h-64 rounded-full border-4 shadow-2xl flex items-center justify-center text-white ${
+                      isDarkMode ? "border-slate-800" : "border-white"
+                    }`}
+                    style={{ background: colors.primary.gradient }}
+                  >
+                    <span className="text-6xl font-bold">
+                      {getInitials(profile?.fullName)}
                     </span>
                   </div>
                 )}
               </div>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowShareModal(true)}
-                className="absolute bottom-4 right-4 w-12 h-12 rounded-full shadow-lg flex items-center justify-center bg-slate-900 border border-slate-800 hover:bg-slate-800"
-              >
-                <FaShareAlt className="w-5 h-5 text-white" />
-              </motion.button>
             </div>
 
             {/* Hero Content */}
-            <div className="portfolio-hero-content flex-1">
-              <div className="portfolio-status-badge inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 border"
-                   style={{ 
-                     background: `linear-gradient(135deg, ${colors.accent.light}15, ${colors.accent.main}15)`,
-                     borderColor: `${colors.accent.light}20`
-                   }}>
-                <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: colors.accent.main }}></span>
-                <span className="text-sm font-medium" style={{ color: colors.accent.light }}>
-                  Available for opportunities
-                </span>
+            <div className="flex-1 text-center lg:text-left">
+              <div
+                className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold mb-5 border ${
+                  isDarkMode ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                }`}
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Available for opportunities</span>
               </div>
 
-              <h1 className="portfolio-hero-title text-4xl lg:text-6xl font-bold text-white mb-4">
-                Hi, I'm <span style={{ 
-                  background: colors.primary.gradient,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-                }}>{profile.fullName || "User"}</span>
+              <h1 className={`text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-3 tracking-tight ${isDarkMode ? "text-white" : "text-slate-900"}`}>
+                Hi, I'm{" "}
+                <span
+                  style={{
+                    background: colors.primary.gradient,
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent"
+                  }}
+                >
+                  {profile?.fullName || "Developer"}
+                </span>
               </h1>
-              
-              <h2 className="portfolio-hero-subtitle text-2xl lg:text-3xl font-semibold mb-6" style={{ color: colors.neutral[700] }}>
-                {profile.headline || "Full Stack Developer"}
+
+              <h2 className={`text-xl lg:text-2xl font-bold mb-5 ${isDarkMode ? "text-indigo-300" : "text-indigo-600"}`}>
+                {profile?.headline || "Full Stack Software Engineer"}
               </h2>
 
-              <p className="text-lg mb-8 max-w-3xl leading-relaxed text-slate-400">
-                {profile.summary || "Passionate developer with experience in building modern web applications."}
+              <p className={`text-sm sm:text-base mb-8 max-w-2xl leading-relaxed ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                {profile?.summary || "Passionate engineer producing performant code systems, modern applications, and scalable web solutions."}
               </p>
 
               {/* CTA Buttons */}
-              <div className="portfolio-contact-buttons flex flex-wrap gap-4 mb-8">
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mb-8">
                 <a
                   href="#projects"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg hover:shadow-lg transition-all duration-300 font-medium group"
-                  style={{ background: colors.primary.gradient, color: "white" }}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-bold text-white shadow-lg hover:shadow-indigo-500/25 transition-all group"
+                  style={{ background: colors.primary.gradient }}
                 >
                   <span>View My Work</span>
-                  <FaChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <FaChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </a>
+
                 <a
                   href="#contact"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 border transition-all duration-300 font-medium"
-                  style={{ 
-                    borderColor: colors.neutral[200]
-                  }}
+                  className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-bold border transition-all ${
+                    isDarkMode
+                      ? "bg-slate-900 border-slate-800 text-slate-200 hover:bg-slate-800"
+                      : "bg-white border-slate-300 text-slate-800 hover:bg-slate-100 shadow-sm"
+                  }`}
                 >
                   Get In Touch
                 </a>
               </div>
 
               {/* Social Links */}
-              <div className="flex flex-wrap gap-4">
-                {socialMediaLinks.map((link, index) => (
-                  <motion.a
-                    key={link.id || index}
-                    href={link.profileUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ scale: 1.1, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="group relative"
-                  >
-                    <div className="absolute -inset-1 rounded-full opacity-0 group-hover:opacity-30 transition duration-300"
-                         style={{ background: colors.primary.gradient, filter: 'blur(8px)' }}></div>
-                    <div className="relative w-12 h-12 bg-slate-900 border border-slate-800 shadow-md rounded-full flex items-center justify-center hover:shadow-lg transition-all duration-300 text-slate-300 hover:text-white">
+              {socialMediaLinks.length > 0 && (
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
+                  {socialMediaLinks.map((link, index) => (
+                    <motion.a
+                      key={link.id || index}
+                      href={link.profileUrl || link.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      whileHover={{ scale: 1.1, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all ${
+                        isDarkMode
+                          ? "bg-slate-900/80 border-slate-800 text-slate-300 hover:text-white hover:border-indigo-500/40"
+                          : "bg-white border-slate-200 text-slate-700 hover:text-indigo-600 hover:border-indigo-300 shadow-sm"
+                      }`}
+                      title={link.platform}
+                    >
                       {iconByPlatform(link.platform)}
-                    </div>
-                  </motion.a>
-                ))}
-              </div>
+                    </motion.a>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -832,58 +860,56 @@ const TemplateThree = ({ profile }) => {
 
       {/* SKILLS SECTION */}
       {skills.length > 0 && (
-        <section id="skills" className="portfolio-section py-20">
-          <div className="portfolio-section-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="portfolio-section-title text-3xl lg:text-4xl font-bold mb-4 text-white">
+        <section id="skills" className="py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className={`text-2xl lg:text-3xl font-extrabold mb-3 ${isDarkMode ? "text-white" : "text-slate-900"}`}>
                 Technical Expertise
               </h2>
-              <p className="portfolio-section-subtitle text-lg max-w-3xl mx-auto text-slate-400">
-                Proficient in a wide range of modern technologies and frameworks
+              <p className={`text-xs sm:text-sm max-w-2xl mx-auto ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                Proficient in modern technologies, stacks, and developer tools
               </p>
             </div>
 
-            <div className="portfolio-skills-grid space-y-12">
+            <div className="space-y-10">
               {Object.entries(filteredCategories).map(([category, categorySkills]) => {
                 const colorsCat = getCategoryColor(category);
                 return (
                   <div key={category}>
-                    <h3 className={`text-xl font-bold mb-6 flex items-center gap-2`} style={{ color: colorsCat.text }}>
-                      <div className={`p-2 rounded-lg border`} style={{ 
-                        background: colorsCat.gradient,
-                        borderColor: colorsCat.border
-                      }}>
-                        <FaTools className="w-5 h-5 text-white" />
+                    <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 ${colorsCat.text}`}>
+                      <div className="p-2 rounded-lg border" style={{ background: colorsCat.gradient, borderColor: colorsCat.border }}>
+                        <FaTools className="w-4 h-4 text-white" />
                       </div>
-                      {category}
+                      {category} Stack
                     </h3>
-                    <div className="portfolio-skill-item-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                      {categorySkills.map((skill, index) => (
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {categorySkills.map((skillName, index) => (
                         <motion.div
-                          key={skill + index}
-                          initial={{ opacity: 0, y: 20 }}
+                          key={skillName + index}
+                          initial={{ opacity: 0, y: 15 }}
                           whileInView={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3, delay: index * 0.05 }}
                           viewport={{ once: true }}
-                          whileHover={{ y: -5 }}
+                          whileHover={{ y: -4 }}
                           className="group"
                         >
-                          <div className="portfolio-skill-card rounded-2xl shadow-xl hover:shadow-indigo-500/5 p-6 transition-all duration-500 border h-full flex flex-col items-center bg-[#141725]/30 backdrop-blur-xl hover:bg-[#141725]/60 hover:scale-[1.03]"
-                               style={{ 
-                                 borderColor: colorsCat.border
-                               }}>
-                            <div className="mb-4">
-                              <div className={`p-3 rounded-lg group-hover:scale-110 transition-transform duration-300 border`}
-                                   style={{ 
-                                     background: colorsCat.gradient,
-                                     borderColor: colorsCat.border
-                                   }}>
-                                {getSkillIcon(skill)}
-                              </div>
+                          <div
+                            className={`p-4 rounded-2xl border transition-all duration-300 flex items-center gap-3 ${
+                              isDarkMode
+                                ? "bg-[#0d101a]/80 border-slate-800/80 hover:bg-[#121624] hover:border-indigo-500/30"
+                                : "bg-white border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300"
+                            }`}
+                          >
+                            <div
+                              className="p-2.5 rounded-xl border shrink-0 text-white"
+                              style={{ background: colorsCat.gradient, borderColor: colorsCat.border }}
+                            >
+                              {getSkillIcon(skillName)}
                             </div>
-                            <h4 className="text-center font-semibold text-slate-200">{skill}</h4>
-                            <div className="mt-3 h-1 w-full rounded-full opacity-0 group-hover:opacity-100 transition duration-300"
-                                 style={{ background: colorsCat.gradient }}></div>
+                            <span className={`text-xs font-bold truncate ${isDarkMode ? "text-slate-200" : "text-slate-800"}`}>
+                              {skillName}
+                            </span>
                           </div>
                         </motion.div>
                       ))}
@@ -898,18 +924,18 @@ const TemplateThree = ({ profile }) => {
 
       {/* PROJECTS SECTION */}
       {projects.length > 0 && (
-        <section id="projects" className="portfolio-section py-20 bg-slate-950/20">
-          <div className="portfolio-section-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="portfolio-section-title text-3xl lg:text-4xl font-bold mb-4 text-white">
+        <section id="projects" className={`py-16 ${isDarkMode ? "bg-[#0a0d16]/50" : "bg-slate-100/60"}`}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className={`text-2xl lg:text-3xl font-extrabold mb-3 ${isDarkMode ? "text-white" : "text-slate-900"}`}>
                 Featured Projects
               </h2>
-              <p className="portfolio-section-subtitle text-lg max-w-3xl mx-auto text-slate-400">
-                Showcasing innovative solutions and technical implementations
+              <p className={`text-xs sm:text-sm max-w-2xl mx-auto ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                Showcasing built products, architecture, and live projects
               </p>
             </div>
 
-            <div className="portfolio-projects-grid grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               {projects.map((project, index) => (
                 <motion.div
                   key={project.id || index}
@@ -917,69 +943,63 @@ const TemplateThree = ({ profile }) => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  whileHover={{ y: -8 }}
+                  whileHover={{ y: -6 }}
                   className="group"
                 >
-                  <div className="portfolio-card rounded-3xl shadow-2xl hover:shadow-indigo-500/5 transition-all duration-500 overflow-hidden border h-full flex flex-col bg-[#141725]/40 backdrop-blur-xl hover:bg-[#141725]/60 border-white/5 hover:border-indigo-500/20">
-                    {/* Project Header */}
-                    <div className="portfolio-project-header h-48 relative overflow-hidden flex items-center justify-center p-4"
-                         style={{ background: colors.primary.gradient }}>
+                  <div
+                    className={`rounded-2xl border transition-all duration-300 overflow-hidden flex flex-col h-full ${
+                      isDarkMode
+                        ? "bg-[#0d101a] border-slate-800/90 hover:border-indigo-500/30"
+                        : "bg-white border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-300"
+                    }`}
+                  >
+                    {/* Project Gradient Banner */}
+                    <div
+                      className="h-32 relative flex items-center justify-center p-4"
+                      style={{ background: colors.primary.gradient }}
+                    >
                       <div className="absolute inset-0 bg-black/20"></div>
-                      <h3 className="portfolio-project-title text-2xl font-bold text-white text-center relative z-10 px-4 py-6 bg-black/40 backdrop-blur-sm rounded-xl w-full">
+                      <h3 className="text-lg font-bold text-white text-center relative z-10 px-4 py-2 bg-black/40 backdrop-blur-md rounded-xl w-full truncate">
                         {project.title || "Project Title"}
                       </h3>
-                      <div className="absolute top-4 right-4">
-                        <span className="px-3 py-1 bg-slate-950/90 text-slate-300 text-xs font-semibold rounded-full border border-slate-800">
-                          {(project.techStack || "").split(",")[0] || "Project"}
-                        </span>
-                      </div>
                     </div>
 
-                    {/* Project Content */}
-                    <div className="portfolio-project-content p-6 flex-1 flex flex-col">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="p-2 rounded-lg" style={{ background: colors.primary.gradient + '20' }}>
-                          <FaProjectDiagram className="w-5 h-5 text-indigo-400" />
-                        </div>
-                        <span className="text-xs font-medium px-3 py-1 rounded-full bg-slate-950 border border-slate-800 text-slate-400">
-                          Project
-                        </span>
-                      </div>
-                      
-                      <p className="mb-6 line-clamp-3 flex-1 text-slate-400">
-                        {project.description || "Project description not available."}
-                      </p>
+                    {/* Content */}
+                    <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                      <div>
+                        <p className={`text-xs leading-relaxed line-clamp-3 mb-4 ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                          {project.description || "No project description available."}
+                        </p>
 
-                      {/* Tech Stack */}
-                      <div className="mb-6">
-                        <div className="flex flex-wrap gap-2">
-                          {(project.techStack || "").split(",").slice(0, 3).map((tech, i) => (
+                        <div className="flex flex-wrap gap-1.5">
+                          {(project.technologies || project.techStack?.split(",") || []).map((tech, i) => (
                             <span
                               key={i}
-                              className="px-3 py-1 text-xs font-medium rounded-full border bg-slate-950 text-slate-400 border-slate-800"
+                              className={`px-2.5 py-0.5 text-[10px] font-bold rounded-md border ${
+                                isDarkMode
+                                  ? "bg-slate-900 border-slate-800 text-indigo-300"
+                                  : "bg-indigo-50 border-indigo-200 text-indigo-700"
+                              }`}
                             >
-                              {tech.trim()}
+                              {typeof tech === "string" ? tech.trim() : tech}
                             </span>
                           ))}
-                          {(project.techStack || "").split(",").length > 3 && (
-                            <span className="px-3 py-1 text-xs font-medium rounded-full border bg-slate-950 text-slate-400 border-slate-800">
-                              +{(project.techStack || "").split(",").length - 3} more
-                            </span>
-                          )}
                         </div>
                       </div>
 
-                      {/* Project Link */}
-                      {project.projectUrl && (
+                      {(project.projectUrl || project.link) && (
                         <a
-                          href={project.projectUrl}
+                          href={project.projectUrl || project.link}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-center justify-between w-full px-4 py-2 rounded-lg group/link transition-all mt-auto bg-slate-950 border border-slate-800 hover:bg-slate-800"
-                          style={{ color: colors.primary.light }}
+                          className={`inline-flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-xs font-bold border transition-all ${
+                            isDarkMode
+                              ? "bg-slate-950 border-slate-800 text-indigo-400 hover:bg-slate-900"
+                              : "bg-slate-50 border-slate-200 text-indigo-600 hover:bg-slate-100"
+                          }`}
                         >
-                          <span className="font-medium">View Details</span>
-                          <FaExternalLinkAlt className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
+                          <span>View Project</span>
+                          <FaExternalLinkAlt className="w-3 h-3" />
                         </a>
                       )}
                     </div>
@@ -993,181 +1013,55 @@ const TemplateThree = ({ profile }) => {
 
       {/* EXPERIENCE SECTION */}
       {experience.length > 0 && (
-        <section id="experience" className="portfolio-section py-20">
-          <div className="portfolio-section-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="portfolio-section-title text-3xl lg:text-4xl font-bold mb-4 text-white">
+        <section id="experience" className="py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className={`text-2xl lg:text-3xl font-extrabold mb-3 ${isDarkMode ? "text-white" : "text-slate-900"}`}>
                 Professional Experience
               </h2>
-              <p className="portfolio-section-subtitle text-lg max-w-3xl mx-auto text-slate-400">
-                A track record of delivering impactful solutions
+              <p className={`text-xs sm:text-sm max-w-2xl mx-auto ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                Work history, engineering roles, and achievements
               </p>
             </div>
 
-            <div className="relative">
-              {/* Timeline Line */}
-              <div className="portfolio-experience-timeline hidden lg:block absolute left-1/2 transform -translate-x-1/2 h-full w-1"
-                   style={{ background: `linear-gradient(to bottom, ${colors.primary.light}20, ${colors.primary.dark}20)` }}></div>
-
-              <div className="space-y-12">
-                {experience.map((exp, index) => (
-                  <motion.div
-                    key={exp.id || index}
-                    initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5 }}
-                    viewport={{ once: true }}
-                    className={`portfolio-experience-item relative flex flex-col lg:flex-row ${index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"}`}
-                  >
-                    {/* Timeline Dot */}
-                    <div className="portfolio-experience-dot hidden lg:block absolute left-1/2 transform -translate-x-1/2">
-                      <div className="w-4 h-4 rounded-full border-4 border-slate-950 shadow-lg"
-                           style={{ background: colors.primary.gradient }}></div>
-                    </div>
-
-                    <div className="portfolio-experience-card lg:w-1/2 lg:px-12">
-                      <div className="rounded-3xl shadow-2xl p-8 hover:shadow-indigo-500/5 transition-all duration-500 border border-white/5 hover:border-indigo-500/20 bg-[#141725]/40 backdrop-blur-xl hover:bg-[#141725]/60 h-full">
-                        {/* Experience Header */}
-                        <div className="flex items-start justify-between mb-6">
-                          <div>
-                            <h3 className="text-2xl font-bold mb-2 text-white">
-                              {exp.jobTitle || "Job Title"}
-                            </h3>
-                            <p className="text-lg font-semibold mb-1" style={{ color: colors.primary.light }}>
-                              {exp.company || "Company"}
-                            </p>
-                            <div className="portfolio-experience-date flex flex-wrap items-center gap-4 text-sm text-slate-400">
-                              <div className="flex items-center gap-2">
-                                <FaCalendarAlt className="w-4 h-4" />
-                                <span>
-                                  {exp.startYear && exp.startMonth
-                                    ? new Date(exp.startYear, exp.startMonth - 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-                                    : "Date not specified"} -{" "}
-                                  {exp.endMonth && exp.endYear
-                                    ? new Date(exp.endYear, exp.endMonth - 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-                                    : "Present"}
-                                </span>
-                              </div>
-                              {exp.location && (
-                                <div className="flex items-center gap-2">
-                                  <FaMapMarkerAlt className="w-4 h-4" />
-                                  <span>{exp.location}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <div className="p-3 rounded-xl" style={{ background: colors.primary.gradient + '20' }}>
-                            <FaBriefcase className="w-6 h-6 text-indigo-400" />
-                          </div>
-                        </div>
-
-                        {/* Description */}
-                        <p className="leading-relaxed text-slate-400">
-                          {exp.description || "Experience description not available."}
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* EDUCATION SECTION */}
-      {education.length > 0 && (
-        <section id="education" className="portfolio-section py-20 bg-slate-950/20">
-          <div className="portfolio-section-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="portfolio-section-title text-3xl lg:text-4xl font-bold mb-4 text-white">
-                Education
-              </h2>
-              <p className="portfolio-section-subtitle text-lg max-w-3xl mx-auto text-slate-400">
-                Academic background and qualifications
-              </p>
-            </div>
-
-            <div className="portfolio-education-grid grid lg:grid-cols-2 gap-8">
-              {education.map((edu, index) => (
+            <div className="space-y-6 max-w-4xl mx-auto">
+              {experience.map((exp, index) => (
                 <motion.div
-                  key={edu.id || index}
-                  initial={{ opacity: 0, y: 20 }}
+                  key={exp.id || index}
+                  initial={{ opacity: 0, y: 15 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  transition={{ duration: 0.4 }}
                   viewport={{ once: true }}
-                  whileHover={{ scale: 1.02 }}
-                  className="group"
+                  className={`p-6 lg:p-8 rounded-2xl border transition-all ${
+                    isDarkMode
+                      ? "bg-[#0d101a] border-slate-800/90"
+                      : "bg-white border-slate-200 shadow-sm hover:shadow-md"
+                  }`}
                 >
-                  <div className="portfolio-education-card rounded-3xl shadow-2xl hover:shadow-indigo-500/5 transition-all duration-500 overflow-hidden border border-white/5 hover:border-indigo-500/20 bg-[#141725]/40 backdrop-blur-xl hover:bg-[#141725]/60 h-full">
-                    <div className="p-8">
-                      {/* Header */}
-                      <div className="flex items-start justify-between mb-8">
-                        <div>
-                          <h3 className="portfolio-education-header text-2xl font-bold mb-2 text-white">
-                            {edu.institution || "Institution"}
-                          </h3>
-                          <div className="flex flex-col gap-3">
-                            <span className="portfolio-education-degree text-lg font-semibold" style={{ color: colors.primary.light }}>
-                              {edu.degree || "Degree"}
-                            </span>
-                            <span className="text-slate-400">{edu.fieldOfStudy || "Field of Study"}</span>
-                          </div>
-                        </div>
-                        <div className="p-4 rounded-xl" style={{ background: colors.primary.gradient + '20' }}>
-                          <FaGraduationCap className="w-8 h-8 text-indigo-400" />
-                        </div>
-                      </div>
-
-                      {/* Details */}
-                      <div className="space-y-6">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <FaCalendarAlt className="w-5 h-5 text-indigo-400" />
-                            <span className="font-medium text-slate-300">
-                              {edu.startYear || "Start"} - {edu.endYear || "End"}
-                            </span>
-                          </div>
-                          {edu.cgpa && (
-                            <div className="text-right">
-                              <div className="text-sm mb-1 text-slate-500">CGPA</div>
-                              <div className="text-2xl font-bold text-indigo-400">{edu.cgpa}/10.0</div>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Progress Bar */}
-                        {edu.cgpa && (
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm font-medium text-slate-400">Academic Performance</span>
-                              <span className="text-sm font-bold text-indigo-400">
-                                {((edu.cgpa / 10) * 100).toFixed(1)}%
-                              </span>
-                            </div>
-                            <div className="w-full rounded-full h-2 bg-slate-950">
-                              <div
-                                className="h-2 rounded-full transition-all duration-500"
-                                style={{ 
-                                  width: `${(edu.cgpa / 10) * 100}%`,
-                                  background: colors.primary.gradient
-                                }}
-                              ></div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Achievements */}
-                        {edu.achievements && (
-                          <div className="pt-6 border-t border-slate-800">
-                            <p className="italic text-sm leading-relaxed text-slate-400">
-                              "{edu.achievements}"
-                            </p>
-                          </div>
-                        )}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                    <div>
+                      <h3 className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-slate-900"}`}>
+                        {exp.position || exp.jobTitle || "Engineer"}
+                      </h3>
+                      <div className={`text-xs font-bold mt-0.5 ${isDarkMode ? "text-indigo-400" : "text-indigo-600"}`}>
+                        {exp.company} {exp.location && `• ${exp.location}`}
                       </div>
                     </div>
+
+                    <span
+                      className={`text-[10px] font-bold px-3 py-1 rounded-full border self-start sm:self-auto uppercase tracking-wider ${
+                        isDarkMode
+                          ? "bg-slate-900 border-slate-800 text-slate-400"
+                          : "bg-slate-100 border-slate-200 text-slate-600"
+                      }`}
+                    >
+                      {exp.startDate || exp.startYear} — {exp.endDate || exp.endYear || "Present"}
+                    </span>
                   </div>
+
+                  <p className={`text-xs leading-relaxed whitespace-pre-wrap ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                    {exp.description}
+                  </p>
                 </motion.div>
               ))}
             </div>
@@ -1175,409 +1069,194 @@ const TemplateThree = ({ profile }) => {
         </section>
       )}
 
-      {/* CERTIFICATIONS SECTION */}
-      {certifications.length > 0 && (
-        <section id="certifications" className="portfolio-section py-20">
-          <div className="portfolio-section-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="portfolio-section-title text-3xl lg:text-4xl font-bold mb-4 text-white">
-                Certifications
-              </h2>
-              <p className="portfolio-section-subtitle text-lg max-w-3xl mx-auto text-slate-400">
-                Professional certifications and completed courses
-              </p>
-            </div>
+      {/* EDUCATION & CERTIFICATIONS */}
+      {(education.length > 0 || certifications.length > 0) && (
+        <section id="education" className={`py-16 ${isDarkMode ? "bg-[#0a0d16]/50" : "bg-slate-100/60"}`}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Education Column */}
+              {education.length > 0 && (
+                <div>
+                  <h3 className={`text-xl font-bold mb-6 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-slate-900"}`}>
+                    <FaGraduationCap className="text-indigo-500" /> Education
+                  </h3>
 
-            <div className="portfolio-certifications-grid grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {certifications.map((cert, index) => (
-                <motion.div
-                  key={cert.id || index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  whileHover={{ y: -5 }}
-                  className="group"
-                >
-                  <div className="portfolio-certification-card rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden border border-slate-800 bg-slate-900/80 h-full">
-                    <div className="p-8">
-                      {/* Header */}
-                      <div className="flex items-start justify-between mb-8">
-                        <div className="p-4 rounded-xl" style={{ background: colors.accent.gradient + '20' }}>
-                          <FaCertificate className="w-8 h-8 text-emerald-400" />
-                        </div>
-                        <span className="text-xs font-medium px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400">
-                          Certification
-                        </span>
-                      </div>
-
-                      {/* Content */}
-                      <div className="space-y-6">
-                        <div>
-                          <h3 className="text-2xl font-bold mb-2 text-white">
-                            {cert.name || "Certification Name"}
-                          </h3>
-                          <p className="leading-relaxed text-slate-400">
-                            {cert.description || "Certification description not available."}
+                  <div className="space-y-4">
+                    {education.map((edu, idx) => (
+                      <div
+                        key={idx}
+                        className={`p-6 rounded-2xl border transition-all ${
+                          isDarkMode ? "bg-[#0d101a] border-slate-800" : "bg-white border-slate-200 shadow-sm"
+                        }`}
+                      >
+                        <h4 className={`font-bold text-base ${isDarkMode ? "text-white" : "text-slate-900"}`}>{edu.degree}</h4>
+                        <p className={`text-xs mt-1 ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>{edu.institution}</p>
+                        {edu.fieldOfStudy && (
+                          <p className={`text-xs mt-0.5 ${isDarkMode ? "text-slate-500" : "text-slate-500"}`}>
+                            Field: {edu.fieldOfStudy}
                           </p>
+                        )}
+                        <div className={`mt-3 text-[10px] font-bold ${isDarkMode ? "text-indigo-400" : "text-indigo-600"}`}>
+                          {edu.startDate || edu.startYear} — {edu.endDate || edu.endYear} {edu.gpa && `• GPA: ${edu.gpa}`}
                         </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-                        {/* Dates */}
-                        <div className="space-y-4">
-                          {cert.startDate && (
-                            <div className="flex items-center gap-3">
-                              <FaCalendarAlt className="w-5 h-5 text-emerald-400" />
-                              <div>
-                                <div className="text-sm text-slate-500">Start Date</div>
-                                <div className="font-medium text-slate-300">
-                                  {formatDate(cert.startDate)}
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                          
-                          {cert.endDate && (
-                            <div className="flex items-center gap-3">
-                              <FaCalendarAlt className="w-5 h-5 text-indigo-400" />
-                              <div>
-                                <div className="text-sm text-slate-500">End Date</div>
-                                <div className="font-medium text-slate-300">
-                                  {formatDate(cert.endDate)}
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
+              {/* Certifications Column */}
+              {certifications.length > 0 && (
+                <div id="certifications">
+                  <h3 className={`text-xl font-bold mb-6 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-slate-900"}`}>
+                    <FaCertificate className="text-emerald-500" /> Certifications
+                  </h3>
 
-                        {/* Duration */}
-                        {cert.startDate && cert.endDate && (
-                          <div className="pt-6 border-t border-slate-800">
-                            <div className="text-center">
-                              <div className="text-sm mb-2 text-slate-500">Duration</div>
-                              <div className="text-lg font-bold text-emerald-400">
-                                {(() => {
-                                  const start = new Date(cert.startDate);
-                                  const end = new Date(cert.endDate);
-                                  const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
-                                  return months > 12 
-                                    ? `${Math.floor(months/12)} years ${months%12} months`
-                                    : `${months} months`;
-                                  })()}
-                              </div>
-                            </div>
-                          </div>
+                  <div className="space-y-4">
+                    {certifications.map((cert, idx) => (
+                      <div
+                        key={idx}
+                        className={`p-6 rounded-2xl border transition-all ${
+                          isDarkMode ? "bg-[#0d101a] border-slate-800" : "bg-white border-slate-200 shadow-sm"
+                        }`}
+                      >
+                        <h4 className={`font-bold text-base ${isDarkMode ? "text-white" : "text-slate-900"}`}>{cert.name}</h4>
+                        <p className={`text-xs mt-1 uppercase font-semibold ${isDarkMode ? "text-emerald-400" : "text-emerald-600"}`}>
+                          {cert.issuingOrganization || cert.issuer}
+                        </p>
+                        {cert.issueDate && (
+                          <p className={`text-[10px] mt-1 ${isDarkMode ? "text-slate-500" : "text-slate-400"}`}>
+                            Issued: {cert.issueDate}
+                          </p>
                         )}
                       </div>
-                    </div>
+                    ))}
                   </div>
-                </motion.div>
-              ))}
+                </div>
+              )}
             </div>
           </div>
         </section>
       )}
 
       {/* CONTACT SECTION */}
-      <section id="contact" className="portfolio-section py-20">
-        <div className="portfolio-section-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="portfolio-section-title text-3xl lg:text-4xl font-bold mb-4 text-white">
+      <section id="contact" className="py-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className={`text-2xl lg:text-3xl font-extrabold mb-3 ${isDarkMode ? "text-white" : "text-slate-900"}`}>
               Get In Touch
             </h2>
-            <p className="portfolio-section-subtitle text-lg max-w-3xl mx-auto text-slate-400">
-              Feel free to reach out for collaborations or just a friendly hello
+            <p className={`text-xs sm:text-sm max-w-xl mx-auto ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Have a question or proposal? Send a message directly.
             </p>
           </div>
 
-          <div className="rounded-3xl shadow-2xl p-8 lg:p-12 max-w-4xl mx-auto bg-[#141725]/30 backdrop-blur-xl border border-white/5 hover:border-indigo-500/20 transition-colors duration-500">
-            <div className="portfolio-contact-container grid lg:grid-cols-2 gap-12">
-              {/* Contact Info */}
-              <div className="portfolio-contact-info">
-                <h3 className="text-2xl font-bold mb-8 text-white">
-                  Contact Information
-                </h3>
-                
-                <div className="space-y-6">
-                  {profile.email && (
-                    <div className="flex items-start gap-4">
-                      <div className="p-3 rounded-lg" style={{ background: colors.primary.gradient + '20' }}>
-                        <FaEnvelope className="w-6 h-6 text-indigo-400" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-1 text-slate-300">Email</h4>
-                        <a href={`mailto:${profile.email}`} 
-                           className="hover:underline transition-all break-all text-indigo-400">
-                          {profile.email}
-                        </a>
-                      </div>
-                    </div>
-                  )}
+          <div
+            className={`p-6 sm:p-10 rounded-3xl border shadow-xl ${
+              isDarkMode ? "bg-[#0d101a] border-slate-800" : "bg-white border-slate-200"
+            }`}
+          >
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="grid sm:grid-cols-2 gap-5">
+                <div>
+                  <label className={`block text-xs font-bold mb-2 ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
+                    Your Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-2.5 rounded-xl border text-xs outline-none transition-all ${
+                      isDarkMode
+                        ? "bg-slate-950 border-slate-800 text-white focus:border-indigo-500"
+                        : "bg-slate-50 border-slate-300 text-slate-900 focus:bg-white focus:border-indigo-500"
+                    }`}
+                    placeholder="John Doe"
+                    disabled={isSubmitting}
+                  />
+                </div>
 
-                  {profile.phone && (
-                    <div className="flex items-start gap-4">
-                      <div className="p-3 rounded-lg" style={{ background: colors.primary.gradient + '20' }}>
-                        <FaPhone className="w-6 h-6 text-indigo-400" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-1 text-slate-300">Phone</h4>
-                        <a href={`tel:${profile.phone}`} 
-                           className="hover:underline transition-all text-indigo-400">
-                          {profile.phone}
-                        </a>
-                      </div>
-                    </div>
-                  )}
-
-                  {profile.location && (
-                    <div className="flex items-start gap-4">
-                      <div className="p-3 rounded-lg" style={{ background: colors.primary.gradient + '20' }}>
-                        <FaMapMarkerAlt className="w-6 h-6 text-indigo-400" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-1 text-slate-300">Location</h4>
-                        <p className="text-slate-400">{profile.location}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Social Links */}
-                  <div className="pt-6">
-                    <h4 className="font-semibold mb-4 text-slate-300">Connect with me</h4>
-                    <div className="flex gap-4">
-                      {socialMediaLinks.map((link, index) => (
-                        <a
-                          key={link.id || index}
-                          href={link.profileUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="w-12 h-12 rounded-lg flex items-center justify-center hover:shadow-lg transition-all duration-300 border border-slate-800 text-slate-300 hover:text-white"
-                          style={{ 
-                            background: colors.primary.gradient + '10'
-                          }}
-                        >
-                          {iconByPlatform(link.platform)}
-                        </a>
-                      ))}
-                    </div>
-                  </div>
+                <div>
+                  <label className={`block text-xs font-bold mb-2 ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
+                    Your Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-2.5 rounded-xl border text-xs outline-none transition-all ${
+                      isDarkMode
+                        ? "bg-slate-950 border-slate-800 text-white focus:border-indigo-500"
+                        : "bg-slate-50 border-slate-300 text-slate-900 focus:bg-white focus:border-indigo-500"
+                    }`}
+                    placeholder="john@example.com"
+                    disabled={isSubmitting}
+                  />
                 </div>
               </div>
 
-              {/* Contact Form */}
-              <div className="portfolio-contact-form">
-                <h3 className="text-2xl font-bold mb-8 text-white">
-                  Send a Message
-                </h3>
-                
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-slate-300">
-                      Your Name
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className="portfolio-contact-input w-full px-4 py-3 border border-slate-800 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-950 text-white outline-none transition-all"
-                      placeholder="John Doe"
-                      disabled={isSubmitting}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-slate-300">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className="portfolio-contact-input w-full px-4 py-3 border border-slate-800 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-950 text-white outline-none transition-all"
-                      placeholder="john@example.com"
-                      disabled={isSubmitting}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-slate-300">
-                      Message
-                    </label>
-                    <textarea
-                      rows="4"
-                      name="message"
-                      value={formData.message}
-                      onChange={handleInputChange}
-                      className="portfolio-contact-input w-full px-4 py-3 border border-slate-800 rounded-lg focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-950 text-white outline-none transition-all resize-none"
-                      placeholder="Your message here..."
-                      disabled={isSubmitting}
-                    ></textarea>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={`w-full px-6 py-3 text-white font-medium rounded-lg hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 ${
-                      isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-                    }`}
-                    style={{ background: colors.primary.gradient }}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Sending...
-                      </>
-                    ) : (
-                      "Send Message"
-                    )}
-                  </button>
-                </form>
+              <div>
+                <label className={`block text-xs font-bold mb-2 ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
+                  Message
+                </label>
+                <textarea
+                  rows="4"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleInputChange}
+                  className={`w-full px-4 py-2.5 rounded-xl border text-xs outline-none transition-all resize-none ${
+                    isDarkMode
+                      ? "bg-slate-950 border-slate-800 text-white focus:border-indigo-500"
+                      : "bg-slate-50 border-slate-300 text-slate-900 focus:bg-white focus:border-indigo-500"
+                  }`}
+                  placeholder="Hello, I'd like to talk about..."
+                  disabled={isSubmitting}
+                ></textarea>
               </div>
-            </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`w-full py-3 px-6 rounded-xl font-bold text-xs text-white shadow-lg transition-all flex items-center justify-center gap-2 ${
+                  isSubmitting ? "opacity-70 cursor-not-allowed" : "hover:shadow-indigo-500/20"
+                }`}
+                style={{ background: colors.primary.gradient }}
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Sending...</span>
+                  </>
+                ) : (
+                  <span>Send Message</span>
+                )}
+              </button>
+            </form>
           </div>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer className="py-12 bg-slate-950 border-t border-slate-900/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-3 gap-12">
-            {/* Brand Info */}
-            <div>
-              <div className="flex items-center gap-4 mb-6">
-                {profile.pictureUrl ? (
-                  <img
-                    src={profile.pictureUrl}
-                    alt={profile.fullName || "User"}
-                    className="w-14 h-14 rounded-full border-2 border-slate-800"
-                  />
-                ) : (
-                  <div className="w-14 h-14 rounded-full flex items-center justify-center"
-                       style={{ background: colors.primary.gradient }}>
-                    <span className="text-xl font-bold text-white">
-                      {getInitials(profile.fullName)}
-                    </span>
-                  </div>
-                )}
-                <div>
-                  <h3 className="text-2xl font-bold text-white">{profile.fullName || "User"}</h3>
-                  <p className="text-slate-400">@{profile.user?.username || username}</p>
-                </div>
-              </div>
-              <p className="text-slate-400 mb-6">
-                {profile.headline || "Full Stack Developer"}
-              </p>
-              <div className="flex gap-4">
-                {socialMediaLinks.map((link, index) => (
-                  <a
-                    key={link.id || index}
-                    href={link.profileUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-10 h-10 backdrop-blur-sm rounded-lg flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300"
-                    style={{ background: 'rgba(255, 255, 255, 0.1)' }}
-                  >
-                    {iconByPlatform(link.platform)}
-                  </a>
-                ))}
-                <button
-                  onClick={() => setShowShareModal(true)}
-                  className="w-10 h-10 backdrop-blur-sm rounded-lg flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300"
-                  style={{ background: 'rgba(255, 255, 255, 0.1)' }}
-                >
-                  <FaShareAlt className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h4 className="text-lg font-bold mb-6 text-white">Quick Links</h4>
-              <div className="grid grid-cols-2 gap-4">
-                {sections.map((section) => (
-                  <a
-                    key={section.id}
-                    href={`#${section.id}`}
-                    onClick={() => setActiveSection(section.id)}
-                    className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors duration-300 group"
-                  >
-                    <span className="w-2 h-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                          style={{ background: colors.primary.gradient }}></span>
-                    <span>{section.label}</span>
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            {/* Contact Info */}
-            <div>
-              <h4 className="text-lg font-bold mb-6 text-white">Contact Info</h4>
-              <div className="space-y-4">
-                {profile.email && (
-                  <div className="flex items-center gap-3 text-slate-400">
-                    <FaEnvelope className="w-5 h-5" />
-                    <a href={`mailto:${profile.email}`} className="hover:text-white transition-colors">
-                      {profile.email}
-                    </a>
-                  </div>
-                )}
-                {profile.phone && (
-                  <div className="flex items-center gap-3 text-slate-400">
-                    <FaPhone className="w-5 h-5" />
-                    <a href={`tel:${profile.phone}`} className="hover:text-white transition-colors">
-                      {profile.phone}
-                    </a>
-                  </div>
-                )}
-                {profile.location && (
-                  <div className="flex items-center gap-3 text-slate-400">
-                    <FaMapMarkerAlt className="w-5 h-5" />
-                    <span>{profile.location}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-12 pt-8 border-t border-slate-900 text-center">
-            <p className="text-slate-400">
-              © {new Date().getFullYear()} {profile.fullName || "User"}. All rights reserved.
-            </p>
-            <p className="text-sm text-slate-500 mt-2">
-              Crafted with React, Tailwind CSS, and Framer Motion
-            </p>
-          </div>
+      <footer className={`py-10 border-t ${isDarkMode ? "bg-[#090b14] border-slate-900 text-slate-400" : "bg-slate-900 border-slate-800 text-slate-400"}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs space-y-2">
+          <p>© {new Date().getFullYear()} {profile?.fullName || "User Portfolio"}. All rights reserved.</p>
+          <p className="text-slate-500">ByteBodh Portfolio Platform — Enhanced Mode</p>
         </div>
       </footer>
 
-      {/* Back to Top Button */}
+      {/* Back to Top Floating Button */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className={`fixed bottom-8 right-8 w-12 h-12 text-white rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center group z-40 ${
-          isScrolled ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+        className={`fixed bottom-6 right-6 w-11 h-11 text-white rounded-full shadow-2xl transition-all flex items-center justify-center z-40 ${
+          isScrolled ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6 pointer-events-none"
         }`}
         style={{ background: colors.primary.gradient }}
+        title="Back to Top"
       >
-        <FaChevronUp className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
+        <FaChevronUp className="w-4 h-4" />
       </button>
-
-      {/* Floating Share Button */}
-      <motion.button
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 1 }}
-        onClick={() => setShowShareModal(true)}
-        className="fixed bottom-8 left-8 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center group z-40"
-        style={{ background: colors.secondary.gradient }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        <FaShareAlt className="w-6 h-6 text-white" />
-        <span className="absolute -top-8 bg-slate-950 border border-slate-800 text-slate-200 text-xs px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-          Share Portfolio
-        </span>
-      </motion.button>
     </div>
   );
 };
