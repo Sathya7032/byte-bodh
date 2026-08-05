@@ -1,1060 +1,1090 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
+  User,
+  Briefcase,
+  GraduationCap,
+  FolderGit2,
+  Award,
   Mail,
   Phone,
-  MapPin,
+  ArrowUpRight,
+  Sparkles,
+  Sun,
+  Moon,
+  Menu,
+  X,
+  ChevronRight,
+  ExternalLink,
   Github,
   Linkedin,
   Twitter,
   Globe,
-  Award,
   Send,
-  Briefcase,
-  GraduationCap,
-  Code2,
-  FolderOpen,
-  Sparkles,
-  ArrowUpRight,
-  Leaf,
-  Zap,
-  Star,
+  Copy,
+  Check,
+  MapPin,
+  Calendar,
+  Code
 } from "lucide-react";
+import { toast } from "react-toastify";
 import { createContactMessage } from "../api/profileService";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
-/* ─────────────────────────────────────────────────────────────
-   Scoped CSS injected once into the document head
-───────────────────────────────────────────────────────────── */
-const STYLE_ID = "template-six-styles";
-
-function injectStyles() {
-  // Always refresh to ensure white theme styles are active
-  const existing = document.getElementById(STYLE_ID);
-  if (existing) existing.remove();
-  const style = document.createElement("style");
-  style.id = STYLE_ID;
-  style.textContent = `
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-
-    .t6-root {
-      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-      background: #ffffff;
-      min-height: 100vh;
-      color: #1a1a1a;
-      overflow-x: hidden;
-    }
-
-    /* ── Topbar ── */
-    .t6-topbar {
-      background: #ffffff;
-      border-bottom: 2px solid #16a34a;
-      padding: 0 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 16px rgba(22,163,74,0.08);
-      min-height: 60px;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .t6-brand {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 15px;
-      font-weight: 800;
-      letter-spacing: 0.06em;
-      color: #16a34a;
-      text-transform: uppercase;
-      text-decoration: none;
-    }
-    .t6-nav {
-      display: flex;
-      gap: 2px;
-      flex-wrap: wrap;
-    }
-    .t6-nav-link {
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: #4b5563;
-      text-decoration: none;
-      padding: 6px 12px;
-      border-radius: 8px;
-      transition: all 0.2s;
-    }
-    .t6-nav-link:hover { color: #16a34a; background: #f0fdf4; }
-    .t6-badge-open {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #f0fdf4;
-      border: 1.5px solid #86efac;
-      border-radius: 100px;
-      padding: 5px 14px;
-      font-size: 11px;
-      font-weight: 700;
-      color: #16a34a;
-    }
-    .t6-pulse-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: #22c55e;
-      animation: t6-pulse 2s ease infinite;
-    }
-    @keyframes t6-pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50%       { opacity: 0.5; transform: scale(0.75); }
-    }
-
-    /* ── Hero ── */
-    .t6-hero {
-      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #ffffff 100%);
-      border-bottom: 1px solid #bbf7d0;
-      padding: 56px 24px 48px;
-    }
-    .t6-hero-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      gap: 40px;
-      flex-wrap: wrap;
-    }
-    .t6-avatar-wrap { position: relative; flex-shrink: 0; }
-    .t6-avatar-ring {
-      position: absolute;
-      inset: -4px;
-      border-radius: 50%;
-      background: conic-gradient(from 0deg, #16a34a, #4ade80, #86efac, #16a34a);
-      animation: t6-spin 6s linear infinite;
-      z-index: 0;
-    }
-    @keyframes t6-spin { to { transform: rotate(360deg); } }
-    .t6-avatar {
-      position: relative; z-index: 1;
-      width: 110px; height: 110px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 4px solid #ffffff;
-    }
-    .t6-avatar-fallback {
-      position: relative; z-index: 1;
-      width: 110px; height: 110px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #16a34a, #4ade80);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 2.4rem; font-weight: 900; color: #ffffff;
-      border: 4px solid #ffffff;
-    }
-    .t6-hero-content { flex: 1; min-width: 220px; }
-    .t6-hero-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px; font-weight: 700;
-      letter-spacing: 0.14em; text-transform: uppercase;
-      color: #16a34a;
-      background: #dcfce7;
-      border: 1px solid #86efac;
-      border-radius: 6px;
-      padding: 3px 10px;
-      margin-bottom: 12px;
-    }
-    .t6-name {
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      font-weight: 900;
-      letter-spacing: -0.03em;
-      line-height: 1.05;
-      color: #111827;
-      margin-bottom: 8px;
-    }
-    .t6-name-accent { color: #16a34a; }
-    .t6-headline {
-      font-size: clamp(0.95rem, 2vw, 1.15rem);
-      font-weight: 600; color: #374151; margin-bottom: 14px;
-    }
-    .t6-bio {
-      font-size: 0.9rem; color: #4b5563;
-      line-height: 1.75; margin-bottom: 20px; max-width: 580px;
-    }
-    .t6-contact-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-    .t6-contact-chip {
-      display: inline-flex; align-items: center; gap: 5px;
-      font-size: 12px; font-weight: 500; color: #374151;
-      background: #ffffff; border: 1.5px solid #d1fae5;
-      border-radius: 8px; padding: 5px 11px;
-      text-decoration: none; transition: all 0.2s;
-    }
-    .t6-contact-chip:hover { border-color: #4ade80; color: #16a34a; background: #f0fdf4; }
-    .t6-social-row { display: flex; gap: 8px; flex-wrap: wrap; }
-    .t6-social-btn {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 40px; height: 40px; border-radius: 12px;
-      background: #ffffff; border: 1.5px solid #bbf7d0;
-      color: #16a34a; text-decoration: none;
-      transition: all 0.2s;
-      box-shadow: 0 1px 4px rgba(22,163,74,0.08);
-    }
-    .t6-social-btn:hover {
-      background: #16a34a; border-color: #16a34a; color: #ffffff;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 18px rgba(22,163,74,0.22);
-    }
-
-    /* ── Stats Strip ── */
-    .t6-stats-strip { background: #16a34a; padding: 20px 24px; }
-    .t6-stats-inner {
-      max-width: 1100px; margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 4px;
-    }
-    .t6-stat {
-      display: flex; flex-direction: column;
-      align-items: center; padding: 10px 0;
-    }
-    .t6-stat-value {
-      font-size: clamp(1.6rem, 3vw, 2.2rem);
-      font-weight: 900; color: #ffffff; line-height: 1;
-    }
-    .t6-stat-label {
-      font-size: 11px; font-weight: 600;
-      color: rgba(255,255,255,0.75);
-      text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px;
-      text-align: center;
-    }
-
-    /* ── Main Layout ── */
-    .t6-main { max-width: 1100px; margin: 0 auto; padding: 40px 24px 60px; }
-    .t6-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    .t6-section { margin-bottom: 40px; }
-    .t6-section-header {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 20px; padding-bottom: 12px;
-      border-bottom: 2px solid #dcfce7;
-    }
-    .t6-section-icon {
-      width: 36px; height: 36px; border-radius: 10px;
-      background: linear-gradient(135deg, #16a34a, #4ade80);
-      display: flex; align-items: center; justify-content: center;
-      color: #ffffff; flex-shrink: 0;
-    }
-    .t6-section-title { font-size: 16px; font-weight: 800; color: #111827; }
-    .t6-section-count {
-      margin-left: auto; font-size: 11px; font-weight: 700;
-      color: #16a34a; background: #dcfce7;
-      border: 1px solid #86efac; border-radius: 100px; padding: 2px 10px;
-    }
-
-    /* ── Card ── */
-    .t6-card {
-      background: #ffffff; border: 1.5px solid #e5e7eb;
-      border-radius: 16px; padding: 24px;
-      transition: all 0.25s; position: relative; overflow: hidden;
-    }
-    .t6-card:hover {
-      border-color: #86efac;
-      box-shadow: 0 8px 32px rgba(22,163,74,0.10);
-      transform: translateY(-2px);
-    }
-    .t6-card::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, #16a34a, #4ade80);
-      border-radius: 16px 16px 0 0;
-      opacity: 0; transition: opacity 0.25s;
-    }
-    .t6-card:hover::before { opacity: 1; }
-
-    /* ── Timeline ── */
-    .t6-timeline-item { position: relative; padding-left: 24px; padding-bottom: 24px; }
-    .t6-timeline-item:last-child { padding-bottom: 0; }
-    .t6-timeline-item::before {
-      content: ''; position: absolute;
-      left: 6px; top: 14px; bottom: 0;
-      width: 1.5px;
-      background: linear-gradient(to bottom, #4ade80, #dcfce7);
-    }
-    .t6-timeline-item:last-child::before { display: none; }
-    .t6-timeline-dot {
-      position: absolute; left: 0; top: 6px;
-      width: 14px; height: 14px; border-radius: 50%;
-      background: #ffffff; border: 2.5px solid #16a34a;
-      box-shadow: 0 0 0 3px #dcfce7;
-    }
-    .t6-tl-role { font-size: 14px; font-weight: 700; color: #111827; }
-    .t6-tl-org  { font-size: 13px; font-weight: 600; color: #16a34a; margin-top: 2px; }
-    .t6-tl-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-    .t6-tl-tag {
-      display: inline-flex; align-items: center; gap: 4px;
-      font-size: 11px; font-weight: 600; color: #6b7280;
-      background: #f9fafb; border: 1px solid #e5e7eb;
-      border-radius: 6px; padding: 2px 8px;
-    }
-    .t6-tl-desc { font-size: 12.5px; color: #4b5563; line-height: 1.7; margin-top: 8px; }
-    .t6-gpa-badge {
-      display: inline-block; margin-top: 8px; padding: 3px 12px;
-      border-radius: 100px; background: #dcfce7;
-      border: 1px solid #86efac; font-size: 11px;
-      font-weight: 700; color: #16a34a;
-    }
-
-    /* ── Skill bars ── */
-    .t6-skill-row { display: flex; flex-direction: column; gap: 12px; }
-    .t6-skill-item { display: flex; flex-direction: column; gap: 5px; }
-    .t6-skill-meta { display: flex; justify-content: space-between; align-items: center; }
-    .t6-skill-name { font-size: 13px; font-weight: 600; color: #111827; }
-    .t6-skill-pct  { font-size: 11px; font-weight: 700; color: #16a34a; }
-    .t6-bar-bg {
-      height: 6px; background: #f0fdf4; border-radius: 100px;
-      overflow: hidden; border: 1px solid #bbf7d0;
-    }
-    .t6-bar-fill {
-      height: 100%; border-radius: 100px;
-      background: linear-gradient(90deg, #16a34a, #4ade80);
-      transition: width 1.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .t6-pill-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
-    .t6-pill {
-      display: inline-flex; align-items: center; gap: 5px;
-      font-size: 12px; font-weight: 600; color: #166534;
-      background: #f0fdf4; border: 1.5px solid #bbf7d0;
-      border-radius: 100px; padding: 5px 14px; transition: all 0.2s;
-    }
-    .t6-pill:hover { background: #dcfce7; border-color: #4ade80; transform: scale(1.04); color: #15803d; }
-
-    /* ── Projects ── */
-    .t6-project-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 16px;
-    }
-    .t6-project-card {
-      background: #f9fafb; border: 1.5px solid #e5e7eb;
-      border-radius: 14px; padding: 18px;
-      transition: all 0.25s; display: flex; flex-direction: column;
-    }
-    .t6-project-card:hover {
-      border-color: #4ade80; background: #f0fdf4;
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(22,163,74,0.12);
-    }
-    .t6-project-title-row {
-      display: flex; justify-content: space-between;
-      align-items: flex-start; gap: 8px;
-    }
-    .t6-project-title { font-size: 14px; font-weight: 700; color: #111827; line-height: 1.3; }
-    .t6-project-link {
-      display: flex; align-items: center; justify-content: center;
-      width: 28px; height: 28px; border-radius: 8px;
-      background: #dcfce7; border: 1px solid #86efac;
-      color: #16a34a; text-decoration: none; flex-shrink: 0; transition: all 0.2s;
-    }
-    .t6-project-link:hover { background: #16a34a; color: #ffffff; border-color: #16a34a; }
-    .t6-project-desc { font-size: 12px; color: #6b7280; line-height: 1.65; margin-top: 8px; flex: 1; }
-    .t6-tech-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 12px; }
-    .t6-tech-tag {
-      font-size: 10px; font-weight: 700;
-      color: #16a34a; background: #dcfce7;
-      border: 1px solid #86efac; border-radius: 6px; padding: 2px 8px;
-      text-transform: uppercase; letter-spacing: 0.04em;
-    }
-
-    /* ── Certifications ── */
-    .t6-cert-list { display: flex; flex-direction: column; gap: 10px; }
-    .t6-cert-item {
-      display: flex; align-items: flex-start; gap: 12px;
-      padding: 12px 14px; background: #f9fafb;
-      border: 1.5px solid #e5e7eb; border-radius: 12px; transition: all 0.2s;
-    }
-    .t6-cert-item:hover { border-color: #4ade80; background: #f0fdf4; }
-    .t6-cert-icon {
-      width: 36px; height: 36px; border-radius: 10px;
-      background: linear-gradient(135deg, #16a34a, #4ade80);
-      display: flex; align-items: center; justify-content: center;
-      color: #ffffff; flex-shrink: 0;
-    }
-    .t6-cert-name { font-size: 13px; font-weight: 700; color: #111827; line-height: 1.3; }
-    .t6-cert-org  { font-size: 11px; color: #16a34a; font-weight: 600; margin-top: 2px; }
-    .t6-cert-date { font-size: 11px; color: #9ca3af; margin-top: 1px; }
-
-    /* ── Contact ── */
-    .t6-contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
-    .t6-contact-info { display: flex; flex-direction: column; gap: 14px; }
-    .t6-contact-info-item { display: flex; align-items: center; gap: 12px; }
-    .t6-contact-info-icon {
-      width: 38px; height: 38px; border-radius: 10px;
-      background: #f0fdf4; border: 1.5px solid #bbf7d0;
-      display: flex; align-items: center; justify-content: center;
-      color: #16a34a; flex-shrink: 0;
-    }
-    .t6-contact-info-label {
-      font-size: 11px; color: #9ca3af; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 0.06em;
-    }
-    .t6-contact-info-value {
-      font-size: 13px; color: #111827; font-weight: 600; text-decoration: none;
-    }
-    .t6-contact-info-value:hover { color: #16a34a; }
-    .t6-form { display: flex; flex-direction: column; gap: 12px; }
-    .t6-input {
-      width: 100%; background: #ffffff;
-      border: 1.5px solid #e5e7eb; border-radius: 12px;
-      padding: 11px 14px; color: #111827; font-size: 13px;
-      font-family: inherit; outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      box-sizing: border-box;
-    }
-    .t6-input::placeholder { color: #9ca3af; }
-    .t6-input:focus { border-color: #4ade80; box-shadow: 0 0 0 3px rgba(74,222,128,0.15); }
-    .t6-textarea { resize: vertical; min-height: 100px; }
-    .t6-submit-btn {
-      display: inline-flex; align-items: center; justify-content: center;
-      gap: 8px; padding: 12px 26px; border-radius: 12px;
-      background: linear-gradient(135deg, #15803d, #16a34a);
-      color: #ffffff; font-size: 14px; font-weight: 700;
-      border: none; cursor: pointer; transition: all 0.2s;
-      width: 100%; font-family: inherit;
-    }
-    .t6-submit-btn:hover:not(:disabled) {
-      background: linear-gradient(135deg, #14532d, #15803d);
-      box-shadow: 0 8px 24px rgba(22,163,74,0.28);
-      transform: translateY(-1px);
-    }
-    .t6-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-    /* ── Footer ── */
-    .t6-footer {
-      background: #f9fafb; border-top: 2px solid #dcfce7;
-      text-align: center; padding: 24px;
-      font-size: 12px; font-weight: 600; color: #9ca3af;
-      letter-spacing: 0.08em; text-transform: uppercase;
-    }
-    .t6-footer-accent { color: #16a34a; }
-
-    /* ── Responsive ── */
-    @media (max-width: 768px) {
-      .t6-grid-2 { grid-template-columns: 1fr; }
-      .t6-nav { display: none; }
-      .t6-topbar { padding: 10px 16px; }
-      .t6-hero { padding: 32px 16px 28px; }
-      .t6-hero-inner { flex-direction: column; align-items: flex-start; gap: 20px; }
-      .t6-main { padding: 24px 16px 48px; }
-      .t6-contact-grid { grid-template-columns: 1fr; }
-      .t6-project-grid { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 500px) {
-      .t6-stats-inner { grid-template-columns: 1fr 1fr; }
-      .t6-avatar { width: 88px; height: 88px; }
-      .t6-avatar-fallback { width: 88px; height: 88px; font-size: 1.8rem; }
-      .t6-badge-open { display: none; }
-    }
-
-    /* ── Animations ── */
-    .t6-reveal { animation: t6-reveal-in 0.55s ease both; }
-    @keyframes t6-reveal-in {
-      from { opacity: 0; transform: translateY(14px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .t6-d1 { animation-delay: 0.05s; }
-    .t6-d2 { animation-delay: 0.12s; }
-    .t6-d3 { animation-delay: 0.18s; }
-    .t6-d4 { animation-delay: 0.25s; }
-    .t6-d5 { animation-delay: 0.32s; }
-  `;
-  document.head.appendChild(style);
-}
-
-/* ─────────────────────────────────────────────────────────────
-   Component
-───────────────────────────────────────────────────────────── */
 const TemplateSix = ({ profile }) => {
-  const { username: routeUsername } = useParams();
+  const [isDarkMode, setIsDarkMode] = useState(false); // Coral Studio defaults to clean white light theme
+  const [activeSection, setActiveSection] = useState("hero");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
 
-  useEffect(() => {
-    injectStyles();
-  }, []);
-
-  const getUsernameFromDomain = () => {
-    const hostname = window.location.hostname;
-    if (hostname.endsWith(".localhost")) {
-      const sub = hostname.replace(".localhost", "");
-      return sub && sub !== "www" ? sub : null;
-    }
-    if (hostname.endsWith(".bytebodh.in")) {
-      const sub = hostname.replace(".bytebodh.in", "");
-      return sub && sub !== "www" ? sub : null;
-    }
-    return null;
-  };
-
-  const username =
-    profile.user?.username || routeUsername || getUsernameFromDomain() || "user";
-
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  // Form State
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [barsVisible, setBarsVisible] = useState(false);
 
+  // Extract recipient identifier
+  const username =
+    profile?.user?.username ||
+    profile?.username ||
+    profile?.fullName?.toLowerCase().replace(/\s+/g, "") ||
+    "user";
+
+  // Toggle Theme
+  const toggleTheme = () => setIsDarkMode((prev) => !prev);
+
+  // Copy Profile Link
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopiedLink(true);
+    toast.success("Portfolio link copied!");
+    setTimeout(() => setCopiedLink(false), 2500);
+  };
+
+  // Scroll Spy for Navbar active section highlighting
   useEffect(() => {
-    const t = setTimeout(() => setBarsVisible(true), 300);
-    return () => clearTimeout(t);
+    const handleScroll = () => {
+      const sections = ["hero", "projects", "skills", "experience", "education", "certifications", "contact"];
+      const scrollPosition = window.scrollY + 200;
+
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sections[i]);
+        if (el && el.offsetTop <= scrollPosition) {
+          setActiveSection(sections[i]);
+          break;
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const skillList = useMemo(() => {
-    if (!profile.skills) return [];
-    return profile.skills.map((skill) => {
-      if (typeof skill === "object" && skill !== null)
-        return { name: skill.name, proficiency: skill.proficiency || 80 };
-      return { name: skill, proficiency: 80 };
-    });
-  }, [profile.skills]);
+  const scrollToSection = (id) => {
+    setMobileMenuOpen(false);
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 80;
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
 
-  const totalExpYears = useMemo(() => {
-    if (!profile.experience?.length) return 1;
-    let y = 0;
-    profile.experience.forEach((exp) => {
-      const s = new Date(exp.startDate);
-      const e =
-        exp.endDate && exp.endDate.toUpperCase() !== "PRESENT"
-          ? new Date(exp.endDate)
-          : new Date();
-      if (!isNaN(s) && !isNaN(e)) y += (e - s) / (1000 * 60 * 60 * 24 * 365.25);
-    });
-    return Math.max(Math.ceil(y), 1);
-  }, [profile.experience]);
-
-  const formatUrl = (url) => {
-    if (!url) return "#";
-    return url.startsWith("http") ? url : `https://${url}`;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+    }
   };
 
-  const getSocialIcon = (platform) => {
-    const p = platform.toUpperCase();
-    if (p.includes("GITHUB")) return <Github style={{ width: 16, height: 16 }} />;
-    if (p.includes("LINKEDIN")) return <Linkedin style={{ width: 16, height: 16 }} />;
-    if (p.includes("TWITTER") || p.includes(" X"))
-      return <Twitter style={{ width: 16, height: 16 }} />;
-    return <Globe style={{ width: 16, height: 16 }} />;
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
+  // Contact Form Submission
+  const handleSubmitContact = async (e) => {
     e.preventDefault();
+
     if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
-      toast.error("Please fill in all fields.");
+      toast.error("Please fill in all required fields.");
       return;
     }
+
     setIsSubmitting(true);
+
     try {
-      const res = await createContactMessage({
-        id: profile?.user?.id,
-        name: formData.name,
-        email: formData.email,
-        message: formData.message,
+      const payload = {
         recipientUsername: username,
-      });
-      if (res.data?.success) {
-        toast.success("Message sent! 🌿");
-        setFormData({ name: "", email: "", message: "" });
+        receiverId: profile?.user?.id || profile?.userId,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        subject: formData.subject.trim() || `Coral Studio Inquiry from ${formData.name}`,
+        message: formData.message.trim()
+      };
+
+      const response = await createContactMessage(payload);
+
+      if (response?.data?.success || response?.status === 200 || response?.status === 201) {
+        toast.success("✨ Message sent successfully! I'll get back to you soon.");
+        setFormData({ name: "", email: "", subject: "", message: "" });
       } else {
-        throw new Error(res.data?.message || "Unknown error");
+        throw new Error(response?.data?.message || "Failed to send message");
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to send message.");
+      console.error("Contact Form Error:", err);
+      toast.error(err?.response?.data?.message || err?.message || "Failed to deliver message. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const experience = profile.experience || [];
-  const education = profile.education || [];
-  const projects = profile.projects || [];
-  const certifications = profile.certifications || [];
+  // Parse Skills Data
+  const normalizedSkills = useMemo(() => {
+    if (!profile?.skills) return [];
+    return profile.skills.map((skill) => {
+      if (typeof skill === "object" && skill !== null) {
+        return {
+          name: skill.name || "Technical Skill",
+          proficiency: skill.proficiency || skill.level || 85,
+          category: skill.category || "Design & Tech"
+        };
+      }
+      return {
+        name: String(skill),
+        proficiency: 85,
+        category: "Design & Tech"
+      };
+    });
+  }, [profile?.skills]);
 
-  // Split name for green accent on last word
-  const nameParts = (profile.fullName || "").trim().split(/\s+/);
-  const nameFirst = nameParts.slice(0, -1).join(" ");
-  const nameLast = nameParts[nameParts.length - 1] || "";
+  // Social Icon Helper
+  const renderSocialIcon = (platform, className = "w-5 h-5") => {
+    const p = (platform || "").toUpperCase();
+    if (p.includes("LINKEDIN")) return <Linkedin className={className} />;
+    if (p.includes("GITHUB")) return <Github className={className} />;
+    if (p.includes("TWITTER") || p.includes("X")) return <Twitter className={className} />;
+    return <Globe className={className} />;
+  };
+
+  // Nav Items Configuration
+  const navItems = [
+    { id: "hero", label: "Overview", icon: User },
+    { id: "projects", label: "Projects", icon: FolderGit2 },
+    { id: "skills", label: "Skills", icon: Code },
+    { id: "experience", label: "Experience", icon: Briefcase },
+    { id: "education", label: "Education", icon: GraduationCap },
+    { id: "certifications", label: "Certifications", icon: Award },
+    { id: "contact", label: "Contact", icon: Mail }
+  ];
+
+  // Skill badge color palette rotation
+  const badgeColors = [
+    "bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400",
+    "bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400",
+    "bg-[#F97316]/10 border-[#F97316]/30 text-[#F97316]",
+    "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400",
+    "bg-teal-500/10 border-teal-500/30 text-teal-600 dark:text-teal-400"
+  ];
 
   return (
-    <div className="t6-root">
-      <ToastContainer position="bottom-right" autoClose={2800} theme="light" />
-
-      {/* ── TOPBAR ── */}
-      <header className="t6-topbar">
-        <a className="t6-brand" href="#t6-about">
-          <Leaf style={{ width: 18, height: 18 }} />
-          ByteBodh Folio
-        </a>
-
-        <nav className="t6-nav">
-          {["About", "Experience", "Projects", "Skills", "Contact"].map((n) => (
-            <a key={n} href={`#t6-${n.toLowerCase()}`} className="t6-nav-link">
-              {n}
-            </a>
-          ))}
-        </nav>
-
-        <div className="t6-badge-open">
-          <span className="t6-pulse-dot" />
-          Open to Work
-        </div>
-      </header>
-
-      {/* ── HERO ── */}
-      <section className="t6-hero t6-reveal t6-d1" id="t6-about">
-        <div className="t6-hero-inner">
-          {/* Avatar */}
-          <div className="t6-avatar-wrap">
-            <div className="t6-avatar-ring" />
-            {profile.pictureUrl ? (
-              <img
-                src={profile.pictureUrl}
-                alt={profile.fullName}
-                className="t6-avatar"
-              />
-            ) : (
-              <div className="t6-avatar-fallback">{profile.fullName?.[0]}</div>
-            )}
-          </div>
-
-          {/* Content */}
-          <div className="t6-hero-content">
-            <div className="t6-hero-label">
-              <Sparkles style={{ width: 11, height: 11 }} />
-              Portfolio · {username}.bytebodh.in
-            </div>
-
-            <h1 className="t6-name">
-              {nameFirst && <>{nameFirst} </>}
-              <span className="t6-name-accent">{nameLast}</span>
-            </h1>
-
-            <p className="t6-headline">{profile.headline}</p>
-            <p className="t6-bio">{profile.summary}</p>
-
-            {/* Contact chips */}
-            {(profile.email || profile.mobileNumber || profile.location) && (
-              <div className="t6-contact-row">
-                {profile.email && (
-                  <a href={`mailto:${profile.email}`} className="t6-contact-chip">
-                    <Mail style={{ width: 12, height: 12, color: "#16a34a" }} />
-                    {profile.email}
-                  </a>
-                )}
-                {profile.mobileNumber && (
-                  <span className="t6-contact-chip">
-                    <Phone style={{ width: 12, height: 12, color: "#16a34a" }} />
-                    {profile.mobileNumber}
-                  </span>
-                )}
-                {profile.location && (
-                  <span className="t6-contact-chip">
-                    <MapPin style={{ width: 12, height: 12, color: "#16a34a" }} />
-                    {profile.location}
-                  </span>
-                )}
-              </div>
-            )}
-
-            {/* Social links */}
-            {profile.socialMediaLinks?.length > 0 && (
-              <div className="t6-social-row">
-                {profile.socialMediaLinks.map((link, i) => (
-                  <a
-                    key={i}
-                    href={formatUrl(link.profileUrl || link.url)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="t6-social-btn"
-                    title={link.platform}
-                  >
-                    {getSocialIcon(link.platform)}
-                  </a>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* ── STATS STRIP ── */}
-      <div className="t6-stats-strip t6-reveal t6-d2">
-        <div className="t6-stats-inner">
-          <div className="t6-stat">
-            <span className="t6-stat-value">{totalExpYears}+</span>
-            <span className="t6-stat-label">Years Experience</span>
-          </div>
-          <div className="t6-stat">
-            <span className="t6-stat-value">{projects.length || "∞"}</span>
-            <span className="t6-stat-label">Projects Built</span>
-          </div>
-          <div className="t6-stat">
-            <span className="t6-stat-value">{skillList.length || "∞"}</span>
-            <span className="t6-stat-label">Skills</span>
-          </div>
-          <div className="t6-stat">
-            <span className="t6-stat-value">{certifications.length || "∞"}</span>
-            <span className="t6-stat-label">Certifications</span>
-          </div>
-        </div>
+    <div
+      className={`min-h-screen font-sans transition-colors duration-500 overflow-x-hidden selection:bg-[#F97316]/20 selection:text-[#F97316] ${
+        isDarkMode ? "bg-[#0F172A] text-[#F8FAFC]" : "bg-[#FFFFFF] text-[#1F2937]"
+      }`}
+    >
+      {/* Abstract Background Blobs (Framer/Stripe style) */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-80">
+        <div
+          className={`absolute -top-32 left-1/3 w-[550px] h-[550px] rounded-full blur-[170px] transition-colors duration-700 ${
+            isDarkMode ? "bg-[#F97316]/15" : "bg-[#FED7AA]/60"
+          }`}
+        />
+        <div
+          className={`absolute top-1/2 -right-40 w-[450px] h-[450px] rounded-full blur-[160px] transition-colors duration-700 ${
+            isDarkMode ? "bg-[#FB923C]/10" : "bg-[#FFEDD5]/70"
+          }`}
+        />
+        <div
+          className={`absolute -bottom-40 left-10 w-[400px] h-[400px] rounded-full blur-[150px] transition-colors duration-700 ${
+            isDarkMode ? "bg-[#F97316]/10" : "bg-[#FED7AA]/50"
+          }`}
+        />
       </div>
 
-      {/* ── MAIN CONTENT ── */}
-      <main className="t6-main">
-
-        {/* ── EXPERIENCE + EDUCATION (2-col) ── */}
-        <div className="t6-grid-2 t6-section">
-
-          {/* Experience */}
-          <div id="t6-experience" className="t6-reveal t6-d3">
-            <div className="t6-section-header">
-              <div className="t6-section-icon">
-                <Briefcase style={{ width: 16, height: 16 }} />
+      {/* STICKY NAVBAR */}
+      <header
+        className={`sticky top-0 z-50 backdrop-blur-xl transition-all duration-300 border-b ${
+          isDarkMode
+            ? "bg-[#0F172A]/85 border-slate-800 shadow-[0_10px_30px_rgba(0,0,0,0.8)]"
+            : "bg-white/85 border-[#FED7AA] shadow-[0_4px_20px_rgba(249,115,22,0.06)]"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          {/* Logo on Left */}
+          <div
+            onClick={() => scrollToSection("hero")}
+            className="flex items-center gap-3 cursor-pointer group"
+          >
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#F97316] to-[#FB923C] p-[2px] shadow-md shadow-[#F97316]/20 group-hover:scale-105 transition-transform duration-300">
+              <div
+                className={`w-full h-full rounded-[14px] flex items-center justify-center font-extrabold text-sm transition-colors ${
+                  isDarkMode ? "bg-[#0F172A] text-[#FB923C]" : "bg-white text-[#F97316]"
+                }`}
+              >
+                {profile?.fullName
+                  ? profile.fullName
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .slice(0, 2)
+                      .toUpperCase()
+                  : "CS"}
               </div>
-              <h2 className="t6-section-title">Experience</h2>
-              {experience.length > 0 && (
-                <span className="t6-section-count">{experience.length}</span>
-              )}
             </div>
-            <div className="t6-card">
-              {experience.length === 0 ? (
-                <p style={{ color: "#9ca3af", fontSize: 13 }}>No experience listed yet.</p>
-              ) : (
-                experience.map((exp, i) => (
-                  <div key={i} className="t6-timeline-item">
-                    <div className="t6-timeline-dot" />
-                    <div className="t6-tl-role">{exp.position}</div>
-                    <div className="t6-tl-org">{exp.company}</div>
-                    <div className="t6-tl-meta">
-                      <span className="t6-tl-tag">
-                        {exp.startDate} — {exp.endDate || "Present"}
-                      </span>
-                      {exp.location && (
-                        <span className="t6-tl-tag">
-                          <MapPin style={{ width: 10, height: 10 }} /> {exp.location}
-                        </span>
-                      )}
-                    </div>
-                    {exp.description && (
-                      <p className="t6-tl-desc">{exp.description}</p>
-                    )}
-                  </div>
-                ))
-              )}
+            <div>
+              <span className="font-extrabold text-base tracking-tight flex items-center gap-1.5">
+                {profile?.fullName || "Coral Studio"}
+                <span className="inline-block w-2 h-2 rounded-full bg-[#F97316] animate-pulse" />
+              </span>
+              <span className={`block text-[10px] uppercase font-mono tracking-widest ${isDarkMode ? "text-[#FB923C]" : "text-[#F97316]"}`}>
+                Creative Portfolio
+              </span>
             </div>
           </div>
 
-          {/* Education */}
-          <div id="t6-education" className="t6-reveal t6-d3">
-            <div className="t6-section-header">
-              <div className="t6-section-icon">
-                <GraduationCap style={{ width: 16, height: 16 }} />
-              </div>
-              <h2 className="t6-section-title">Education</h2>
-              {education.length > 0 && (
-                <span className="t6-section-count">{education.length}</span>
-              )}
-            </div>
-            <div className="t6-card">
-              {education.length === 0 ? (
-                <p style={{ color: "#9ca3af", fontSize: 13 }}>No education listed yet.</p>
-              ) : (
-                education.map((edu, i) => (
-                  <div key={i} className="t6-timeline-item">
-                    <div className="t6-timeline-dot" />
-                    <div className="t6-tl-role">{edu.degree}</div>
-                    <div className="t6-tl-org">{edu.institution}</div>
-                    <div className="t6-tl-meta">
-                      <span className="t6-tl-tag">
-                        {edu.startDate} — {edu.endDate || "Present"}
-                      </span>
-                      {edu.fieldOfStudy && (
-                        <span className="t6-tl-tag">{edu.fieldOfStudy}</span>
-                      )}
-                    </div>
-                    {edu.gpa && (
-                      <span className="t6-gpa-badge">GPA: {edu.gpa}</span>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
+          {/* Desktop Navigation Links */}
+          <nav
+            className={`hidden md:flex items-center gap-1 p-1.5 rounded-full border backdrop-blur-lg ${
+              isDarkMode ? "bg-slate-900/60 border-slate-800" : "bg-[#FFF7F5] border-[#FED7AA]"
+            }`}
+          >
+            {navItems.map((item) => {
+              const isActive = activeSection === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className={`px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 flex items-center gap-2 relative ${
+                    isActive
+                      ? isDarkMode
+                        ? "text-[#FB923C] font-bold"
+                        : "text-[#F97316] font-bold"
+                      : isDarkMode
+                      ? "text-slate-400 hover:text-slate-200"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeCoralNav"
+                      className={`absolute inset-0 rounded-full shadow-sm ${
+                        isDarkMode
+                          ? "bg-[#F97316]/20 border border-[#F97316]/40"
+                          : "bg-white border border-[#F97316]/30"
+                      }`}
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <item.icon className="w-3.5 h-3.5 relative z-10" />
+                  <span className="relative z-10">{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Actions on Right */}
+          <div className="flex items-center gap-3">
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={toggleTheme}
+              className={`p-2.5 rounded-2xl border transition-all duration-300 shadow-sm flex items-center justify-center cursor-pointer ${
+                isDarkMode
+                  ? "bg-slate-900 border-slate-800 text-amber-400 hover:bg-slate-800"
+                  : "bg-[#FFF7F5] border-[#FED7AA] text-slate-700 hover:bg-white"
+              }`}
+              title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
+            {/* Share Link */}
+            <button
+              onClick={handleCopyLink}
+              className={`p-2.5 rounded-2xl border transition-all duration-300 shadow-sm hidden sm:flex items-center justify-center cursor-pointer ${
+                isDarkMode
+                  ? "bg-slate-900 border-slate-800 text-slate-300 hover:text-[#FB923C]"
+                  : "bg-[#FFF7F5] border-[#FED7AA] text-slate-700 hover:text-[#F97316] hover:bg-white"
+              }`}
+              title="Share Portfolio"
+            >
+              {copiedLink ? <Check className="w-4 h-4 text-[#F97316]" /> : <Copy className="w-4 h-4" />}
+            </button>
+
+            {/* Mobile Hamburger Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className={`md:hidden p-2.5 rounded-2xl border transition-colors ${
+                isDarkMode ? "bg-slate-900 border-slate-800 text-slate-200" : "bg-[#FFF7F5] border-[#FED7AA] text-slate-800"
+              }`}
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
 
-        {/* ── PROJECTS ── */}
-        <div className="t6-section t6-reveal t6-d4" id="t6-projects">
-          <div className="t6-section-header">
-            <div className="t6-section-icon">
-              <FolderOpen style={{ width: 16, height: 16 }} />
+        {/* Mobile Menu Drawer */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className={`md:hidden border-b overflow-hidden backdrop-blur-2xl ${
+                isDarkMode ? "bg-[#0F172A]/95 border-slate-800" : "bg-white/95 border-[#FED7AA]"
+              }`}
+            >
+              <div className="px-6 py-5 space-y-2">
+                {navItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => scrollToSection(item.id)}
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition-all ${
+                      activeSection === item.id
+                        ? isDarkMode
+                          ? "bg-[#F97316]/20 text-[#FB923C] border border-[#F97316]/40"
+                          : "bg-[#FFF7F5] text-[#F97316] border border-[#F97316]/30 font-bold"
+                        : isDarkMode
+                        ? "text-slate-300 hover:bg-slate-900"
+                        : "text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <item.icon className="w-4 h-4 text-[#F97316]" />
+                      <span>{item.label}</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 opacity-50" />
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
+
+      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24 space-y-28">
+        {/* HERO SECTION WITH ABSTRACT SHAPES */}
+        <section id="hero" className="pt-6 lg:pt-12 scroll-mt-28">
+          <div className="grid lg:grid-cols-12 gap-12 items-center">
+            {/* Left Column: Hero Brief */}
+            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+              {/* Creative Status Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#F97316]/30 bg-[#FFF7F5] text-[#F97316] text-xs font-semibold tracking-wide shadow-sm">
+                <Sparkles className="w-3.5 h-3.5 text-[#F97316]" />
+                <span>Creative Studio • Available for Projects</span>
+              </div>
+
+              {/* Name & Headline */}
+              <div className="space-y-3">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15]">
+                  Creative design & code by{" "}
+                  <span className="bg-gradient-to-r from-[#F97316] via-[#FB923C] to-amber-500 bg-clip-text text-transparent">
+                    {profile?.fullName || "Coral Creator"}
+                  </span>
+                </h1>
+                <h2 className={`text-xl sm:text-2xl font-semibold tracking-tight ${isDarkMode ? "text-slate-300" : "text-[#1F2937]/80"}`}>
+                  {profile?.headline || "Senior Digital Product Designer & Developer"}
+                </h2>
+              </div>
+
+              {/* Summary */}
+              <p className={`text-base sm:text-lg leading-relaxed max-w-2xl mx-auto lg:mx-0 ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                {profile?.summary ||
+                  "Crafting award-winning web applications, interactive visual identities, and seamless digital product experiences with pixel precision."}
+              </p>
+
+              {/* Two CTA Buttons: Explore Projects & Hire Me */}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+                {/* Primary CTA: Explore Projects */}
+                <button
+                  onClick={() => scrollToSection("projects")}
+                  className="px-8 py-4 rounded-full bg-gradient-to-r from-[#F97316] to-[#FB923C] hover:from-[#EA580C] hover:to-[#F97316] text-white font-extrabold text-sm shadow-[0_10px_25px_rgba(249,115,22,0.3)] hover:shadow-[0_15px_35px_rgba(249,115,22,0.45)] hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2.5 group cursor-pointer"
+                >
+                  <FolderGit2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  <span>Explore Projects</span>
+                </button>
+
+                {/* Secondary CTA: Hire Me */}
+                <button
+                  onClick={() => scrollToSection("contact")}
+                  className={`px-8 py-4 rounded-full font-extrabold text-sm border transition-all duration-300 flex items-center gap-2.5 hover:-translate-y-0.5 shadow-sm cursor-pointer ${
+                    isDarkMode
+                      ? "bg-slate-900 border-slate-700 text-slate-200 hover:border-[#F97316]"
+                      : "bg-[#FFF7F5] border-[#FED7AA] text-[#1F2937] hover:border-[#F97316] hover:bg-white"
+                  }`}
+                >
+                  <Mail className="w-4 h-4 text-[#F97316]" />
+                  <span>Hire Me</span>
+                </button>
+              </div>
+
+              {/* Quick Contact Chips */}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 pt-4 text-xs font-medium text-slate-500">
+                {profile?.email && (
+                  <a href={`mailto:${profile.email}`} className="flex items-center gap-2 hover:text-[#F97316] transition-colors">
+                    <Mail className="w-3.5 h-3.5 text-[#F97316]" />
+                    <span>{profile.email}</span>
+                  </a>
+                )}
+                {profile?.mobileNumber && (
+                  <a href={`tel:${profile.mobileNumber}`} className="flex items-center gap-2 hover:text-[#F97316] transition-colors">
+                    <Phone className="w-3.5 h-3.5 text-[#F97316]" />
+                    <span>{profile.mobileNumber}</span>
+                  </a>
+                )}
+                {profile?.location && (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-3.5 h-3.5 text-[#F97316]" />
+                    <span>{profile.location}</span>
+                  </div>
+                )}
+              </div>
             </div>
-            <h2 className="t6-section-title">Projects</h2>
-            {projects.length > 0 && (
-              <span className="t6-section-count">{projects.length}</span>
-            )}
+
+            {/* Right Column: Floating Profile Image with Abstract Shapes */}
+            <div className="lg:col-span-5 flex justify-center">
+              <div className="relative group">
+                {/* Framer/Stripe Abstract Geometric Shapes & SVGs */}
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                  className="absolute -top-10 -right-10 w-44 h-44 rounded-full border-2 border-dashed border-[#F97316]/30 pointer-events-none"
+                />
+
+                <motion.div
+                  animate={{ y: [0, -12, 0], scale: [1, 1.05, 1] }}
+                  transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute -bottom-6 -left-8 w-28 h-28 rounded-3xl bg-gradient-to-tr from-[#FB923C]/30 to-[#F97316]/20 blur-xl pointer-events-none"
+                />
+
+                {/* Main Floating Profile Circle */}
+                <motion.div
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                  className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-full p-3 bg-gradient-to-tr from-[#F97316] via-[#FB923C] to-amber-400 shadow-2xl"
+                >
+                  {profile?.pictureUrl || profile?.photo ? (
+                    <img
+                      src={profile.pictureUrl || profile.photo}
+                      alt={profile.fullName || "Profile"}
+                      className="w-full h-full rounded-full object-cover shadow-inner"
+                    />
+                  ) : (
+                    <div
+                      className={`w-full h-full rounded-full flex flex-col items-center justify-center text-5xl font-extrabold ${
+                        isDarkMode ? "bg-slate-900 text-[#FB923C]" : "bg-[#FFF7F5] text-[#F97316]"
+                      }`}
+                    >
+                      <span>{profile?.fullName?.[0] || "C"}</span>
+                      <span className="text-xs font-mono tracking-widest uppercase mt-2 text-[#F97316]">Coral Studio</span>
+                    </div>
+                  )}
+                </motion.div>
+
+                {/* Floating Abstract Badge */}
+                <div
+                  className={`absolute -bottom-4 right-2 sm:right-6 px-5 py-3 rounded-2xl border backdrop-blur-xl shadow-xl flex items-center gap-3 ${
+                    isDarkMode ? "bg-slate-900/90 border-slate-800 text-slate-200" : "bg-white/95 border-[#FED7AA] text-[#1F2937]"
+                  }`}
+                >
+                  <div className="w-8 h-8 rounded-xl bg-[#FFF7F5] border border-[#FED7AA] flex items-center justify-center text-[#F97316] font-bold text-xs">
+                    CS
+                  </div>
+                  <div>
+                    <div className="text-xs font-extrabold">Award-Winning UI</div>
+                    <div className="text-[10px] text-[#F97316] font-mono">Framer & Stripe Aesthetic</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* PROJECTS SECTION (Masonry Layout with Hover Zoom) */}
+        <section id="projects" className="scroll-mt-28 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#F97316]/30 bg-[#FFF7F5] text-[#F97316] text-xs font-mono uppercase tracking-widest font-bold">
+              <FolderGit2 className="w-3.5 h-3.5" /> Selected Works
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Featured Projects
+            </h2>
+            <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Masonry layout grid featuring smooth image hover zoom animations.
+            </p>
           </div>
 
-          {projects.length === 0 ? (
-            <p style={{ color: "#9ca3af", fontSize: 13 }}>No projects listed yet.</p>
-          ) : (
-            <div className="t6-project-grid">
-              {projects.map((proj, i) => (
-                <div key={i} className="t6-project-card">
-                  <div className="t6-project-title-row">
-                    <div className="t6-project-title">{proj.title}</div>
-                    {(proj.link || proj.projectUrl) && (
-                      <a
-                        href={formatUrl(proj.link || proj.projectUrl)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="t6-project-link"
-                      >
-                        <ArrowUpRight style={{ width: 13, height: 13 }} />
-                      </a>
+          {/* Masonry Card Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {profile?.projects?.map((proj, idx) => {
+              const techList =
+                proj.technologies ||
+                (typeof proj.techStack === "string" ? proj.techStack.split(",") : []) ||
+                [];
+
+              // Staggered heights for masonry visual effect
+              const heightClass = idx % 2 === 0 ? "h-56" : "h-64";
+
+              return (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: idx * 0.1 }}
+                  className={`rounded-3xl border overflow-hidden backdrop-blur-xl flex flex-col justify-between transition-all duration-500 hover:-translate-y-1.5 group ${
+                    isDarkMode
+                      ? "bg-[#1E293B]/70 border-slate-700 hover:border-[#F97316]/50 shadow-xl"
+                      : "bg-[#FFF7F5] border-[#FED7AA] hover:bg-white hover:border-[#F97316]/40 shadow-sm hover:shadow-xl"
+                  }`}
+                >
+                  {/* Image Container with Hover Zoom */}
+                  <div className={`relative ${heightClass} overflow-hidden bg-slate-900`}>
+                    {proj.imageUrl || proj.image ? (
+                      <img
+                        src={proj.imageUrl || proj.image}
+                        alt={proj.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-950 to-orange-950 flex items-center justify-center p-6 text-center">
+                        <Code className="w-12 h-12 text-[#F97316]/40 mb-2 group-hover:scale-110 transition-transform" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                    <div>
+                      <h3 className="text-xl font-bold tracking-tight mb-2 group-hover:text-[#F97316] transition-colors">
+                        {proj.title}
+                      </h3>
+                      <p className={`text-xs leading-relaxed line-clamp-3 ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                        {proj.description}
+                      </p>
+                    </div>
+
+                    <div className="space-y-4 pt-2">
+                      {/* Tech Badges */}
+                      <div className="flex flex-wrap gap-1.5">
+                        {techList.map((t, i) => (
+                          <span
+                            key={i}
+                            className="px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-[#F97316]/10 text-[#F97316] border border-[#F97316]/20"
+                          >
+                            {t.trim()}
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Visit Project Button */}
+                      {(proj.link || proj.projectUrl || proj.githubUrl) && (
+                        <a
+                          href={proj.link || proj.projectUrl || proj.githubUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full py-3.5 px-5 rounded-full bg-gradient-to-r from-[#F97316] to-[#FB923C] hover:from-[#EA580C] hover:to-[#F97316] text-white font-extrabold text-xs shadow-[0_8px_20px_rgba(249,115,22,0.25)] hover:shadow-[0_12px_28px_rgba(249,115,22,0.4)] transition-all duration-300 flex items-center justify-center gap-2 group/btn cursor-pointer"
+                        >
+                          <span>Visit Project</span>
+                          <ArrowUpRight className="w-4 h-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+            {(!profile?.projects || profile.projects.length === 0) && (
+              <p className="text-center text-xs italic text-slate-500 col-span-full">No projects listed yet.</p>
+            )}
+          </div>
+        </section>
+
+        {/* SKILLS SECTION (Animated Colorful Badges) */}
+        <section id="skills" className="scroll-mt-28 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#F97316]/30 bg-[#FFF7F5] text-[#F97316] text-xs font-mono uppercase tracking-widest font-bold">
+              <Code className="w-3.5 h-3.5" /> Capabilities
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Skills & Expertise
+            </h2>
+            <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Animated colorful badges representing technical and design competencies.
+            </p>
+          </div>
+
+          {/* Animated Colorful Badges */}
+          <div className="flex flex-wrap justify-center gap-3.5 max-w-4xl mx-auto">
+            {normalizedSkills.map((sk, idx) => {
+              const colorStyle = badgeColors[idx % badgeColors.length];
+
+              return (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  whileHover={{ scale: 1.08, y: -3 }}
+                  transition={{ duration: 0.3, delay: idx * 0.03 }}
+                  className={`px-6 py-3.5 rounded-full border backdrop-blur-xl shadow-sm transition-all duration-300 flex items-center gap-3 cursor-default ${colorStyle}`}
+                >
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#F97316] animate-pulse" />
+                  <span className="font-bold text-xs sm:text-sm tracking-wide">{sk.name}</span>
+                  {sk.proficiency && (
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#F97316]/10 text-[#F97316]">
+                      {sk.proficiency}%
+                    </span>
+                  )}
+                </motion.div>
+              );
+            })}
+            {normalizedSkills.length === 0 && (
+              <p className="text-xs italic text-slate-500">No skills listed yet.</p>
+            )}
+          </div>
+        </section>
+
+        {/* EXPERIENCE SECTION (Modern Cards) */}
+        <section id="experience" className="scroll-mt-28 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#F97316]/30 bg-[#FFF7F5] text-[#F97316] text-xs font-mono uppercase tracking-widest font-bold">
+              <Briefcase className="w-3.5 h-3.5" /> Experience
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Work Experience
+            </h2>
+            <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Modern cards highlighting professional contributions and achievements.
+            </p>
+          </div>
+
+          <div className="grid gap-6 max-w-4xl mx-auto">
+            {profile?.experience?.map((exp, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: idx * 0.1 }}
+                className={`p-7 sm:p-9 rounded-3xl border backdrop-blur-xl transition-all duration-300 hover:border-[#F97316]/50 relative overflow-hidden group ${
+                  isDarkMode
+                    ? "bg-[#1E293B]/70 border-slate-700 shadow-md"
+                    : "bg-[#FFF7F5] border-[#FED7AA] hover:bg-white shadow-sm hover:shadow-xl"
+                }`}
+              >
+                {/* Top Accent Gradient */}
+                <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#F97316] via-[#FB923C] to-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-[#F97316]/10 border border-[#F97316]/30 flex items-center justify-center text-[#F97316] font-extrabold text-lg shrink-0 shadow-sm">
+                      {exp.company?.[0] || "C"}
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold tracking-tight group-hover:text-[#F97316] transition-colors">
+                        {exp.position || exp.role || "Software Engineer"}
+                      </h3>
+                      <div className="text-sm font-semibold text-[#F97316] flex items-center gap-2 mt-0.5">
+                        <span>{exp.company || "Company"}</span>
+                        {exp.location && (
+                          <span className={`text-xs font-normal ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
+                            • {exp.location}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold border shrink-0 ${
+                    isDarkMode ? "bg-slate-900 border-slate-800 text-slate-300" : "bg-white border-[#FED7AA] text-slate-700 shadow-sm"
+                  }`}>
+                    <Calendar className="w-3.5 h-3.5 text-[#F97316]" />
+                    <span>{exp.startDate || "2023"} - {exp.endDate || "Present"}</span>
+                  </div>
+                </div>
+
+                <p className={`text-sm leading-relaxed ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                  {exp.description}
+                </p>
+              </motion.div>
+            ))}
+            {(!profile?.experience || profile.experience.length === 0) && (
+              <p className="text-center text-xs italic text-slate-500">No work experience listed yet.</p>
+            )}
+          </div>
+        </section>
+
+        {/* EDUCATION SECTION (Creative Timeline) */}
+        <section id="education" className="scroll-mt-28 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#F97316]/30 bg-[#FFF7F5] text-[#F97316] text-xs font-mono uppercase tracking-widest font-bold">
+              <GraduationCap className="w-3.5 h-3.5" /> Education
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Creative Timeline
+            </h2>
+            <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Academic qualifications structured in a creative timeline.
+            </p>
+          </div>
+
+          <div className="relative max-w-3xl mx-auto pl-6 sm:pl-8 border-l-2 border-[#F97316]/40 space-y-10 my-6">
+            {profile?.education?.map((edu, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: idx * 0.1 }}
+                className="relative group"
+              >
+                {/* Glowing Node Dot */}
+                <div className="absolute -left-[31px] sm:-left-[39px] top-2 w-5 h-5 rounded-full bg-white border-2 border-[#F97316] flex items-center justify-center shadow-[0_0_10px_rgba(249,115,22,0.4)] group-hover:scale-125 transition-transform">
+                  <div className="w-2 h-2 rounded-full bg-[#F97316]" />
+                </div>
+
+                <div
+                  className={`p-7 rounded-3xl border backdrop-blur-xl transition-all duration-300 hover:border-[#F97316]/50 ${
+                    isDarkMode ? "bg-[#1E293B]/70 border-slate-700" : "bg-[#FFF7F5] border-[#FED7AA] hover:bg-white shadow-sm hover:shadow-xl"
+                  }`}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <span className="text-xs font-mono font-bold text-[#F97316] tracking-wider uppercase">
+                      {edu.startDate || "2020"} — {edu.endDate || "2024"}
+                    </span>
+                    {edu.gpa && (
+                      <span className="text-xs font-bold px-3 py-1 rounded-full border bg-[#F97316]/10 border-[#F97316]/30 text-[#F97316]">
+                        GPA: {edu.gpa}
+                      </span>
                     )}
                   </div>
-                  {proj.description && (
-                    <p className="t6-project-desc">{proj.description}</p>
+
+                  <h3 className="text-xl font-bold tracking-tight mb-1">
+                    {edu.degree}
+                  </h3>
+                  <div className={`text-sm font-semibold mb-3 ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
+                    {edu.institution} {edu.fieldOfStudy && `• ${edu.fieldOfStudy}`}
+                  </div>
+
+                  {edu.description && (
+                    <p className={`text-xs leading-relaxed ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                      {edu.description}
+                    </p>
                   )}
-                  {((proj.technologies && proj.technologies.length > 0) ||
-                    proj.techStack) && (
-                    <div className="t6-tech-tags">
-                      {(proj.technologies || proj.techStack?.split(",") || []).map(
-                        (t, ti) => (
-                          <span key={ti} className="t6-tech-tag">
-                            {typeof t === "string" ? t.trim() : t}
-                          </span>
-                        )
-                      )}
+                </div>
+              </motion.div>
+            ))}
+            {(!profile?.education || profile.education.length === 0) && (
+              <p className="text-xs italic text-slate-500">No education entries listed.</p>
+            )}
+          </div>
+        </section>
+
+        {/* CERTIFICATIONS SECTION (Gallery Layout) */}
+        <section id="certifications" className="scroll-mt-28 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#F97316]/30 bg-[#FFF7F5] text-[#F97316] text-xs font-mono uppercase tracking-widest font-bold">
+              <Award className="w-3.5 h-3.5" /> Credentials
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Certifications Gallery
+            </h2>
+            <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Gallery layout grid showcasing recognized credentials and honors.
+            </p>
+          </div>
+
+          {/* Gallery Layout Grid */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {profile?.certifications?.map((cert, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.3, delay: idx * 0.08 }}
+                className={`p-6 rounded-3xl border backdrop-blur-xl flex flex-col justify-between space-y-4 transition-all duration-300 hover:-translate-y-1 hover:border-[#F97316]/50 ${
+                  isDarkMode
+                    ? "bg-[#1E293B]/70 border-slate-700 shadow-md"
+                    : "bg-[#FFF7F5] border-[#FED7AA] hover:bg-white shadow-sm hover:shadow-xl"
+                }`}
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="w-12 h-12 rounded-2xl bg-[#F97316]/10 border border-[#F97316]/30 flex items-center justify-center text-[#F97316] shrink-0 shadow-sm">
+                      <Award className="w-6 h-6" />
+                    </div>
+                    <span className={`text-[11px] font-mono font-bold px-3 py-1 rounded-full border ${
+                      isDarkMode ? "bg-slate-900 border-slate-800 text-slate-300" : "bg-white border-[#FED7AA] text-slate-700 shadow-sm"
+                    }`}>
+                      {cert.issueDate || cert.date || "2024"}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-bold tracking-tight mb-1">
+                      {cert.name || cert.title}
+                    </h3>
+                    <div className="text-xs font-semibold text-[#F97316]">
+                      {cert.issuingOrganization || cert.issuer || "Issuing Body"}
+                    </div>
+                  </div>
+
+                  {cert.description && (
+                    <p className={`text-xs leading-relaxed line-clamp-3 ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                      {cert.description}
+                    </p>
+                  )}
+                </div>
+
+                {cert.credentialUrl && (
+                  <a
+                    href={cert.credentialUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#F97316] hover:underline pt-2"
+                  >
+                    <span>Verify Certificate</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
+              </motion.div>
+            ))}
+            {(!profile?.certifications || profile.certifications.length === 0) && (
+              <p className="text-center text-xs italic text-slate-500 col-span-full">No certifications listed yet.</p>
+            )}
+          </div>
+        </section>
+
+        {/* RECRUITER CONTACT FORM SECTION */}
+        <section id="contact" className="scroll-mt-28 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#F97316]/30 bg-[#FFF7F5] text-[#F97316] text-xs font-mono uppercase tracking-widest font-bold">
+              <Mail className="w-3.5 h-3.5" /> Get in Touch
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Recruiter Contact Form
+            </h2>
+            <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Direct message dispatching to get connected instantly.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-12 gap-8 max-w-5xl mx-auto">
+            {/* Direct Contact Info */}
+            <div
+              className={`lg:col-span-5 p-8 rounded-3xl border backdrop-blur-xl space-y-6 flex flex-col justify-between ${
+                isDarkMode ? "bg-[#1E293B]/70 border-slate-700" : "bg-[#FFF7F5] border-[#FED7AA] shadow-md"
+              }`}
+            >
+              <div>
+                <h3 className="text-2xl font-extrabold tracking-tight mb-2">Let's connect</h3>
+                <p className={`text-xs leading-relaxed mb-6 ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                  Looking for a creative developer for full-time opportunities or project contracts? Fill out the form or reach out directly.
+                </p>
+
+                <div className="space-y-4">
+                  {profile?.email && (
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-2xl bg-[#FFF7F5] border border-[#FED7AA] flex items-center justify-center text-[#F97316] shrink-0 shadow-sm">
+                        <Mail className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase font-mono text-slate-500 font-bold">Email</div>
+                        <a href={`mailto:${profile.email}`} className="text-sm font-bold hover:text-[#F97316] transition-colors">
+                          {profile.email}
+                        </a>
+                      </div>
+                    </div>
+                  )}
+
+                  {profile?.mobileNumber && (
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-2xl bg-[#FFF7F5] border border-[#FED7AA] flex items-center justify-center text-[#F97316] shrink-0 shadow-sm">
+                        <Phone className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase font-mono text-slate-500 font-bold">Mobile</div>
+                        <a href={`tel:${profile.mobileNumber}`} className="text-sm font-bold hover:text-[#F97316] transition-colors">
+                          {profile.mobileNumber}
+                        </a>
+                      </div>
                     </div>
                   )}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* ── SKILLS + CERTS (2-col) ── */}
-        <div className="t6-grid-2 t6-section t6-reveal t6-d4">
-
-          {/* Skills */}
-          <div id="t6-skills">
-            <div className="t6-section-header">
-              <div className="t6-section-icon">
-                <Code2 style={{ width: 16, height: 16 }} />
               </div>
-              <h2 className="t6-section-title">Skills</h2>
-              {skillList.length > 0 && (
-                <span className="t6-section-count">{skillList.length}</span>
-              )}
+
+              <div className="pt-6 border-t border-[#FED7AA] dark:border-slate-800">
+                <div className="text-xs font-bold mb-3">Quick Share</div>
+                <button
+                  onClick={handleCopyLink}
+                  className="w-full py-3 px-4 rounded-full border border-[#F97316]/40 text-[#F97316] bg-white hover:bg-[#FFF7F5] text-xs font-extrabold transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy Portfolio Link</span>
+                </button>
+              </div>
             </div>
-            <div className="t6-card" style={{ paddingBottom: 20 }}>
-              {skillList.length === 0 ? (
-                <p style={{ color: "#9ca3af", fontSize: 13 }}>No skills listed yet.</p>
-              ) : (
-                <>
-                  {/* Bars for top 6 with proficiency numbers */}
-                  <div className="t6-skill-row" style={{ marginBottom: 20 }}>
-                    {skillList.slice(0, 6).map((skill, i) => (
-                      <div key={i} className="t6-skill-item">
-                        <div className="t6-skill-meta">
-                          <span className="t6-skill-name">{skill.name}</span>
-                          <span className="t6-skill-pct">{skill.proficiency}%</span>
-                        </div>
-                        <div className="t6-bar-bg">
-                          <div
-                            className="t6-bar-fill"
-                            style={{
-                              width: barsVisible ? `${skill.proficiency}%` : "0%",
-                            }}
-                          />
-                        </div>
-                      </div>
-                    ))}
+
+            {/* Contact Form */}
+            <div
+              className={`lg:col-span-7 p-8 rounded-3xl border backdrop-blur-xl shadow-xl ${
+                isDarkMode ? "bg-[#1E293B]/80 border-slate-700" : "bg-white border-[#FED7AA]"
+              }`}
+            >
+              <form onSubmit={handleSubmitContact} className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-extrabold mb-1.5">Your Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Jane Doe"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all ${
+                        isDarkMode
+                          ? "bg-slate-900 border-slate-800 text-white focus:border-[#F97316]"
+                          : "bg-[#FFF7F5] border-[#FED7AA] text-[#1F2937] focus:border-[#F97316] focus:bg-white"
+                      }`}
+                    />
                   </div>
-                  {/* Remaining as pills */}
-                  {skillList.length > 6 && (
-                    <div className="t6-pill-cloud">
-                      {skillList.slice(6).map((skill, i) => (
-                        <span key={i} className="t6-pill">
-                          <Zap style={{ width: 10, height: 10 }} />
-                          {skill.name}
-                        </span>
-                      ))}
-                    </div>
+                  <div>
+                    <label className="block text-xs font-extrabold mb-1.5">Your Email *</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="recruiter@company.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all ${
+                        isDarkMode
+                          ? "bg-slate-900 border-slate-800 text-white focus:border-[#F97316]"
+                          : "bg-[#FFF7F5] border-[#FED7AA] text-[#1F2937] focus:border-[#F97316] focus:bg-white"
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-extrabold mb-1.5">Subject</label>
+                  <input
+                    type="text"
+                    placeholder="Project Inquiry / Job Opportunity"
+                    value={formData.subject}
+                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                    className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all ${
+                      isDarkMode
+                        ? "bg-slate-900 border-slate-800 text-white focus:border-[#F97316]"
+                        : "bg-[#FFF7F5] border-[#FED7AA] text-[#1F2937] focus:border-[#F97316] focus:bg-white"
+                    }`}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-extrabold mb-1.5">Message *</label>
+                  <textarea
+                    required
+                    rows={4}
+                    placeholder="Hi, I noticed your Coral Studio portfolio and would like to discuss..."
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all resize-none ${
+                      isDarkMode
+                        ? "bg-slate-900 border-slate-800 text-white focus:border-[#F97316]"
+                        : "bg-[#FFF7F5] border-[#FED7AA] text-[#1F2937] focus:border-[#F97316] focus:bg-white"
+                    }`}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-4 px-6 rounded-full bg-gradient-to-r from-[#F97316] to-[#FB923C] hover:from-[#EA580C] hover:to-[#F97316] text-white font-extrabold text-sm shadow-[0_10px_25px_rgba(249,115,22,0.3)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Sending Message...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      <span>Send Direct Message</span>
+                    </>
                   )}
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Certifications */}
-          <div>
-            <div className="t6-section-header">
-              <div className="t6-section-icon">
-                <Award style={{ width: 16, height: 16 }} />
-              </div>
-              <h2 className="t6-section-title">Certifications</h2>
-              {certifications.length > 0 && (
-                <span className="t6-section-count">{certifications.length}</span>
-              )}
-            </div>
-            <div className="t6-cert-list">
-              {certifications.length === 0 ? (
-                <p style={{ color: "#9ca3af", fontSize: 13 }}>None listed yet.</p>
-              ) : (
-                certifications.map((cert, i) => (
-                  <div key={i} className="t6-cert-item">
-                    <div className="t6-cert-icon">
-                      <Star style={{ width: 15, height: 15 }} />
-                    </div>
-                    <div>
-                      <div className="t6-cert-name">{cert.name}</div>
-                      {cert.issuingOrganization && (
-                        <div className="t6-cert-org">{cert.issuingOrganization}</div>
-                      )}
-                      {cert.issueDate && (
-                        <div className="t6-cert-date">{cert.issueDate}</div>
-                      )}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* ── CONTACT ── */}
-        <div className="t6-section t6-reveal t6-d5" id="t6-contact">
-          <div className="t6-section-header">
-            <div className="t6-section-icon">
-              <Mail style={{ width: 16, height: 16 }} />
-            </div>
-            <h2 className="t6-section-title">Get in Touch</h2>
-          </div>
-
-          <div className="t6-card">
-            <div className="t6-contact-grid">
-              {/* Contact info */}
-              <div className="t6-contact-info">
-                {profile.email && (
-                  <div className="t6-contact-info-item">
-                    <div className="t6-contact-info-icon">
-                      <Mail style={{ width: 15, height: 15 }} />
-                    </div>
-                    <div>
-                      <div className="t6-contact-info-label">Email</div>
-                      <a href={`mailto:${profile.email}`} className="t6-contact-info-value">
-                        {profile.email}
-                      </a>
-                    </div>
-                  </div>
-                )}
-                {profile.mobileNumber && (
-                  <div className="t6-contact-info-item">
-                    <div className="t6-contact-info-icon">
-                      <Phone style={{ width: 15, height: 15 }} />
-                    </div>
-                    <div>
-                      <div className="t6-contact-info-label">Phone</div>
-                      <span className="t6-contact-info-value">{profile.mobileNumber}</span>
-                    </div>
-                  </div>
-                )}
-                {profile.location && (
-                  <div className="t6-contact-info-item">
-                    <div className="t6-contact-info-icon">
-                      <MapPin style={{ width: 15, height: 15 }} />
-                    </div>
-                    <div>
-                      <div className="t6-contact-info-label">Location</div>
-                      <span className="t6-contact-info-value">{profile.location}</span>
-                    </div>
-                  </div>
-                )}
-                {/* Social links repeated in contact section */}
-                {profile.socialMediaLinks?.length > 0 && (
-                  <div style={{ display: "flex", gap: "8px", marginTop: 4 }}>
-                    {profile.socialMediaLinks.map((link, i) => (
-                      <a
-                        key={i}
-                        href={formatUrl(link.profileUrl || link.url)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="t6-social-btn"
-                        title={link.platform}
-                      >
-                        {getSocialIcon(link.platform)}
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Form */}
-              <form className="t6-form" onSubmit={handleSubmit}>
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Your Name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="t6-input"
-                  required
-                />
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Your Email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="t6-input"
-                  required
-                />
-                <textarea
-                  name="message"
-                  placeholder="Your Message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  className="t6-input t6-textarea"
-                  required
-                />
-                <button type="submit" className="t6-submit-btn" disabled={isSubmitting}>
-                  <Send style={{ width: 15, height: 15 }} />
-                  {isSubmitting ? "Sending…" : "Send Message"}
                 </button>
               </form>
             </div>
           </div>
-        </div>
-
+        </section>
       </main>
 
-      {/* ── FOOTER ── */}
-      <footer className="t6-footer">
-        <Leaf
-          style={{
-            width: 13,
-            height: 13,
-            display: "inline",
-            verticalAlign: "middle",
-            marginRight: 6,
-            color: "#16a34a",
-          }}
-        />
-        Crafted with <span className="t6-footer-accent">ByteBodh Folio</span> · Template Six — Nature Green
+      {/* FLOATING CIRCULAR SOCIAL ICONS */}
+      <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
+        {profile?.socialMediaLinks?.map((soc, idx) => (
+          <motion.a
+            key={idx}
+            href={soc.url || soc.profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.15, rotate: 5 }}
+            whileTap={{ scale: 0.9 }}
+            className={`w-12 h-12 rounded-full border shadow-lg backdrop-blur-xl flex items-center justify-center transition-all ${
+              isDarkMode
+                ? "bg-slate-900/90 border-slate-800 text-[#FB923C] hover:border-[#F97316]"
+                : "bg-white/95 border-[#FED7AA] text-[#F97316] hover:border-[#F97316] shadow-md"
+            }`}
+            title={soc.platform}
+          >
+            {renderSocialIcon(soc.platform)}
+          </motion.a>
+        ))}
+      </div>
+
+      {/* FOOTER */}
+      <footer
+        className={`border-t backdrop-blur-xl py-12 relative z-10 ${
+          isDarkMode ? "bg-[#0F172A]/90 border-slate-800 text-slate-400" : "bg-white/90 border-[#FED7AA] text-slate-600"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs font-semibold">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-[#F97316] flex items-center justify-center text-white font-extrabold text-xs">
+              CS
+            </div>
+            <span className="font-extrabold text-[#1F2937] dark:text-white">{profile?.fullName || "Coral Studio"}</span>
+            <span>• © {new Date().getFullYear()} All Rights Reserved.</span>
+          </div>
+
+          <div className="flex items-center gap-6">
+            {profile?.email && (
+              <a href={`mailto:${profile.email}`} className="hover:text-[#F97316] transition-colors">
+                {profile.email}
+              </a>
+            )}
+            {profile?.mobileNumber && (
+              <a href={`tel:${profile.mobileNumber}`} className="hover:text-[#F97316] transition-colors">
+                {profile.mobileNumber}
+              </a>
+            )}
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="text-[#F97316] hover:underline font-bold"
+            >
+              Back to Top ↑
+            </button>
+          </div>
+        </div>
       </footer>
     </div>
   );

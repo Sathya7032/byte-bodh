@@ -595,10 +595,10 @@ const Templates = () => {
                     disabled={submitting}
                     required
                   >
-                    <option value="Academic">Academic / Fresher</option>
-                    <option value="Professional">Professional / Resume</option>
-                    <option value="Hacker">Hacker / Terminal</option>
-                    <option value="Creative">Creative / Gallery</option>
+                    <option value="Fresher">Fresher</option>
+                    <option value="Professional">Professional</option>
+                    <option value="Hacker">Hacker</option>
+                    <option value="Creative">Creative</option>
                     <option value="Executive">Executive</option>
                   </select>
                 </div>

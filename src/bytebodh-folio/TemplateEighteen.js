@@ -23,6 +23,7 @@ import {
   FileText,
   Send,
   Eye,
+  CheckCircle2,
   Copy,
   Check,
   ShieldCheck,
@@ -33,8 +34,8 @@ import {
 import { toast } from "react-toastify";
 import { createContactMessage } from "../api/profileService";
 
-const TemplateTwo = ({ profile }) => {
-  const [isDarkMode, setIsDarkMode] = useState(false); // Ivory Elite defaults to clean white light theme
+const TemplateEighteen = ({ profile }) => {
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const [activeSection, setActiveSection] = useState("hero");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -120,14 +121,14 @@ const TemplateTwo = ({ profile }) => {
         receiverId: profile?.user?.id || profile?.userId,
         name: formData.name.trim(),
         email: formData.email.trim(),
-        subject: formData.subject.trim() || `Ivory Elite Inquiry from ${formData.name}`,
+        subject: formData.subject.trim() || `Portfolio Contact from ${formData.name}`,
         message: formData.message.trim()
       };
 
       const response = await createContactMessage(payload);
 
       if (response?.data?.success || response?.status === 200 || response?.status === 201) {
-        toast.success("🚀 Message sent successfully! I'll respond promptly.");
+        toast.success("🚀 Message sent successfully! I'll get back to you soon.");
         setFormData({ name: "", email: "", subject: "", message: "" });
       } else {
         throw new Error(response?.data?.message || "Failed to send message");
@@ -148,13 +149,13 @@ const TemplateTwo = ({ profile }) => {
         return {
           name: skill.name || "Technical Skill",
           proficiency: skill.proficiency || skill.level || 85,
-          category: skill.category || "Engineering"
+          category: skill.category || "Development"
         };
       }
       return {
         name: String(skill),
         proficiency: 85,
-        category: "Engineering"
+        category: "Development"
       };
     });
   }, [profile?.skills]);
@@ -168,7 +169,7 @@ const TemplateTwo = ({ profile }) => {
     return <Globe className={className} />;
   };
 
-  // Navigation Items Configuration
+  // Nav Items configuration
   const navItems = [
     { id: "hero", label: "Overview", icon: User },
     { id: "skills", label: "Skills", icon: Code },
@@ -183,56 +184,73 @@ const TemplateTwo = ({ profile }) => {
   const stats = [
     {
       label: "Projects Completed",
-      value: profile?.projects?.length || 10,
+      value: profile?.projects?.length || 12,
       suffix: "+",
-      icon: FolderGit2
+      icon: FolderGit2,
+      color: "from-emerald-500 to-teal-400"
     },
     {
       label: "Technical Skills",
-      value: normalizedSkills.length || 16,
+      value: normalizedSkills.length || 18,
       suffix: "+",
-      icon: Code
+      icon: Code,
+      color: "from-emerald-400 to-cyan-400"
     },
     {
       label: "Certifications",
-      value: profile?.certifications?.length || 3,
+      value: profile?.certifications?.length || 4,
       suffix: "",
-      icon: Award
+      icon: Award,
+      color: "from-teal-400 to-emerald-600"
     },
     {
-      label: "Profile Views",
-      value: profile?.viewsCount || 1520,
+      label: "Recruiter Views",
+      value: profile?.viewsCount || 1480,
       suffix: "+",
-      icon: Eye
+      icon: Eye,
+      color: "from-emerald-300 to-teal-500"
     }
   ];
 
   return (
     <div
-      className={`min-h-screen font-sans transition-colors duration-500 overflow-x-hidden selection:bg-[#DCFCE7] selection:text-[#16A34A] ${
-        isDarkMode ? "bg-[#0B0F17] text-[#F9FAFB]" : "bg-[#FFFFFF] text-[#111827]"
+      className={`min-h-screen font-sans transition-colors duration-500 overflow-x-hidden selection:bg-emerald-500/30 selection:text-emerald-300 ${
+        isDarkMode ? "bg-[#030712] text-slate-100" : "bg-[#f8fafc] text-slate-800"
       }`}
     >
-      {/* Background Soft Mesh Glow */}
+      {/* Dynamic Background Glow Elements */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div
-          className={`absolute -top-40 left-1/4 w-[500px] h-[500px] rounded-full blur-[160px] transition-colors duration-700 ${
-            isDarkMode ? "bg-[#16A34A]/15" : "bg-[#DCFCE7]/70"
+          className={`absolute -top-40 -left-40 w-96 h-96 rounded-full blur-[140px] opacity-25 transition-colors duration-700 ${
+            isDarkMode ? "bg-emerald-500" : "bg-emerald-300"
           }`}
         />
         <div
-          className={`absolute top-1/2 -right-40 w-[450px] h-[450px] rounded-full blur-[150px] transition-colors duration-700 ${
-            isDarkMode ? "bg-[#22C55E]/10" : "bg-[#DCFCE7]/50"
+          className={`absolute top-1/3 -right-40 w-96 h-96 rounded-full blur-[160px] opacity-20 transition-colors duration-700 ${
+            isDarkMode ? "bg-teal-500" : "bg-teal-300"
           }`}
+        />
+        <div
+          className={`absolute -bottom-40 left-1/3 w-96 h-96 rounded-full blur-[150px] opacity-20 transition-colors duration-700 ${
+            isDarkMode ? "bg-emerald-600" : "bg-emerald-200"
+          }`}
+        />
+        {/* Subtle Mesh Grid */}
+        <div
+          className="absolute inset-0 opacity-[0.03] pointer-events-none"
+          style={{
+            backgroundImage: `radial-gradient(${isDarkMode ? "#10b981" : "#059669"} 1px, transparent 1px)`,
+            backgroundSize: "32px 32px"
+          }}
         />
       </div>
 
-      {/* STICKY NAVIGATION BAR */}
+      {/* STICKY NAVBAR */}
       <header
         className={`sticky top-0 z-50 backdrop-blur-xl transition-all duration-300 border-b ${
           isDarkMode
-            ? "bg-[#0B0F17]/80 border-slate-800/80 shadow-[0_10px_30px_rgba(0,0,0,0.8)]"
-            : "bg-[#FFFFFF]/80 border-[#E5E7EB]/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)]"
+            ? "bg-[#030712]/80 border-slate-800/80 shadow-[0_10px_30px_rgba(0,0,0,0.8)]"
+            : "bg-white/80 border-slate-200/80 shadow-sm"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
@@ -241,10 +259,10 @@ const TemplateTwo = ({ profile }) => {
             onClick={() => scrollToSection("hero")}
             className="flex items-center gap-3 cursor-pointer group"
           >
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#16A34A] to-[#22C55E] p-[2px] shadow-md shadow-[#16A34A]/20 group-hover:scale-105 transition-transform duration-300">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 p-[1.5px] shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform duration-300">
               <div
-                className={`w-full h-full rounded-[14px] flex items-center justify-center font-extrabold text-sm transition-colors ${
-                  isDarkMode ? "bg-[#0B0F17] text-[#22C55E]" : "bg-white text-[#16A34A]"
+                className={`w-full h-full rounded-[10px] flex items-center justify-center font-bold text-sm transition-colors ${
+                  isDarkMode ? "bg-slate-950 text-emerald-400" : "bg-white text-emerald-600"
                 }`}
               >
                 {profile?.fullName
@@ -254,26 +272,22 @@ const TemplateTwo = ({ profile }) => {
                       .join("")
                       .slice(0, 2)
                       .toUpperCase()
-                  : "IE"}
+                  : "EE"}
               </div>
             </div>
             <div>
               <span className="font-extrabold text-base tracking-tight flex items-center gap-1.5">
-                {profile?.fullName || "Ivory Elite"}
-                <span className="inline-block w-2 h-2 rounded-full bg-[#16A34A] animate-pulse" />
+                {profile?.fullName || "Emerald Edge"}
+                <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               </span>
-              <span className={`block text-[10px] uppercase font-mono tracking-widest ${isDarkMode ? "text-[#22C55E]" : "text-[#16A34A]"}`}>
-                Recruiter Portfolio
+              <span className={`block text-[10px] uppercase font-mono tracking-widest ${isDarkMode ? "text-emerald-400" : "text-emerald-600"}`}>
+                Recruiter Ready
               </span>
             </div>
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav
-            className={`hidden md:flex items-center gap-1 p-1.5 rounded-full border backdrop-blur-lg ${
-              isDarkMode ? "bg-slate-900/60 border-slate-800" : "bg-[#F8FAFC] border-[#E5E7EB]"
-            }`}
-          >
+          <nav className="hidden md:flex items-center gap-1 bg-slate-900/40 p-1.5 rounded-full border border-slate-800/60 backdrop-blur-lg">
             {navItems.map((item) => {
               const isActive = activeSection === item.id;
               return (
@@ -283,8 +297,8 @@ const TemplateTwo = ({ profile }) => {
                   className={`px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 flex items-center gap-2 relative ${
                     isActive
                       ? isDarkMode
-                        ? "text-[#22C55E] font-bold"
-                        : "text-[#16A34A] font-bold"
+                        ? "text-emerald-300 font-bold"
+                        : "text-emerald-800 font-bold"
                       : isDarkMode
                       ? "text-slate-400 hover:text-slate-200"
                       : "text-slate-600 hover:text-slate-900"
@@ -292,11 +306,11 @@ const TemplateTwo = ({ profile }) => {
                 >
                   {isActive && (
                     <motion.div
-                      layoutId="activeIvoryNav"
-                      className={`absolute inset-0 rounded-full shadow-sm ${
+                      layoutId="activeNavBackground"
+                      className={`absolute inset-0 rounded-full shadow-md ${
                         isDarkMode
-                          ? "bg-[#16A34A]/20 border border-[#16A34A]/40"
-                          : "bg-[#DCFCE7] border border-[#16A34A]/30"
+                          ? "bg-emerald-500/20 border border-emerald-500/40"
+                          : "bg-emerald-100 border border-emerald-300"
                       }`}
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
@@ -310,13 +324,13 @@ const TemplateTwo = ({ profile }) => {
 
           {/* Actions on Right */}
           <div className="flex items-center gap-3">
-            {/* Dark/Light Mode Toggle */}
+            {/* Dark Mode Toggle */}
             <button
               onClick={toggleTheme}
-              className={`p-2.5 rounded-2xl border transition-all duration-300 shadow-sm flex items-center justify-center cursor-pointer ${
+              className={`p-2.5 rounded-xl border transition-all duration-300 shadow-sm flex items-center justify-center ${
                 isDarkMode
-                  ? "bg-slate-900 border-slate-800 text-amber-400 hover:bg-slate-800"
-                  : "bg-[#F8FAFC] border-[#E5E7EB] text-slate-700 hover:bg-slate-100 hover:border-slate-300"
+                  ? "bg-slate-900 border-slate-800 text-amber-400 hover:bg-slate-800 hover:border-amber-400/50"
+                  : "bg-slate-100 border-slate-200 text-indigo-600 hover:bg-slate-200"
               }`}
               title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >
@@ -326,21 +340,21 @@ const TemplateTwo = ({ profile }) => {
             {/* Copy Share Link */}
             <button
               onClick={handleCopyLink}
-              className={`p-2.5 rounded-2xl border transition-all duration-300 shadow-sm hidden sm:flex items-center justify-center cursor-pointer ${
+              className={`p-2.5 rounded-xl border transition-all duration-300 shadow-sm hidden sm:flex items-center justify-center ${
                 isDarkMode
-                  ? "bg-slate-900 border-slate-800 text-slate-300 hover:text-[#22C55E]"
-                  : "bg-[#F8FAFC] border-[#E5E7EB] text-slate-700 hover:text-[#16A34A] hover:border-[#16A34A]/40"
+                  ? "bg-slate-900 border-slate-800 text-slate-300 hover:text-emerald-400 hover:border-emerald-500/40"
+                  : "bg-slate-100 border-slate-200 text-slate-700 hover:text-emerald-600"
               }`}
-              title="Share Portfolio"
+              title="Share Portfolio Link"
             >
-              {copiedLink ? <Check className="w-4 h-4 text-[#16A34A]" /> : <Copy className="w-4 h-4" />}
+              {copiedLink ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
             </button>
 
             {/* Mobile Hamburger Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`md:hidden p-2.5 rounded-2xl border transition-colors ${
-                isDarkMode ? "bg-slate-900 border-slate-800 text-slate-200" : "bg-[#F8FAFC] border-[#E5E7EB] text-slate-800"
+              className={`md:hidden p-2.5 rounded-xl border transition-colors ${
+                isDarkMode ? "bg-slate-900 border-slate-800 text-slate-200" : "bg-slate-100 border-slate-200 text-slate-800"
               }`}
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -356,7 +370,7 @@ const TemplateTwo = ({ profile }) => {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               className={`md:hidden border-b overflow-hidden backdrop-blur-2xl ${
-                isDarkMode ? "bg-[#0B0F17]/95 border-slate-800" : "bg-[#FFFFFF]/95 border-[#E5E7EB]"
+                isDarkMode ? "bg-[#030712]/95 border-slate-800" : "bg-white/95 border-slate-200"
               }`}
             >
               <div className="px-6 py-5 space-y-2">
@@ -364,18 +378,18 @@ const TemplateTwo = ({ profile }) => {
                   <button
                     key={item.id}
                     onClick={() => scrollToSection(item.id)}
-                    className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition-all ${
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
                       activeSection === item.id
                         ? isDarkMode
-                          ? "bg-[#16A34A]/20 text-[#22C55E] border border-[#16A34A]/40"
-                          : "bg-[#DCFCE7] text-[#16A34A] border border-[#16A34A]/30 font-bold"
+                          ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
+                          : "bg-emerald-100 text-emerald-700 border border-emerald-300"
                         : isDarkMode
                         ? "text-slate-300 hover:bg-slate-900"
                         : "text-slate-600 hover:bg-slate-100"
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <item.icon className="w-4 h-4 text-[#16A34A]" />
+                      <item.icon className="w-4 h-4 text-emerald-500" />
                       <span>{item.label}</span>
                     </div>
                     <ChevronRight className="w-4 h-4 opacity-50" />
@@ -393,91 +407,87 @@ const TemplateTwo = ({ profile }) => {
           <div className="grid lg:grid-cols-12 gap-12 items-center">
             {/* Left Column: Recruiter Briefing */}
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              {/* Recruiter Status Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#DCFCE7] text-[#16A34A] text-xs font-semibold tracking-wide shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-ping" />
-                <span>Available for Full-time Roles & Remote Projects</span>
+              {/* Status Badge */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-semibold tracking-wide">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                <span>Available for Full-time Roles & Projects</span>
               </div>
 
               {/* Name & Headline */}
               <div className="space-y-3">
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15]">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1]">
                   Hi, I'm{" "}
-                  <span className="bg-gradient-to-r from-[#16A34A] via-[#22C55E] to-teal-600 bg-clip-text text-transparent">
-                    {profile?.fullName || "Ivory Elite Candidate"}
+                  <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
+                    {profile?.fullName || "Emerald Professional"}
                   </span>
                 </h1>
-                <h2 className={`text-xl sm:text-2xl font-semibold tracking-tight ${isDarkMode ? "text-slate-300" : "text-[#111827]/80"}`}>
-                  {profile?.headline || "Senior Software Engineer & Systems Architect"}
+                <h2 className={`text-xl sm:text-2xl font-semibold tracking-tight ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
+                  {profile?.headline || "Software Engineer & Systems Architect"}
                 </h2>
               </div>
 
               {/* Summary */}
               <p className={`text-base sm:text-lg leading-relaxed max-w-2xl mx-auto lg:mx-0 ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
                 {profile?.summary ||
-                  "Passionate software engineering professional specialized in building robust web applications, optimizing high-throughput backend services, and delivering clean, maintainable user experiences."}
+                  "Passionate software engineering professional dedicated to building scalable web applications, optimizing high-throughput distributed systems, and architecting robust digital products."}
               </p>
 
               {/* Two CTA Buttons */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
-                {/* Primary CTA: View Resume */}
+                {/* Primary Button: View Resume */}
                 <button
                   onClick={() => setResumeModalOpen(true)}
-                  className="px-8 py-4 rounded-[24px] bg-gradient-to-r from-[#16A34A] to-[#22C55E] hover:from-[#15803D] hover:to-[#16A34A] text-white font-extrabold text-sm shadow-[0_10px_25px_rgba(22,163,74,0.3)] hover:shadow-[0_15px_35px_rgba(22,163,74,0.45)] hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2.5 group cursor-pointer"
+                  className="px-7 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-bold text-sm shadow-[0_10px_25px_rgba(16,185,129,0.3)] hover:shadow-[0_15px_35px_rgba(16,185,129,0.45)] hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2.5 group cursor-pointer"
                 >
                   <FileText className="w-4 h-4 group-hover:scale-110 transition-transform" />
                   <span>View Resume</span>
                 </button>
 
-                {/* Secondary CTA: Contact Me */}
+                {/* Secondary Button: Contact Me */}
                 <button
                   onClick={() => scrollToSection("contact")}
-                  className={`px-8 py-4 rounded-[24px] font-extrabold text-sm border transition-all duration-300 flex items-center gap-2.5 hover:-translate-y-0.5 shadow-sm cursor-pointer ${
+                  className={`px-7 py-3.5 rounded-2xl font-bold text-sm border transition-all duration-300 flex items-center gap-2.5 hover:-translate-y-0.5 shadow-sm cursor-pointer ${
                     isDarkMode
-                      ? "bg-slate-900 border-slate-700 text-slate-200 hover:border-[#16A34A]"
-                      : "bg-[#F8FAFC] border-[#E5E7EB] text-[#111827] hover:border-[#16A34A] hover:bg-white"
+                      ? "bg-slate-900/80 border-slate-700 text-slate-200 hover:border-emerald-500/50 hover:bg-slate-800"
+                      : "bg-white border-slate-300 text-slate-800 hover:border-emerald-500 hover:bg-slate-50"
                   }`}
                 >
-                  <Mail className="w-4 h-4 text-[#16A34A]" />
+                  <Mail className="w-4 h-4 text-emerald-500" />
                   <span>Contact Me</span>
                 </button>
               </div>
 
               {/* Quick Contact Chips */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 pt-4 text-xs font-medium text-slate-500">
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 pt-4 text-xs text-slate-400 font-medium">
                 {profile?.email && (
-                  <a href={`mailto:${profile.email}`} className="flex items-center gap-2 hover:text-[#16A34A] transition-colors">
-                    <Mail className="w-3.5 h-3.5 text-[#16A34A]" />
+                  <a href={`mailto:${profile.email}`} className="flex items-center gap-2 hover:text-emerald-400 transition-colors">
+                    <Mail className="w-3.5 h-3.5 text-emerald-500" />
                     <span>{profile.email}</span>
                   </a>
                 )}
                 {profile?.mobileNumber && (
-                  <a href={`tel:${profile.mobileNumber}`} className="flex items-center gap-2 hover:text-[#16A34A] transition-colors">
-                    <Phone className="w-3.5 h-3.5 text-[#16A34A]" />
+                  <a href={`tel:${profile.mobileNumber}`} className="flex items-center gap-2 hover:text-emerald-400 transition-colors">
+                    <Phone className="w-3.5 h-3.5 text-emerald-500" />
                     <span>{profile.mobileNumber}</span>
                   </a>
                 )}
                 {profile?.location && (
                   <div className="flex items-center gap-2">
-                    <MapPin className="w-3.5 h-3.5 text-[#16A34A]" />
+                    <MapPin className="w-3.5 h-3.5 text-emerald-500" />
                     <span>{profile.location}</span>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Right Column: Floating Circular Profile Image */}
+            {/* Right Column: Large Circular Profile Image */}
             <div className="lg:col-span-5 flex justify-center">
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                className="relative group"
-              >
-                {/* Glowing Background Ring */}
-                <div className="absolute -inset-3 rounded-full bg-gradient-to-r from-[#16A34A] via-[#22C55E] to-teal-400 opacity-60 blur-2xl group-hover:opacity-90 transition duration-700" />
+              <div className="relative group">
+                {/* Glowing Outer Ring */}
+                <div className="absolute -inset-2 rounded-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 opacity-75 blur-xl group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse" />
 
-                {/* Main Circular Profile Image Frame */}
-                <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-full p-2.5 bg-gradient-to-tr from-[#16A34A] to-[#DCFCE7] shadow-2xl">
+                {/* Main Circular Image Frame */}
+                <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-full p-2 bg-gradient-to-tr from-emerald-500 to-teal-300 shadow-2xl">
                   {profile?.pictureUrl || profile?.photo ? (
                     <img
                       src={profile.pictureUrl || profile.photo}
@@ -487,36 +497,35 @@ const TemplateTwo = ({ profile }) => {
                   ) : (
                     <div
                       className={`w-full h-full rounded-full flex flex-col items-center justify-center text-5xl font-extrabold ${
-                        isDarkMode ? "bg-slate-900 text-[#22C55E]" : "bg-[#F8FAFC] text-[#16A34A]"
+                        isDarkMode ? "bg-slate-950 text-emerald-400" : "bg-emerald-50 text-emerald-700"
                       }`}
                     >
-                      <span>{profile?.fullName?.[0] || "I"}</span>
-                      <span className="text-xs font-mono tracking-widest uppercase mt-2 text-[#16A34A]">Ivory Elite</span>
+                      <span>{profile?.fullName?.[0] || "E"}</span>
+                      <span className="text-xs font-mono tracking-widest uppercase mt-2 text-emerald-500">Emerald</span>
                     </div>
                   )}
                 </div>
 
-                {/* Floating Recruiter Verified Badge */}
+                {/* Floating Recruiter Badge */}
                 <div
-                  className={`absolute -bottom-4 right-2 sm:right-6 px-5 py-3 rounded-[20px] border backdrop-blur-xl shadow-xl flex items-center gap-3.5 ${
-                    isDarkMode ? "bg-slate-900/90 border-slate-800 text-slate-200" : "bg-white/95 border-[#E5E7EB] text-[#111827]"
+                  className={`absolute -bottom-4 right-2 sm:right-6 px-4 py-2.5 rounded-2xl border backdrop-blur-xl shadow-xl flex items-center gap-3 animate-bounce ${
+                    isDarkMode ? "bg-slate-900/90 border-slate-700 text-slate-200" : "bg-white/95 border-slate-200 text-slate-800"
                   }`}
+                  style={{ animationDuration: "3s" }}
                 >
-                  <div className="w-9 h-9 rounded-xl bg-[#DCFCE7] flex items-center justify-center text-[#16A34A] shrink-0 shadow-sm">
-                    <ShieldCheck className="w-5 h-5" />
-                  </div>
+                  <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
                   <div>
-                    <div className="text-xs font-extrabold">Recruiter Ready</div>
-                    <div className="text-[10px] text-[#16A34A] font-mono font-bold">100% Verified Candidate</div>
+                    <div className="text-xs font-bold">Verified Professional</div>
+                    <div className="text-[10px] text-emerald-400 font-mono">100% Recruiter Approved</div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* QUICK STATISTICS CARDS (24px Radius) */}
-        <section className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* QUICK STATISTICS CARDS */}
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-5">
           {stats.map((st, idx) => (
             <motion.div
               key={idx}
@@ -524,21 +533,21 @@ const TemplateTwo = ({ profile }) => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: idx * 0.1 }}
-              className={`p-7 rounded-[24px] border backdrop-blur-xl transition-all duration-300 hover:-translate-y-1.5 group ${
+              className={`p-6 rounded-3xl border backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 group ${
                 isDarkMode
-                  ? "bg-slate-900/50 border-slate-800 hover:border-[#16A34A]/50 shadow-lg"
-                  : "bg-[#F8FAFC] border-[#E5E7EB] hover:border-[#16A34A]/40 hover:bg-white shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-xl"
+                  ? "bg-slate-900/40 border-slate-800/80 hover:border-emerald-500/40 shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+                  : "bg-white/80 border-slate-200/80 hover:border-emerald-300 shadow-sm"
               }`}
             >
               <div className="flex items-center justify-between mb-4">
-                <div className="p-3 rounded-2xl bg-[#DCFCE7] text-[#16A34A] shadow-sm">
+                <div className={`p-3 rounded-2xl bg-gradient-to-br ${st.color} text-slate-950 shadow-md`}>
                   <st.icon className="w-5 h-5" />
                 </div>
-                <Sparkles className="w-4 h-4 text-[#16A34A]/40 group-hover:text-[#16A34A] transition-colors" />
+                <Sparkles className="w-4 h-4 text-emerald-500/40 group-hover:text-emerald-400 transition-colors" />
               </div>
               <div className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-1">
                 {st.value}
-                <span className="text-[#16A34A]">{st.suffix}</span>
+                <span className="text-emerald-400">{st.suffix}</span>
               </div>
               <div className={`text-xs font-semibold tracking-wide ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
                 {st.label}
@@ -547,17 +556,17 @@ const TemplateTwo = ({ profile }) => {
           ))}
         </section>
 
-        {/* SKILLS SECTION (Rounded Pills) */}
+        {/* SKILLS SECTION */}
         <section id="skills" className="scroll-mt-28 space-y-8">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#DCFCE7] text-[#16A34A] text-xs font-mono uppercase tracking-widest font-bold">
-              <Code className="w-3.5 h-3.5" /> Core Competencies
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-mono uppercase tracking-widest">
+              <Code className="w-3.5 h-3.5" /> Technical Competencies
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
               Skills & Expertise
             </h2>
             <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
-              Technical competencies displayed as rounded animated pills.
+              Core tech stack and engineering capabilities displayed as rounded animated pills.
             </p>
           </div>
 
@@ -571,38 +580,40 @@ const TemplateTwo = ({ profile }) => {
                 viewport={{ once: true }}
                 whileHover={{ scale: 1.05, y: -2 }}
                 transition={{ duration: 0.3, delay: idx * 0.03 }}
-                className={`px-6 py-3.5 rounded-full border backdrop-blur-xl shadow-sm transition-all duration-300 flex items-center gap-3.5 cursor-default group ${
+                className={`px-5 py-3 rounded-full border backdrop-blur-xl shadow-md transition-all duration-300 flex items-center gap-3 cursor-default group ${
                   isDarkMode
-                    ? "bg-slate-900 border-slate-800 hover:border-[#16A34A] text-slate-200"
-                    : "bg-[#F8FAFC] border-[#E5E7EB] hover:border-[#16A34A] hover:bg-white text-[#111827] shadow-sm"
+                    ? "bg-slate-900/60 border-slate-800 hover:border-emerald-500/50 hover:bg-slate-900/90 text-slate-200"
+                    : "bg-white border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/50 text-slate-800"
                 }`}
               >
-                <div className="w-3 h-3 rounded-full bg-[#16A34A] group-hover:scale-125 transition-transform" />
-                <span className="font-bold text-xs sm:text-sm tracking-wide">{sk.name}</span>
+                <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 group-hover:scale-125 transition-transform" />
+                <span className="font-semibold text-xs sm:text-sm tracking-wide">{sk.name}</span>
                 {sk.proficiency && (
-                  <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A]">
+                  <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                    isDarkMode ? "bg-slate-800 text-emerald-400" : "bg-emerald-100 text-emerald-700"
+                  }`}>
                     {sk.proficiency}%
                   </span>
                 )}
               </motion.div>
             ))}
             {normalizedSkills.length === 0 && (
-              <p className="text-xs italic text-slate-500">No skills listed yet.</p>
+              <p className="text-xs italic text-slate-500">No skills specified yet.</p>
             )}
           </div>
         </section>
 
-        {/* EXPERIENCE TIMELINE */}
+        {/* EXPERIENCE SECTION */}
         <section id="experience" className="scroll-mt-28 space-y-8">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#DCFCE7] text-[#16A34A] text-xs font-mono uppercase tracking-widest font-bold">
-              <Briefcase className="w-3.5 h-3.5" /> Career Journey
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-mono uppercase tracking-widest">
+              <Briefcase className="w-3.5 h-3.5" /> Career Highlights
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
               Work Experience
             </h2>
             <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
-              Professional experience presented in a clean vertical timeline.
+              Premium company cards highlighting engineering impact and responsibilities.
             </p>
           </div>
 
@@ -614,28 +625,28 @@ const TemplateTwo = ({ profile }) => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: idx * 0.1 }}
-                className={`p-7 sm:p-9 rounded-[24px] border backdrop-blur-xl transition-all duration-300 hover:border-[#16A34A]/50 relative overflow-hidden group ${
+                className={`p-6 sm:p-8 rounded-3xl border backdrop-blur-xl transition-all duration-300 hover:border-emerald-500/40 relative overflow-hidden group ${
                   isDarkMode
-                    ? "bg-slate-900/50 border-slate-800 shadow-md"
-                    : "bg-[#F8FAFC] border-[#E5E7EB] hover:bg-white shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-xl"
+                    ? "bg-slate-900/40 border-slate-800/80 shadow-lg"
+                    : "bg-white border-slate-200 shadow-sm"
                 }`}
               >
-                {/* Accent Top Bar */}
-                <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#16A34A] to-[#22C55E] opacity-0 group-hover:opacity-100 transition-opacity" />
+                {/* Accent Top Gradient */}
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity" />
 
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
                   <div className="flex items-start gap-4">
-                    <div className="w-13 h-13 rounded-2xl bg-[#DCFCE7] border border-[#16A34A]/30 flex items-center justify-center text-[#16A34A] font-extrabold text-xl shrink-0 shadow-sm">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-extrabold text-lg shrink-0">
                       {exp.company?.[0] || "C"}
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold tracking-tight group-hover:text-[#16A34A] transition-colors">
+                      <h3 className="text-xl font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors">
                         {exp.position || exp.role || "Software Engineer"}
                       </h3>
-                      <div className="text-sm font-semibold text-[#16A34A] flex items-center gap-2 mt-0.5">
+                      <div className="text-sm font-semibold text-emerald-400 flex items-center gap-2 mt-0.5">
                         <span>{exp.company || "Company"}</span>
                         {exp.location && (
-                          <span className={`text-xs font-normal ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
+                          <span className={`text-xs font-normal ${isDarkMode ? "text-slate-500" : "text-slate-400"}`}>
                             • {exp.location}
                           </span>
                         )}
@@ -643,10 +654,10 @@ const TemplateTwo = ({ profile }) => {
                     </div>
                   </div>
 
-                  <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold border shrink-0 ${
-                    isDarkMode ? "bg-slate-950 border-slate-800 text-slate-300" : "bg-white border-[#E5E7EB] text-slate-700 shadow-sm"
+                  <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono font-medium border shrink-0 ${
+                    isDarkMode ? "bg-slate-950 border-slate-800 text-slate-400" : "bg-slate-100 border-slate-200 text-slate-600"
                   }`}>
-                    <Calendar className="w-3.5 h-3.5 text-[#16A34A]" />
+                    <Calendar className="w-3.5 h-3.5 text-emerald-500" />
                     <span>
                       {exp.startDate || "2023"} - {exp.endDate || "Present"}
                     </span>
@@ -656,6 +667,17 @@ const TemplateTwo = ({ profile }) => {
                 <p className={`text-sm leading-relaxed ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
                   {exp.description}
                 </p>
+
+                {exp.highlights && Array.isArray(exp.highlights) && (
+                  <ul className="mt-4 space-y-2">
+                    {exp.highlights.map((hl, i) => (
+                      <li key={i} className="flex items-start gap-2.5 text-xs text-slate-400">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                        <span>{hl}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </motion.div>
             ))}
             {(!profile?.experience || profile.experience.length === 0) && (
@@ -664,21 +686,22 @@ const TemplateTwo = ({ profile }) => {
           </div>
         </section>
 
-        {/* EDUCATION TIMELINE */}
+        {/* EDUCATION SECTION */}
         <section id="education" className="scroll-mt-28 space-y-8">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#DCFCE7] text-[#16A34A] text-xs font-mono uppercase tracking-widest font-bold">
-              <GraduationCap className="w-3.5 h-3.5" /> Educational Background
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-mono uppercase tracking-widest">
+              <GraduationCap className="w-3.5 h-3.5" /> Academic Qualifications
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-              Education Timeline
+              Education
             </h2>
             <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
-              Academic qualifications structured in a 24px rounded card layout.
+              Modern vertical timeline representing academic milestones.
             </p>
           </div>
 
-          <div className="relative max-w-3xl mx-auto pl-6 sm:pl-8 border-l-2 border-[#16A34A]/40 space-y-10 my-6">
+          {/* Modern Vertical Timeline */}
+          <div className="relative max-w-3xl mx-auto pl-6 sm:pl-8 border-l-2 border-emerald-500/30 space-y-10 my-6">
             {profile?.education?.map((edu, idx) => (
               <motion.div
                 key={idx}
@@ -689,27 +712,29 @@ const TemplateTwo = ({ profile }) => {
                 className="relative group"
               >
                 {/* Glowing Node Dot */}
-                <div className="absolute -left-[31px] sm:-left-[39px] top-2 w-5 h-5 rounded-full bg-white border-2 border-[#16A34A] flex items-center justify-center shadow-[0_0_10px_rgba(22,163,74,0.4)] group-hover:scale-125 transition-transform">
-                  <div className="w-2 h-2 rounded-full bg-[#16A34A]" />
+                <div className="absolute -left-[31px] sm:-left-[39px] top-1.5 w-5 h-5 rounded-full bg-slate-950 border-2 border-emerald-400 flex items-center justify-center shadow-[0_0_12px_rgba(16,185,129,0.8)] group-hover:scale-125 transition-transform">
+                  <div className="w-2 h-2 rounded-full bg-emerald-400" />
                 </div>
 
                 <div
-                  className={`p-7 rounded-[24px] border backdrop-blur-xl transition-all duration-300 hover:border-[#16A34A]/50 ${
-                    isDarkMode ? "bg-slate-900/50 border-slate-800" : "bg-[#F8FAFC] border-[#E5E7EB] hover:bg-white shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-xl"
+                  className={`p-6 rounded-3xl border backdrop-blur-xl transition-all duration-300 hover:border-emerald-500/40 ${
+                    isDarkMode ? "bg-slate-900/40 border-slate-800/80" : "bg-white border-slate-200 shadow-sm"
                   }`}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                    <span className="text-xs font-mono font-bold text-[#16A34A] tracking-wider uppercase">
+                    <span className="text-xs font-mono font-bold text-emerald-400 tracking-wider uppercase">
                       {edu.startDate || "2020"} — {edu.endDate || "2024"}
                     </span>
                     {edu.gpa && (
-                      <span className="text-xs font-bold px-3 py-1 rounded-full border bg-[#DCFCE7] border-[#16A34A]/30 text-[#16A34A]">
+                      <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${
+                        isDarkMode ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-emerald-50 border-emerald-200 text-emerald-800"
+                      }`}>
                         GPA: {edu.gpa}
                       </span>
                     )}
                   </div>
 
-                  <h3 className="text-xl font-bold tracking-tight mb-1">
+                  <h3 className="text-lg sm:text-xl font-bold tracking-tight mb-1">
                     {edu.degree}
                   </h3>
                   <div className={`text-sm font-semibold mb-3 ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
@@ -730,17 +755,17 @@ const TemplateTwo = ({ profile }) => {
           </div>
         </section>
 
-        {/* PROJECTS SHOWCASE */}
+        {/* PROJECTS SECTION */}
         <section id="projects" className="scroll-mt-28 space-y-8">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#DCFCE7] text-[#16A34A] text-xs font-mono uppercase tracking-widest font-bold">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-mono uppercase tracking-widest">
               <FolderGit2 className="w-3.5 h-3.5" /> Featured Work
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
               Projects Showcase
             </h2>
             <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
-              Premium card grid with rounded gradient buttons and arrow indicators.
+              Responsive card grid featuring live applications and technical implementations.
             </p>
           </div>
 
@@ -758,14 +783,14 @@ const TemplateTwo = ({ profile }) => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: idx * 0.1 }}
-                  className={`rounded-[24px] border overflow-hidden backdrop-blur-xl flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 group ${
+                  className={`rounded-3xl border overflow-hidden backdrop-blur-xl flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 group ${
                     isDarkMode
-                      ? "bg-slate-900/50 border-slate-800 hover:border-[#16A34A]/50 shadow-xl"
-                      : "bg-[#F8FAFC] border-[#E5E7EB] hover:bg-white hover:border-[#16A34A]/40 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-xl"
+                      ? "bg-slate-900/40 border-slate-800/80 hover:border-emerald-500/40 shadow-xl"
+                      : "bg-white border-slate-200 hover:border-emerald-300 shadow-md"
                   }`}
                 >
                   {/* Project Image Banner */}
-                  <div className="relative h-48 overflow-hidden bg-slate-900">
+                  <div className="relative h-48 overflow-hidden bg-slate-950">
                     {proj.imageUrl || proj.image ? (
                       <img
                         src={proj.imageUrl || proj.image}
@@ -774,15 +799,16 @@ const TemplateTwo = ({ profile }) => {
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950 flex items-center justify-center p-6 text-center">
-                        <Code className="w-12 h-12 text-[#16A34A]/40 mb-2 group-hover:scale-110 transition-transform" />
+                        <Code className="w-12 h-12 text-emerald-500/40 mb-2 group-hover:scale-110 transition-transform" />
                       </div>
                     )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-transparent opacity-80" />
                   </div>
 
                   {/* Card Content */}
-                  <div className="p-7 flex-1 flex flex-col justify-between space-y-4">
+                  <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                     <div>
-                      <h3 className="text-xl font-bold tracking-tight mb-2 group-hover:text-[#16A34A] transition-colors">
+                      <h3 className="text-xl font-bold tracking-tight mb-2 group-hover:text-emerald-400 transition-colors">
                         {proj.title}
                       </h3>
                       <p className={`text-xs leading-relaxed line-clamp-3 ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
@@ -796,20 +822,24 @@ const TemplateTwo = ({ profile }) => {
                         {techList.map((t, i) => (
                           <span
                             key={i}
-                            className="px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-[#DCFCE7] text-[#16A34A] border border-[#16A34A]/20"
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold border ${
+                              isDarkMode
+                                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                                : "bg-emerald-50 border-emerald-200 text-emerald-800"
+                            }`}
                           >
                             {t.trim()}
                           </span>
                         ))}
                       </div>
 
-                      {/* Visit Project Button - Rounded 24px Gradient Hover Lift Arrow Icon */}
+                      {/* Visit Project Button - Rounded Gradient Hover Lift Shadow Arrow Icon */}
                       {(proj.link || proj.projectUrl || proj.githubUrl) && (
                         <a
                           href={proj.link || proj.projectUrl || proj.githubUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-full py-3.5 px-5 rounded-[24px] bg-gradient-to-r from-[#16A34A] to-[#22C55E] hover:from-[#15803D] hover:to-[#16A34A] text-white font-extrabold text-xs shadow-[0_8px_20px_rgba(22,163,74,0.25)] hover:shadow-[0_12px_28px_rgba(22,163,74,0.4)] transition-all duration-300 flex items-center justify-center gap-2 group/btn"
+                          className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-xs shadow-[0_8px_20px_rgba(16,185,129,0.25)] hover:shadow-[0_12px_28px_rgba(16,185,129,0.4)] transition-all duration-300 flex items-center justify-center gap-2 group/btn"
                         >
                           <span>Visit Project</span>
                           <ArrowUpRight className="w-4 h-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
@@ -829,17 +859,18 @@ const TemplateTwo = ({ profile }) => {
         {/* CERTIFICATIONS SECTION */}
         <section id="certifications" className="scroll-mt-28 space-y-8">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#DCFCE7] text-[#16A34A] text-xs font-mono uppercase tracking-widest font-bold">
-              <Award className="w-3.5 h-3.5" /> Industry Credentials
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-mono uppercase tracking-widest">
+              <Award className="w-3.5 h-3.5" /> Credentials
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
               Certifications
             </h2>
             <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
-              Horizontal premium cards highlighting certified qualifications.
+              Horizontal premium cards highlighting industry recognitions.
             </p>
           </div>
 
+          {/* Horizontal Premium Cards */}
           <div className="grid gap-4 max-w-4xl mx-auto">
             {profile?.certifications?.map((cert, idx) => (
               <motion.div
@@ -848,17 +879,17 @@ const TemplateTwo = ({ profile }) => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.3, delay: idx * 0.08 }}
-                className={`p-6 rounded-[24px] border backdrop-blur-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-300 hover:border-[#16A34A]/50 ${
+                className={`p-5 sm:p-6 rounded-3xl border backdrop-blur-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all duration-300 hover:border-emerald-500/40 ${
                   isDarkMode
-                    ? "bg-slate-900/50 border-slate-800 shadow-md"
-                    : "bg-[#F8FAFC] border-[#E5E7EB] hover:bg-white shadow-sm"
+                    ? "bg-slate-900/40 border-slate-800/80 shadow-md"
+                    : "bg-white border-slate-200 shadow-sm"
                 }`}
               >
                 <div className="flex items-center gap-4">
                   {cert.image ? (
                     <img src={cert.image} alt={cert.name} className="w-14 h-14 rounded-2xl object-cover shrink-0" />
                   ) : (
-                    <div className="w-14 h-14 rounded-2xl bg-[#DCFCE7] border border-[#16A34A]/30 flex items-center justify-center text-[#16A34A] shrink-0 shadow-sm">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
                       <Award className="w-7 h-7" />
                     </div>
                   )}
@@ -866,7 +897,7 @@ const TemplateTwo = ({ profile }) => {
                     <h3 className="text-lg font-bold tracking-tight">
                       {cert.name || cert.title}
                     </h3>
-                    <div className="text-xs font-semibold text-[#16A34A]">
+                    <div className={`text-xs font-semibold ${isDarkMode ? "text-emerald-400" : "text-emerald-600"}`}>
                       {cert.issuingOrganization || cert.issuer || "Issuing Body"}
                     </div>
                     {cert.description && (
@@ -878,8 +909,8 @@ const TemplateTwo = ({ profile }) => {
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0 self-end sm:self-auto">
-                  <span className={`text-xs font-mono font-bold px-3 py-1 rounded-full border ${
-                    isDarkMode ? "bg-slate-950 border-slate-800 text-slate-300" : "bg-white border-[#E5E7EB] text-slate-700 shadow-sm"
+                  <span className={`text-xs font-mono font-medium px-3 py-1 rounded-full border ${
+                    isDarkMode ? "bg-slate-950 border-slate-800 text-slate-400" : "bg-slate-100 border-slate-200 text-slate-600"
                   }`}>
                     {cert.issueDate || cert.date || "2024"}
                   </span>
@@ -888,7 +919,7 @@ const TemplateTwo = ({ profile }) => {
                       href={cert.credentialUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2 rounded-xl border border-[#16A34A]/30 text-[#16A34A] hover:bg-[#DCFCE7] transition-colors"
+                      className="p-2 rounded-xl border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 transition-colors"
                       title="Verify Credential"
                     >
                       <ExternalLink className="w-4 h-4" />
@@ -906,39 +937,39 @@ const TemplateTwo = ({ profile }) => {
         {/* RECRUITER CONTACT FORM SECTION */}
         <section id="contact" className="scroll-mt-28 space-y-8">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#DCFCE7] text-[#16A34A] text-xs font-mono uppercase tracking-widest font-bold">
-              <Mail className="w-3.5 h-3.5" /> Direct Contact
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-mono uppercase tracking-widest">
+              <Mail className="w-3.5 h-3.5" /> Get in Touch
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
               Recruiter Contact Form
             </h2>
             <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
-              Direct backend dispatch interface to connect with the profile owner instantly.
+              Direct backend message dispatching to get connected instantly.
             </p>
           </div>
 
           <div className="grid lg:grid-cols-12 gap-8 max-w-5xl mx-auto">
-            {/* Direct Contact Details */}
+            {/* Direct Contact Info */}
             <div
-              className={`lg:col-span-5 p-8 rounded-[24px] border backdrop-blur-xl space-y-6 flex flex-col justify-between ${
-                isDarkMode ? "bg-slate-900/50 border-slate-800" : "bg-[#F8FAFC] border-[#E5E7EB] shadow-md"
+              className={`lg:col-span-5 p-8 rounded-3xl border backdrop-blur-xl space-y-6 flex flex-col justify-between ${
+                isDarkMode ? "bg-slate-900/40 border-slate-800/80" : "bg-white border-slate-200 shadow-md"
               }`}
             >
               <div>
-                <h3 className="text-2xl font-extrabold tracking-tight mb-2">Get in touch</h3>
+                <h3 className="text-2xl font-extrabold tracking-tight mb-2">Let's build something great</h3>
                 <p className={`text-xs leading-relaxed mb-6 ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
-                  Interested in discussing potential roles or projects? Fill out the form or reach out directly.
+                  Whether you have an open position, an exciting contract project, or just want to connect, feel free to send a message!
                 </p>
 
                 <div className="space-y-4">
                   {profile?.email && (
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-2xl bg-[#DCFCE7] border border-[#16A34A]/30 flex items-center justify-center text-[#16A34A] shrink-0 shadow-sm">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
                         <Mail className="w-5 h-5" />
                       </div>
                       <div>
-                        <div className="text-[10px] uppercase font-mono text-slate-500 font-bold">Email</div>
-                        <a href={`mailto:${profile.email}`} className="text-sm font-bold hover:text-[#16A34A] transition-colors">
+                        <div className="text-[10px] uppercase font-mono text-slate-500">Email Address</div>
+                        <a href={`mailto:${profile.email}`} className="text-sm font-semibold hover:text-emerald-400 transition-colors">
                           {profile.email}
                         </a>
                       </div>
@@ -947,12 +978,12 @@ const TemplateTwo = ({ profile }) => {
 
                   {profile?.mobileNumber && (
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-2xl bg-[#DCFCE7] border border-[#16A34A]/30 flex items-center justify-center text-[#16A34A] shrink-0 shadow-sm">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
                         <Phone className="w-5 h-5" />
                       </div>
                       <div>
-                        <div className="text-[10px] uppercase font-mono text-slate-500 font-bold">Mobile</div>
-                        <a href={`tel:${profile.mobileNumber}`} className="text-sm font-bold hover:text-[#16A34A] transition-colors">
+                        <div className="text-[10px] uppercase font-mono text-slate-500">Mobile Phone</div>
+                        <a href={`tel:${profile.mobileNumber}`} className="text-sm font-semibold hover:text-emerald-400 transition-colors">
                           {profile.mobileNumber}
                         </a>
                       </div>
@@ -961,11 +992,11 @@ const TemplateTwo = ({ profile }) => {
                 </div>
               </div>
 
-              <div className="pt-6 border-t border-[#E5E7EB]/80 dark:border-slate-800">
-                <div className="text-xs font-bold mb-3">Quick Share</div>
+              <div className="pt-6 border-t border-slate-800/60">
+                <div className="text-xs font-semibold mb-3">Recruiter Quick Action</div>
                 <button
                   onClick={handleCopyLink}
-                  className="w-full py-3 px-4 rounded-2xl border border-[#16A34A]/40 text-[#16A34A] bg-[#DCFCE7]/50 hover:bg-[#DCFCE7] text-xs font-extrabold transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-2.5 px-4 rounded-xl border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 text-xs font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Copy className="w-3.5 h-3.5" />
                   <span>Copy Portfolio Link</span>
@@ -975,14 +1006,14 @@ const TemplateTwo = ({ profile }) => {
 
             {/* Glassmorphic Contact Form */}
             <div
-              className={`lg:col-span-7 p-8 rounded-[24px] border backdrop-blur-xl shadow-xl ${
-                isDarkMode ? "bg-slate-900/70 border-slate-800" : "bg-white border-[#E5E7EB]"
+              className={`lg:col-span-7 p-8 rounded-3xl border backdrop-blur-xl shadow-xl ${
+                isDarkMode ? "bg-slate-900/60 border-slate-800/90" : "bg-white border-slate-200"
               }`}
             >
               <form onSubmit={handleSubmitContact} className="space-y-4">
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-extrabold mb-1.5">Your Name *</label>
+                    <label className="block text-xs font-semibold mb-1.5">Your Name *</label>
                     <input
                       type="text"
                       required
@@ -991,13 +1022,13 @@ const TemplateTwo = ({ profile }) => {
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all ${
                         isDarkMode
-                          ? "bg-slate-950 border-slate-800 text-white focus:border-[#16A34A]"
-                          : "bg-[#F8FAFC] border-[#E5E7EB] text-[#111827] focus:border-[#16A34A] focus:bg-white"
+                          ? "bg-slate-950 border-slate-800 text-white focus:border-emerald-500"
+                          : "bg-slate-50 border-slate-300 text-slate-900 focus:border-emerald-500"
                       }`}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-extrabold mb-1.5">Your Email *</label>
+                    <label className="block text-xs font-semibold mb-1.5">Your Email *</label>
                     <input
                       type="email"
                       required
@@ -1006,40 +1037,40 @@ const TemplateTwo = ({ profile }) => {
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all ${
                         isDarkMode
-                          ? "bg-slate-950 border-slate-800 text-white focus:border-[#16A34A]"
-                          : "bg-[#F8FAFC] border-[#E5E7EB] text-[#111827] focus:border-[#16A34A] focus:bg-white"
+                          ? "bg-slate-950 border-slate-800 text-white focus:border-emerald-500"
+                          : "bg-slate-50 border-slate-300 text-slate-900 focus:border-emerald-500"
                       }`}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-extrabold mb-1.5">Subject</label>
+                  <label className="block text-xs font-semibold mb-1.5">Subject</label>
                   <input
                     type="text"
-                    placeholder="Engineering Role Opportunity"
+                    placeholder="Software Engineer Role Opportunity"
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                     className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all ${
                       isDarkMode
-                        ? "bg-slate-950 border-slate-800 text-white focus:border-[#16A34A]"
-                        : "bg-[#F8FAFC] border-[#E5E7EB] text-[#111827] focus:border-[#16A34A] focus:bg-white"
+                        ? "bg-slate-950 border-slate-800 text-white focus:border-emerald-500"
+                        : "bg-slate-50 border-slate-300 text-slate-900 focus:border-emerald-500"
                     }`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-extrabold mb-1.5">Message *</label>
+                  <label className="block text-xs font-semibold mb-1.5">Message *</label>
                   <textarea
                     required
                     rows={4}
-                    placeholder="Hi, I reviewed your portfolio and would like to connect regarding..."
+                    placeholder="Hi, I noticed your portfolio and would like to discuss..."
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all resize-none ${
                       isDarkMode
-                        ? "bg-slate-950 border-slate-800 text-white focus:border-[#16A34A]"
-                        : "bg-[#F8FAFC] border-[#E5E7EB] text-[#111827] focus:border-[#16A34A] focus:bg-white"
+                        ? "bg-slate-950 border-slate-800 text-white focus:border-emerald-500"
+                        : "bg-slate-50 border-slate-300 text-slate-900 focus:border-emerald-500"
                     }`}
                   />
                 </div>
@@ -1047,17 +1078,17 @@ const TemplateTwo = ({ profile }) => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-4 px-6 rounded-[24px] bg-gradient-to-r from-[#16A34A] to-[#22C55E] hover:from-[#15803D] hover:to-[#16A34A] text-white font-extrabold text-sm shadow-[0_10px_25px_rgba(22,163,74,0.3)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 hover:opacity-95 text-slate-950 font-extrabold text-sm shadow-[0_10px_25px_rgba(16,185,129,0.3)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
                       <span>Sending Message...</span>
                     </>
                   ) : (
                     <>
                       <Send className="w-4 h-4" />
-                      <span>Send Message</span>
+                      <span>Send Message to Recruiter Inbox</span>
                     </>
                   )}
                 </button>
@@ -1067,7 +1098,7 @@ const TemplateTwo = ({ profile }) => {
         </section>
       </main>
 
-      {/* FLOATING CIRCULAR SOCIAL ICONS */}
+      {/* FLOATING CIRCULAR SOCIAL ICONS DOCK */}
       <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
         {profile?.socialMediaLinks?.map((soc, idx) => (
           <motion.a
@@ -1077,10 +1108,10 @@ const TemplateTwo = ({ profile }) => {
             rel="noopener noreferrer"
             whileHover={{ scale: 1.15, rotate: 5 }}
             whileTap={{ scale: 0.9 }}
-            className={`w-12 h-12 rounded-full border shadow-lg backdrop-blur-xl flex items-center justify-center transition-all ${
+            className={`w-12 h-12 rounded-full border shadow-xl backdrop-blur-xl flex items-center justify-center transition-all ${
               isDarkMode
-                ? "bg-slate-900/90 border-slate-800 text-[#22C55E] hover:border-[#22C55E]"
-                : "bg-white/95 border-[#E5E7EB] text-[#16A34A] hover:border-[#16A34A] shadow-md"
+                ? "bg-slate-900/90 border-slate-800 text-emerald-400 hover:border-emerald-400 hover:bg-slate-800"
+                : "bg-white/95 border-slate-200 text-emerald-600 hover:border-emerald-500 shadow-md"
             }`}
             title={soc.platform}
           >
@@ -1092,32 +1123,32 @@ const TemplateTwo = ({ profile }) => {
       {/* FOOTER */}
       <footer
         className={`border-t backdrop-blur-xl py-12 relative z-10 ${
-          isDarkMode ? "bg-[#0B0F17]/90 border-slate-800 text-slate-400" : "bg-white/90 border-[#E5E7EB] text-slate-600"
+          isDarkMode ? "bg-[#030712]/90 border-slate-800/80 text-slate-400" : "bg-white/90 border-slate-200 text-slate-600"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs font-semibold">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs font-medium">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-[#16A34A] flex items-center justify-center text-white font-extrabold text-xs">
-              IE
+            <div className="w-6 h-6 rounded-lg bg-emerald-500 flex items-center justify-center text-slate-950 font-bold text-xs">
+              EE
             </div>
-            <span className="font-extrabold text-[#111827] dark:text-white">{profile?.fullName || "Ivory Elite"}</span>
+            <span className="font-bold text-slate-200">{profile?.fullName || "Emerald Edge"}</span>
             <span>• © {new Date().getFullYear()} All Rights Reserved.</span>
           </div>
 
           <div className="flex items-center gap-6">
             {profile?.email && (
-              <a href={`mailto:${profile.email}`} className="hover:text-[#16A34A] transition-colors">
+              <a href={`mailto:${profile.email}`} className="hover:text-emerald-400 transition-colors">
                 {profile.email}
               </a>
             )}
             {profile?.mobileNumber && (
-              <a href={`tel:${profile.mobileNumber}`} className="hover:text-[#16A34A] transition-colors">
+              <a href={`tel:${profile.mobileNumber}`} className="hover:text-emerald-400 transition-colors">
                 {profile.mobileNumber}
               </a>
             )}
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="text-[#16A34A] hover:underline font-bold"
+              className="text-emerald-400 hover:underline font-semibold"
             >
               Back to Top ↑
             </button>
@@ -1128,44 +1159,44 @@ const TemplateTwo = ({ profile }) => {
       {/* RESUME VIEWER MODAL */}
       <AnimatePresence>
         {resumeModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className={`w-full max-w-2xl p-6 sm:p-8 rounded-[24px] border shadow-2xl space-y-6 ${
-                isDarkMode ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-[#E5E7EB] text-[#111827]"
+              className={`w-full max-w-2xl p-6 sm:p-8 rounded-3xl border shadow-2xl space-y-6 ${
+                isDarkMode ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-slate-200 text-slate-900"
               }`}
             >
-              <div className="flex items-center justify-between border-b border-[#E5E7EB] dark:border-slate-800 pb-4">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                 <div className="flex items-center gap-3">
-                  <FileText className="w-6 h-6 text-[#16A34A]" />
+                  <FileText className="w-6 h-6 text-emerald-400" />
                   <div>
                     <h3 className="font-bold text-lg">{profile?.fullName || "Candidate"} — Resume</h3>
-                    <div className="text-xs text-[#16A34A] font-mono">Recruiter Document Access</div>
+                    <div className="text-xs text-emerald-400 font-mono">Recruiter Access Document</div>
                   </div>
                 </div>
                 <button
                   onClick={() => setResumeModalOpen(false)}
-                  className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"
+                  className="p-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="space-y-4 text-xs leading-relaxed">
-                <div className={`p-4 rounded-2xl border space-y-2 ${isDarkMode ? "bg-slate-950 border-slate-800" : "bg-[#F8FAFC] border-[#E5E7EB]"}`}>
-                  <div className="font-bold text-[#16A34A] uppercase tracking-widest text-[10px]">Executive Summary</div>
-                  <p>{profile?.summary || "Comprehensive resume details available for official recruiter download."}</p>
+              <div className="space-y-4 text-xs leading-relaxed text-slate-300">
+                <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+                  <div className="font-bold text-emerald-400 uppercase tracking-widest text-[10px]">Executive Brief</div>
+                  <p>{profile?.summary || "Comprehensive resume details available for recruiter download."}</p>
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-3">
-                  <div className={`p-3 rounded-xl border ${isDarkMode ? "bg-slate-950 border-slate-800" : "bg-[#F8FAFC] border-[#E5E7EB]"}`}>
-                    <span className="font-bold block">Email:</span>
+                <div className="grid sm:grid-cols-2 gap-3 text-slate-300">
+                  <div className="p-3 rounded-xl bg-slate-950/50 border border-slate-800">
+                    <span className="font-bold text-white block">Email:</span>
                     <span>{profile?.email || "N/A"}</span>
                   </div>
-                  <div className={`p-3 rounded-xl border ${isDarkMode ? "bg-slate-950 border-slate-800" : "bg-[#F8FAFC] border-[#E5E7EB]"}`}>
-                    <span className="font-bold block">Mobile:</span>
+                  <div className="p-3 rounded-xl bg-slate-950/50 border border-slate-800">
+                    <span className="font-bold text-white block">Phone:</span>
                     <span>{profile?.mobileNumber || "N/A"}</span>
                   </div>
                 </div>
@@ -1176,15 +1207,15 @@ const TemplateTwo = ({ profile }) => {
                   href={profile?.resumeUrl || profile?.resume || "#"}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 py-3.5 px-5 rounded-[24px] bg-gradient-to-r from-[#16A34A] to-[#22C55E] text-white font-extrabold text-xs text-center shadow-md hover:opacity-95 transition-opacity"
+                  className="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-bold text-xs text-center shadow-md hover:opacity-95 transition-opacity"
                 >
-                  Open / Download PDF Resume
+                  Open / Download Official PDF Resume
                 </a>
                 <button
                   onClick={() => setResumeModalOpen(false)}
-                  className="px-6 py-3.5 rounded-[24px] border border-[#E5E7EB] dark:border-slate-700 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800"
+                  className="px-5 py-3 rounded-2xl border border-slate-700 text-xs font-semibold hover:bg-slate-800"
                 >
-                  Close
+                  Close Preview
                 </button>
               </div>
             </motion.div>
@@ -1195,4 +1226,4 @@ const TemplateTwo = ({ profile }) => {
   );
 };
 
-export default TemplateTwo;
+export default TemplateEighteen;

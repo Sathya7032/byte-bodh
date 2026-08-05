@@ -1,752 +1,1107 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
+  User,
+  Briefcase,
+  GraduationCap,
+  FolderGit2,
+  Award,
   Mail,
   Phone,
-  MapPin,
+  ArrowUpRight,
+  Sun,
+  Moon,
+  Menu,
+  X,
+  ChevronRight,
+  ExternalLink,
   Github,
   Linkedin,
   Twitter,
   Globe,
-  ExternalLink,
-  Zap,
-  ChevronLeft,
-  ChevronRight,
-  Box,
-  Briefcase,
-  GraduationCap,
-  User
+  Send,
+  Eye,
+  Copy,
+  Check,
+  ShieldCheck,
+  MapPin,
+  Calendar,
+  Code,
+  Crown
 } from "lucide-react";
-import { animate } from "animejs";
+import { toast } from "react-toastify";
 import { createContactMessage } from "../api/profileService";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
-/* ─────────────────────────────────────────────────────────────
-   Template Thirteen: EXECUTIVE WHITE THEME 3D SQUARE CUBE
-───────────────────────────────────────────────────────────── */
-const STYLE_ID = "template-thirteen-white-theme-styles";
-
-function injectStyles() {
-  const existing = document.getElementById(STYLE_ID);
-  if (existing) existing.remove();
-  const style = document.createElement("style");
-  style.id = STYLE_ID;
-  style.textContent = `
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
-
-    .t13-root {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
-      color: #0f172a;
-      height: 100vh;
-      max-height: 100vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-
-    /* Top Station Header */
-    .t13-topbar {
-      background: #ffffff;
-      border-bottom: 2px solid #10b981;
-      padding: 8px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      z-index: 100;
-      flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    }
-    .t13-brand {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px; font-weight: 800;
-      color: #059669;
-      display: flex; align-items: center; gap: 8px;
-    }
-
-    /* Nav Tabs */
-    .t13-nav-tabs {
-      display: flex;
-      gap: 5px;
-      overflow-x: auto;
-    }
-    .t13-tab-btn {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px; font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 6px;
-      border: 1px solid #cbd5e1;
-      background: #f8fafc;
-      color: #475569;
-      cursor: pointer;
-      transition: all 0.25s;
-      white-space: nowrap;
-    }
-    .t13-tab-btn.active, .t13-tab-btn:hover {
-      background: #10b981;
-      color: #ffffff;
-      border-color: #10b981;
-      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-    }
-
-    /* 3D STAGE */
-    .t13-stage-wrapper {
-      flex: 1;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      perspective: 1200px;
-      padding: 8px 16px;
-      box-sizing: border-box;
-      position: relative;
-    }
-
-    .t13-cube-viewport {
-      width: 100%;
-      max-width: 760px;
-      height: 360px;
-      position: relative;
-      transform-style: preserve-3d;
-    }
-
-    /* The 3D Square Cube Container */
-    .t13-cube-box {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      transform-style: preserve-3d;
-      transition: transform 0.1s ease-out;
-    }
-
-    /* Individual 3D Square Faces */
-    .t13-cube-face {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: #ffffff;
-      border: 2px solid #e2e8f0;
-      border-radius: 18px;
-      box-sizing: border-box;
-      backface-visibility: hidden;
-      overflow: hidden;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08), 0 5px 15px rgba(0, 0, 0, 0.04);
-      display: flex;
-    }
-
-    /* 4 Faces @ 380px translateZ for 760px box width */
-    .t13-face-0 { transform: translateZ(380px); border-color: #10b981; }
-    .t13-face-1 { transform: rotateY(90deg) translateZ(380px); border-color: #3b82f6; }
-    .t13-face-2 { transform: rotateY(180deg) translateZ(380px); border-color: #f59e0b; }
-    .t13-face-3 { transform: rotateY(270deg) translateZ(380px); border-color: #8b5cf6; }
-
-    /* LEFT SIDE: Section Title Column */
-    .t13-face-left-col {
-      width: 220px;
-      background: #f8fafc;
-      border-right: 2px solid #f1f5f9;
-      padding: 18px 16px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      flex-shrink: 0;
-      box-sizing: border-box;
-    }
-    .t13-sec-tag {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px; font-weight: 800; color: #059669;
-      background: #ecfdf5;
-      border: 1px solid #a7f3d0;
-      padding: 3px 8px; border-radius: 5px; width: fit-content;
-      margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.08em;
-    }
-    .t13-sec-title {
-      font-size: 1.25rem; font-weight: 800; color: #0f172a;
-      line-height: 1.2; margin-bottom: 4px;
-    }
-    .t13-sec-subtitle {
-      font-size: 0.78rem; font-weight: 600; color: #64748b;
-    }
-    .t13-sec-icon-box {
-      width: 40px; height: 40px; border-radius: 10px;
-      background: #10b981; color: #ffffff;
-      display: flex; align-items: center; justify-content: center;
-      margin-top: auto;
-      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
-    }
-
-    /* RIGHT SIDE: Section Details Scrollable Column */
-    .t13-face-right-col {
-      flex: 1;
-      padding: 18px;
-      overflow-y: auto;
-      box-sizing: border-box;
-    }
-    .t13-face-right-col::-webkit-scrollbar { width: 4px; }
-    .t13-face-right-col::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-
-    /* Content Components inside Details Panel */
-    .t13-profile-grid { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
-    .t13-avatar-box {
-      width: 58px; height: 58px; border-radius: 50%;
-      padding: 2px; background: linear-gradient(135deg, #10b981, #f59e0b); flex-shrink: 0;
-    }
-    .t13-avatar-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 2px solid #ffffff; }
-    .t13-avatar-fallback {
-      width: 100%; height: 100%; border-radius: 50%; background: #ecfdf5; color: #059669;
-      font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; justify-content: center;
-    }
-    .t13-name { font-size: 1.2rem; font-weight: 800; color: #0f172a; margin: 0; }
-    .t13-headline { font-size: 0.8rem; font-weight: 600; color: #059669; }
-    .t13-summary { font-size: 0.78rem; color: #475569; line-height: 1.45; margin-bottom: 12px; }
-
-    .t13-chips { display: flex; flex-wrap: wrap; gap: 5px; }
-    .t13-chip {
-      display: inline-flex; align-items: center; gap: 4px;
-      font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #334155;
-      background: #f8fafc; border: 1px solid #e2e8f0; padding: 4px 8px; border-radius: 5px;
-      text-decoration: none;
-    }
-    .t13-chip:hover { border-color: #10b981; color: #059669; background: #ecfdf5; }
-
-    /* Skills Pill Cloud */
-    .t13-skills-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-    .t13-skill-pill {
-      font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
-      color: #1e293b; background: #f1f5f9; border: 1px solid #cbd5e1;
-      padding: 4px 10px; border-radius: 5px; transition: all 0.2s;
-    }
-    .t13-skill-pill:hover { border-color: #10b981; background: #10b981; color: #ffffff; }
-
-    /* Cards Grid */
-    .t13-grid-card {
-      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
-    }
-    .t13-card-title { font-size: 0.88rem; font-weight: 700; color: #0f172a; margin-bottom: 2px; }
-    .t13-card-sub { font-size: 0.75rem; font-weight: 600; color: #059669; margin-bottom: 3px; }
-    .t13-card-date {
-      font-family: 'JetBrains Mono', monospace; font-size: 8.5px; color: #64748b;
-      background: #e2e8f0; padding: 1px 5px; border-radius: 3px; display: inline-block; margin-bottom: 4px;
-    }
-    .t13-card-text { font-size: 0.75rem; color: #475569; line-height: 1.35; }
-    .t13-gpa-badge {
-      font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
-      color: #0f172a; background: #fef08a; padding: 2px 5px; border-radius: 3px; display: inline-block; margin-top: 4px;
-    }
-    .t13-tech-chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
-    .t13-tech-item {
-      font-family: 'JetBrains Mono', monospace; font-size: 8.5px; color: #059669;
-      background: #ecfdf5; padding: 1px 4px; border-radius: 3px; border: 1px solid #a7f3d0;
-    }
-    .t13-link {
-      display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 700;
-      color: #059669; text-decoration: none;
-    }
-    .t13-link:hover { text-decoration: underline; }
-
-    /* Form */
-    .t13-input {
-      width: 100%; box-sizing: border-box; background: #f8fafc; border: 1.5px solid #cbd5e1;
-      padding: 8px 12px; border-radius: 6px; color: #0f172a; font-family: inherit; font-size: 11px;
-      outline: none; margin-bottom: 8px;
-    }
-    .t13-input:focus { border-color: #10b981; background: #ffffff; }
-    .t13-textarea { min-height: 60px; resize: vertical; }
-    .t13-btn {
-      background: #10b981; color: #ffffff; font-weight: 800; font-size: 11px;
-      border: none; border-radius: 6px; padding: 8px 16px; cursor: pointer;
-      display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s;
-    }
-    .t13-btn:hover { background: #059669; }
-
-    /* Bottom Control Bar */
-    .t13-control-bar {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      z-index: 50;
-      flex-shrink: 0;
-      margin-top: 4px;
-    }
-    .t13-ctrl-btn {
-      width: 34px; height: 34px;
-      border-radius: 50%;
-      background: #ffffff;
-      border: 2px solid #10b981;
-      color: #059669;
-      display: flex; items-center; justify-content: center;
-      cursor: pointer;
-      transition: all 0.25s;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    }
-    .t13-ctrl-btn:hover { background: #10b981; color: #ffffff; transform: scale(1.08); }
-    .t13-face-indicator {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px; font-weight: 800;
-      color: #059669;
-      background: #ffffff;
-      border: 1px solid #cbd5e1;
-      padding: 5px 14px;
-      border-radius: 18px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-    }
-
-    /* Mobile Responsiveness */
-    @media (max-width: 768px) {
-      .t13-topbar { padding: 6px 12px; }
-      .t13-cube-viewport { height: 400px; }
-      .t13-cube-face { flex-direction: column; }
-      .t13-face-left-col { width: 100%; padding: 10px 14px; flex-direction: row; align-items: center; height: auto; border-right: none; border-bottom: 2px solid #f1f5f9; }
-      .t13-sec-icon-box { margin-top: 0; width: 32px; height: 32px; }
-      .t13-face-0 { transform: translateZ(200px); }
-      .t13-face-1 { transform: rotateY(90deg) translateZ(200px); }
-      .t13-face-2 { transform: rotateY(180deg) translateZ(200px); }
-      .t13-face-3 { transform: rotateY(270deg) translateZ(200px); }
-    }
-  `;
-  document.head.appendChild(style);
-}
 
 const TemplateThirteen = ({ profile }) => {
-  const [currentSecIdx, setCurrentSecIdx] = useState(0);
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [isDarkMode, setIsDarkMode] = useState(false); // Golden Frame defaults to White Premium light theme
+  const [activeSection, setActiveSection] = useState("hero");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  // Form State
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const cubeRef = useRef(null);
 
-  const getSkillName = (skill) => (typeof skill === "string" ? skill : skill?.name || "");
-  const formatUrl = (url) => (url ? (url.startsWith("http") ? url : `https://${url}`) : "#");
+  // Extract recipient identifier
+  const username =
+    profile?.user?.username ||
+    profile?.username ||
+    profile?.fullName?.toLowerCase().replace(/\s+/g, "") ||
+    "user";
 
-  const getSocialIcon = (platform) => {
-    const p = (platform || "").toLowerCase();
-    if (p.includes("github")) return <Github size={12} />;
-    if (p.includes("linkedin")) return <Linkedin size={12} />;
-    if (p.includes("twitter") || p.includes("x")) return <Twitter size={12} />;
-    return <Globe size={12} />;
+  // Toggle Theme
+  const toggleTheme = () => setIsDarkMode((prev) => !prev);
+
+  // Copy Profile Link
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopiedLink(true);
+    toast.success("Portfolio link copied!");
+    setTimeout(() => setCopiedLink(false), 2500);
   };
 
-  // Build Sections list cleanly inside useMemo depending on profile, formData, isSubmitting
-  const sectionsList = useMemo(() => {
-    if (!profile) return [];
+  // Scroll Spy for Navbar active section highlighting
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ["hero", "skills", "experience", "education", "projects", "certifications", "contact"];
+      const scrollPosition = window.scrollY + 200;
 
-    const skills = profile?.skills || [];
-    const experience = profile?.experience || [];
-    const education = profile?.education || [];
-    const projects = profile?.projects || [];
-    const certifications = profile?.certifications || [];
-    const socialLinks = profile?.socialMediaLinks || [];
-    const services = profile?.services || [];
-
-    const handleChange = (e) => setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      setIsSubmitting(true);
-      try {
-        await createContactMessage({
-          receiverUsername: profile.username || profile.fullName,
-          name: formData.name,
-          email: formData.email,
-          message: formData.message,
-        });
-        toast.success("Message dispatched to developer!");
-        setFormData({ name: "", email: "", message: "" });
-      } catch (err) {
-        toast.info("Thank you for your message!");
-        setFormData({ name: "", email: "", message: "" });
-      } finally {
-        setIsSubmitting(false);
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sections[i]);
+        if (el && el.offsetTop <= scrollPosition) {
+          setActiveSection(sections[i]);
+          break;
+        }
       }
     };
 
-    return [
-      {
-        id: "profile",
-        title: "PROFILE & BIO",
-        subtitle: "Passenger Suite",
-        icon: <User size={18} />,
-        renderDetails: () => (
-          <div>
-            <div className="t13-profile-grid">
-              <div className="t13-avatar-box">
-                {profile.pictureUrl ? (
-                  <img src={profile.pictureUrl} alt={profile.fullName} className="t13-avatar-img" />
-                ) : (
-                  <div className="t13-avatar-fallback">{profile.fullName?.[0] || "U"}</div>
-                )}
-              </div>
-              <div style={{ flex: 1 }}>
-                <h1 className="t13-name">{profile.fullName || "Developer Name"}</h1>
-                <p className="t13-headline">{profile.headline || "Full Stack Software Engineer"}</p>
-              </div>
-            </div>
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-            {profile.summary && <p className="t13-summary">{profile.summary}</p>}
+  const scrollToSection = (id) => {
+    setMobileMenuOpen(false);
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 80;
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
 
-            <div className="t13-chips" style={{ marginBottom: "8px" }}>
-              {profile.email && (
-                <a href={`mailto:${profile.email}`} className="t13-chip">
-                  <Mail size={11} /> {profile.email}
-                </a>
-              )}
-              {profile.mobileNumber && (
-                <span className="t13-chip"><Phone size={11} /> {profile.mobileNumber}</span>
-              )}
-              {profile.location && (
-                <span className="t13-chip"><MapPin size={11} /> {profile.location}</span>
-              )}
-            </div>
-
-            {socialLinks.length > 0 && (
-              <div className="t13-chips">
-                {socialLinks.map((link, i) => (
-                  <a
-                    key={i}
-                    href={formatUrl(link.profileUrl || link.url)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="t13-chip"
-                  >
-                    {getSocialIcon(link.platform)} {link.platform}
-                  </a>
-                ))}
-              </div>
-            )}
-          </div>
-        )
-      },
-      {
-        id: "skills",
-        title: "TECHNICAL STACK",
-        subtitle: "Skills Matrix & Services",
-        icon: <Zap size={18} />,
-        renderDetails: () => (
-          <div>
-            {skills.length > 0 && (
-              <div style={{ marginBottom: "12px" }}>
-                <h4 style={{ fontSize: "10px", fontWeight: 700, color: "#059669", marginBottom: "6px", fontFamily: "JetBrains Mono" }}>
-                  DEPENDENCIES & SKILLS
-                </h4>
-                <div className="t13-skills-grid">
-                  {skills.map((skill, i) => (
-                    <span key={i} className="t13-skill-pill">{getSkillName(skill)}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {services.length > 0 && (
-              <div>
-                <h4 style={{ fontSize: "10px", fontWeight: 700, color: "#059669", marginBottom: "6px", fontFamily: "JetBrains Mono" }}>
-                  SERVICES OFFERED
-                </h4>
-                {services.map((svc, idx) => (
-                  <div key={idx} className="t13-grid-card">
-                    <div className="t13-card-title">{svc.title}</div>
-                    <p className="t13-card-text">{svc.description}</p>
-                    {svc.price && <div className="t13-gpa-badge">RATE: {svc.price}</div>}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )
-      },
-      {
-        id: "projects",
-        title: "FEATURED PROJECTS",
-        subtitle: "Project Freight",
-        icon: <Globe size={18} />,
-        renderDetails: () => (
-          <div>
-            {projects.length > 0 ? (
-              projects.map((proj, i) => (
-                <div key={i} className="t13-grid-card">
-                  <div className="t13-card-title">{proj.title}</div>
-                  {proj.description && <p className="t13-card-text">{proj.description}</p>}
-                  {proj.techStack && (
-                    <div className="t13-tech-chips">
-                      {proj.techStack.split(",").map((tech, idx) => (
-                        <span key={idx} className="t13-tech-item">{tech.trim()}</span>
-                      ))}
-                    </div>
-                  )}
-                  {(proj.projectUrl || proj.link) && (
-                    <a
-                      href={formatUrl(proj.projectUrl || proj.link)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="t13-link"
-                    >
-                      Project Demo <ExternalLink size={11} />
-                    </a>
-                  )}
-                </div>
-              ))
-            ) : (
-              <p style={{ color: "#64748b", fontSize: "11px" }}>No projects listed.</p>
-            )}
-          </div>
-        )
-      },
-      {
-        id: "experience",
-        title: "WORK JOURNEY",
-        subtitle: "Career Experience Log",
-        icon: <Briefcase size={18} />,
-        renderDetails: () => (
-          <div>
-            {experience.length > 0 ? (
-              experience.map((exp, i) => (
-                <div key={i} className="t13-grid-card">
-                  <div className="t13-card-title">{exp.position}</div>
-                  <div className="t13-card-sub">{exp.company}</div>
-                  <div className="t13-card-date">{exp.startDate} — {exp.endDate || "Present"}</div>
-                  {exp.description && <p className="t13-card-text">{exp.description}</p>}
-                </div>
-              ))
-            ) : (
-              <p style={{ color: "#64748b", fontSize: "11px" }}>No experience log listed.</p>
-            )}
-          </div>
-        )
-      },
-      {
-        id: "education",
-        title: "ACADEMICS & CREDENTIALS",
-        subtitle: "Education & Certifications",
-        icon: <GraduationCap size={18} />,
-        renderDetails: () => (
-          <div>
-            {education.length > 0 && (
-              <div style={{ marginBottom: "12px" }}>
-                <h4 style={{ fontSize: "10px", fontWeight: 700, color: "#059669", marginBottom: "6px", fontFamily: "JetBrains Mono" }}>
-                  EDUCATION
-                </h4>
-                {education.map((edu, i) => (
-                  <div key={i} className="t13-grid-card">
-                    <div className="t13-card-title">{edu.degree}</div>
-                    <div className="t13-card-sub">{edu.institution}</div>
-                    <div className="t13-card-date">{edu.startDate || edu.startYear} — {edu.endDate || edu.endYear}</div>
-                    {(edu.gpa || edu.cgpa) && <div className="t13-gpa-badge">SCORE: {edu.gpa || edu.cgpa}</div>}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {certifications.length > 0 && (
-              <div>
-                <h4 style={{ fontSize: "10px", fontWeight: 700, color: "#059669", marginBottom: "6px", fontFamily: "JetBrains Mono" }}>
-                  CERTIFICATIONS
-                </h4>
-                {certifications.map((cert, i) => (
-                  <div key={i} className="t13-grid-card">
-                    <div className="t13-card-title">{cert.name}</div>
-                    <div className="t13-card-sub">{cert.issuingOrganization}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )
-      },
-      {
-        id: "contact",
-        title: "CONTACT CONSOLE",
-        subtitle: "Caboose Dispatcher",
-        icon: <Mail size={18} />,
-        renderDetails: () => (
-          <div>
-            <form onSubmit={handleSubmit}>
-              <input
-                type="text"
-                name="name"
-                placeholder="Your Name"
-                value={formData.name}
-                onChange={handleChange}
-                className="t13-input"
-                required
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="Your Email"
-                value={formData.email}
-                onChange={handleChange}
-                className="t13-input"
-                required
-              />
-              <textarea
-                name="message"
-                placeholder="Your Message..."
-                value={formData.message}
-                onChange={handleChange}
-                className="t13-input t13-textarea"
-                required
-              />
-              <button type="submit" className="t13-btn" disabled={isSubmitting}>
-                <Zap size={12} /> {isSubmitting ? "Sending..." : "Dispatch Message"}
-              </button>
-            </form>
-          </div>
-        )
-      }
-    ];
-  }, [profile, formData, isSubmitting]);
-
-  const rotateToSection = (index) => {
-    if (index < 0 || index >= sectionsList.length) return;
-    const targetAngle = -index * 90;
-    setCurrentSecIdx(index);
-
-    if (cubeRef.current) {
-      animate(cubeRef.current, {
-        rotateY: targetAngle,
-        duration: 750,
-        easing: "easeOutCubic"
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
       });
     }
   };
 
-  const nextSection = () => {
-    if (sectionsList.length === 0) return;
-    rotateToSection((currentSecIdx + 1) % sectionsList.length);
-  };
+  // Contact Form Submission
+  const handleSubmitContact = async (e) => {
+    e.preventDefault();
 
-  const prevSection = () => {
-    if (sectionsList.length === 0) return;
-    rotateToSection((currentSecIdx - 1 + sectionsList.length) % sectionsList.length);
-  };
-
-  useEffect(() => {
-    injectStyles();
-
-    let isScrolling = false;
-    const handleWheel = (e) => {
-      const faceSlotIdx = currentSecIdx % 4;
-      const activeFaceEl = cubeRef.current?.children[faceSlotIdx]?.querySelector(".t13-face-right-col");
-      if (activeFaceEl) {
-        const { scrollTop, scrollHeight, clientHeight } = activeFaceEl;
-        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 5;
-        const isAtTop = scrollTop <= 5;
-
-        if ((e.deltaY > 0 && !isAtBottom) || (e.deltaY < 0 && !isAtTop)) {
-          return;
-        }
-      }
-
-      if (isScrolling) return;
-      if (Math.abs(e.deltaY) > 25 && sectionsList.length > 0) {
-        isScrolling = true;
-        const targetIdx = e.deltaY > 0
-          ? (currentSecIdx + 1) % sectionsList.length
-          : (currentSecIdx - 1 + sectionsList.length) % sectionsList.length;
-        
-        setCurrentSecIdx(targetIdx);
-        if (cubeRef.current) {
-          animate(cubeRef.current, {
-            rotateY: -targetIdx * 90,
-            duration: 750,
-            easing: "easeOutCubic"
-          });
-        }
-        setTimeout(() => {
-          isScrolling = false;
-        }, 750);
-      }
-    };
-
-    window.addEventListener("wheel", handleWheel, { passive: true });
-    return () => window.removeEventListener("wheel", handleWheel);
-  }, [currentSecIdx, sectionsList.length]);
-
-  if (!profile) return null;
-
-  const getSectionForFace = (faceSlot) => {
-    if (sectionsList.length === 0) return null;
-    const baseGroup = Math.floor(currentSecIdx / 4) * 4;
-    let targetSecIdx = baseGroup + faceSlot;
-    if (targetSecIdx >= sectionsList.length) {
-      targetSecIdx = targetSecIdx % sectionsList.length;
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      toast.error("Please fill in all required fields.");
+      return;
     }
-    return sectionsList[targetSecIdx] || sectionsList[0];
+
+    setIsSubmitting(true);
+
+    try {
+      const payload = {
+        recipientUsername: username,
+        receiverId: profile?.user?.id || profile?.userId,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        subject: formData.subject.trim() || `Golden Frame Executive Inquiry from ${formData.name}`,
+        message: formData.message.trim()
+      };
+
+      const response = await createContactMessage(payload);
+
+      if (response?.data?.success || response?.status === 200 || response?.status === 201) {
+        toast.success("👑 Executive message delivered successfully!");
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      } else {
+        throw new Error(response?.data?.message || "Failed to send message");
+      }
+    } catch (err) {
+      console.error("Contact Form Error:", err);
+      toast.error(err?.response?.data?.message || err?.message || "Failed to deliver message. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  // Parse Skills Data
+  const normalizedSkills = useMemo(() => {
+    if (!profile?.skills) return [];
+    return profile.skills.map((skill) => {
+      if (typeof skill === "object" && skill !== null) {
+        return {
+          name: skill.name || "Technical Skill",
+          proficiency: skill.proficiency || skill.level || 85,
+          category: skill.category || "Executive Skill"
+        };
+      }
+      return {
+        name: String(skill),
+        proficiency: 85,
+        category: "Executive Skill"
+      };
+    });
+  }, [profile?.skills]);
+
+  // Social Icon Helper
+  const renderSocialIcon = (platform, className = "w-4 h-4") => {
+    const p = (platform || "").toUpperCase();
+    if (p.includes("LINKEDIN")) return <Linkedin className={className} />;
+    if (p.includes("GITHUB")) return <Github className={className} />;
+    if (p.includes("TWITTER") || p.includes("X")) return <Twitter className={className} />;
+    return <Globe className={className} />;
+  };
+
+  // Nav Items Configuration
+  const navItems = [
+    { id: "hero", label: "Overview", icon: User },
+    { id: "skills", label: "Capabilities", icon: Code },
+    { id: "experience", label: "Experience", icon: Briefcase },
+    { id: "education", label: "Education", icon: GraduationCap },
+    { id: "projects", label: "Projects", icon: FolderGit2 },
+    { id: "certifications", label: "Credentials", icon: Award },
+    { id: "contact", label: "Contact", icon: Mail }
+  ];
+
+  // Calculated Statistics
+  const stats = [
+    {
+      label: "Projects Completed",
+      value: profile?.projects?.length || 15,
+      suffix: "+",
+      icon: FolderGit2
+    },
+    {
+      label: "Technical Stack",
+      value: normalizedSkills.length || 22,
+      suffix: "+",
+      icon: Code
+    },
+    {
+      label: "Certifications",
+      value: profile?.certifications?.length || 5,
+      suffix: "",
+      icon: Award
+    },
+    {
+      label: "Executive Views",
+      value: profile?.viewsCount || 2150,
+      suffix: "+",
+      icon: Eye
+    }
+  ];
 
   return (
-    <div className="t13-root">
-      <ToastContainer position="bottom-right" theme="light" />
+    <div
+      className={`min-h-screen font-sans transition-colors duration-500 overflow-x-hidden selection:bg-[#D4AF37]/30 selection:text-[#D4AF37] ${
+        isDarkMode ? "bg-[#0B0D12] text-[#F8FAFC]" : "bg-[#FFFFFF] text-[#0F172A]"
+      }`}
+    >
+      {/* Soft Ambient Golden Rays Ambient Background */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div
+          className={`absolute -top-40 left-1/3 w-[600px] h-[600px] rounded-full blur-[180px] transition-colors duration-700 ${
+            isDarkMode ? "bg-[#D4AF37]/10" : "bg-[#F3E5AB]/40"
+          }`}
+        />
+        <div
+          className={`absolute top-1/2 -right-40 w-[500px] h-[500px] rounded-full blur-[170px] transition-colors duration-700 ${
+            isDarkMode ? "bg-[#C5A059]/10" : "bg-[#FFFDF5]/80"
+          }`}
+        />
+      </div>
 
-      {/* Top Station Header & Face Tabs */}
-      <header className="t13-topbar">
-        <div className="t13-brand">
-          <Box size={15} /> BYTEBODH 3D WHITE SQUARE · TEMPLATE 13
-        </div>
+      {/* STICKY NAVBAR */}
+      <header
+        className={`sticky top-0 z-50 backdrop-blur-xl transition-all duration-300 border-b ${
+          isDarkMode
+            ? "bg-[#0B0D12]/85 border-[#D4AF37]/20 shadow-[0_10px_30px_rgba(0,0,0,0.8)]"
+            : "bg-white/85 border-[#D4AF37]/20 shadow-[0_4px_25px_rgba(212,175,55,0.06)]"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          {/* Logo on Left */}
+          <div
+            onClick={() => scrollToSection("hero")}
+            className="flex items-center gap-3 cursor-pointer group"
+          >
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#D4AF37] via-[#F3E5AB] to-[#C5A059] p-[2px] shadow-lg shadow-[#D4AF37]/20 group-hover:scale-105 transition-transform duration-300">
+              <div
+                className={`w-full h-full rounded-[14px] flex items-center justify-center font-extrabold text-sm transition-colors ${
+                  isDarkMode ? "bg-[#0B0D12] text-[#D4AF37]" : "bg-white text-[#C5A059]"
+                }`}
+              >
+                <Crown className="w-5 h-5" />
+              </div>
+            </div>
+            <div>
+              <span className="font-extrabold text-base tracking-tight flex items-center gap-1.5 font-serif">
+                {profile?.fullName || "Golden Frame"}
+                <span className="inline-block w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse" />
+              </span>
+              <span className="block text-[10px] uppercase font-mono tracking-widest text-[#D4AF37] font-bold">
+                Luxury Executive Portfolio
+              </span>
+            </div>
+          </div>
 
-        <div className="t13-nav-tabs">
-          {sectionsList.map((sec, idx) => (
-            <button
-              key={idx}
-              onClick={() => rotateToSection(idx)}
-              className={`t13-tab-btn ${currentSecIdx === idx ? "active" : ""}`}
-            >
-              {idx + 1}. {sec.title.split(" ")[0]}
-            </button>
-          ))}
-        </div>
-      </header>
-
-      {/* Main 3D Viewport Stage (Fits 100% Zoom Screen) */}
-      <main className="t13-stage-wrapper">
-        <div className="t13-cube-viewport">
-          <div className="t13-cube-box" ref={cubeRef}>
-            {[0, 1, 2, 3].map((faceSlot) => {
-              const sec = getSectionForFace(faceSlot);
-              if (!sec) return null;
+          {/* Desktop Navigation Links */}
+          <nav
+            className={`hidden md:flex items-center gap-1 p-1.5 rounded-full border backdrop-blur-lg ${
+              isDarkMode ? "bg-[#121620]/70 border-[#D4AF37]/20" : "bg-[#FFFDF9] border-[#D4AF37]/25"
+            }`}
+          >
+            {navItems.map((item) => {
+              const isActive = activeSection === item.id;
               return (
-                <div key={faceSlot} className={`t13-cube-face t13-face-${faceSlot}`}>
-                  {/* LEFT COLUMN: Section Title */}
-                  <div className="t13-face-left-col">
-                    <div>
-                      <div className="t13-sec-tag">SECTION 0{currentSecIdx + 1} / 0{sectionsList.length}</div>
-                      <h2 className="t13-sec-title">{sec.title}</h2>
-                      <p className="t13-sec-subtitle">{sec.subtitle}</p>
-                    </div>
-
-                    <div className="t13-sec-icon-box">
-                      {sec.icon}
-                    </div>
-                  </div>
-
-                  {/* RIGHT COLUMN: Section Details */}
-                  <div className="t13-face-right-col">
-                    {sec.renderDetails()}
-                  </div>
-                </div>
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className={`px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 flex items-center gap-2 relative ${
+                    isActive
+                      ? isDarkMode
+                        ? "text-[#D4AF37] font-bold"
+                        : "text-[#C5A059] font-bold"
+                      : isDarkMode
+                      ? "text-slate-400 hover:text-slate-200"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeGoldNav"
+                      className={`absolute inset-0 rounded-full shadow-sm ${
+                        isDarkMode
+                          ? "bg-[#D4AF37]/15 border border-[#D4AF37]/40"
+                          : "bg-white border border-[#D4AF37]/40"
+                      }`}
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <item.icon className="w-3.5 h-3.5 relative z-10" />
+                  <span className="relative z-10">{item.label}</span>
+                </button>
               );
             })}
+          </nav>
+
+          {/* Actions on Right */}
+          <div className="flex items-center gap-3">
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={toggleTheme}
+              className={`p-2.5 rounded-full border transition-all duration-300 shadow-sm flex items-center justify-center cursor-pointer ${
+                isDarkMode
+                  ? "bg-[#121620] border-[#D4AF37]/30 text-amber-400 hover:border-[#D4AF37]"
+                  : "bg-[#FFFDF9] border-[#D4AF37]/30 text-slate-800 hover:border-[#D4AF37]"
+              }`}
+              title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
+            {/* Share Link */}
+            <button
+              onClick={handleCopyLink}
+              className={`p-2.5 rounded-full border transition-all duration-300 shadow-sm hidden sm:flex items-center justify-center cursor-pointer ${
+                isDarkMode
+                  ? "bg-[#121620] border-[#D4AF37]/30 text-slate-300 hover:text-[#D4AF37]"
+                  : "bg-[#FFFDF9] border-[#D4AF37]/30 text-slate-800 hover:text-[#C5A059]"
+              }`}
+              title="Share Portfolio"
+            >
+              {copiedLink ? <Check className="w-4 h-4 text-[#D4AF37]" /> : <Copy className="w-4 h-4" />}
+            </button>
+
+            {/* Mobile Hamburger Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className={`md:hidden p-2.5 rounded-full border transition-colors ${
+                isDarkMode ? "bg-[#121620] border-[#D4AF37]/30 text-slate-200" : "bg-[#FFFDF9] border-[#D4AF37]/30 text-slate-800"
+              }`}
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
 
-        {/* Interactive Bottom 3D Controls */}
-        <div className="t13-control-bar">
-          <button onClick={prevSection} className="t13-ctrl-btn" title="Previous Section">
-            <ChevronLeft size={18} />
-          </button>
+        {/* Mobile Menu Drawer */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className={`md:hidden border-b overflow-hidden backdrop-blur-2xl ${
+                isDarkMode ? "bg-[#0B0D12]/95 border-[#D4AF37]/20" : "bg-white/95 border-[#D4AF37]/20"
+              }`}
+            >
+              <div className="px-6 py-5 space-y-2">
+                {navItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => scrollToSection(item.id)}
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-full text-sm font-semibold transition-all ${
+                      activeSection === item.id
+                        ? isDarkMode
+                          ? "bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/40"
+                          : "bg-[#FFFDF5] text-[#C5A059] border border-[#D4AF37]/40 font-bold"
+                        : isDarkMode
+                        ? "text-slate-300 hover:bg-slate-900"
+                        : "text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <item.icon className="w-4 h-4 text-[#D4AF37]" />
+                      <span>{item.label}</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 opacity-50" />
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
 
-          <div className="t13-face-indicator">
-            SECTION {currentSecIdx + 1} OF {sectionsList.length} : {sectionsList[currentSecIdx]?.title}
+      {/* MAIN CONTENT AREA */}
+      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24 space-y-28">
+        
+        {/* HERO SECTION WITH LARGE PROFILE & GOLDEN FRAME */}
+        <section id="hero" className="pt-6 lg:pt-12 scroll-mt-28">
+          <div className="grid lg:grid-cols-12 gap-12 items-center">
+            {/* Left Column: Hero Executive Brief */}
+            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+              {/* Executive Status Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D4AF37]/40 bg-[#FFFDF5] dark:bg-slate-900/60 text-[#C5A059] dark:text-[#D4AF37] text-xs font-semibold tracking-wide shadow-sm">
+                <Crown className="w-3.5 h-3.5 text-[#D4AF37]" />
+                <span>Executive Recruiter Portfolio</span>
+              </div>
+
+              {/* Name & Headline */}
+              <div className="space-y-3">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] font-serif">
+                  Architecting digital legacy for{" "}
+                  <span className="bg-gradient-to-r from-[#D4AF37] via-[#F3E5AB] to-[#C5A059] bg-clip-text text-transparent">
+                    {profile?.fullName || "Executive Leader"}
+                  </span>
+                </h1>
+                <h2 className={`text-xl sm:text-2xl font-semibold tracking-tight ${isDarkMode ? "text-slate-300" : "text-[#0F172A]/80"}`}>
+                  {profile?.headline || "Senior Staff Engineer & Director of Systems"}
+                </h2>
+              </div>
+
+              {/* Summary */}
+              <p className={`text-base sm:text-lg leading-relaxed max-w-2xl mx-auto lg:mx-0 ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                {profile?.summary ||
+                  "Delivering enterprise-scale platforms, high-throughput cloud infrastructure, and award-winning digital experiences designed with luxury precision."}
+              </p>
+
+              {/* Floating Glass CTA Buttons */}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+                {/* Primary CTA: Explore Portfolio */}
+                <button
+                  onClick={() => scrollToSection("projects")}
+                  className="px-8 py-4 rounded-full bg-gradient-to-r from-[#D4AF37] via-[#E5C158] to-[#C5A059] hover:opacity-95 text-slate-950 font-extrabold text-sm shadow-[0_10px_30px_rgba(212,175,55,0.3)] hover:shadow-[0_15px_35px_rgba(212,175,55,0.45)] hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2.5 group cursor-pointer"
+                >
+                  <FolderGit2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  <span>Explore Portfolio</span>
+                </button>
+
+                {/* Secondary CTA: Contact Executive */}
+                <button
+                  onClick={() => scrollToSection("contact")}
+                  className={`px-8 py-4 rounded-full font-extrabold text-sm border backdrop-blur-xl transition-all duration-300 flex items-center gap-2.5 hover:-translate-y-0.5 shadow-sm cursor-pointer ${
+                    isDarkMode
+                      ? "bg-[#121620]/80 border-[#D4AF37]/40 text-white hover:border-[#D4AF37]"
+                      : "bg-white/80 border-[#D4AF37]/40 text-[#0F172A] hover:border-[#D4AF37] hover:bg-[#FFFDF9]"
+                  }`}
+                >
+                  <Mail className="w-4 h-4 text-[#D4AF37]" />
+                  <span>Contact Executive</span>
+                </button>
+              </div>
+
+              {/* Quick Details Chips */}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 pt-4 text-xs font-medium text-slate-500">
+                {profile?.email && (
+                  <a href={`mailto:${profile.email}`} className="flex items-center gap-2 hover:text-[#D4AF37] transition-colors">
+                    <Mail className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    <span>{profile.email}</span>
+                  </a>
+                )}
+                {profile?.mobileNumber && (
+                  <a href={`tel:${profile.mobileNumber}`} className="flex items-center gap-2 hover:text-[#D4AF37] transition-colors">
+                    <Phone className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    <span>{profile.mobileNumber}</span>
+                  </a>
+                )}
+                {profile?.location && (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    <span>{profile.location}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right Column: Large Profile surrounded by Golden Frame Ring */}
+            <div className="lg:col-span-5 flex justify-center">
+              <div className="relative group">
+                {/* Golden Glow Rings */}
+                <div className="absolute -inset-4 rounded-full bg-gradient-to-r from-[#D4AF37] via-[#F3E5AB] to-[#C5A059] opacity-30 blur-2xl group-hover:opacity-50 transition duration-500" />
+
+                {/* Golden Metallic Ring Container */}
+                <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-full p-2 bg-gradient-to-tr from-[#D4AF37] via-[#F3E5AB] to-[#C5A059] shadow-[0_0_35px_rgba(212,175,55,0.25)]">
+                  <div className="w-full h-full rounded-full p-1 bg-white dark:bg-[#0B0D12]">
+                    {profile?.pictureUrl || profile?.photo ? (
+                      <img
+                        src={profile.pictureUrl || profile.photo}
+                        alt={profile.fullName || "Profile"}
+                        className="w-full h-full rounded-full object-cover shadow-inner"
+                      />
+                    ) : (
+                      <div
+                        className={`w-full h-full rounded-full flex flex-col items-center justify-center font-serif text-5xl font-extrabold ${
+                          isDarkMode ? "bg-[#121620] text-[#D4AF37]" : "bg-[#FFFDF5] text-[#C5A059]"
+                        }`}
+                      >
+                        <span>{profile?.fullName?.[0] || "G"}</span>
+                        <span className="text-[10px] font-mono tracking-widest uppercase mt-2 text-[#D4AF37]">GOLDEN FRAME</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Floating Glass Executive Badge */}
+                <div
+                  className={`absolute -bottom-4 right-2 sm:right-6 px-5 py-3 rounded-2xl border backdrop-blur-xl shadow-xl flex items-center gap-3 ${
+                    isDarkMode ? "bg-[#121620]/90 border-[#D4AF37]/30 text-white" : "bg-white/95 border-[#D4AF37]/30 text-[#0F172A]"
+                  }`}
+                >
+                  <div className="w-8 h-8 rounded-xl bg-[#FFFDF5] border border-[#D4AF37]/40 flex items-center justify-center text-[#D4AF37] font-bold text-xs">
+                    <ShieldCheck className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-extrabold font-serif">Executive Distinction</div>
+                    <div className="text-[10px] text-[#D4AF37] font-mono">Rolex & Luxury Inspired</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* EXECUTIVE QUICK STATISTICS STRIP */}
+        <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {stats.map((st, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: idx * 0.1 }}
+              className={`p-6 rounded-3xl border backdrop-blur-xl flex flex-col justify-between transition-all hover:border-[#D4AF37]/60 shadow-sm ${
+                isDarkMode ? "bg-[#121620]/70 border-[#D4AF37]/20" : "bg-[#FFFDF9] border-[#D4AF37]/25"
+              }`}
+            >
+              <div className="w-10 h-10 rounded-2xl bg-[#FFFDF5] dark:bg-slate-900 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] mb-3">
+                <st.icon className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-3xl font-extrabold font-serif tracking-tight text-[#0F172A] dark:text-white mb-1">
+                  {st.value}
+                  <span className="text-[#D4AF37]">{st.suffix}</span>
+                </div>
+                <div className="text-xs font-semibold text-slate-500">
+                  {st.label}
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </section>
+
+        {/* SKILLS SECTION (LUXURY GOLD BADGES) */}
+        <section id="skills" className="scroll-mt-28 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D4AF37]/30 bg-[#FFFDF5] text-[#C5A059] dark:text-[#D4AF37] text-xs font-mono uppercase tracking-widest font-bold">
+              <Code className="w-3.5 h-3.5" /> Core Competencies
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-serif">
+              Technical Stack & Expertise
+            </h2>
+            <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Luxury gold-badged chips representing technical leadership.
+            </p>
           </div>
 
-          <button onClick={nextSection} className="t13-ctrl-btn" title="Next Section">
-            <ChevronRight size={18} />
-          </button>
-        </div>
+          <div className="flex flex-wrap justify-center gap-3.5 max-w-4xl mx-auto">
+            {normalizedSkills.map((sk, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                whileHover={{ scale: 1.05, y: -2 }}
+                transition={{ duration: 0.3, delay: idx * 0.03 }}
+                className={`px-6 py-3.5 rounded-full border backdrop-blur-xl shadow-sm transition-all duration-300 flex items-center gap-3 cursor-default ${
+                  isDarkMode
+                    ? "bg-[#121620] border-[#D4AF37]/30 text-slate-200 hover:border-[#D4AF37]"
+                    : "bg-[#FFFDF9] border-[#D4AF37]/30 text-[#0F172A] hover:border-[#D4AF37] shadow-sm"
+                }`}
+              >
+                <div className="w-2.5 h-2.5 rounded-full bg-[#D4AF37]" />
+                <span className="font-bold text-xs sm:text-sm tracking-wide">{sk.name}</span>
+                {sk.proficiency && (
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#D4AF37]/15 text-[#C5A059] dark:text-[#D4AF37]">
+                    {sk.proficiency}%
+                  </span>
+                )}
+              </motion.div>
+            ))}
+            {normalizedSkills.length === 0 && (
+              <p className="text-xs italic text-slate-500">No capabilities listed yet.</p>
+            )}
+          </div>
+        </section>
+
+        {/* EXPERIENCE TIMELINE */}
+        <section id="experience" className="scroll-mt-28 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D4AF37]/30 bg-[#FFFDF5] text-[#C5A059] dark:text-[#D4AF37] text-xs font-mono uppercase tracking-widest font-bold">
+              <Briefcase className="w-3.5 h-3.5" /> Career Growth
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-serif">
+              Executive Experience Timeline
+            </h2>
+            <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Professional trajectory and high-impact accomplishments.
+            </p>
+          </div>
+
+          <div className="space-y-6 max-w-4xl mx-auto">
+            {profile?.experience?.map((exp, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: idx * 0.1 }}
+                className={`p-8 rounded-3xl border backdrop-blur-xl transition-all duration-300 hover:border-[#D4AF37]/60 ${
+                  isDarkMode
+                    ? "bg-[#121620]/70 border-[#D4AF37]/20 shadow-md"
+                    : "bg-[#FFFDF9] border-[#D4AF37]/25 hover:bg-white shadow-sm hover:shadow-xl"
+                }`}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#D4AF37] to-[#C5A059] p-0.5 shadow-md shrink-0">
+                      <div className="w-full h-full rounded-[14px] bg-white dark:bg-[#0B0D12] flex items-center justify-center text-[#D4AF37] font-bold text-lg font-serif">
+                        {exp.company?.[0] || "C"}
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold tracking-tight font-serif">
+                        {exp.position || exp.role || "Software Engineer"}
+                      </h3>
+                      <div className="text-sm font-semibold text-[#C5A059] dark:text-[#D4AF37] flex items-center gap-2 mt-0.5">
+                        <span>{exp.company || "Company"}</span>
+                        {exp.location && (
+                          <span className={`text-xs font-normal ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
+                            • {exp.location}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold border shrink-0 ${
+                    isDarkMode ? "bg-[#0B0D12] border-[#D4AF37]/30 text-slate-300" : "bg-white border-[#D4AF37]/30 text-slate-800 shadow-sm"
+                  }`}>
+                    <Calendar className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    <span>{exp.startDate || "2023"} - {exp.endDate || "Present"}</span>
+                  </div>
+                </div>
+
+                <p className={`text-sm leading-relaxed ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                  {exp.description}
+                </p>
+              </motion.div>
+            ))}
+            {(!profile?.experience || profile.experience.length === 0) && (
+              <p className="text-center text-xs italic text-slate-500">No experience listed yet.</p>
+            )}
+          </div>
+        </section>
+
+        {/* EDUCATION TIMELINE */}
+        <section id="education" className="scroll-mt-28 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D4AF37]/30 bg-[#FFFDF5] text-[#C5A059] dark:text-[#D4AF37] text-xs font-mono uppercase tracking-widest font-bold">
+              <GraduationCap className="w-3.5 h-3.5" /> Academic Honors
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-serif">
+              Education Timeline
+            </h2>
+            <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Academic qualifications structured in an executive timeline.
+            </p>
+          </div>
+
+          <div className="relative max-w-3xl mx-auto pl-6 sm:pl-8 border-l-2 border-[#D4AF37]/40 space-y-10 my-6">
+            {profile?.education?.map((edu, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: idx * 0.1 }}
+                className="relative group"
+              >
+                {/* Gold Node Ring */}
+                <div className="absolute -left-[31px] sm:-left-[39px] top-2 w-5 h-5 rounded-full bg-white dark:bg-[#0B0D12] border-2 border-[#D4AF37] flex items-center justify-center shadow-md group-hover:scale-125 transition-transform">
+                  <div className="w-2 h-2 rounded-full bg-[#D4AF37]" />
+                </div>
+
+                <div
+                  className={`p-7 rounded-3xl border backdrop-blur-xl transition-all duration-300 hover:border-[#D4AF37]/60 ${
+                    isDarkMode ? "bg-[#121620]/70 border-[#D4AF37]/20" : "bg-[#FFFDF9] border-[#D4AF37]/25 hover:bg-white shadow-sm hover:shadow-xl"
+                  }`}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <span className="text-xs font-mono font-bold text-[#D4AF37] tracking-wider uppercase">
+                      {edu.startDate || "2020"} — {edu.endDate || "2024"}
+                    </span>
+                    {edu.gpa && (
+                      <span className="text-xs font-bold px-3 py-1 rounded-full border bg-[#D4AF37]/10 border-[#D4AF37]/30 text-[#C5A059] dark:text-[#D4AF37]">
+                        GPA: {edu.gpa}
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="text-xl font-bold tracking-tight font-serif mb-1">
+                    {edu.degree}
+                  </h3>
+                  <div className={`text-sm font-semibold mb-3 ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
+                    {edu.institution} {edu.fieldOfStudy && `• ${edu.fieldOfStudy}`}
+                  </div>
+
+                  {edu.description && (
+                    <p className={`text-xs leading-relaxed ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                      {edu.description}
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+            {(!profile?.education || profile.education.length === 0) && (
+              <p className="text-xs italic text-slate-500">No education entries listed.</p>
+            )}
+          </div>
+        </section>
+
+        {/* PROJECTS SHOWCASE (PREMIUM CARDS) */}
+        <section id="projects" className="scroll-mt-28 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D4AF37]/30 bg-[#FFFDF5] text-[#C5A059] dark:text-[#D4AF37] text-xs font-mono uppercase tracking-widest font-bold">
+              <FolderGit2 className="w-3.5 h-3.5" /> Portfolio Portfolio
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-serif">
+              Featured Executive Projects
+            </h2>
+            <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Premium cards featuring gold accents, technology tags, and project links.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {profile?.projects?.map((proj, idx) => {
+              const techList =
+                proj.technologies ||
+                (typeof proj.techStack === "string" ? proj.techStack.split(",") : []) ||
+                [];
+
+              return (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: idx * 0.1 }}
+                  className={`rounded-3xl border overflow-hidden backdrop-blur-xl flex flex-col justify-between transition-all duration-500 hover:-translate-y-1.5 group ${
+                    isDarkMode
+                      ? "bg-[#121620]/70 border-[#D4AF37]/20 hover:border-[#D4AF37]/60 shadow-xl"
+                      : "bg-[#FFFDF9] border-[#D4AF37]/25 hover:bg-white hover:border-[#D4AF37]/60 shadow-sm hover:shadow-xl"
+                  }`}
+                >
+                  <div className="relative h-60 overflow-hidden bg-slate-900">
+                    {proj.imageUrl || proj.image ? (
+                      <img
+                        src={proj.imageUrl || proj.image}
+                        alt={proj.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-[#0B0D12] via-slate-950 to-amber-950 flex items-center justify-center p-6 text-center">
+                        <Code className="w-12 h-12 text-[#D4AF37]/40 mb-2 group-hover:scale-110 transition-transform" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-60" />
+                  </div>
+
+                  <div className="p-7 flex-1 flex flex-col justify-between space-y-4">
+                    <div>
+                      <h3 className="text-xl font-bold tracking-tight font-serif mb-2 group-hover:text-[#D4AF37] transition-colors">
+                        {proj.title}
+                      </h3>
+                      <p className={`text-xs leading-relaxed line-clamp-3 ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                        {proj.description}
+                      </p>
+                    </div>
+
+                    <div className="space-y-4 pt-2">
+                      <div className="flex flex-wrap gap-1.5">
+                        {techList.map((t, i) => (
+                          <span
+                            key={i}
+                            className="px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-[#D4AF37]/10 text-[#C5A059] dark:text-[#D4AF37] border border-[#D4AF37]/25"
+                          >
+                            {t.trim()}
+                          </span>
+                        ))}
+                      </div>
+
+                      {(proj.link || proj.projectUrl || proj.githubUrl) && (
+                        <a
+                          href={proj.link || proj.projectUrl || proj.githubUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full py-3.5 px-5 rounded-full bg-gradient-to-r from-[#D4AF37] via-[#E5C158] to-[#C5A059] hover:opacity-95 text-slate-950 font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-2 group/btn cursor-pointer"
+                        >
+                          <span>Visit Project</span>
+                          <ArrowUpRight className="w-4 h-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+            {(!profile?.projects || profile.projects.length === 0) && (
+              <p className="text-center text-xs italic text-slate-500 col-span-full">No projects listed yet.</p>
+            )}
+          </div>
+        </section>
+
+        {/* CERTIFICATIONS (COMPACT EXECUTIVE CARDS) */}
+        <section id="certifications" className="scroll-mt-28 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D4AF37]/30 bg-[#FFFDF5] text-[#C5A059] dark:text-[#D4AF37] text-xs font-mono uppercase tracking-widest font-bold">
+              <Award className="w-3.5 h-3.5" /> Credentials
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-serif">
+              Recognized Credentials
+            </h2>
+            <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Executive certifications and industry honors.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {profile?.certifications?.map((cert, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.3, delay: idx * 0.08 }}
+                className={`p-6 rounded-3xl border backdrop-blur-xl flex flex-col justify-between space-y-4 transition-all hover:border-[#D4AF37]/60 ${
+                  isDarkMode
+                    ? "bg-[#121620]/70 border-[#D4AF37]/20 shadow-md"
+                    : "bg-[#FFFDF9] border-[#D4AF37]/25 hover:bg-white shadow-sm"
+                }`}
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="w-10 h-10 rounded-2xl bg-[#FFFDF5] dark:bg-slate-900 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37]">
+                      <Crown className="w-5 h-5" />
+                    </div>
+                    <span className={`text-[11px] font-mono font-bold px-3 py-1 rounded-full border ${
+                      isDarkMode ? "bg-[#0B0D12] border-[#D4AF37]/30 text-slate-300" : "bg-white border-[#D4AF37]/30 text-slate-700 shadow-sm"
+                    }`}>
+                      {cert.issueDate || cert.date || "2024"}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="text-base font-bold tracking-tight font-serif mb-1">
+                      {cert.name || cert.title}
+                    </h3>
+                    <div className="text-xs font-semibold text-[#C5A059] dark:text-[#D4AF37]">
+                      {cert.issuingOrganization || cert.issuer || "Issuing Body"}
+                    </div>
+                  </div>
+
+                  {cert.description && (
+                    <p className={`text-xs leading-relaxed line-clamp-3 ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                      {cert.description}
+                    </p>
+                  )}
+                </div>
+
+                {cert.credentialUrl && (
+                  <a
+                    href={cert.credentialUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#D4AF37] hover:underline pt-2"
+                  >
+                    <span>Verify Credential</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
+              </motion.div>
+            ))}
+            {(!profile?.certifications || profile.certifications.length === 0) && (
+              <p className="text-center text-xs italic text-slate-500 col-span-full">No certifications listed yet.</p>
+            )}
+          </div>
+        </section>
+
+        {/* RECRUITER CONTACT FORM SECTION */}
+        <section id="contact" className="scroll-mt-28 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D4AF37]/30 bg-[#FFFDF5] text-[#C5A059] dark:text-[#D4AF37] text-xs font-mono uppercase tracking-widest font-bold">
+              <Mail className="w-3.5 h-3.5" /> Direct Inquiry
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-serif">
+              Recruiter Contact Form
+            </h2>
+            <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Direct dispatch interface to connect with the executive candidate.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-12 gap-8 max-w-5xl mx-auto">
+            {/* Direct Info */}
+            <div
+              className={`lg:col-span-5 p-8 rounded-3xl border backdrop-blur-xl space-y-6 flex flex-col justify-between ${
+                isDarkMode ? "bg-[#121620]/70 border-[#D4AF37]/20" : "bg-[#FFFDF9] border-[#D4AF37]/25 shadow-md"
+              }`}
+            >
+              <div>
+                <h3 className="text-2xl font-extrabold tracking-tight font-serif mb-2">Connect Executive</h3>
+                <p className={`text-xs leading-relaxed mb-6 ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                  Inquiring about executive leadership positions, advisory roles, or technical consulting? Send a direct message.
+                </p>
+
+                <div className="space-y-4">
+                  {profile?.email && (
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-2xl bg-[#FFFDF5] border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] shrink-0">
+                        <Mail className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase font-mono text-slate-500 font-bold">Email</div>
+                        <a href={`mailto:${profile.email}`} className="text-sm font-bold hover:text-[#D4AF37] transition-colors">
+                          {profile.email}
+                        </a>
+                      </div>
+                    </div>
+                  )}
+
+                  {profile?.mobileNumber && (
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-2xl bg-[#FFFDF5] border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37] shrink-0">
+                        <Phone className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase font-mono text-slate-500 font-bold">Mobile</div>
+                        <a href={`tel:${profile.mobileNumber}`} className="text-sm font-bold hover:text-[#D4AF37] transition-colors">
+                          {profile.mobileNumber}
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-[#D4AF37]/20">
+                <div className="text-xs font-bold mb-3">Executive Share</div>
+                <button
+                  onClick={handleCopyLink}
+                  className="w-full py-3 px-4 rounded-full border border-[#D4AF37]/40 text-[#C5A059] dark:text-[#D4AF37] bg-white dark:bg-[#0B0D12] text-xs font-extrabold transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:border-[#D4AF37]"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy Portfolio Link</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Form */}
+            <div
+              className={`lg:col-span-7 p-8 rounded-3xl border backdrop-blur-xl shadow-xl ${
+                isDarkMode ? "bg-[#121620]/80 border-[#D4AF37]/20" : "bg-white border-[#D4AF37]/25"
+              }`}
+            >
+              <form onSubmit={handleSubmitContact} className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-extrabold mb-1.5">Your Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Jane Doe"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all ${
+                        isDarkMode
+                          ? "bg-[#0B0D12] border-[#D4AF37]/30 text-white focus:border-[#D4AF37]"
+                          : "bg-[#FFFDF5] border-[#D4AF37]/30 text-[#0F172A] focus:border-[#D4AF37] focus:bg-white"
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-extrabold mb-1.5">Your Email *</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="recruiter@company.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all ${
+                        isDarkMode
+                          ? "bg-[#0B0D12] border-[#D4AF37]/30 text-white focus:border-[#D4AF37]"
+                          : "bg-[#FFFDF5] border-[#D4AF37]/30 text-[#0F172A] focus:border-[#D4AF37] focus:bg-white"
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-extrabold mb-1.5">Subject</label>
+                  <input
+                    type="text"
+                    placeholder="Executive Engineering Opportunity"
+                    value={formData.subject}
+                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                    className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all ${
+                      isDarkMode
+                        ? "bg-[#0B0D12] border-[#D4AF37]/30 text-white focus:border-[#D4AF37]"
+                        : "bg-[#FFFDF5] border-[#D4AF37]/30 text-[#0F172A] focus:border-[#D4AF37] focus:bg-white"
+                    }`}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-extrabold mb-1.5">Message *</label>
+                  <textarea
+                    required
+                    rows={4}
+                    placeholder="Hi, I reviewed your Golden Frame executive portfolio and would like to discuss..."
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all resize-none ${
+                      isDarkMode
+                        ? "bg-[#0B0D12] border-[#D4AF37]/30 text-white focus:border-[#D4AF37]"
+                        : "bg-[#FFFDF5] border-[#D4AF37]/30 text-[#0F172A] focus:border-[#D4AF37] focus:bg-white"
+                    }`}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-4 px-6 rounded-full bg-gradient-to-r from-[#D4AF37] via-[#E5C158] to-[#C5A059] hover:opacity-95 text-slate-950 font-extrabold text-sm shadow-[0_10px_25px_rgba(212,175,55,0.3)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                      <span>Dispatching Message...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      <span>Send Executive Message</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+          </div>
+        </section>
       </main>
 
-      {/* Footer */}
-      <footer style={{ borderTop: "1px solid #e2e8f0", padding: "8px", textAlign: "center", fontFamily: "JetBrains Mono", fontSize: "10px", color: "#64748b", background: "#ffffff", flexShrink: 0 }}>
-        BYTEBODH FOLIO · TEMPLATE 13 (WHITE EXECUTIVE SQUARE)
+      {/* FLOATING CIRCULAR SOCIAL ICONS */}
+      <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
+        {profile?.socialMediaLinks?.map((soc, idx) => (
+          <motion.a
+            key={idx}
+            href={soc.url || soc.profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.9 }}
+            className={`w-12 h-12 rounded-full border shadow-lg backdrop-blur-xl flex items-center justify-center transition-all ${
+              isDarkMode
+                ? "bg-[#121620]/90 border-[#D4AF37]/30 text-[#D4AF37] hover:border-[#D4AF37]"
+                : "bg-white/95 border-[#D4AF37]/30 text-[#C5A059] hover:border-[#D4AF37] shadow-md"
+            }`}
+            title={soc.platform}
+          >
+            {renderSocialIcon(soc.platform)}
+          </motion.a>
+        ))}
+      </div>
+
+      {/* FOOTER */}
+      <footer
+        className={`border-t backdrop-blur-xl py-12 relative z-10 ${
+          isDarkMode ? "bg-[#0B0D12]/90 border-[#D4AF37]/20 text-slate-400" : "bg-white/90 border-[#D4AF37]/20 text-slate-600"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs font-semibold">
+          <div className="flex items-center gap-2 font-serif">
+            <div className="w-6 h-6 rounded-lg bg-[#D4AF37] flex items-center justify-center text-slate-950 font-extrabold text-xs">
+              GF
+            </div>
+            <span className="font-extrabold text-[#0F172A] dark:text-white">{profile?.fullName || "Golden Frame"}</span>
+            <span>• © {new Date().getFullYear()} All Rights Reserved.</span>
+          </div>
+
+          <div className="flex items-center gap-6">
+            {profile?.email && (
+              <a href={`mailto:${profile.email}`} className="hover:text-[#D4AF37] transition-colors">
+                {profile.email}
+              </a>
+            )}
+            {profile?.mobileNumber && (
+              <a href={`tel:${profile.mobileNumber}`} className="hover:text-[#D4AF37] transition-colors">
+                {profile.mobileNumber}
+              </a>
+            )}
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="text-[#D4AF37] hover:underline font-bold"
+            >
+              Back to Top ↑
+            </button>
+          </div>
+        </div>
       </footer>
     </div>
   );

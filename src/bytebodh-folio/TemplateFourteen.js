@@ -1,729 +1,1140 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
+  User,
+  Briefcase,
+  GraduationCap,
+  FolderGit2,
+  Award,
   Mail,
   Phone,
-  MapPin,
+  ArrowUpRight,
+  Sparkles,
+  Sun,
+  Moon,
+  Menu,
+  X,
+  ChevronRight,
+  ExternalLink,
   Github,
   Linkedin,
   Twitter,
   Globe,
-  ExternalLink,
-  Zap,
-  ChevronLeft,
-  ChevronRight,
-  Triangle,
-  Briefcase,
-  GraduationCap,
-  User
+  Send,
+  Eye,
+  Copy,
+  Check,
+  MapPin,
+  Calendar,
+  Code,
+  Download,
+  Layers,
+  ShieldCheck
 } from "lucide-react";
-import { animate } from "animejs";
+import { toast } from "react-toastify";
 import { createContactMessage } from "../api/profileService";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
-/* ─────────────────────────────────────────────────────────────
-   Template Fourteen: 3D TRIANGLE PRISM (Fits 100% Zoom Screen)
-───────────────────────────────────────────────────────────── */
-const STYLE_ID = "template-fourteen-3d-triangle-fit-styles";
-
-function injectStyles() {
-  const existing = document.getElementById(STYLE_ID);
-  if (existing) existing.remove();
-  const style = document.createElement("style");
-  style.id = STYLE_ID;
-  style.textContent = `
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
-
-    .t14-root {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: radial-gradient(circle at center, #0c1a30 0%, #060c18 100%);
-      color: #f8fafc;
-      height: 100vh;
-      max-height: 100vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-
-    /* Flight Header Bar */
-    .t14-topbar {
-      background: rgba(12, 26, 48, 0.95);
-      backdrop-filter: blur(12px);
-      border-bottom: 2px solid #38bdf8;
-      padding: 8px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      z-index: 100;
-      flex-shrink: 0;
-    }
-    .t14-brand {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px; font-weight: 800;
-      color: #38bdf8;
-      display: flex; align-items: center; gap: 8px;
-    }
-
-    /* Nav Tabs */
-    .t14-nav-tabs {
-      display: flex;
-      gap: 5px;
-      overflow-x: auto;
-    }
-    .t14-tab-btn {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px; font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 6px;
-      border: 1px solid #1e3a8a;
-      background: #0c1a30;
-      color: #94a3b8;
-      cursor: pointer;
-      transition: all 0.25s;
-      white-space: nowrap;
-    }
-    .t14-tab-btn.active, .t14-tab-btn:hover {
-      background: #38bdf8;
-      color: #0c1a30;
-      border-color: #38bdf8;
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
-    }
-
-    /* 3D STAGE */
-    .t14-stage-wrapper {
-      flex: 1;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      perspective: 1200px;
-      padding: 8px 16px;
-      box-sizing: border-box;
-      position: relative;
-    }
-
-    .t14-prism-viewport {
-      width: 100%;
-      max-width: 760px;
-      height: 360px;
-      position: relative;
-      transform-style: preserve-3d;
-    }
-
-    /* The 3D Triangular Prism Container */
-    .t14-prism-box {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      transform-style: preserve-3d;
-      transition: transform 0.1s ease-out;
-    }
-
-    /* Individual 3D Triangle Faces (3 Faces @ 120 deg apart) */
-    .t14-triangle-face {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: #101f38;
-      border: 2px solid #1e3a8a;
-      border-radius: 18px;
-      box-sizing: border-box;
-      backface-visibility: hidden;
-      overflow: hidden;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
-      display: flex;
-    }
-
-    /* 3 Faces translateZ ~220px */
-    .t14-face-0 { transform: rotateY(0deg) translateZ(220px); border-color: #38bdf8; }
-    .t14-face-1 { transform: rotateY(120deg) translateZ(220px); border-color: #fbbf24; }
-    .t14-face-2 { transform: rotateY(240deg) translateZ(220px); border-color: #34d399; }
-
-    /* LEFT SIDE: Section Title Column */
-    .t14-face-left-col {
-      width: 220px;
-      background: #081226;
-      border-right: 2px solid #1e3a8a;
-      padding: 18px 16px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      flex-shrink: 0;
-      box-sizing: border-box;
-    }
-    .t14-sec-tag {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px; font-weight: 800; color: #38bdf8;
-      background: rgba(56, 189, 248, 0.1);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      padding: 3px 8px; border-radius: 5px; width: fit-content;
-      margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.08em;
-    }
-    .t14-sec-title {
-      font-size: 1.25rem; font-weight: 800; color: #ffffff;
-      line-height: 1.2; margin-bottom: 4px;
-    }
-    .t14-sec-subtitle {
-      font-size: 0.78rem; font-weight: 600; color: #94a3b8;
-    }
-    .t14-sec-icon-box {
-      width: 40px; height: 40px; border-radius: 10px;
-      background: #38bdf8; color: #0c1a30;
-      display: flex; align-items: center; justify-content: center;
-      margin-top: auto;
-      box-shadow: 0 4px 10px rgba(56, 189, 248, 0.3);
-    }
-
-    /* RIGHT SIDE: Section Details Scrollable Column */
-    .t14-face-right-col {
-      flex: 1;
-      padding: 18px;
-      overflow-y: auto;
-      box-sizing: border-box;
-    }
-    .t14-face-right-col::-webkit-scrollbar { width: 4px; }
-    .t14-face-right-col::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 3px; }
-
-    /* Content Components inside Details Panel */
-    .t14-profile-grid { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
-    .t14-avatar-box {
-      width: 58px; height: 58px; border-radius: 50%;
-      padding: 2px; background: linear-gradient(135deg, #38bdf8, #fbbf24); flex-shrink: 0;
-    }
-    .t14-avatar-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 2px solid #101f38; }
-    .t14-avatar-fallback {
-      width: 100%; height: 100%; border-radius: 50%; background: #1e3a8a; color: #38bdf8;
-      font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; justify-content: center;
-    }
-    .t14-name { font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0; }
-    .t14-headline { font-size: 0.8rem; font-weight: 600; color: #38bdf8; }
-    .t14-summary { font-size: 0.78rem; color: #cbd5e1; line-height: 1.45; margin-bottom: 12px; }
-
-    .t14-chips { display: flex; flex-wrap: wrap; gap: 5px; }
-    .t14-chip {
-      display: inline-flex; align-items: center; gap: 4px;
-      font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #cbd5e1;
-      background: #081226; border: 1px solid #1e3a8a; padding: 4px 8px; border-radius: 5px;
-      text-decoration: none;
-    }
-    .t14-chip:hover { border-color: #38bdf8; color: #38bdf8; }
-
-    /* Skills Pill Cloud */
-    .t14-skills-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-    .t14-skill-pill {
-      font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
-      color: #f8fafc; background: #081226; border: 1px solid #1e3a8a;
-      padding: 4px 10px; border-radius: 5px; transition: all 0.2s;
-    }
-    .t14-skill-pill:hover { border-color: #38bdf8; background: #38bdf8; color: #0c1a30; }
-
-    /* Cards Grid */
-    .t14-grid-card {
-      background: #081226; border: 1px solid #1e3a8a; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px;
-    }
-    .t14-card-title { font-size: 0.88rem; font-weight: 700; color: #ffffff; margin-bottom: 2px; }
-    .t14-card-sub { font-size: 0.75rem; font-weight: 600; color: #38bdf8; margin-bottom: 3px; }
-    .t14-card-date {
-      font-family: 'JetBrains Mono', monospace; font-size: 8.5px; color: #94a3b8;
-      background: #1e3a8a; padding: 1px 5px; border-radius: 3px; display: inline-block; margin-bottom: 4px;
-    }
-    .t14-card-text { font-size: 0.75rem; color: #cbd5e1; line-height: 1.35; }
-    .t14-gpa-badge {
-      font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
-      color: #0c1a30; background: #fbbf24; padding: 2px 5px; border-radius: 3px; display: inline-block; margin-top: 4px;
-    }
-    .t14-tech-chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
-    .t14-tech-item {
-      font-family: 'JetBrains Mono', monospace; font-size: 8.5px; color: #38bdf8;
-      background: #101f38; padding: 1px 4px; border-radius: 3px; border: 1px solid #1e3a8a;
-    }
-    .t14-link {
-      display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 700;
-      color: #38bdf8; text-decoration: none;
-    }
-    .t14-link:hover { text-decoration: underline; }
-
-    /* Form */
-    .t14-input {
-      width: 100%; box-sizing: border-box; background: #081226; border: 1.5px solid #1e3a8a;
-      padding: 8px 12px; border-radius: 6px; color: #ffffff; font-family: inherit; font-size: 11px;
-      outline: none; margin-bottom: 8px;
-    }
-    .t14-input:focus { border-color: #38bdf8; }
-    .t14-textarea { min-height: 60px; resize: vertical; }
-    .t14-btn {
-      background: #38bdf8; color: #0c1a30; font-weight: 800; font-size: 11px;
-      border: none; border-radius: 6px; padding: 8px 16px; cursor: pointer;
-      display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s;
-    }
-
-    /* Bottom Control Bar */
-    .t14-control-bar {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      z-index: 50;
-      flex-shrink: 0;
-      margin-top: 4px;
-    }
-    .t14-ctrl-btn {
-      width: 34px; height: 34px;
-      border-radius: 50%;
-      background: #0c1a30;
-      border: 2px solid #38bdf8;
-      color: #38bdf8;
-      display: flex; items-center; justify-content: center;
-      cursor: pointer;
-      transition: all 0.25s;
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
-    }
-    .t14-ctrl-btn:hover { background: #38bdf8; color: #0c1a30; transform: scale(1.08); }
-    .t14-side-indicator {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px; font-weight: 800;
-      color: #fbbf24;
-      background: #0c1a30;
-      border: 1px solid #1e3a8a;
-      padding: 5px 14px;
-      border-radius: 18px;
-    }
-
-    /* Mobile Responsiveness */
-    @media (max-width: 768px) {
-      .t14-topbar { padding: 6px 12px; }
-      .t14-prism-viewport { height: 400px; }
-      .t14-triangle-face { flex-direction: column; }
-      .t14-face-left-col { width: 100%; padding: 10px 14px; flex-direction: row; align-items: center; height: auto; border-right: none; border-bottom: 2px solid #1e3a8a; }
-      .t14-sec-icon-box { margin-top: 0; width: 32px; height: 32px; }
-      .t14-face-0 { transform: rotateY(0deg) translateZ(160px); }
-      .t14-face-1 { transform: rotateY(120deg) translateZ(160px); }
-      .t14-face-2 { transform: rotateY(240deg) translateZ(160px); }
-    }
-  `;
-  document.head.appendChild(style);
-}
 
 const TemplateFourteen = ({ profile }) => {
-  const [currentSecIdx, setCurrentSecIdx] = useState(0);
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [isDarkMode, setIsDarkMode] = useState(false); // Float UI defaults to crisp atmosphere light theme
+  const [activeSection, setActiveSection] = useState("hero");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  // Form State
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const prismRef = useRef(null);
 
-  const getSkillName = (skill) => (typeof skill === "string" ? skill : skill?.name || "");
-  const formatUrl = (url) => (url ? (url.startsWith("http") ? url : `https://${url}`) : "#");
+  // Extract recipient identifier
+  const username =
+    profile?.user?.username ||
+    profile?.username ||
+    profile?.fullName?.toLowerCase().replace(/\s+/g, "") ||
+    "user";
 
-  const getSocialIcon = (platform) => {
-    const p = (platform || "").toLowerCase();
-    if (p.includes("github")) return <Github size={12} />;
-    if (p.includes("linkedin")) return <Linkedin size={12} />;
-    if (p.includes("twitter") || p.includes("x")) return <Twitter size={12} />;
-    return <Globe size={12} />;
+  // Toggle Theme
+  const toggleTheme = () => setIsDarkMode((prev) => !prev);
+
+  // Copy Profile Link
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopiedLink(true);
+    toast.success("Portfolio link copied!");
+    setTimeout(() => setCopiedLink(false), 2500);
   };
 
-  // Build Sections list cleanly inside useMemo depending on profile, formData, isSubmitting
-  const sectionsList = useMemo(() => {
-    if (!profile) return [];
+  // Scroll Spy for Navbar active section highlighting
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ["hero", "skills", "experience", "education", "projects", "certifications", "contact"];
+      const scrollPosition = window.scrollY + 200;
 
-    const skills = profile?.skills || [];
-    const experience = profile?.experience || [];
-    const education = profile?.education || [];
-    const projects = profile?.projects || [];
-    const certifications = profile?.certifications || [];
-    const socialLinks = profile?.socialMediaLinks || [];
-
-    const handleChange = (e) => setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      setIsSubmitting(true);
-      try {
-        await createContactMessage({
-          receiverUsername: profile.username || profile.fullName,
-          name: formData.name,
-          email: formData.email,
-          message: formData.message,
-        });
-        toast.success("Flight Dispatch Message Transmitted!");
-        setFormData({ name: "", email: "", message: "" });
-      } catch (err) {
-        toast.info("Thank you for your message!");
-        setFormData({ name: "", email: "", message: "" });
-      } finally {
-        setIsSubmitting(false);
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sections[i]);
+        if (el && el.offsetTop <= scrollPosition) {
+          setActiveSection(sections[i]);
+          break;
+        }
       }
     };
 
-    return [
-      {
-        id: "profile",
-        title: "COMMANDER PROFILE",
-        subtitle: "Flight Cabin Bio & Overview",
-        icon: <User size={18} />,
-        renderDetails: () => (
-          <div>
-            <div className="t14-profile-grid">
-              <div className="t14-avatar-box">
-                {profile.pictureUrl ? (
-                  <img src={profile.pictureUrl} alt={profile.fullName} className="t14-avatar-img" />
-                ) : (
-                  <div className="t14-avatar-fallback">{profile.fullName?.[0] || "U"}</div>
-                )}
-              </div>
-              <div style={{ flex: 1 }}>
-                <h1 className="t14-name">{profile.fullName || "Developer Name"}</h1>
-                <p className="t14-headline">{profile.headline || "Flight Software Engineer"}</p>
-              </div>
-            </div>
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-            {profile.summary && <p className="t14-summary">{profile.summary}</p>}
+  const scrollToSection = (id) => {
+    setMobileMenuOpen(false);
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 90;
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
 
-            <div className="t14-chips" style={{ marginBottom: "8px" }}>
-              {profile.email && (
-                <a href={`mailto:${profile.email}`} className="t14-chip">
-                  <Mail size={11} /> {profile.email}
-                </a>
-              )}
-              {profile.mobileNumber && (
-                <span className="t14-chip"><Phone size={11} /> {profile.mobileNumber}</span>
-              )}
-              {profile.location && (
-                <span className="t14-chip"><MapPin size={11} /> {profile.location}</span>
-              )}
-            </div>
-
-            {socialLinks.length > 0 && (
-              <div className="t14-chips">
-                {socialLinks.map((link, i) => (
-                  <a
-                    key={i}
-                    href={formatUrl(link.profileUrl || link.url)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="t14-chip"
-                  >
-                    {getSocialIcon(link.platform)} {link.platform}
-                  </a>
-                ))}
-              </div>
-            )}
-          </div>
-        )
-      },
-      {
-        id: "skills",
-        title: "TECH ARSENAL",
-        subtitle: "Skill Matrix & Core Tools",
-        icon: <Zap size={18} />,
-        renderDetails: () => (
-          <div>
-            {skills.length > 0 ? (
-              <div className="t14-skills-grid">
-                {skills.map((skill, i) => (
-                  <span key={i} className="t14-skill-pill">{getSkillName(skill)}</span>
-                ))}
-              </div>
-            ) : (
-              <p style={{ color: "#94a3b8", fontSize: "11px" }}>No skills listed.</p>
-            )}
-          </div>
-        )
-      },
-      {
-        id: "projects",
-        title: "FEATURED PROJECTS",
-        subtitle: "Aircraft Fleet Projects",
-        icon: <Globe size={18} />,
-        renderDetails: () => (
-          <div>
-            {projects.length > 0 ? (
-              projects.map((proj, i) => (
-                <div key={i} className="t14-grid-card">
-                  <div className="t14-card-title">{proj.title}</div>
-                  {proj.description && <p className="t14-card-text">{proj.description}</p>}
-                  {proj.techStack && (
-                    <div className="t14-tech-chips">
-                      {proj.techStack.split(",").map((tech, idx) => (
-                        <span key={idx} className="t14-tech-item">{tech.trim()}</span>
-                      ))}
-                    </div>
-                  )}
-                  {(proj.projectUrl || proj.link) && (
-                    <a
-                      href={formatUrl(proj.projectUrl || proj.link)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="t14-link"
-                    >
-                      Launch Project <ExternalLink size={11} />
-                    </a>
-                  )}
-                </div>
-              ))
-            ) : (
-              <p style={{ color: "#94a3b8", fontSize: "11px" }}>No projects listed.</p>
-            )}
-          </div>
-        )
-      },
-      {
-        id: "experience",
-        title: "FLIGHT LOG",
-        subtitle: "Career & Internship Jet",
-        icon: <Briefcase size={18} />,
-        renderDetails: () => (
-          <div>
-            {experience.length > 0 ? (
-              experience.map((exp, i) => (
-                <div key={i} className="t14-grid-card">
-                  <div className="t14-card-title">{exp.position}</div>
-                  <div className="t14-card-sub">{exp.company}</div>
-                  <div className="t14-card-date">{exp.startDate} — {exp.endDate || "Present"}</div>
-                  {exp.description && <p className="t14-card-text">{exp.description}</p>}
-                </div>
-              ))
-            ) : (
-              <p style={{ color: "#94a3b8", fontSize: "11px" }}>No flight log entries listed.</p>
-            )}
-          </div>
-        )
-      },
-      {
-        id: "education",
-        title: "ACADEMICS & CREDENTIALS",
-        subtitle: "Education & Certifications",
-        icon: <GraduationCap size={18} />,
-        renderDetails: () => (
-          <div>
-            {education.length > 0 && (
-              <div style={{ marginBottom: "12px" }}>
-                <h4 style={{ fontSize: "10px", fontWeight: 700, color: "#38bdf8", marginBottom: "6px", fontFamily: "JetBrains Mono" }}>
-                  EDUCATION
-                </h4>
-                {education.map((edu, i) => (
-                  <div key={i} className="t14-grid-card">
-                    <div className="t14-card-title">{edu.degree}</div>
-                    <div className="t14-card-sub">{edu.institution}</div>
-                    <div className="t14-card-date">{edu.startDate || edu.startYear} — {edu.endDate || edu.endYear}</div>
-                    {(edu.gpa || edu.cgpa) && <div className="t14-gpa-badge">SCORE: {edu.gpa || edu.cgpa}</div>}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {certifications.length > 0 && (
-              <div>
-                <h4 style={{ fontSize: "10px", fontWeight: 700, color: "#38bdf8", marginBottom: "6px", fontFamily: "JetBrains Mono" }}>
-                  CERTIFICATIONS
-                </h4>
-                {certifications.map((cert, i) => (
-                  <div key={i} className="t14-grid-card">
-                    <div className="t14-card-title">{cert.name}</div>
-                    <div className="t14-card-sub">{cert.issuingOrganization}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )
-      },
-      {
-        id: "contact",
-        title: "DISPATCH CONSOLE",
-        subtitle: "Flight Message Dispatch",
-        icon: <Mail size={18} />,
-        renderDetails: () => (
-          <div>
-            <form onSubmit={handleSubmit}>
-              <input
-                type="text"
-                name="name"
-                placeholder="Your Name"
-                value={formData.name}
-                onChange={handleChange}
-                className="t14-input"
-                required
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="Your Email"
-                value={formData.email}
-                onChange={handleChange}
-                className="t14-input"
-                required
-              />
-              <textarea
-                name="message"
-                placeholder="Your Message..."
-                value={formData.message}
-                onChange={handleChange}
-                className="t14-input t14-textarea"
-                required
-              />
-              <button type="submit" className="t14-btn" disabled={isSubmitting}>
-                <Zap size={12} /> {isSubmitting ? "Transmitting..." : "Transmit Message"}
-              </button>
-            </form>
-          </div>
-        )
-      }
-    ];
-  }, [profile, formData, isSubmitting]);
-
-  const rotateToSection = (index) => {
-    if (index < 0 || index >= sectionsList.length) return;
-    const targetAngle = -index * 120;
-    setCurrentSecIdx(index);
-
-    if (prismRef.current) {
-      animate(prismRef.current, {
-        rotateY: targetAngle,
-        duration: 750,
-        easing: "easeInOutQuint"
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
       });
     }
   };
 
-  const nextSection = () => {
-    if (sectionsList.length === 0) return;
-    rotateToSection((currentSecIdx + 1) % sectionsList.length);
-  };
+  // Contact Form Submission
+  const handleSubmitContact = async (e) => {
+    e.preventDefault();
 
-  const prevSection = () => {
-    if (sectionsList.length === 0) return;
-    rotateToSection((currentSecIdx - 1 + sectionsList.length) % sectionsList.length);
-  };
-
-  useEffect(() => {
-    injectStyles();
-
-    let isScrolling = false;
-    const handleWheel = (e) => {
-      const faceSlotIdx = currentSecIdx % 3;
-      const activeFaceEl = prismRef.current?.children[faceSlotIdx]?.querySelector(".t14-face-right-col");
-      if (activeFaceEl) {
-        const { scrollTop, scrollHeight, clientHeight } = activeFaceEl;
-        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 5;
-        const isAtTop = scrollTop <= 5;
-
-        if ((e.deltaY > 0 && !isAtBottom) || (e.deltaY < 0 && !isAtTop)) {
-          return;
-        }
-      }
-
-      if (isScrolling) return;
-      if (Math.abs(e.deltaY) > 25 && sectionsList.length > 0) {
-        isScrolling = true;
-        const targetIdx = e.deltaY > 0
-          ? (currentSecIdx + 1) % sectionsList.length
-          : (currentSecIdx - 1 + sectionsList.length) % sectionsList.length;
-
-        setCurrentSecIdx(targetIdx);
-        if (prismRef.current) {
-          animate(prismRef.current, {
-            rotateY: -targetIdx * 120,
-            duration: 750,
-            easing: "easeInOutQuint"
-          });
-        }
-        setTimeout(() => {
-          isScrolling = false;
-        }, 750);
-      }
-    };
-
-    window.addEventListener("wheel", handleWheel, { passive: true });
-    return () => window.removeEventListener("wheel", handleWheel);
-  }, [currentSecIdx, sectionsList.length]);
-
-  if (!profile) return null;
-
-  const getSectionForFace = (faceSlot) => {
-    if (sectionsList.length === 0) return null;
-    const baseGroup = Math.floor(currentSecIdx / 3) * 3;
-    let targetSecIdx = baseGroup + faceSlot;
-    if (targetSecIdx >= sectionsList.length) {
-      targetSecIdx = targetSecIdx % sectionsList.length;
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      toast.error("Please fill in all required fields.");
+      return;
     }
-    return sectionsList[targetSecIdx] || sectionsList[0];
+
+    setIsSubmitting(true);
+
+    try {
+      const payload = {
+        recipientUsername: username,
+        receiverId: profile?.user?.id || profile?.userId,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        subject: formData.subject.trim() || `Float UI Message from ${formData.name}`,
+        message: formData.message.trim()
+      };
+
+      const response = await createContactMessage(payload);
+
+      if (response?.data?.success || response?.status === 200 || response?.status === 201) {
+        toast.success("Message sent successfully!");
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      } else {
+        throw new Error(response?.data?.message || "Failed to send message");
+      }
+    } catch (err) {
+      console.error("Contact Form Error:", err);
+      toast.error(err?.response?.data?.message || err?.message || "Failed to deliver message. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  // Parse Skills Data
+  const normalizedSkills = useMemo(() => {
+    if (!profile?.skills) return [];
+    return profile.skills.map((skill) => {
+      if (typeof skill === "object" && skill !== null) {
+        return {
+          name: skill.name || "Technical Skill",
+          proficiency: skill.proficiency || skill.level || 90,
+          category: skill.category || "Design & Tech"
+        };
+      }
+      return {
+        name: String(skill),
+        proficiency: 90,
+        category: "Design & Tech"
+      };
+    });
+  }, [profile?.skills]);
+
+  // Social Icon Helper
+  const renderSocialIcon = (platform, className = "w-4 h-4") => {
+    const p = (platform || "").toUpperCase();
+    if (p.includes("LINKEDIN")) return <Linkedin className={className} />;
+    if (p.includes("GITHUB")) return <Github className={className} />;
+    if (p.includes("TWITTER") || p.includes("X")) return <Twitter className={className} />;
+    return <Globe className={className} />;
+  };
+
+  // Nav Items Configuration
+  const navItems = [
+    { id: "hero", label: "Profile", icon: User },
+    { id: "skills", label: "Skills", icon: Code },
+    { id: "experience", label: "Experience", icon: Briefcase },
+    { id: "education", label: "Education", icon: GraduationCap },
+    { id: "projects", label: "Projects", icon: FolderGit2 },
+    { id: "certifications", label: "Credentials", icon: Award },
+    { id: "contact", label: "Contact", icon: Mail }
+  ];
+
+  // Calculated Statistics
+  const stats = [
+    {
+      label: "Projects Completed",
+      value: profile?.projects?.length || 18,
+      suffix: "+",
+      icon: FolderGit2
+    },
+    {
+      label: "Core Skills",
+      value: normalizedSkills.length || 24,
+      suffix: "+",
+      icon: Code
+    },
+    {
+      label: "Certifications",
+      value: profile?.certifications?.length || 5,
+      suffix: "",
+      icon: Award
+    },
+    {
+      label: "Profile Views",
+      value: profile?.viewsCount || 2890,
+      suffix: "+",
+      icon: Eye
+    }
+  ];
 
   return (
-    <div className="t14-root">
-      <ToastContainer position="bottom-right" theme="dark" />
+    <div
+      className={`min-h-screen font-sans transition-colors duration-700 overflow-x-hidden selection:bg-[#06B6D4]/30 selection:text-[#06B6D4] ${
+        isDarkMode ? "bg-[#070A0F] text-[#F8FAFC]" : "bg-[#F4F6F9] text-[#0F172A]"
+      }`}
+    >
+      {/* Floating Ambient Atmosphere Blur Orbs */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-65">
+        <div
+          className={`absolute top-10 left-1/4 w-[600px] h-[600px] rounded-full blur-[180px] transition-colors duration-700 ${
+            isDarkMode ? "bg-[#06B6D4]/15" : "bg-[#06B6D4]/20"
+          }`}
+        />
+        <div
+          className={`absolute top-1/2 -right-32 w-[550px] h-[550px] rounded-full blur-[180px] transition-colors duration-700 ${
+            isDarkMode ? "bg-[#6366F1]/15" : "bg-[#6366F1]/20"
+          }`}
+        />
+        <div
+          className={`absolute -bottom-20 left-10 w-[500px] h-[500px] rounded-full blur-[170px] transition-colors duration-700 ${
+            isDarkMode ? "bg-[#10B981]/15" : "bg-[#10B981]/15"
+          }`}
+        />
+      </div>
 
-      {/* Top Flight Bar & Side Tabs */}
-      <header className="t14-topbar">
-        <div className="t14-brand">
-          <Triangle size={15} /> BYTEBODH 3D TRIANGLE · TEMPLATE 14
-        </div>
+      {/* STICKY FLOATING CAPSULE NAVBAR */}
+      <header className="sticky top-6 z-50 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div
+          className={`rounded-full backdrop-blur-2xl border transition-all duration-300 px-6 h-16 flex items-center justify-between shadow-[0_15px_35px_rgba(0,0,0,0.06)] ${
+            isDarkMode
+              ? "bg-[#0F172A]/80 border-slate-800/80 shadow-[0_15px_35px_rgba(0,0,0,0.6)]"
+              : "bg-white/80 border-white/90"
+          }`}
+        >
+          {/* Logo on Left: Float UI Capsule */}
+          <div
+            onClick={() => scrollToSection("hero")}
+            className="flex items-center gap-3 cursor-pointer group"
+          >
+            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#06B6D4] via-[#6366F1] to-[#10B981] p-[2px] shadow-md shadow-[#06B6D4]/20 group-hover:scale-105 transition-transform duration-300">
+              <div
+                className={`w-full h-full rounded-full flex items-center justify-center font-extrabold text-xs transition-colors ${
+                  isDarkMode ? "bg-[#070A0F] text-[#06B6D4]" : "bg-white text-[#6366F1]"
+                }`}
+              >
+                <Layers className="w-4 h-4 animate-bounce" />
+              </div>
+            </div>
+            <div>
+              <span className="font-extrabold text-sm tracking-tight flex items-center gap-1.5 font-serif">
+                {profile?.fullName || "Float UI"}
+                <span className="inline-block w-2 h-2 rounded-full bg-[#06B6D4] animate-pulse" />
+              </span>
+              <span className="block text-[9px] uppercase font-mono tracking-widest text-[#06B6D4] font-bold">
+                Floating Glass UI
+              </span>
+            </div>
+          </div>
 
-        <div className="t14-nav-tabs">
-          {sectionsList.map((sec, idx) => (
-            <button
-              key={idx}
-              onClick={() => rotateToSection(idx)}
-              className={`t14-tab-btn ${currentSecIdx === idx ? "active" : ""}`}
-            >
-              {idx + 1}. {sec.title.split(" ")[0]}
-            </button>
-          ))}
-        </div>
-      </header>
-
-      {/* Main 3D Viewport Stage (Fits 100% Zoom Screen) */}
-      <main className="t14-stage-wrapper">
-        <div className="t14-prism-viewport">
-          <div className="t14-prism-box" ref={prismRef}>
-            {[0, 1, 2].map((faceSlot) => {
-              const sec = getSectionForFace(faceSlot);
-              if (!sec) return null;
+          {/* Desktop Navigation Links */}
+          <nav className="hidden md:flex items-center gap-1">
+            {navItems.map((item) => {
+              const isActive = activeSection === item.id;
               return (
-                <div key={faceSlot} className={`t14-triangle-face t14-face-${faceSlot}`}>
-                  {/* LEFT COLUMN: Section Title */}
-                  <div className="t14-face-left-col">
-                    <div>
-                      <div className="t14-sec-tag">SECTION 0{currentSecIdx + 1} / 0{sectionsList.length}</div>
-                      <h2 className="t14-sec-title">{sec.title}</h2>
-                      <p className="t14-sec-subtitle">{sec.subtitle}</p>
-                    </div>
-
-                    <div className="t14-sec-icon-box">
-                      {sec.icon}
-                    </div>
-                  </div>
-
-                  {/* RIGHT COLUMN: Section Details */}
-                  <div className="t14-face-right-col">
-                    {sec.renderDetails()}
-                  </div>
-                </div>
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className={`px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 flex items-center gap-2 relative ${
+                    isActive
+                      ? isDarkMode
+                        ? "text-[#06B6D4] font-bold"
+                        : "text-[#6366F1] font-bold"
+                      : isDarkMode
+                      ? "text-slate-400 hover:text-slate-200"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeFloatNav"
+                      className={`absolute inset-0 rounded-full shadow-sm ${
+                        isDarkMode
+                          ? "bg-[#06B6D4]/20 border border-[#06B6D4]/40"
+                          : "bg-white border border-[#6366F1]/30 shadow-md"
+                      }`}
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <item.icon className="w-3.5 h-3.5 relative z-10" />
+                  <span className="relative z-10">{item.label}</span>
+                </button>
               );
             })}
+          </nav>
+
+          {/* Actions on Right */}
+          <div className="flex items-center gap-3">
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={toggleTheme}
+              className={`p-2.5 rounded-full border transition-all duration-300 shadow-sm flex items-center justify-center cursor-pointer ${
+                isDarkMode
+                  ? "bg-[#0F172A] border-slate-800 text-amber-400 hover:border-[#06B6D4]"
+                  : "bg-white border-slate-200 text-slate-800 hover:border-[#6366F1]"
+              }`}
+              title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
+            {/* Share Link */}
+            <button
+              onClick={handleCopyLink}
+              className={`p-2.5 rounded-full border transition-all duration-300 shadow-sm hidden sm:flex items-center justify-center cursor-pointer ${
+                isDarkMode
+                  ? "bg-[#0F172A] border-slate-800 text-slate-300 hover:text-[#06B6D4]"
+                  : "bg-white border-slate-200 text-slate-800 hover:text-[#6366F1]"
+              }`}
+              title="Share Portfolio"
+            >
+              {copiedLink ? <Check className="w-4 h-4 text-[#10B981]" /> : <Copy className="w-4 h-4" />}
+            </button>
+
+            {/* Mobile Hamburger Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className={`md:hidden p-2.5 rounded-full border transition-colors ${
+                isDarkMode ? "bg-[#0F172A] border-slate-800 text-slate-200" : "bg-white border-slate-200 text-slate-800"
+              }`}
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
 
-        {/* Interactive Bottom 3D Controls */}
-        <div className="t14-control-bar">
-          <button onClick={prevSection} className="t14-ctrl-btn" title="Previous Section">
-            <ChevronLeft size={18} />
-          </button>
+        {/* Mobile Menu Drawer */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -10 }}
+              className={`mt-3 md:hidden rounded-[28px] border overflow-hidden backdrop-blur-2xl p-4 space-y-2 shadow-2xl ${
+                isDarkMode ? "bg-[#0F172A]/95 border-slate-800" : "bg-white/95 border-slate-200"
+              }`}
+            >
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-full text-sm font-semibold transition-all ${
+                    activeSection === item.id
+                      ? isDarkMode
+                        ? "bg-[#06B6D4]/20 text-[#06B6D4] border border-[#06B6D4]/40 font-bold"
+                        : "bg-[#F4F6F9] text-[#6366F1] border border-[#6366F1]/30 font-bold"
+                      : isDarkMode
+                      ? "text-slate-300 hover:bg-slate-900"
+                      : "text-slate-600 hover:bg-slate-100"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <item.icon className="w-4 h-4 text-[#06B6D4]" />
+                    <span>{item.label}</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 opacity-50" />
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
 
-          <div className="t14-side-indicator">
-            SECTION {currentSecIdx + 1} OF {sectionsList.length} : {sectionsList[currentSecIdx]?.title}
-          </div>
+      {/* MAIN FLOATING CARDS CONTAINER (NOTHING TOUCHES EACH OTHER) */}
+      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+        
+        {/* CARD 1: FLOATING PROFILE CARD (HERO) */}
+        <section id="hero" className="scroll-mt-32">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className={`p-8 sm:p-12 lg:p-14 rounded-[36px] sm:rounded-[40px] border backdrop-blur-2xl transition-all duration-500 shadow-[0_25px_60px_rgba(0,0,0,0.06)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5)] ${
+              isDarkMode
+                ? "bg-[#0F172A]/75 border-slate-800/80 hover:border-[#06B6D4]/40"
+                : "bg-white/75 border-white/80 hover:border-[#6366F1]/30"
+            }`}
+          >
+            <div className="grid lg:grid-cols-12 gap-10 items-center">
+              {/* Left Text */}
+              <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+                {/* Floating Capsule Badge */}
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#06B6D4]/40 bg-[#06B6D4]/10 text-[#06B6D4] text-xs font-semibold tracking-wide shadow-sm">
+                  <Sparkles className="w-3.5 h-3.5 text-[#06B6D4]" />
+                  <span>Floating Glass UI Architecture</span>
+                </div>
 
-          <button onClick={nextSection} className="t14-ctrl-btn" title="Next Section">
-            <ChevronRight size={18} />
-          </button>
-        </div>
+                {/* Name & Headline */}
+                <div className="space-y-3">
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12]">
+                    Hello, I'm{" "}
+                    <span className="bg-gradient-to-r from-[#06B6D4] via-[#6366F1] to-[#10B981] bg-clip-text text-transparent">
+                      {profile?.fullName || "Float UI"}
+                    </span>
+                  </h1>
+                  <h2 className={`text-xl sm:text-2xl font-semibold tracking-tight ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
+                    {profile?.headline || "Senior Staff Engineer & UI Product Architect"}
+                  </h2>
+                </div>
+
+                {/* Summary */}
+                <p className={`text-base sm:text-lg leading-relaxed max-w-2xl mx-auto lg:mx-0 ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                  {profile?.summary ||
+                    "Crafting isolated, floating glassmorphic interfaces where every section lives in its own levitating capsule, surrounded by generous whitespace, soft drop shadows, and glowing interactions."}
+                </p>
+
+                {/* Two Glowing Hover CTA Buttons */}
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+                  {/* Primary: View Resume */}
+                  {profile?.resumeUrl ? (
+                    <a
+                      href={profile.resumeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-8 py-4 rounded-full bg-gradient-to-r from-[#06B6D4] via-[#6366F1] to-[#10B981] hover:opacity-95 text-white font-extrabold text-sm shadow-[0_0_25px_rgba(6,182,212,0.35)] hover:shadow-[0_0_35px_rgba(6,182,212,0.55)] hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2.5 group cursor-pointer"
+                    >
+                      <Download className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
+                      <span>View Resume</span>
+                    </a>
+                  ) : (
+                    <button
+                      onClick={() => scrollToSection("contact")}
+                      className="px-8 py-4 rounded-full bg-gradient-to-r from-[#06B6D4] via-[#6366F1] to-[#10B981] hover:opacity-95 text-white font-extrabold text-sm shadow-[0_0_25px_rgba(6,182,212,0.35)] hover:shadow-[0_0_35px_rgba(6,182,212,0.55)] hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2.5 group cursor-pointer"
+                    >
+                      <Download className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
+                      <span>View Resume</span>
+                    </button>
+                  )}
+
+                  {/* Secondary: Contact Me */}
+                  <button
+                    onClick={() => scrollToSection("contact")}
+                    className={`px-8 py-4 rounded-full font-extrabold text-sm border backdrop-blur-xl transition-all duration-300 flex items-center gap-2.5 hover:-translate-y-0.5 shadow-sm cursor-pointer ${
+                      isDarkMode
+                        ? "bg-[#070A0F]/80 border-[#06B6D4]/40 text-white hover:border-[#06B6D4] hover:shadow-[0_0_20px_rgba(6,182,212,0.3)]"
+                        : "bg-white/80 border-[#6366F1]/30 text-[#0F172A] hover:border-[#6366F1] hover:shadow-[0_0_20px_rgba(99,102,241,0.3)]"
+                    }`}
+                  >
+                    <Mail className="w-4 h-4 text-[#06B6D4]" />
+                    <span>Contact Me</span>
+                  </button>
+                </div>
+
+                {/* Quick Info */}
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 pt-4 text-xs font-medium text-slate-500">
+                  {profile?.email && (
+                    <a href={`mailto:${profile.email}`} className="flex items-center gap-2 hover:text-[#06B6D4] transition-colors">
+                      <Mail className="w-3.5 h-3.5 text-[#06B6D4]" />
+                      <span>{profile.email}</span>
+                    </a>
+                  )}
+                  {profile?.mobileNumber && (
+                    <a href={`tel:${profile.mobileNumber}`} className="flex items-center gap-2 hover:text-[#06B6D4] transition-colors">
+                      <Phone className="w-3.5 h-3.5 text-[#06B6D4]" />
+                      <span>{profile.mobileNumber}</span>
+                    </a>
+                  )}
+                  {profile?.location && (
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-3.5 h-3.5 text-[#06B6D4]" />
+                      <span>{profile.location}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Right Profile Floating Capsule */}
+              <div className="lg:col-span-5 flex justify-center">
+                <div className="relative group">
+                  {/* Glowing Ambient Glow Ring */}
+                  <div className="absolute -inset-4 rounded-full bg-gradient-to-tr from-[#06B6D4] via-[#6366F1] to-[#10B981] opacity-35 blur-2xl group-hover:opacity-60 transition duration-500 animate-pulse" />
+
+                  <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-full p-2 bg-gradient-to-tr from-[#06B6D4] via-[#6366F1] to-[#10B981] shadow-2xl">
+                    <div className="w-full h-full rounded-full p-1 bg-white dark:bg-[#070A0F]">
+                      {profile?.pictureUrl || profile?.photo ? (
+                        <img
+                          src={profile.pictureUrl || profile.photo}
+                          alt={profile.fullName || "Profile"}
+                          className="w-full h-full rounded-full object-cover shadow-inner"
+                        />
+                      ) : (
+                        <div
+                          className={`w-full h-full rounded-full flex flex-col items-center justify-center font-extrabold text-5xl ${
+                            isDarkMode ? "bg-[#0F172A] text-[#06B6D4]" : "bg-white text-[#6366F1]"
+                          }`}
+                        >
+                          <span>{profile?.fullName?.[0] || "F"}</span>
+                          <span className="text-[10px] font-mono tracking-widest uppercase mt-2 text-[#06B6D4]">FLOAT UI</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Floating Distinction Badge */}
+                  <div
+                    className={`absolute -bottom-4 right-2 sm:right-6 px-5 py-3 rounded-2xl border backdrop-blur-xl shadow-xl flex items-center gap-3 ${
+                      isDarkMode ? "bg-[#0F172A]/90 border-slate-800 text-white" : "bg-white/95 border-white text-[#0F172A]"
+                    }`}
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-[#F4F6F9] dark:bg-slate-900 border border-[#06B6D4]/30 flex items-center justify-center text-[#06B6D4] font-bold text-xs">
+                      <ShieldCheck className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-extrabold">Floating Capsules</div>
+                      <div className="text-[10px] text-[#6366F1] font-mono">Apple Design Inspired</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* CARD 2: FLOATING QUICK STATISTICS STRIP */}
+        <section className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+          {stats.map((st, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: idx * 0.1 }}
+              className={`p-6 rounded-[32px] border backdrop-blur-2xl flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 shadow-[0_15px_35px_rgba(0,0,0,0.04)] dark:shadow-[0_15px_35px_rgba(0,0,0,0.4)] ${
+                isDarkMode ? "bg-[#0F172A]/75 border-slate-800/80 hover:border-[#06B6D4]/50" : "bg-white/75 border-white/80 hover:border-[#6366F1]/40"
+              }`}
+            >
+              <div className="w-10 h-10 rounded-2xl bg-[#F4F6F9] dark:bg-slate-900 border border-[#06B6D4]/30 flex items-center justify-center text-[#06B6D4] mb-3">
+                <st.icon className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-3xl font-extrabold tracking-tight text-[#0F172A] dark:text-white mb-1">
+                  {st.value}
+                  <span className="text-[#6366F1]">{st.suffix}</span>
+                </div>
+                <div className="text-xs font-semibold text-slate-500">
+                  {st.label}
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </section>
+
+        {/* CARD 3: FLOATING SKILLS CARD */}
+        <section id="skills" className="scroll-mt-32">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className={`p-8 sm:p-12 rounded-[36px] sm:rounded-[40px] border backdrop-blur-2xl transition-all duration-500 shadow-[0_25px_60px_rgba(0,0,0,0.06)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5)] ${
+              isDarkMode ? "bg-[#0F172A]/75 border-slate-800/80" : "bg-white/75 border-white/80"
+            }`}
+          >
+            <div className="text-center max-w-2xl mx-auto space-y-2 mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#06B6D4]/30 bg-[#06B6D4]/10 text-[#06B6D4] text-xs font-mono uppercase tracking-widest font-bold">
+                <Code className="w-3.5 h-3.5 text-[#06B6D4]" /> Technical Proficiency
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                Skills & Capabilities Card
+              </h2>
+              <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                Interactive skill pills with glowing borders and levitation hover animations.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
+              {normalizedSkills.map((sk, idx) => (
+                <motion.div
+                  key={idx}
+                  whileHover={{ scale: 1.06, y: -3 }}
+                  className={`px-6 py-3.5 rounded-full border backdrop-blur-xl shadow-sm transition-all duration-300 flex items-center gap-3 cursor-default ${
+                    isDarkMode
+                      ? "bg-[#070A0F]/80 border-slate-800 text-slate-200 hover:border-[#06B6D4] hover:shadow-[0_0_20px_rgba(6,182,212,0.3)]"
+                      : "bg-white border-slate-200 text-[#0F172A] hover:border-[#6366F1] hover:shadow-[0_0_20px_rgba(99,102,241,0.3)]"
+                  }`}
+                >
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#06B6D4] animate-ping" />
+                  <span className="font-bold text-xs sm:text-sm tracking-wide">{sk.name}</span>
+                  {sk.proficiency && (
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#06B6D4]/15 text-[#06B6D4]">
+                      {sk.proficiency}%
+                    </span>
+                  )}
+                </motion.div>
+              ))}
+              {normalizedSkills.length === 0 && (
+                <p className="text-xs italic text-slate-500">No skills listed yet.</p>
+              )}
+            </div>
+          </motion.div>
+        </section>
+
+        {/* CARD 4: FLOATING EXPERIENCE CARD */}
+        <section id="experience" className="scroll-mt-32">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className={`p-8 sm:p-12 rounded-[36px] sm:rounded-[40px] border backdrop-blur-2xl transition-all duration-500 shadow-[0_25px_60px_rgba(0,0,0,0.06)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5)] ${
+              isDarkMode ? "bg-[#0F172A]/75 border-slate-800/80" : "bg-white/75 border-white/80"
+            }`}
+          >
+            <div className="text-center max-w-2xl mx-auto space-y-2 mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#06B6D4]/30 bg-[#06B6D4]/10 text-[#06B6D4] text-xs font-mono uppercase tracking-widest font-bold">
+                <Briefcase className="w-3.5 h-3.5 text-[#06B6D4]" /> Career Progression
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                Experience Timeline Card
+              </h2>
+              <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                Professional career timeline inside a floating glass container.
+              </p>
+            </div>
+
+            <div className="space-y-6 max-w-4xl mx-auto">
+              {profile?.experience?.map((exp, idx) => (
+                <div
+                  key={idx}
+                  className={`p-7 rounded-[28px] border transition-all duration-300 hover:-translate-y-1 ${
+                    isDarkMode ? "bg-[#070A0F]/60 border-slate-800" : "bg-[#F4F6F9] border-slate-200/80 hover:bg-white shadow-sm"
+                  }`}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-3">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#06B6D4] to-[#6366F1] p-0.5 shadow-md shrink-0">
+                        <div className="w-full h-full rounded-[14px] bg-white dark:bg-[#070A0F] flex items-center justify-center text-[#06B6D4] font-bold text-lg">
+                          {exp.company?.[0] || "C"}
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold tracking-tight">
+                          {exp.position || exp.role || "Software Engineer"}
+                        </h3>
+                        <div className="text-sm font-semibold text-[#06B6D4] flex items-center gap-2 mt-0.5">
+                          <span>{exp.company || "Company"}</span>
+                          {exp.location && (
+                            <span className={`text-xs font-normal ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
+                              • {exp.location}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold border shrink-0 ${
+                      isDarkMode ? "bg-[#070A0F] border-slate-800 text-slate-300" : "bg-white border-slate-200 text-slate-800 shadow-sm"
+                    }`}>
+                      <Calendar className="w-3.5 h-3.5 text-[#06B6D4]" />
+                      <span>{exp.startDate || "2023"} - {exp.endDate || "Present"}</span>
+                    </div>
+                  </div>
+
+                  <p className={`text-sm leading-relaxed ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                    {exp.description}
+                  </p>
+                </div>
+              ))}
+              {(!profile?.experience || profile.experience.length === 0) && (
+                <p className="text-center text-xs italic text-slate-500">No experience listed yet.</p>
+              )}
+            </div>
+          </motion.div>
+        </section>
+
+        {/* CARD 5: FLOATING EDUCATION CARD */}
+        <section id="education" className="scroll-mt-32">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className={`p-8 sm:p-12 rounded-[36px] sm:rounded-[40px] border backdrop-blur-2xl transition-all duration-500 shadow-[0_25px_60px_rgba(0,0,0,0.06)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5)] ${
+              isDarkMode ? "bg-[#0F172A]/75 border-slate-800/80" : "bg-white/75 border-white/80"
+            }`}
+          >
+            <div className="text-center max-w-2xl mx-auto space-y-2 mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#06B6D4]/30 bg-[#06B6D4]/10 text-[#06B6D4] text-xs font-mono uppercase tracking-widest font-bold">
+                <GraduationCap className="w-3.5 h-3.5 text-[#06B6D4]" /> Academics
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                Education Card
+              </h2>
+              <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                Degrees, fields of study, and academic honors.
+              </p>
+            </div>
+
+            <div className="space-y-6 max-w-4xl mx-auto">
+              {profile?.education?.map((edu, idx) => (
+                <div
+                  key={idx}
+                  className={`p-7 rounded-[28px] border transition-all duration-300 hover:-translate-y-1 ${
+                    isDarkMode ? "bg-[#070A0F]/60 border-slate-800" : "bg-[#F4F6F9] border-slate-200/80 hover:bg-white shadow-sm"
+                  }`}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <span className="text-xs font-mono font-bold text-[#06B6D4] tracking-wider uppercase">
+                      {edu.startDate || "2020"} — {edu.endDate || "2024"}
+                    </span>
+                    {edu.gpa && (
+                      <span className="text-xs font-bold px-3 py-1 rounded-full border bg-[#06B6D4]/10 border-[#06B6D4]/30 text-[#06B6D4]">
+                        GPA: {edu.gpa}
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="text-xl font-bold tracking-tight mb-1">
+                    {edu.degree}
+                  </h3>
+                  <div className={`text-sm font-semibold mb-3 ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
+                    {edu.institution} {edu.fieldOfStudy && `• ${edu.fieldOfStudy}`}
+                  </div>
+
+                  {edu.description && (
+                    <p className={`text-xs leading-relaxed ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                      {edu.description}
+                    </p>
+                  )}
+                </div>
+              ))}
+              {(!profile?.education || profile.education.length === 0) && (
+                <p className="text-center text-xs italic text-slate-500">No education entries listed.</p>
+              )}
+            </div>
+          </motion.div>
+        </section>
+
+        {/* CARD 6: FLOATING PROJECTS CARD */}
+        <section id="projects" className="scroll-mt-32">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className={`p-8 sm:p-12 rounded-[36px] sm:rounded-[40px] border backdrop-blur-2xl transition-all duration-500 shadow-[0_25px_60px_rgba(0,0,0,0.06)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5)] ${
+              isDarkMode ? "bg-[#0F172A]/75 border-slate-800/80" : "bg-white/75 border-white/80"
+            }`}
+          >
+            <div className="text-center max-w-2xl mx-auto space-y-2 mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#06B6D4]/30 bg-[#06B6D4]/10 text-[#06B6D4] text-xs font-mono uppercase tracking-widest font-bold">
+                <FolderGit2 className="w-3.5 h-3.5 text-[#06B6D4]" /> Portfolio Products
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                Projects Card Grid
+              </h2>
+              <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                Visual project cards with screenshots, tech tags, and glowing action buttons.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {profile?.projects?.map((proj, idx) => {
+                const techList =
+                  proj.technologies ||
+                  (typeof proj.techStack === "string" ? proj.techStack.split(",") : []) ||
+                  [];
+
+                return (
+                  <motion.div
+                    key={idx}
+                    whileHover={{ y: -5 }}
+                    className={`rounded-[28px] border overflow-hidden backdrop-blur-xl flex flex-col justify-between transition-all duration-500 shadow-md ${
+                      isDarkMode
+                        ? "bg-[#070A0F]/80 border-slate-800 hover:border-[#06B6D4]/50"
+                        : "bg-[#F4F6F9] border-slate-200/80 hover:bg-white hover:border-[#6366F1]/40"
+                    }`}
+                  >
+                    <div className="relative h-56 overflow-hidden bg-slate-900">
+                      {proj.imageUrl || proj.image ? (
+                        <img
+                          src={proj.imageUrl || proj.image}
+                          alt={proj.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-[#070A0F] via-slate-950 to-indigo-950 flex items-center justify-center p-6 text-center">
+                          <Code className="w-12 h-12 text-[#06B6D4]/40 mb-2" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                      <div>
+                        <h3 className="text-xl font-bold tracking-tight mb-2">
+                          {proj.title}
+                        </h3>
+                        <p className={`text-xs leading-relaxed line-clamp-3 ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                          {proj.description}
+                        </p>
+                      </div>
+
+                      <div className="space-y-4 pt-2">
+                        <div className="flex flex-wrap gap-1.5">
+                          {techList.map((t, i) => (
+                            <span
+                              key={i}
+                              className="px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-[#06B6D4]/10 text-[#06B6D4] border border-[#06B6D4]/20"
+                            >
+                              {t.trim()}
+                            </span>
+                          ))}
+                        </div>
+
+                        {(proj.link || proj.projectUrl || proj.githubUrl) && (
+                          <a
+                            href={proj.link || proj.projectUrl || proj.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full py-3 px-5 rounded-full bg-gradient-to-r from-[#06B6D4] to-[#6366F1] hover:opacity-95 text-white font-extrabold text-xs shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all flex items-center justify-center gap-2 group/btn cursor-pointer"
+                          >
+                            <span>Visit Project</span>
+                            <ArrowUpRight className="w-4 h-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+              {(!profile?.projects || profile.projects.length === 0) && (
+                <p className="text-center text-xs italic text-slate-500 col-span-full">No projects listed yet.</p>
+              )}
+            </div>
+          </motion.div>
+        </section>
+
+        {/* CARD 7: FLOATING CERTIFICATION CARD */}
+        <section id="certifications" className="scroll-mt-32">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className={`p-8 sm:p-12 rounded-[36px] sm:rounded-[40px] border backdrop-blur-2xl transition-all duration-500 shadow-[0_25px_60px_rgba(0,0,0,0.06)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5)] ${
+              isDarkMode ? "bg-[#0F172A]/75 border-slate-800/80" : "bg-white/75 border-white/80"
+            }`}
+          >
+            <div className="text-center max-w-2xl mx-auto space-y-2 mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#06B6D4]/30 bg-[#06B6D4]/10 text-[#06B6D4] text-xs font-mono uppercase tracking-widest font-bold">
+                <Award className="w-3.5 h-3.5 text-[#06B6D4]" /> Credentials
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                Certification Card
+              </h2>
+              <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                Verified certifications and professional honors.
+              </p>
+            </div>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {profile?.certifications?.map((cert, idx) => (
+                <div
+                  key={idx}
+                  className={`p-6 rounded-[28px] border transition-all duration-300 hover:-translate-y-1 ${
+                    isDarkMode ? "bg-[#070A0F]/60 border-slate-800" : "bg-[#F4F6F9] border-slate-200/80 hover:bg-white shadow-sm"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-9 h-9 rounded-xl bg-white dark:bg-slate-900 border border-[#06B6D4]/30 flex items-center justify-center text-[#06B6D4]">
+                      <Award className="w-4 h-4" />
+                    </div>
+                    <span className="text-[11px] font-mono font-bold text-[#06B6D4]">
+                      {cert.issueDate || cert.date || "2024"}
+                    </span>
+                  </div>
+
+                  <h3 className="text-base font-bold tracking-tight mb-1">
+                    {cert.name || cert.title}
+                  </h3>
+                  <div className="text-xs font-semibold text-[#6366F1] mb-2">
+                    {cert.issuingOrganization || cert.issuer || "Issuing Body"}
+                  </div>
+
+                  {cert.credentialUrl && (
+                    <a
+                      href={cert.credentialUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#06B6D4] hover:underline pt-2"
+                    >
+                      <span>Verify Credential</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  )}
+                </div>
+              ))}
+              {(!profile?.certifications || profile.certifications.length === 0) && (
+                <p className="text-center text-xs italic text-slate-500 col-span-full">No certifications listed yet.</p>
+              )}
+            </div>
+          </motion.div>
+        </section>
+
+        {/* CARD 8: FLOATING CONTACT CARD */}
+        <section id="contact" className="scroll-mt-32">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className={`p-8 sm:p-12 rounded-[36px] sm:rounded-[40px] border backdrop-blur-2xl transition-all duration-500 shadow-[0_25px_60px_rgba(0,0,0,0.06)] dark:shadow-[0_25px_60px_rgba(0,0,0,0.5)] ${
+              isDarkMode ? "bg-[#0F172A]/75 border-slate-800/80" : "bg-white/75 border-white/80"
+            }`}
+          >
+            <div className="text-center max-w-2xl mx-auto space-y-2 mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#06B6D4]/30 bg-[#06B6D4]/10 text-[#06B6D4] text-xs font-mono uppercase tracking-widest font-bold">
+                <Mail className="w-3.5 h-3.5 text-[#06B6D4]" /> Direct Contact
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                Recruiter Contact Card
+              </h2>
+              <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                Direct glassmorphic contact form connected to backend dispatch.
+              </p>
+            </div>
+
+            <div className="grid lg:grid-cols-12 gap-8 max-w-5xl mx-auto">
+              {/* Direct Info */}
+              <div
+                className={`lg:col-span-5 p-7 rounded-[28px] border backdrop-blur-xl space-y-6 flex flex-col justify-between ${
+                  isDarkMode ? "bg-[#070A0F]/60 border-slate-800" : "bg-[#F4F6F9] border-slate-200/80"
+                }`}
+              >
+                <div>
+                  <h3 className="text-2xl font-extrabold tracking-tight mb-2">Connect Directly</h3>
+                  <p className={`text-xs leading-relaxed mb-6 ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                    Interested in discussing full-time roles, software architecture contracts, or executive leadership opportunities?
+                  </p>
+
+                  <div className="space-y-4">
+                    {profile?.email && (
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-900 border border-[#06B6D4]/30 flex items-center justify-center text-[#06B6D4] shrink-0">
+                          <Mail className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <div className="text-[10px] uppercase font-mono text-slate-500 font-bold">Email</div>
+                          <a href={`mailto:${profile.email}`} className="text-sm font-bold hover:text-[#06B6D4] transition-colors">
+                            {profile.email}
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
+                    {profile?.mobileNumber && (
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-900 border border-[#06B6D4]/30 flex items-center justify-center text-[#06B6D4] shrink-0">
+                          <Phone className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <div className="text-[10px] uppercase font-mono text-slate-500 font-bold">Mobile</div>
+                          <a href={`tel:${profile.mobileNumber}`} className="text-sm font-bold hover:text-[#06B6D4] transition-colors">
+                            {profile.mobileNumber}
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-slate-200 dark:border-slate-800">
+                  <div className="text-xs font-bold mb-3">Portfolio Share</div>
+                  <button
+                    onClick={handleCopyLink}
+                    className="w-full py-3 px-4 rounded-full border border-[#06B6D4]/40 text-[#06B6D4] bg-white dark:bg-[#070A0F] text-xs font-extrabold transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:border-[#06B6D4]"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy Portfolio Link</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Form */}
+              <div
+                className={`lg:col-span-7 p-7 rounded-[28px] border backdrop-blur-xl shadow-xl ${
+                  isDarkMode ? "bg-[#070A0F]/80 border-slate-800" : "bg-white border-slate-200/80"
+                }`}
+              >
+                <form onSubmit={handleSubmitContact} className="space-y-4">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-extrabold mb-1.5">Your Name *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Jane Doe"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all ${
+                          isDarkMode
+                            ? "bg-[#0F172A] border-slate-800 text-white focus:border-[#06B6D4]"
+                            : "bg-[#F4F6F9] border-slate-200 text-[#0F172A] focus:border-[#6366F1] focus:bg-white"
+                        }`}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-extrabold mb-1.5">Your Email *</label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="recruiter@company.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all ${
+                          isDarkMode
+                            ? "bg-[#0F172A] border-slate-800 text-white focus:border-[#06B6D4]"
+                            : "bg-[#F4F6F9] border-slate-200 text-[#0F172A] focus:border-[#6366F1] focus:bg-white"
+                        }`}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-extrabold mb-1.5">Subject</label>
+                    <input
+                      type="text"
+                      placeholder="Senior Engineering Opportunity"
+                      value={formData.subject}
+                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                      className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all ${
+                        isDarkMode
+                          ? "bg-[#0F172A] border-slate-800 text-white focus:border-[#06B6D4]"
+                          : "bg-[#F4F6F9] border-slate-200 text-[#0F172A] focus:border-[#6366F1] focus:bg-white"
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-extrabold mb-1.5">Message *</label>
+                    <textarea
+                      required
+                      rows={4}
+                      placeholder="Hi, I reviewed your Float UI portfolio and would like to connect..."
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all resize-none ${
+                        isDarkMode
+                          ? "bg-[#0F172A] border-slate-800 text-white focus:border-[#06B6D4]"
+                          : "bg-[#F4F6F9] border-slate-200 text-[#0F172A] focus:border-[#6366F1] focus:bg-white"
+                      }`}
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full py-4 px-6 rounded-full bg-gradient-to-r from-[#06B6D4] to-[#6366F1] hover:opacity-95 text-white font-extrabold text-sm shadow-[0_0_25px_rgba(6,182,212,0.35)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Sending Message...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        <span>Send Direct Message</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </motion.div>
+        </section>
       </main>
 
-      {/* Footer */}
-      <footer style={{ borderTop: "1px solid #1e3a8a", padding: "8px", textAlign: "center", fontFamily: "JetBrains Mono", fontSize: "10px", color: "#64748b", background: "#0c1a30", flexShrink: 0 }}>
-        BYTEBODH FOLIO · TEMPLATE 14 (3D TRIANGLE ROTATOR)
+      {/* FLOATING CIRCULAR SOCIAL MEDIA DOCK */}
+      <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
+        {profile?.socialMediaLinks?.map((soc, idx) => (
+          <motion.a
+            key={idx}
+            href={soc.url || soc.profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.9 }}
+            className={`w-12 h-12 rounded-full border shadow-xl backdrop-blur-2xl flex items-center justify-center transition-all ${
+              isDarkMode
+                ? "bg-[#0F172A]/90 border-slate-800 text-[#06B6D4] hover:border-[#06B6D4] hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]"
+                : "bg-white/95 border-white text-[#6366F1] hover:border-[#6366F1] hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] shadow-md"
+            }`}
+            title={soc.platform}
+          >
+            {renderSocialIcon(soc.platform)}
+          </motion.a>
+        ))}
+      </div>
+
+      {/* FLOATING FOOTER CARD */}
+      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        <div
+          className={`rounded-full backdrop-blur-2xl border transition-all duration-300 px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold shadow-lg ${
+            isDarkMode ? "bg-[#0F172A]/80 border-slate-800/80 text-slate-400" : "bg-white/80 border-white/90 text-slate-600"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-[#06B6D4] flex items-center justify-center text-white font-extrabold text-xs">
+              FL
+            </div>
+            <span className="font-extrabold text-[#0F172A] dark:text-white">{profile?.fullName || "Float UI"}</span>
+            <span>• © {new Date().getFullYear()} All Rights Reserved.</span>
+          </div>
+
+          <div className="flex items-center gap-6">
+            {profile?.email && (
+              <a href={`mailto:${profile.email}`} className="hover:text-[#06B6D4] transition-colors">
+                {profile.email}
+              </a>
+            )}
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="text-[#06B6D4] hover:underline font-bold"
+            >
+              Back to Top ↑
+            </button>
+          </div>
+        </div>
       </footer>
     </div>
   );

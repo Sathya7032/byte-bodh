@@ -1,651 +1,843 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { motion } from "framer-motion";
 import {
+  User,
+  Briefcase,
+  GraduationCap,
+  FolderGit2,
+  Award,
   Mail,
   Phone,
-  MapPin,
+  ArrowUpRight,
+  Sparkles,
+  Sun,
+  Moon,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
   Github,
   Linkedin,
   Twitter,
   Globe,
   Send,
-  Briefcase,
-  GraduationCap,
-  Zap,
+  Copy,
+  Check,
   Code,
-  Layers,
-  Terminal,
-  CheckCircle2,
-  ArrowUpRight
+  Download,
+  Compass,
+  QrCode
 } from "lucide-react";
+import { toast } from "react-toastify";
 import { createContactMessage } from "../api/profileService";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
-/* ─────────────────────────────────────────────────────────────
-   Template Sixteen: MONOCHROME BLACK & WHITE VECTOR ART PORTFOLIO
-   High-contrast Noir Vector Line Art, Stark White & Obsidian Dark Theme.
-───────────────────────────────────────────────────────────── */
-const STYLE_ID = "template-sixteen-bw-vector-styles";
-
-function injectStyles() {
-  const existing = document.getElementById(STYLE_ID);
-  if (existing) existing.remove();
-  const style = document.createElement("style");
-  style.id = STYLE_ID;
-  style.textContent = `
-    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;700;800&display=swap');
-
-    .t16-root {
-      font-family: 'Space Grotesk', sans-serif;
-      background: #09090b;
-      color: #fafafa;
-      min-height: 100vh;
-      overflow-x: hidden;
-      position: relative;
-    }
-
-    /* Subtle Monochrome Grid Overlay */
-    .t16-root::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-      background-size: 24px 24px;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* Topbar Header */
-    .t16-topbar {
-      background: rgba(9, 9, 11, 0.95);
-      backdrop-filter: blur(12px);
-      border-bottom: 2px solid #27272a;
-      padding: 12px 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .t16-brand {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 13px; font-weight: 800;
-      color: #ffffff;
-      display: flex; align-items: center; gap: 8px;
-      letter-spacing: 0.05em; text-transform: uppercase;
-    }
-
-    .t16-nav { display: flex; gap: 6px; flex-wrap: wrap; }
-    .t16-nav-link {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; font-weight: 700;
-      color: #a1a1aa;
-      text-decoration: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      border: 1px solid transparent;
-      transition: all 0.2s;
-    }
-    .t16-nav-link:hover {
-      color: #ffffff;
-      background: #18181b;
-      border-color: #3f3f46;
-    }
-
-    .t16-badge-status {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: #18181b;
-      border: 1.5px solid #fafafa;
-      border-radius: 100px;
-      padding: 5px 14px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; font-weight: 800;
-      color: #ffffff;
-    }
-
-    /* Hero Section */
-    .t16-hero {
-      padding: 56px 24px 40px;
-      position: relative; z-index: 1;
-    }
-    .t16-container { max-width: 1100px; margin: 0 auto; }
-
-    .t16-hero-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 40px;
-      align-items: center;
-    }
-
-    .t16-hero-card {
-      background: #18181b;
-      border: 2px solid #27272a;
-      border-radius: 24px;
-      padding: 36px;
-      position: relative;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
-    }
-    .t16-hero-card::after {
-      content: '';
-      position: absolute; inset: -2px; border-radius: 24px;
-      border: 1px solid #52525b; pointer-events: none;
-    }
-
-    .t16-profile-header {
-      display: flex; gap: 20px; align-items: center; margin-bottom: 20px;
-    }
-    .t16-avatar-box {
-      width: 80px; height: 80px; border-radius: 50%;
-      padding: 3px; background: #ffffff; flex-shrink: 0;
-    }
-    .t16-avatar {
-      width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 2px solid #18181b;
-    }
-    .t16-avatar-fallback {
-      width: 100%; height: 100%; border-radius: 50%; background: #09090b; color: #ffffff;
-      font-size: 2rem; font-weight: 800; display: flex; align-items: center; justify-content: center;
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .t16-name {
-      font-size: 2.2rem; font-weight: 800; color: #ffffff; margin: 0; line-height: 1.1;
-    }
-    .t16-headline {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.95rem; font-weight: 700; color: #a1a1aa; margin-top: 4px;
-    }
-    .t16-summary { font-size: 0.9rem; color: #d4d4d8; line-height: 1.65; margin-bottom: 20px; }
-
-    .t16-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
-    .t16-chip {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #d4d4d8;
-      background: #09090b; border: 1px solid #3f3f46; padding: 6px 12px; border-radius: 8px;
-      text-decoration: none; transition: all 0.2s;
-    }
-    .t16-chip:hover { border-color: #ffffff; color: #ffffff; background: #27272a; }
-
-    .t16-social-row { display: flex; gap: 8px; flex-wrap: wrap; }
-    .t16-social-btn {
-      width: 40px; height: 40px; border-radius: 10px;
-      background: #09090b; border: 1.5px solid #3f3f46;
-      color: #ffffff; display: flex; align-items: center; justify-content: center;
-      text-decoration: none; transition: all 0.2s;
-    }
-    .t16-social-btn:hover { background: #ffffff; color: #09090b; border-color: #ffffff; transform: translateY(-2px); }
-
-    /* Vector Artwork Container */
-    .t16-vector-box {
-      background: #18181b; border: 2px solid #27272a; border-radius: 24px;
-      padding: 32px; text-align: center; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; position: relative; overflow: hidden;
-    }
-    .t16-vector-img {
-      width: 100%; max-width: 380px; height: auto;
-      filter: grayscale(100%) contrast(120%);
-      transition: transform 0.3s;
-    }
-    .t16-vector-img:hover { transform: scale(1.03); }
-
-    /* Stats Strip */
-    .t16-stats-section { padding: 0 24px 40px; position: relative; z-index: 1; }
-    .t16-stats-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px;
-    }
-    .t16-stat-card {
-      background: #18181b; border: 2px solid #27272a; border-radius: 16px;
-      padding: 20px; text-align: center; transition: all 0.2s;
-    }
-    .t16-stat-card:hover { border-color: #ffffff; transform: translateY(-3px); }
-    .t16-stat-num {
-      font-family: 'JetBrains Mono', monospace; font-size: 2.2rem; font-weight: 800; color: #ffffff;
-    }
-    .t16-stat-lbl {
-      font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
-      color: #a1a1aa; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.1em;
-    }
-
-    /* Main Grid */
-    .t16-main { max-width: 1100px; margin: 0 auto; padding: 0 24px 60px; position: relative; z-index: 1; }
-    .t16-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    .t16-sec-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid #27272a;
-    }
-    .t16-sec-title {
-      font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 700; color: #ffffff;
-      display: flex; align-items: center; gap: 10px;
-    }
-
-    /* Monochrome Card */
-    .t16-bw-card {
-      background: #18181b; border: 2px solid #27272a; border-radius: 18px;
-      padding: 24px; position: relative; margin-bottom: 18px; transition: all 0.25s;
-    }
-    .t16-bw-card:hover {
-      border-color: #ffffff; box-shadow: 0 12px 30px rgba(255, 255, 255, 0.05); transform: translateY(-3px);
-    }
-    .t16-card-title { font-size: 1.1rem; font-weight: 700; color: #ffffff; margin-bottom: 4px; }
-    .t16-card-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: 700; color: #a1a1aa; margin-bottom: 6px; }
-    .t16-card-date {
-      font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #71717a;
-      background: #09090b; border: 1px solid #27272a; padding: 3px 8px; border-radius: 4px;
-      display: inline-block; margin-bottom: 10px;
-    }
-    .t16-card-text { font-size: 0.85rem; color: #d4d4d8; line-height: 1.6; }
-
-    /* Skills Pill Grid */
-    .t16-skills-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-    .t16-skill-pill {
-      font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
-      color: #ffffff; background: #09090b; border: 1.5px solid #3f3f46;
-      padding: 6px 14px; border-radius: 8px; transition: all 0.2s;
-    }
-    .t16-skill-pill:hover { background: #ffffff; color: #09090b; border-color: #ffffff; }
-
-    /* Project Cards with Vector Banners */
-    .t16-proj-banner {
-      width: 100%; height: 160px; object-fit: contain; background: #09090b;
-      border-radius: 12px; margin-bottom: 14px; padding: 12px; box-sizing: border-box;
-      filter: grayscale(100%); border: 1px solid #27272a;
-    }
-    .t16-tech-badge {
-      font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #ffffff;
-      background: #09090b; border: 1px solid #3f3f46; padding: 2px 7px; border-radius: 4px; margin-right: 4px;
-    }
-    .t16-link {
-      display: inline-flex; align-items: center; gap: 4px;
-      font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
-      color: #ffffff; text-decoration: none; margin-top: 12px;
-    }
-    .t16-link:hover { text-decoration: underline; }
-
-    /* Form */
-    .t16-input {
-      width: 100%; box-sizing: border-box; background: #09090b; border: 1.5px solid #3f3f46;
-      padding: 12px 16px; border-radius: 8px; color: #ffffff; font-family: inherit; font-size: 12px;
-      outline: none; margin-bottom: 12px;
-    }
-    .t16-input:focus { border-color: #ffffff; }
-    .t16-textarea { min-height: 90px; resize: vertical; }
-    .t16-btn {
-      background: #ffffff; color: #09090b; font-family: 'JetBrains Mono', monospace;
-      font-weight: 800; font-size: 12px; border: none; border-radius: 8px;
-      padding: 12px 24px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s;
-    }
-    .t16-btn:hover { background: #e4e4e7; transform: translateY(-2px); }
-
-    /* Footer */
-    .t16-footer {
-      border-top: 2px solid #27272a; padding: 24px; text-align: center;
-      font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #71717a; background: #09090b;
-    }
-
-    /* Mobile Responsiveness */
-    @media (max-width: 768px) {
-      .t16-hero-grid { grid-template-columns: 1fr; }
-      .t16-grid-2 { grid-template-columns: 1fr; }
-    }
-  `;
-  document.head.appendChild(style);
-}
 
 const TemplateSixteen = ({ profile }) => {
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [isDarkMode, setIsDarkMode] = useState(false); // Horizon Slides defaults to White (#FFFFFF) & Soft Gray (#F8FAFC)
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const touchStartRef = useRef(0);
+  const wheelLockRef = useRef(false);
+
+  // Form State
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    injectStyles();
-  }, []);
+  const totalSlides = 7;
 
-  const getSkillName = (skill) => (typeof skill === "string" ? skill : skill?.name || "");
-  const formatUrl = (url) => (url ? (url.startsWith("http") ? url : `https://${url}`) : "#");
+  // Extract recipient identifier
+  const username =
+    profile?.user?.username ||
+    profile?.username ||
+    profile?.fullName?.toLowerCase().replace(/\s+/g, "") ||
+    "user";
 
-  const skills = profile?.skills || [];
-  const experience = profile?.experience || [];
-  const education = profile?.education || [];
-  const projects = profile?.projects || [];
-  const certifications = profile?.certifications || [];
-  const socialLinks = profile?.socialMediaLinks || [];
-  const services = profile?.services || [];
+  // Toggle Theme
+  const toggleTheme = () => setIsDarkMode((prev) => !prev);
 
-  const getSocialIcon = (platform) => {
-    const p = (platform || "").toLowerCase();
-    if (p.includes("github")) return <Github size={15} />;
-    if (p.includes("linkedin")) return <Linkedin size={15} />;
-    if (p.includes("twitter") || p.includes("x")) return <Twitter size={15} />;
-    return <Globe size={15} />;
+  // Copy Profile Link
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopiedLink(true);
+    toast.success("Portfolio link copied!");
+    setTimeout(() => setCopiedLink(false), 2500);
   };
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  // Next & Previous Slide handlers
+  const goToNextSlide = () => {
+    setCurrentSlide((prev) => (prev < totalSlides - 1 ? prev + 1 : prev));
+  };
 
-  const handleSubmit = async (e) => {
+  const goToPrevSlide = () => {
+    setCurrentSlide((prev) => (prev > 0 ? prev - 1 : prev));
+  };
+
+  // Convert Vertical Wheel Scroll to Horizontal Slide Movement
+  useEffect(() => {
+    const handleWheel = (e) => {
+      if (wheelLockRef.current) return;
+
+      if (Math.abs(e.deltaY) > 25 || Math.abs(e.deltaX) > 25) {
+        wheelLockRef.current = true;
+        if (e.deltaY > 0 || e.deltaX > 0) {
+          goToNextSlide();
+        } else {
+          goToPrevSlide();
+        }
+
+        setTimeout(() => {
+          wheelLockRef.current = false;
+        }, 600);
+      }
+    };
+
+    window.addEventListener("wheel", handleWheel, { passive: true });
+    return () => window.removeEventListener("wheel", handleWheel);
+  }, []);
+
+  // Keyboard Arrow Navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        goToNextSlide();
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        goToPrevSlide();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Touch Swipe Handlers for Mobile
+  const handleTouchStart = (e) => {
+    touchStartRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e) => {
+    const touchEnd = e.changedTouches[0].clientX;
+    const diff = touchStartRef.current - touchEnd;
+
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        goToNextSlide();
+      } else {
+        goToPrevSlide();
+      }
+    }
+  };
+
+  // Contact Form Submission
+  const handleSubmitContact = async (e) => {
     e.preventDefault();
-    if (!profile) return;
+
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
     setIsSubmitting(true);
+
     try {
-      await createContactMessage({
-        receiverUsername: profile.username || profile.fullName,
-        name: formData.name,
-        email: formData.email,
-        message: formData.message,
-      });
-      toast.success("Message Transmitted to Developer!");
-      setFormData({ name: "", email: "", message: "" });
+      const payload = {
+        recipientUsername: username,
+        receiverId: profile?.user?.id || profile?.userId,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        subject: formData.subject.trim() || `Horizon Slides Inquiry from ${formData.name}`,
+        message: formData.message.trim()
+      };
+
+      const response = await createContactMessage(payload);
+
+      if (response?.data?.success || response?.status === 200 || response?.status === 201) {
+        toast.success("Message delivered successfully!");
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      } else {
+        throw new Error(response?.data?.message || "Failed to send message");
+      }
     } catch (err) {
-      toast.info("Thank you for your message!");
-      setFormData({ name: "", email: "", message: "" });
+      console.error("Contact Form Error:", err);
+      toast.error(err?.response?.data?.message || err?.message || "Failed to deliver message. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (!profile) return null;
+  // Parse Skills Data
+  const normalizedSkills = useMemo(() => {
+    if (!profile?.skills) return [];
+    return profile.skills.map((skill) => {
+      if (typeof skill === "object" && skill !== null) {
+        return {
+          name: skill.name || "Technical Skill",
+          proficiency: skill.proficiency || skill.level || 90,
+          category: skill.category || "Design & Development"
+        };
+      }
+      return {
+        name: String(skill),
+        proficiency: 90,
+        category: "Design & Development"
+      };
+    });
+  }, [profile?.skills]);
+
+  // Social Icon Helper
+  const renderSocialIcon = (platform, className = "w-4 h-4") => {
+    const p = (platform || "").toUpperCase();
+    if (p.includes("LINKEDIN")) return <Linkedin className={className} />;
+    if (p.includes("GITHUB")) return <Github className={className} />;
+    if (p.includes("TWITTER") || p.includes("X")) return <Twitter className={className} />;
+    return <Globe className={className} />;
+  };
+
+  // Nav Slide Items
+  const slidesNav = [
+    { id: 0, label: "HERO", icon: User, code: "01" },
+    { id: 1, label: "SKILLS", icon: Code, code: "02" },
+    { id: 2, label: "ACADEMICS", icon: GraduationCap, code: "03" },
+    { id: 3, label: "EXPERIENCE", icon: Briefcase, code: "04" },
+    { id: 4, label: "PROJECTS", icon: FolderGit2, code: "05" },
+    { id: 5, label: "CREDENTIALS", icon: Award, code: "06" },
+    { id: 6, label: "CONTACT", icon: Mail, code: "07" }
+  ];
 
   return (
-    <div className="t16-root">
-      <ToastContainer position="bottom-right" theme="dark" />
+    <div
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      className={`h-screen w-screen overflow-hidden font-sans transition-colors duration-500 selection:bg-[#16A34A]/20 selection:text-[#16A34A] relative ${
+        isDarkMode ? "bg-[#0B0F19] text-[#F8FAFC]" : "bg-[#FFFFFF] text-[#111827]"
+      }`}
+    >
+      {/* Subtle Background Gradients */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-60">
+        <div
+          className={`absolute -top-40 left-1/4 w-[600px] h-[600px] rounded-full blur-[180px] transition-colors duration-700 ${
+            isDarkMode ? "bg-[#16A34A]/10" : "bg-[#16A34A]/15"
+          }`}
+        />
+        <div
+          className={`absolute bottom-0 right-10 w-[550px] h-[550px] rounded-full blur-[180px] transition-colors duration-700 ${
+            isDarkMode ? "bg-[#2563EB]/10" : "bg-[#2563EB]/15"
+          }`}
+        />
+      </div>
 
-      {/* Topbar Header */}
-      <header className="t16-topbar">
-        <a href="#hero" className="t16-brand">
-          <Code size={16} /> BYTEBODH MONOCHROME VECTOR · TEMPLATE 16
-        </a>
+      {/* TOP HEADER BAR */}
+      <header className="fixed top-0 left-0 right-0 z-50 px-6 lg:px-12 h-20 flex items-center justify-between pointer-events-auto">
+        {/* Emblem Logo */}
+        <div
+          onClick={() => setCurrentSlide(0)}
+          className="flex items-center gap-3 cursor-pointer group"
+        >
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#16A34A] via-[#22C55E] to-[#2563EB] p-[2px] shadow-md group-hover:scale-105 transition-transform duration-300">
+            <div
+              className={`w-full h-full rounded-[14px] flex items-center justify-center font-extrabold text-sm transition-colors ${
+                isDarkMode ? "bg-[#0B0F19] text-[#22C55E]" : "bg-white text-[#16A34A]"
+              }`}
+            >
+              <Compass className="w-5 h-5" />
+            </div>
+          </div>
+          <div>
+            <span className="font-extrabold text-base tracking-tight flex items-center gap-1.5 font-serif">
+              {profile?.fullName || "Horizon Slides"}
+            </span>
+            <span className="block text-[9px] uppercase font-mono tracking-widest text-[#2563EB] dark:text-blue-400 font-bold">
+              100vw Horizontal Storytelling
+            </span>
+          </div>
+        </div>
 
-        <nav className="t16-nav">
-          <a href="#skills" className="t16-nav-link">{"// Skills"}</a>
-          <a href="#projects" className="t16-nav-link">{"// Projects"}</a>
-          <a href="#experience" className="t16-nav-link">{"// Experience"}</a>
-          <a href="#contact" className="t16-nav-link">{"// Contact"}</a>
-        </nav>
+        {/* Slide Counter Indicator */}
+        <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md text-xs font-mono font-bold">
+          <span className="text-[#16A34A]">SLIDE 0{currentSlide + 1}</span>
+          <span className="text-slate-400">/</span>
+          <span>07</span>
+        </div>
 
-        <div className="t16-badge-status">
-          <CheckCircle2 size={13} /> OPEN FOR WORK
+        {/* Actions */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={toggleTheme}
+            className={`p-2.5 rounded-full border transition-all duration-300 shadow-sm flex items-center justify-center cursor-pointer ${
+              isDarkMode
+                ? "bg-[#111827] border-slate-800 text-amber-400 hover:border-[#16A34A]"
+                : "bg-[#F8FAFC] border-[#E2E8F0] text-slate-800 hover:border-[#16A34A]"
+            }`}
+            title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          >
+            {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
+
+          <button
+            onClick={handleCopyLink}
+            className={`p-2.5 rounded-full border transition-all duration-300 shadow-sm hidden sm:flex items-center justify-center cursor-pointer ${
+              isDarkMode
+                ? "bg-[#111827] border-slate-800 text-slate-300 hover:text-[#22C55E]"
+                : "bg-[#F8FAFC] border-[#E2E8F0] text-slate-800 hover:text-[#16A34A]"
+            }`}
+            title="Share Portfolio"
+          >
+            {copiedLink ? <Check className="w-4 h-4 text-[#16A34A]" /> : <Copy className="w-4 h-4" />}
+          </button>
         </div>
       </header>
 
-      {/* HERO SECTION WITH BLACK & WHITE VECTOR ARTWORK */}
-      <section id="hero" className="t16-hero">
-        <div className="t16-container">
-          <div className="t16-hero-grid">
-            {/* Left Column: Profile Card */}
-            <div className="t16-hero-card">
-              <div className="t16-profile-header">
-                <div className="t16-avatar-box">
-                  {profile.pictureUrl ? (
-                    <img src={profile.pictureUrl} alt={profile.fullName} className="t16-avatar" />
-                  ) : (
-                    <div className="t16-avatar-fallback">{profile.fullName?.[0] || "U"}</div>
-                  )}
-                </div>
-                <div>
-                  <h1 className="t16-name">{profile.fullName || "Developer Name"}</h1>
-                  <div className="t16-headline">{profile.headline || "Full Stack Software Engineer"}</div>
-                </div>
-              </div>
-
-              {profile.summary && <p className="t16-summary">{profile.summary}</p>}
-
-              <div className="t16-chips">
-                {profile.email && (
-                  <a href={`mailto:${profile.email}`} className="t16-chip">
-                    <Mail size={12} /> {profile.email}
-                  </a>
-                )}
-                {profile.mobileNumber && (
-                  <span className="t16-chip"><Phone size={12} /> {profile.mobileNumber}</span>
-                )}
-                {profile.location && (
-                  <span className="t16-chip"><MapPin size={12} /> {profile.location}</span>
-                )}
-              </div>
-
-              {socialLinks.length > 0 && (
-                <div className="t16-social-row">
-                  {socialLinks.map((link, i) => (
-                    <a
-                      key={i}
-                      href={formatUrl(link.profileUrl || link.url)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="t16-social-btn"
-                      title={link.platform}
-                    >
-                      {getSocialIcon(link.platform)}
-                    </a>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Right Column: Hero Vector Artwork */}
-            <div className="t16-vector-box">
-              <img
-                src="https://illustrations.popsy.co/white/work-from-home.svg"
-                alt="Developer Vector Illustration"
-                className="t16-vector-img"
-              />
-            </div>
-          </div>
+      {/* LEFT STICKY FLOATING VERTICAL NAVIGATION DOCK */}
+      <aside className="fixed left-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col gap-3 pointer-events-auto">
+        <div
+          className={`p-2 rounded-full border backdrop-blur-2xl shadow-xl flex flex-col gap-3 ${
+            isDarkMode ? "bg-[#111827]/80 border-slate-800" : "bg-white/85 border-[#E2E8F0]"
+          }`}
+        >
+          {slidesNav.map((s) => {
+            const isActive = currentSlide === s.id;
+            return (
+              <button
+                key={s.id}
+                onClick={() => setCurrentSlide(s.id)}
+                className={`group relative w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                  isActive
+                    ? "bg-[#16A34A] text-white shadow-md shadow-[#16A34A]/30 font-bold"
+                    : isDarkMode
+                    ? "text-slate-400 hover:text-white hover:bg-slate-800"
+                    : "text-slate-600 hover:text-black hover:bg-slate-100"
+                }`}
+                title={`Go to ${s.label}`}
+              >
+                <s.icon className="w-4 h-4" />
+                {/* Tooltip Label */}
+                <span className="absolute left-14 px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-widest bg-slate-900 text-white dark:bg-white dark:text-slate-900 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-lg">
+                  {s.code} • {s.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
-      </section>
+      </aside>
 
-      {/* STATS STRIP */}
-      <section className="t16-stats-section">
-        <div className="t16-container">
-          <div className="t16-stats-grid">
-            <div className="t16-stat-card">
-              <div className="t16-stat-num">{experience.length || 3}+</div>
-              <div className="t16-stat-lbl">Years Experience</div>
-            </div>
-
-            <div className="t16-stat-card">
-              <div className="t16-stat-num">{projects.length || 8}+</div>
-              <div className="t16-stat-lbl">Projects Built</div>
-            </div>
-
-            <div className="t16-stat-card">
-              <div className="t16-stat-num">{skills.length || 12}+</div>
-              <div className="t16-stat-lbl">Skills Mastered</div>
-            </div>
-
-            <div className="t16-stat-card">
-              <div className="t16-stat-num">{certifications.length || 4}+</div>
-              <div className="t16-stat-lbl">Certifications</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* MAIN CONTENT */}
-      <main className="t16-main">
-        {/* SKILLS */}
-        {skills.length > 0 && (
-          <section id="skills" style={{ marginBottom: "44px" }}>
-            <div className="t16-sec-header">
-              <h2 className="t16-sec-title"><Layers size={18} /> {"// TECHNICAL SKILLS & TOOLS"}</h2>
-            </div>
-
-            <div className="t16-bw-card">
-              <div className="t16-skills-grid">
-                {skills.map((skill, i) => (
-                  <span key={i} className="t16-skill-pill">{getSkillName(skill)}</span>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* FEATURED PROJECTS */}
-        {projects.length > 0 && (
-          <section id="projects" style={{ marginBottom: "44px" }}>
-            <div className="t16-sec-header">
-              <h2 className="t16-sec-title"><Terminal size={18} /> {"// FEATURED PROJECTS"}</h2>
-            </div>
-
-            <div className="t16-grid-2">
-              {projects.map((proj, i) => {
-                const vectorList = [
-                  "https://illustrations.popsy.co/white/launching.svg",
-                  "https://illustrations.popsy.co/white/web-design.svg",
-                  "https://illustrations.popsy.co/white/code.svg",
-                  "https://illustrations.popsy.co/white/product-launch.svg"
-                ];
-                const vectorUrl = vectorList[i % vectorList.length];
-
-                return (
-                  <div key={i} className="t16-bw-card">
-                    <img src={vectorUrl} alt={proj.title} className="t16-proj-banner" />
-                    <h3 className="t16-card-title">{proj.title}</h3>
-                    {proj.description && <p className="t16-card-text">{proj.description}</p>}
-                    {proj.techStack && (
-                      <div style={{ marginTop: "10px" }}>
-                        {proj.techStack.split(",").map((tech, idx) => (
-                          <span key={idx} className="t16-tech-badge">{tech.trim()}</span>
-                        ))}
+      {/* HORIZONTAL SLIDES VIEWPORT CONTAINER (100VW x 100VH) */}
+      <motion.div
+        animate={{ x: `-${currentSlide * 100}vw` }}
+        transition={{ type: "spring", stiffness: 220, damping: 28 }}
+        className="flex h-full w-[700vw] relative z-10"
+      >
+        
+        {/* SLIDE 1: HERO (100vw x 100vh) */}
+        <section className="w-[100vw] h-full flex-shrink-0 flex items-center justify-center px-6 lg:pl-28 lg:pr-12 pt-20 pb-16">
+          <div className="max-w-6xl w-full grid lg:grid-cols-12 gap-12 items-center">
+            {/* Left Large Profile Image */}
+            <div className="lg:col-span-5 flex justify-center">
+              <div className="relative group w-full max-w-sm">
+                <div className="absolute -inset-3 rounded-[40px] bg-gradient-to-tr from-[#16A34A] via-[#22C55E] to-[#2563EB] opacity-25 blur-2xl group-hover:opacity-45 transition duration-500" />
+                <div
+                  className={`relative p-3 rounded-[36px] border backdrop-blur-xl shadow-2xl transition-all ${
+                    isDarkMode ? "bg-[#111827] border-slate-800" : "bg-white border-[#E2E8F0]"
+                  }`}
+                >
+                  <div className="w-full h-80 sm:h-96 rounded-[28px] overflow-hidden bg-slate-100 dark:bg-slate-900 relative">
+                    {profile?.pictureUrl || profile?.photo ? (
+                      <img
+                        src={profile.pictureUrl || profile.photo}
+                        alt={profile.fullName || "Profile"}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      />
+                    ) : (
+                      <div
+                        className={`w-full h-full flex flex-col items-center justify-center font-extrabold text-6xl ${
+                          isDarkMode ? "bg-[#111827] text-[#22C55E]" : "bg-[#F8FAFC] text-[#16A34A]"
+                        }`}
+                      >
+                        <span>{profile?.fullName?.[0] || "H"}</span>
+                        <span className="text-[10px] font-mono tracking-widest uppercase mt-3 text-[#2563EB]">HORIZON SLIDES</span>
                       </div>
                     )}
-                    {(proj.projectUrl || proj.link) && (
-                      <a
-                        href={formatUrl(proj.projectUrl || proj.link)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="t16-link"
-                      >
-                        VIEW REPOSITORY <ArrowUpRight size={13} />
-                      </a>
-                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Hero Brief */}
+            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#F8FAFC] dark:bg-slate-900/60 text-[#16A34A] dark:text-[#22C55E] text-xs font-semibold tracking-wide">
+                <Sparkles className="w-3.5 h-3.5 text-[#16A34A]" />
+                <span>Horizontal Storytelling Experience</span>
+              </div>
+
+              <div className="space-y-3">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12]">
+                  {profile?.fullName || "Horizon Candidate"}
+                </h1>
+                <h2 className={`text-xl sm:text-2xl font-semibold tracking-tight ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
+                  {profile?.headline || "Senior Staff Engineer & Interactive Product Lead"}
+                </h2>
+              </div>
+
+              <p className={`text-base sm:text-lg leading-relaxed max-w-2xl mx-auto lg:mx-0 ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                {profile?.summary ||
+                  "Crafting 100vw × 100vh horizontal storytelling portfolios that feel handcrafted rather than AI generated, inspired by Apple product launches, Linear, and Framer."}
+              </p>
+
+              {/* CTAs */}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+                {profile?.resumeUrl ? (
+                  <a
+                    href={profile.resumeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-8 py-4 rounded-full bg-[#16A34A] hover:bg-[#15803D] text-white font-extrabold text-sm shadow-[0_10px_25px_rgba(22,163,74,0.3)] hover:shadow-[0_15px_35px_rgba(22,163,74,0.45)] hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2.5 group cursor-pointer"
+                  >
+                    <Download className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
+                    <span>Download Resume</span>
+                  </a>
+                ) : (
+                  <button
+                    onClick={() => setCurrentSlide(6)}
+                    className="px-8 py-4 rounded-full bg-[#16A34A] hover:bg-[#15803D] text-white font-extrabold text-sm shadow-[0_10px_25px_rgba(22,163,74,0.3)] hover:shadow-[0_15px_35px_rgba(22,163,74,0.45)] hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2.5 group cursor-pointer"
+                  >
+                    <Download className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
+                    <span>View Resume</span>
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setCurrentSlide(6)}
+                  className={`px-8 py-4 rounded-full font-extrabold text-sm border-2 backdrop-blur-xl transition-all duration-300 flex items-center gap-2.5 hover:-translate-y-0.5 shadow-sm cursor-pointer ${
+                    isDarkMode
+                      ? "border-[#2563EB] text-blue-400 hover:bg-[#2563EB]/15"
+                      : "border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB]/10"
+                  }`}
+                >
+                  <Mail className="w-4 h-4" />
+                  <span>Contact Me</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SLIDE 2: SKILLS (FLOATING CHIPS) */}
+        <section className="w-[100vw] h-full flex-shrink-0 flex items-center justify-center px-6 lg:pl-28 lg:pr-12 pt-20 pb-16">
+          <div className="max-w-5xl w-full text-center space-y-8">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#F8FAFC] text-[#16A34A] dark:text-[#22C55E] text-xs font-mono uppercase tracking-widest font-bold">
+                <Code className="w-3.5 h-3.5 text-[#16A34A]" /> SLIDE 02 • CAPABILITIES
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
+                Floating Technology Chips
+              </h2>
+              <p className={`text-sm max-w-xl mx-auto ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                Interactive skills formatted as animated floating technology badges with subtle glow.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
+              {normalizedSkills.map((sk, idx) => (
+                <motion.div
+                  key={idx}
+                  whileHover={{ scale: 1.08, y: -4 }}
+                  className={`px-7 py-4 rounded-full border backdrop-blur-xl shadow-md transition-all duration-300 flex items-center gap-3 cursor-default ${
+                    isDarkMode
+                      ? "bg-[#111827] border-slate-800 text-slate-200 hover:border-[#16A34A]"
+                      : "bg-[#F8FAFC] border-[#E2E8F0] text-[#111827] hover:border-[#16A34A]"
+                  }`}
+                >
+                  <div className="w-3 h-3 rounded-full bg-[#16A34A] animate-ping" />
+                  <span className="font-extrabold text-sm tracking-wide">{sk.name}</span>
+                  {sk.proficiency && (
+                    <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#16A34A]/15 text-[#16A34A] dark:text-[#22C55E]">
+                      {sk.proficiency}%
+                    </span>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SLIDE 3: EDUCATION (CENTERED VERTICAL TIMELINE) */}
+        <section className="w-[100vw] h-full flex-shrink-0 flex items-center justify-center px-6 lg:pl-28 lg:pr-12 pt-20 pb-16">
+          <div className="max-w-4xl w-full space-y-8">
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#F8FAFC] text-[#16A34A] dark:text-[#22C55E] text-xs font-mono uppercase tracking-widest font-bold">
+                <GraduationCap className="w-3.5 h-3.5 text-[#16A34A]" /> SLIDE 03 • ACADEMICS
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                Education & Academic Honors
+              </h2>
+            </div>
+
+            <div className="relative pl-8 border-l-2 border-[#16A34A] space-y-8 max-w-2xl mx-auto">
+              {profile?.education?.map((edu, idx) => (
+                <div key={idx} className="relative group">
+                  <div className="absolute -left-[41px] top-2 w-5 h-5 rounded-full bg-white dark:bg-[#0B0F19] border-2 border-[#16A34A] flex items-center justify-center shadow-md">
+                    <div className="w-2 h-2 rounded-full bg-[#2563EB]" />
+                  </div>
+
+                  <div
+                    className={`p-7 rounded-[28px] border backdrop-blur-xl transition-all ${
+                      isDarkMode ? "bg-[#111827]/80 border-slate-800" : "bg-[#F8FAFC] border-[#E2E8F0] shadow-sm"
+                    }`}
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-mono font-bold text-[#16A34A] uppercase tracking-wider">
+                        {edu.startDate || "2020"} — {edu.endDate || "2024"}
+                      </span>
+                      {edu.gpa && (
+                        <span className="text-xs font-bold px-3 py-1 rounded-full border bg-[#16A34A]/10 text-[#16A34A]">
+                          GPA: {edu.gpa}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="text-xl font-bold tracking-tight mb-1">{edu.degree}</h3>
+                    <div className="text-sm font-semibold text-slate-500">{edu.institution}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SLIDE 4: EXPERIENCE (DIAGONALLY STACKED CARDS) */}
+        <section className="w-[100vw] h-full flex-shrink-0 flex items-center justify-center px-6 lg:pl-28 lg:pr-12 pt-20 pb-16">
+          <div className="max-w-4xl w-full space-y-8">
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#F8FAFC] text-[#16A34A] dark:text-[#22C55E] text-xs font-mono uppercase tracking-widest font-bold">
+                <Briefcase className="w-3.5 h-3.5 text-[#16A34A]" /> SLIDE 04 • EXPERIENCE
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                Modern Company Cards Stacked Diagonally
+              </h2>
+            </div>
+
+            <div className="space-y-6">
+              {profile?.experience?.map((exp, idx) => (
+                <div
+                  key={idx}
+                  className={`p-7 rounded-[32px] border backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] shadow-lg ${
+                    isDarkMode ? "bg-[#111827]/80 border-slate-800" : "bg-[#F8FAFC] border-[#E2E8F0]"
+                  }`}
+                  style={{ transform: `translateX(${idx * 16}px)` }}
+                >
+                  <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-2">
+                    <h3 className="text-xl font-bold tracking-tight">{exp.position || exp.role}</h3>
+                    <span className="text-xs font-mono font-bold text-[#16A34A]">
+                      {exp.startDate} — {exp.endDate}
+                    </span>
+                  </div>
+                  <div className="text-sm font-bold text-[#2563EB] dark:text-blue-400 mb-3">{exp.company}</div>
+                  <p className={`text-xs sm:text-sm leading-relaxed ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                    {exp.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SLIDE 5: PROJECTS SHOWCASE */}
+        <section className="w-[100vw] h-full flex-shrink-0 flex items-center justify-center px-6 lg:pl-28 lg:pr-12 pt-20 pb-16">
+          <div className="max-w-5xl w-full space-y-8">
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#F8FAFC] text-[#16A34A] dark:text-[#22C55E] text-xs font-mono uppercase tracking-widest font-bold">
+                <FolderGit2 className="w-3.5 h-3.5 text-[#16A34A]" /> SLIDE 05 • PROJECTS
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                Large Project Showcase
+              </h2>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {profile?.projects?.slice(0, 2).map((proj, idx) => {
+                const techList =
+                  proj.technologies ||
+                  (typeof proj.techStack === "string" ? proj.techStack.split(",") : []) ||
+                  [];
+
+                return (
+                  <div
+                    key={idx}
+                    className={`p-7 rounded-[32px] border backdrop-blur-xl flex flex-col justify-between space-y-4 shadow-xl ${
+                      isDarkMode ? "bg-[#111827]/80 border-slate-800" : "bg-[#F8FAFC] border-[#E2E8F0]"
+                    }`}
+                  >
+                    <div className="h-44 rounded-2xl overflow-hidden bg-slate-900">
+                      {proj.imageUrl || proj.image ? (
+                        <img src={proj.imageUrl || proj.image} alt={proj.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-white font-mono text-xs">
+                          {proj.title}
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <h3 className="text-xl font-bold mb-2">{proj.title}</h3>
+                      <p className={`text-xs line-clamp-3 leading-relaxed ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                        {proj.description}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5">
+                      {techList.map((t, i) => (
+                        <span key={i} className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#16A34A]/10 text-[#16A34A]">
+                          {t.trim()}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-3 pt-2">
+                      {(proj.link || proj.projectUrl) && (
+                        <a
+                          href={proj.link || proj.projectUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-5 py-2.5 rounded-full bg-[#16A34A] text-white text-xs font-bold flex items-center gap-1"
+                        >
+                          <span>Live Demo</span>
+                          <ArrowUpRight className="w-3.5 h-3.5" />
+                        </a>
+                      )}
+                      {proj.githubUrl && (
+                        <a
+                          href={proj.githubUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-5 py-2.5 rounded-full border border-slate-300 dark:border-slate-700 text-xs font-bold flex items-center gap-1"
+                        >
+                          <Github className="w-3.5 h-3.5" />
+                          <span>View Source</span>
+                        </a>
+                      )}
+                    </div>
                   </div>
                 );
               })}
             </div>
-          </section>
-        )}
-
-        {/* WORK EXPERIENCE */}
-        {experience.length > 0 && (
-          <section id="experience" style={{ marginBottom: "44px" }}>
-            <div className="t16-sec-header">
-              <h2 className="t16-sec-title"><Briefcase size={18} /> {"// EXPERIENCE LOG"}</h2>
-            </div>
-
-            <div className="t16-grid-2">
-              {experience.map((exp, i) => (
-                <div key={i} className="t16-bw-card">
-                  <h3 className="t16-card-title">{exp.position}</h3>
-                  <div className="t16-card-sub">{exp.company}</div>
-                  <div className="t16-card-date">{exp.startDate} — {exp.endDate || "Present"}</div>
-                  {exp.description && <p className="t16-card-text">{exp.description}</p>}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* EDUCATION & CERTIFICATIONS */}
-        {(education.length > 0 || certifications.length > 0) && (
-          <section style={{ marginBottom: "44px" }}>
-            <div className="t16-sec-header">
-              <h2 className="t16-sec-title"><GraduationCap size={18} /> {"// ACADEMICS & CERTIFICATIONS"}</h2>
-            </div>
-
-            <div className="t16-grid-2">
-              {education.map((edu, i) => (
-                <div key={i} className="t16-bw-card">
-                  <h3 className="t16-card-title">{edu.degree}</h3>
-                  <div className="t16-card-sub">{edu.institution}</div>
-                  <div className="t16-card-date">{edu.startDate || edu.startYear} — {edu.endDate || edu.endYear}</div>
-                  {(edu.gpa || edu.cgpa) && <div className="t16-card-text" style={{ fontWeight: 700 }}>SCORE: {edu.gpa || edu.cgpa}</div>}
-                </div>
-              ))}
-
-              {certifications.map((cert, i) => (
-                <div key={i} className="t16-bw-card">
-                  <h3 className="t16-card-title">{cert.name}</h3>
-                  <div className="t16-card-sub">{cert.issuingOrganization}</div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* SERVICES OFFERED */}
-        {services.length > 0 && (
-          <section style={{ marginBottom: "44px" }}>
-            <div className="t16-sec-header">
-              <h2 className="t16-sec-title"><Zap size={18} /> {"// SERVICES OFFERED"}</h2>
-            </div>
-
-            <div className="t16-grid-2">
-              {services.map((svc, i) => (
-                <div key={i} className="t16-bw-card">
-                  <h3 className="t16-card-title">{svc.title}</h3>
-                  <p className="t16-card-text">{svc.description}</p>
-                  {svc.price && <div style={{ marginTop: "8px", fontWeight: 700, fontSize: "11px", fontFamily: "JetBrains Mono" }}>RATE: {svc.price}</div>}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* CONTACT FORM WITH VECTOR ARTWORK */}
-        <section id="contact">
-          <div className="t16-sec-header">
-            <h2 className="t16-sec-title"><Mail size={18} /> {"// DISPATCH MESSAGE"}</h2>
           </div>
+        </section>
 
-          <div className="t16-grid-2">
-            <div className="t16-bw-card">
-              <form onSubmit={handleSubmit}>
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Your Name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="t16-input"
-                  required
-                />
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Your Email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="t16-input"
-                  required
-                />
-                <textarea
-                  name="message"
-                  placeholder="Your Message..."
-                  value={formData.message}
-                  onChange={handleChange}
-                  className="t16-input t16-textarea"
-                  required
-                />
-                <button type="submit" className="t16-btn" disabled={isSubmitting}>
-                  <Send size={13} /> {isSubmitting ? "TRANSMITTING..." : "SEND MESSAGE"}
-                </button>
-              </form>
+        {/* SLIDE 6: CERTIFICATIONS */}
+        <section className="w-[100vw] h-full flex-shrink-0 flex items-center justify-center px-6 lg:pl-28 lg:pr-12 pt-20 pb-16">
+          <div className="max-w-4xl w-full space-y-8">
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#F8FAFC] text-[#16A34A] dark:text-[#22C55E] text-xs font-mono uppercase tracking-widest font-bold">
+                <Award className="w-3.5 h-3.5 text-[#16A34A]" /> SLIDE 06 • CREDENTIALS
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                Premium Horizontal Cards
+              </h2>
             </div>
 
-            <div className="t16-vector-box" style={{ padding: "20px" }}>
-              <img
-                src="https://illustrations.popsy.co/white/paper-plane.svg"
-                alt="Send Message Vector Artwork"
-                className="t16-vector-img"
-                style={{ maxHeight: "200px" }}
-              />
+            <div className="space-y-4">
+              {profile?.certifications?.map((cert, idx) => (
+                <div
+                  key={idx}
+                  className={`p-6 rounded-[28px] border backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between gap-4 ${
+                    isDarkMode ? "bg-[#111827]/80 border-slate-800" : "bg-[#F8FAFC] border-[#E2E8F0] shadow-md"
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-900 border border-[#16A34A]/30 flex items-center justify-center text-[#16A34A]">
+                      <Award className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold">{cert.name || cert.title}</h3>
+                      <div className="text-xs text-slate-500">{cert.issuingOrganization} • {cert.issueDate}</div>
+                    </div>
+                  </div>
+
+                  {cert.credentialUrl && (
+                    <a href={cert.credentialUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#16A34A] hover:underline flex items-center gap-1">
+                      <span>Verify Certificate</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </section>
-      </main>
 
-      {/* FOOTER */}
-      <footer className="t16-footer">
-        BYTEBODH FOLIO · TEMPLATE 16 (MONOCHROME VECTOR ARTWORK)
-      </footer>
+        {/* SLIDE 7: CONTACT & THANK YOU */}
+        <section className="w-[100vw] h-full flex-shrink-0 flex items-center justify-center px-6 lg:pl-28 lg:pr-12 pt-20 pb-16">
+          <div className="max-w-5xl w-full grid lg:grid-cols-12 gap-10 items-center">
+            {/* Left Thank You & Details */}
+            <div className="lg:col-span-5 space-y-6">
+              <div className="space-y-3">
+                <span className="text-xs font-mono font-bold text-[#16A34A] uppercase tracking-widest">/ SLIDE 07 • CONTACT</span>
+                <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-serif">
+                  Thank You for Viewing
+                </h2>
+                <p className={`text-xs sm:text-sm leading-relaxed ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                  I am available for senior engineering leadership, technical consulting, and advisory roles.
+                </p>
+              </div>
+
+              {/* Direct Info */}
+              <div className="space-y-3 pt-2">
+                {profile?.email && (
+                  <div className="flex items-center gap-3 text-xs font-bold">
+                    <Mail className="w-4 h-4 text-[#16A34A]" />
+                    <a href={`mailto:${profile.email}`} className="hover:underline">{profile.email}</a>
+                  </div>
+                )}
+                {profile?.mobileNumber && (
+                  <div className="flex items-center gap-3 text-xs font-bold">
+                    <Phone className="w-4 h-4 text-[#16A34A]" />
+                    <a href={`tel:${profile.mobileNumber}`} className="hover:underline">{profile.mobileNumber}</a>
+                  </div>
+                )}
+              </div>
+
+              {/* Social Icons */}
+              {profile?.socialMediaLinks && profile.socialMediaLinks.length > 0 && (
+                <div className="flex items-center gap-3 pt-1">
+                  {profile.socialMediaLinks.map((soc, idx) => (
+                    <a
+                      key={idx}
+                      href={soc.url || soc.profileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all ${
+                        isDarkMode
+                          ? "bg-slate-900 border-slate-800 text-[#22C55E] hover:border-[#16A34A]"
+                          : "bg-white border-slate-200 text-[#16A34A] hover:border-[#16A34A] shadow-sm"
+                      }`}
+                      title={soc.platform}
+                    >
+                      {renderSocialIcon(soc.platform)}
+                    </a>
+                  ))}
+                </div>
+              )}
+
+              {/* QR Code Placeholder */}
+              <div className="pt-2 flex items-center gap-4">
+                <div className="p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200">
+                  <QrCode className="w-10 h-10 text-[#16A34A]" />
+                </div>
+                <span className="text-[10px] font-mono font-bold text-slate-500 uppercase tracking-wider">
+                  SCAN FOR DIRECT RECRUITER VCARD
+                </span>
+              </div>
+            </div>
+
+            {/* Right Recruiter Contact Form */}
+            <div
+              className={`lg:col-span-7 p-8 rounded-[32px] border backdrop-blur-xl shadow-2xl ${
+                isDarkMode ? "bg-[#111827]/80 border-slate-800" : "bg-white border-[#E2E8F0]"
+              }`}
+            >
+              <form onSubmit={handleSubmitContact} className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-extrabold mb-1.5">Your Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Jane Doe"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none ${
+                        isDarkMode ? "bg-[#0B0F19] border-slate-800 text-white" : "bg-[#F8FAFC] border-[#E2E8F0] text-black"
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-extrabold mb-1.5">Your Email *</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="recruiter@company.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none ${
+                        isDarkMode ? "bg-[#0B0F19] border-slate-800 text-white" : "bg-[#F8FAFC] border-[#E2E8F0] text-black"
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-extrabold mb-1.5">Message *</label>
+                  <textarea
+                    required
+                    rows={3}
+                    placeholder="Hi, I viewed Horizon Slides and would like to connect..."
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none resize-none ${
+                      isDarkMode ? "bg-[#0B0F19] border-slate-800 text-white" : "bg-[#F8FAFC] border-[#E2E8F0] text-black"
+                    }`}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-4 px-6 rounded-full bg-[#16A34A] hover:bg-[#15803D] text-white font-extrabold text-xs tracking-widest uppercase shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>DISPATCHING...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      <span>SEND DIRECT MESSAGE</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+      </motion.div>
+
+      {/* BOTTOM SLIDE CONTROLS & PROGRESS BAR */}
+      <div className="fixed bottom-6 left-6 right-6 z-40 flex items-center justify-between pointer-events-auto">
+        {/* Slide Progress Bar */}
+        <div className="w-36 sm:w-64 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden shadow-inner">
+          <motion.div
+            className="h-full bg-[#16A34A]"
+            animate={{ width: `${((currentSlide + 1) / totalSlides) * 100}%` }}
+            transition={{ duration: 0.3 }}
+          />
+        </div>
+
+        {/* Prev / Next Slide Arrow Buttons */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={goToPrevSlide}
+            disabled={currentSlide === 0}
+            className={`w-11 h-11 rounded-full border flex items-center justify-center transition-all cursor-pointer disabled:opacity-30 ${
+              isDarkMode ? "bg-[#111827] border-slate-800 text-white hover:border-[#16A34A]" : "bg-white border-[#E2E8F0] text-black hover:border-[#16A34A] shadow-md"
+            }`}
+            title="Previous Slide"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            onClick={goToNextSlide}
+            disabled={currentSlide === totalSlides - 1}
+            className={`w-11 h-11 rounded-full border flex items-center justify-center transition-all cursor-pointer disabled:opacity-30 ${
+              isDarkMode ? "bg-[#111827] border-slate-800 text-white hover:border-[#16A34A]" : "bg-white border-[#E2E8F0] text-black hover:border-[#16A34A] shadow-md"
+            }`}
+            title="Next Slide"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

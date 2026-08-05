@@ -1,744 +1,1117 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
+  User,
+  Briefcase,
+  GraduationCap,
+  FolderGit2,
+  Award,
   Mail,
   Phone,
-  MapPin,
+  ArrowUpRight,
+  Sparkles,
+  Sun,
+  Moon,
+  Menu,
+  X,
+  ChevronRight,
+  ExternalLink,
   Github,
   Linkedin,
   Twitter,
   Globe,
-  ExternalLink,
-  Zap,
-  Crown
+  Send,
+  Copy,
+  Check,
+  MapPin,
+  Calendar,
+  Code,
+  Download,
+  ShieldCheck,
+  Compass
 } from "lucide-react";
+import { toast } from "react-toastify";
 import { createContactMessage } from "../api/profileService";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
-/* ─────────────────────────────────────────────────────────────
-   Template Fifteen: PLAYING CARDS & CASINO DECK THEME
-   Palette: Deep Poker Green Felt (#092317), Linen White Card Stock (#fdfbf7),
-   Gold Foil Borders (#d4af37), Crimson Red (#dc2626), Obsidian Black (#0f172a).
-   Suits: Spades ♠, Hearts ♥, Diamonds ♦, Clubs ♣.
-───────────────────────────────────────────────────────────── */
-const STYLE_ID = "template-fifteen-playing-cards-styles";
-
-function injectStyles() {
-  const existing = document.getElementById(STYLE_ID);
-  if (existing) existing.remove();
-  const style = document.createElement("style");
-  style.id = STYLE_ID;
-  style.textContent = `
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Cinzel:wght@700;900&family=JetBrains+Mono:wght@600;800&display=swap');
-
-    .t15-root {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: radial-gradient(circle at center, #0e3020 0%, #06170e 100%);
-      color: #f8fafc;
-      min-height: 100vh;
-      overflow-x: hidden;
-      position: relative;
-    }
-
-    /* Subtle Playing Card Suit Background Pattern */
-    .t15-root::before {
-      content: '♠  ♥  ♦  ♣  ♠  ♥  ♦  ♣  ♠  ♥  ♦  ♣';
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      font-family: 'Cinzel', serif;
-      font-size: 28px;
-      color: rgba(255, 255, 255, 0.02);
-      letter-spacing: 40px;
-      line-height: 80px;
-      word-break: break-all;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* ── Topbar (Casino Felt Bar) ── */
-    .t15-topbar {
-      background: #05160e;
-      border-bottom: 2px solid #d4af37;
-      padding: 12px 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-    }
-    .t15-brand {
-      font-family: 'Cinzel', serif;
-      font-size: 15px; font-weight: 900;
-      color: #d4af37;
-      display: flex; align-items: center; gap: 8px;
-      letter-spacing: 0.1em;
-    }
-
-    .t15-nav {
-      display: flex; gap: 4px; flex-wrap: wrap;
-    }
-    .t15-nav-link {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px; font-weight: 700;
-      color: #cbd5e1;
-      text-decoration: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      border: 1px solid transparent;
-      transition: all 0.2s;
-    }
-    .t15-nav-link:hover {
-      color: #d4af37;
-      border-color: #d4af37;
-      background: rgba(212, 175, 55, 0.1);
-    }
-
-    .t15-badge-royal {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: #172615;
-      border: 1.5px solid #d4af37;
-      border-radius: 100px;
-      padding: 5px 14px;
-      font-size: 11px; font-weight: 800;
-      color: #d4af37;
-      box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
-    }
-
-    /* ── PLAYING CARD WRAPPER & CONTAINER ── */
-    .t15-hero {
-      padding: 48px 24px 40px;
-      position: relative; z-index: 1;
-    }
-    .t15-container {
-      max-width: 1050px; margin: 0 auto;
-    }
-
-    /* ── Ace Profile Card (Hero Card) ── */
-    .t15-hero-card {
-      background: #fdfbf7;
-      border: 3.5px solid #d4af37;
-      border-radius: 24px;
-      padding: 36px;
-      color: #0f172a;
-      position: relative;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(212, 175, 55, 0.15);
-      transition: transform 0.3s;
-    }
-    .t15-hero-card:hover {
-      transform: translateY(-4px) rotate(-0.5deg);
-    }
-
-    /* Corner Card Indices */
-    .t15-card-index {
-      position: absolute;
-      font-family: 'Cinzel', serif;
-      font-weight: 900;
-      line-height: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      pointer-events: none;
-    }
-    .t15-index-top-left { top: 14px; left: 16px; font-size: 16px; }
-    .t15-index-bottom-right { bottom: 14px; right: 16px; font-size: 16px; transform: rotate(180deg); }
-    .t15-suit-black { color: #0f172a; }
-    .t15-suit-red { color: #dc2626; }
-
-    .t15-hero-inner {
-      display: flex; gap: 36px; align-items: center; flex-wrap: wrap;
-    }
-    .t15-avatar-wrap { position: relative; flex-shrink: 0; }
-    .t15-avatar-gold-frame {
-      width: 120px; height: 120px; border-radius: 50%;
-      padding: 4px;
-      background: linear-gradient(135deg, #d4af37, #fef08a, #b45309);
-      box-shadow: 0 8px 24px rgba(212, 175, 55, 0.3);
-    }
-    .t15-avatar {
-      width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 3px solid #ffffff;
-    }
-    .t15-avatar-fallback {
-      width: 100%; height: 100%; border-radius: 50%;
-      background: linear-gradient(135deg, #05160e, #0e3020);
-      color: #d4af37; font-size: 2.8rem; font-weight: 900; font-family: 'Cinzel', serif;
-      display: flex; align-items: center; justify-content: center; border: 3px solid #ffffff;
-    }
-
-    .t15-hero-content { flex: 1; min-width: 240px; }
-    .t15-card-rank-tag {
-      font-family: 'Cinzel', serif;
-      font-size: 11px; font-weight: 900;
-      color: #854d0e; background: #fef9c3;
-      border: 1px solid #fde047;
-      padding: 3px 10px; border-radius: 6px;
-      display: inline-block; margin-bottom: 8px;
-    }
-    .t15-name {
-      font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 900;
-      color: #0f172a; margin: 0 0 6px 0; font-family: 'Cinzel', serif;
-    }
-    .t15-name-gold { color: #854d0e; }
-    .t15-headline { font-size: 1.05rem; font-weight: 700; color: #059669; margin-bottom: 12px; }
-    .t15-summary { font-size: 0.9rem; color: #334155; line-height: 1.65; margin-bottom: 18px; }
-
-    .t15-contact-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-    .t15-chip-item {
-      display: inline-flex; align-items: center; gap: 5px;
-      font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #334155;
-      background: #f1f5f9; border: 1px solid #cbd5e1; padding: 5px 11px; border-radius: 6px;
-      text-decoration: none;
-    }
-    .t15-chip-item:hover { border-color: #d4af37; color: #854d0e; background: #fefcbf; }
-
-    /* Casino Chips Social Media Buttons */
-    .t15-chip-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-    .t15-casino-chip {
-      width: 40px; height: 40px; border-radius: 50%;
-      background: #05160e; border: 3px dashed #d4af37;
-      color: #d4af37; display: flex; align-items: center; justify-content: center;
-      text-decoration: none; transition: all 0.25s;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    }
-    .t15-casino-chip:hover {
-      background: #d4af37; color: #05160e; border-color: #05160e;
-      transform: translateY(-3px) rotate(15deg);
-      box-shadow: 0 8px 18px rgba(212, 175, 55, 0.4);
-    }
-
-    /* ── STATS STRIP (THE WINNING HAND) ── */
-    .t15-stats-section { padding: 0 24px 40px; relative; z-index: 1; }
-    .t15-stats-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px;
-    }
-    .t15-stat-card {
-      background: #fdfbf7; border: 2px solid #d4af37; border-radius: 16px;
-      padding: 16px; text-align: center; color: #0f172a; position: relative;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4); transition: transform 0.2s;
-    }
-    .t15-stat-card:hover { transform: translateY(-4px); border-color: #059669; }
-    .t15-stat-val { font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: 900; color: #854d0e; }
-    .t15-stat-lbl { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: #64748b; margin-top: 4px; text-transform: uppercase; }
-
-    /* ── SECTIONS & CARDS ── */
-    .t15-main { max-width: 1050px; margin: 0 auto; padding: 0 24px 60px; relative; z-index: 1; }
-    .t15-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    .t15-sec-header {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #d4af37;
-    }
-    .t15-sec-icon-suit {
-      font-size: 20px; color: #d4af37;
-    }
-    .t15-sec-title { font-family: 'Cinzel', serif; font-size: 1.25rem; font-weight: 900; color: #f8fafc; letter-spacing: 0.05em; }
-
-    /* Generic Playing Card */
-    .t15-playing-card {
-      background: #fdfbf7; border: 2px solid #d4af37; border-radius: 16px;
-      padding: 22px; color: #0f172a; position: relative; margin-bottom: 16px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.5); transition: all 0.25s;
-    }
-    .t15-playing-card:hover {
-      transform: translateY(-4px) rotate(-0.5deg);
-      border-color: #059669; box-shadow: 0 18px 40px rgba(0,0,0,0.6);
-    }
-    .t15-pcard-title { font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 2px; }
-    .t15-pcard-sub { font-size: 0.85rem; font-weight: 700; color: #059669; margin-bottom: 6px; }
-    .t15-pcard-date {
-      font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #64748b;
-      background: #e2e8f0; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 8px;
-    }
-    .t15-pcard-text { font-size: 0.85rem; color: #334155; line-height: 1.5; }
-
-    /* Skills Pill Grid */
-    .t15-skills-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-    .t15-skill-chip {
-      font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
-      color: #0f172a; background: #ffffff; border: 1.5px solid #d4af37;
-      padding: 6px 12px; border-radius: 8px; transition: all 0.2s;
-    }
-    .t15-skill-chip:hover { background: #d4af37; color: #05160e; }
-
-    /* Tech Badges */
-    .t15-tech-badge {
-      font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #059669;
-      background: #ecfdf5; border: 1px solid #a7f3d0; padding: 2px 6px; border-radius: 4px; margin-right: 4px;
-    }
-
-    /* Links */
-    .t15-link {
-      display: inline-flex; align-items: center; gap: 4px;
-      font-size: 12px; font-weight: 800; color: #854d0e; text-decoration: none; margin-top: 10px;
-    }
-    .t15-link:hover { text-decoration: underline; color: #059669; }
-
-    /* Form inside Dealer Card */
-    .t15-input {
-      width: 100%; box-sizing: border-box; background: #ffffff; border: 1.5px solid #cbd5e1;
-      padding: 10px 14px; border-radius: 8px; color: #0f172a; font-family: inherit; font-size: 12px;
-      outline: none; margin-bottom: 10px;
-    }
-    .t15-input:focus { border-color: #d4af37; }
-    .t15-textarea { min-height: 80px; resize: vertical; }
-    .t15-btn-deal {
-      background: linear-gradient(135deg, #d4af37, #b45309); color: #05160e;
-      font-family: 'Cinzel', serif; font-weight: 900; font-size: 12px;
-      border: none; border-radius: 8px; padding: 12px 24px; cursor: pointer;
-      display: inline-flex; align-items: center; gap: 8px; transition: all 0.25s;
-      box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);
-    }
-    .t15-btn-deal:hover { background: #059669; color: #ffffff; }
-
-    /* Footer */
-    .t15-footer {
-      border-top: 2px solid #d4af37; padding: 20px; text-align: center;
-      font-family: 'Cinzel', serif; font-size: 11px; color: #d4af37; background: #05160e;
-    }
-
-    /* Mobile Responsiveness */
-    @media (max-width: 768px) {
-      .t15-topbar { padding: 10px 14px; }
-      .t15-hero { padding: 24px 14px; }
-      .t15-hero-card { padding: 24px 18px; }
-      .t15-hero-inner { flex-direction: column; text-align: center; justify-content: center; }
-      .t15-contact-chips { justify-content: center; }
-      .t15-chip-btns { justify-content: center; }
-      .t15-grid-2 { grid-template-columns: 1fr; }
-    }
-  `;
-  document.head.appendChild(style);
-}
 
 const TemplateFifteen = ({ profile }) => {
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [isDarkMode, setIsDarkMode] = useState(false); // Prism Flow defaults to White (#FFFFFF) & Soft Gray (#F8FAFC)
+  const [activeSection, setActiveSection] = useState("hero");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  // Form State
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    injectStyles();
-  }, []);
+  // Extract recipient identifier
+  const username =
+    profile?.user?.username ||
+    profile?.username ||
+    profile?.fullName?.toLowerCase().replace(/\s+/g, "") ||
+    "user";
 
-  const getSkillName = (skill) => (typeof skill === "string" ? skill : skill?.name || "");
-  const formatUrl = (url) => (url ? (url.startsWith("http") ? url : `https://${url}`) : "#");
+  // Toggle Theme
+  const toggleTheme = () => setIsDarkMode((prev) => !prev);
 
-  const skills = useMemo(() => profile?.skills || [], [profile?.skills]);
-  const experience = profile?.experience || [];
-  const education = profile?.education || [];
-  const projects = profile?.projects || [];
-  const certifications = profile?.certifications || [];
-  const socialLinks = profile?.socialMediaLinks || [];
-  const services = profile?.services || [];
-
-  const getSocialIcon = (platform) => {
-    const p = (platform || "").toLowerCase();
-    if (p.includes("github")) return <Github size={15} />;
-    if (p.includes("linkedin")) return <Linkedin size={15} />;
-    if (p.includes("twitter") || p.includes("x")) return <Twitter size={15} />;
-    return <Globe size={15} />;
+  // Copy Profile Link
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopiedLink(true);
+    toast.success("Portfolio link copied!");
+    setTimeout(() => setCopiedLink(false), 2500);
   };
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  // Scroll Spy for Navbar active section highlighting
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ["hero", "skills", "experience", "education", "projects", "certifications", "contact"];
+      const scrollPosition = window.scrollY + 200;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!profile) return;
-    setIsSubmitting(true);
-    try {
-      await createContactMessage({
-        receiverUsername: profile.username || profile.fullName,
-        name: formData.name,
-        email: formData.email,
-        message: formData.message,
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sections[i]);
+        if (el && el.offsetTop <= scrollPosition) {
+          setActiveSection(sections[i]);
+          break;
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToSection = (id) => {
+    setMobileMenuOpen(false);
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 80;
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
       });
-      toast.success("Message Dealt to Developer!");
-      setFormData({ name: "", email: "", message: "" });
+    }
+  };
+
+  // Contact Form Submission
+  const handleSubmitContact = async (e) => {
+    e.preventDefault();
+
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const payload = {
+        recipientUsername: username,
+        receiverId: profile?.user?.id || profile?.userId,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        subject: formData.subject.trim() || `Prism Flow Inquiry from ${formData.name}`,
+        message: formData.message.trim()
+      };
+
+      const response = await createContactMessage(payload);
+
+      if (response?.data?.success || response?.status === 200 || response?.status === 201) {
+        toast.success("Message sent successfully!");
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      } else {
+        throw new Error(response?.data?.message || "Failed to send message");
+      }
     } catch (err) {
-      toast.info("Thank you for your message!");
-      setFormData({ name: "", email: "", message: "" });
+      console.error("Contact Form Error:", err);
+      toast.error(err?.response?.data?.message || err?.message || "Failed to deliver message. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Group Skills by Suit for Cards theme
-  const categorizedSkills = useMemo(() => {
-    const categories = {
-      "♠ Backend & Core Systems": [],
-      "♥ Frontend & Interface": [],
-      "♦ Cloud, Data & DevOps": [],
-      "♣ Tools & Architectures": []
-    };
-
-    skills.forEach((skillItem, idx) => {
-      const name = getSkillName(skillItem);
-      const mod = idx % 4;
-      if (mod === 0) categories["♠ Backend & Core Systems"].push(name);
-      else if (mod === 1) categories["♥ Frontend & Interface"].push(name);
-      else if (mod === 2) categories["♦ Cloud, Data & DevOps"].push(name);
-      else categories["♣ Tools & Architectures"].push(name);
+  // Parse Skills Data
+  const normalizedSkills = useMemo(() => {
+    if (!profile?.skills) return [];
+    return profile.skills.map((skill) => {
+      if (typeof skill === "object" && skill !== null) {
+        return {
+          name: skill.name || "Technical Skill",
+          proficiency: skill.proficiency || skill.level || 88,
+          category: skill.category || "Design & Engineering"
+        };
+      }
+      return {
+        name: String(skill),
+        proficiency: 88,
+        category: "Design & Engineering"
+      };
     });
+  }, [profile?.skills]);
 
-    return categories;
-  }, [skills]);
+  // Social Icon Helper
+  const renderSocialIcon = (platform, className = "w-4 h-4") => {
+    const p = (platform || "").toUpperCase();
+    if (p.includes("LINKEDIN")) return <Linkedin className={className} />;
+    if (p.includes("GITHUB")) return <Github className={className} />;
+    if (p.includes("TWITTER") || p.includes("X")) return <Twitter className={className} />;
+    return <Globe className={className} />;
+  };
 
-  if (!profile) return null;
+  // Nav Items Configuration
+  const navItems = [
+    { id: "hero", label: "Overview", icon: User },
+    { id: "skills", label: "Capabilities", icon: Code },
+    { id: "experience", label: "Experience", icon: Briefcase },
+    { id: "education", label: "Education", icon: GraduationCap },
+    { id: "projects", label: "Projects", icon: FolderGit2 },
+    { id: "certifications", label: "Credentials", icon: Award },
+    { id: "contact", label: "Contact", icon: Mail }
+  ];
+
+  // Calculated Statistics
+  const stats = [
+    {
+      label: "Projects Delivered",
+      value: profile?.projects?.length || 18,
+      suffix: "+",
+      icon: FolderGit2
+    },
+    {
+      label: "Core Skills",
+      value: normalizedSkills.length || 24,
+      suffix: "+",
+      icon: Code
+    },
+    {
+      label: "Certifications",
+      value: profile?.certifications?.length || 6,
+      suffix: "",
+      icon: Award
+    },
+    {
+      label: "Years Experience",
+      value: profile?.experience?.length ? profile.experience.length * 2 : 7,
+      suffix: "+ Yrs",
+      icon: Briefcase
+    }
+  ];
 
   return (
-    <div className="t15-root">
-      <ToastContainer position="bottom-right" theme="dark" />
+    <div
+      className={`min-h-screen font-sans transition-colors duration-500 overflow-x-hidden selection:bg-[#16A34A]/20 selection:text-[#16A34A] ${
+        isDarkMode ? "bg-[#0B0F19] text-[#F8FAFC]" : "bg-[#FFFFFF] text-[#111827]"
+      }`}
+    >
+      {/* Subtle Prism Ambient Lighting */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-60">
+        <div
+          className={`absolute -top-40 left-1/4 w-[650px] h-[650px] rounded-full blur-[180px] transition-colors duration-700 ${
+            isDarkMode ? "bg-[#16A34A]/10" : "bg-[#16A34A]/15"
+          }`}
+        />
+        <div
+          className={`absolute top-1/2 -right-40 w-[550px] h-[550px] rounded-full blur-[180px] transition-colors duration-700 ${
+            isDarkMode ? "bg-[#4F46E5]/10" : "bg-[#4F46E5]/15"
+          }`}
+        />
+      </div>
 
-      {/* Topbar: Casino Felt Station */}
-      <header className="t15-topbar">
-        <a href="#hero" className="t15-brand">
-          ♠ BYTEBODH CASINO FOLIO · TEMPLATE 15
-        </a>
+      {/* STICKY NAVBAR */}
+      <header
+        className={`sticky top-0 z-50 backdrop-blur-xl transition-all duration-300 border-b ${
+          isDarkMode
+            ? "bg-[#0B0F19]/85 border-slate-800 shadow-[0_10px_30px_rgba(0,0,0,0.8)]"
+            : "bg-white/85 border-[#E2E8F0] shadow-[0_4px_25px_rgba(0,0,0,0.04)]"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          {/* Logo on Left: Prism Flow Mark */}
+          <div
+            onClick={() => scrollToSection("hero")}
+            className="flex items-center gap-3 cursor-pointer group"
+          >
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#16A34A] via-[#22C55E] to-[#4F46E5] p-[2px] shadow-md shadow-[#16A34A]/20 group-hover:scale-105 transition-transform duration-300">
+              <div
+                className={`w-full h-full rounded-[14px] flex items-center justify-center font-extrabold text-sm transition-colors ${
+                  isDarkMode ? "bg-[#0B0F19] text-[#22C55E]" : "bg-white text-[#16A34A]"
+                }`}
+              >
+                <Compass className="w-5 h-5" />
+              </div>
+            </div>
+            <div>
+              <span className="font-extrabold text-base tracking-tight flex items-center gap-1.5 font-serif">
+                {profile?.fullName || "Prism Flow"}
+                <span className="inline-block w-2 h-2 rounded-full bg-[#16A34A]" />
+              </span>
+              <span className="block text-[10px] uppercase font-mono tracking-widest text-[#4F46E5] dark:text-indigo-400 font-bold">
+                Handcrafted Portfolio
+              </span>
+            </div>
+          </div>
 
-        <nav className="t15-nav">
-          <a href="#skills" className="t15-nav-link">♠ Tech Deck</a>
-          <a href="#projects" className="t15-nav-link">♥ Projects</a>
-          <a href="#experience" className="t15-nav-link">♦ Experience</a>
-          <a href="#contact" className="t15-nav-link">♣ Contact</a>
-        </nav>
+          {/* Desktop Navigation Links */}
+          <nav
+            className={`hidden md:flex items-center gap-1 p-1.5 rounded-full border backdrop-blur-lg ${
+              isDarkMode ? "bg-[#111827]/70 border-slate-800" : "bg-[#F8FAFC] border-[#E2E8F0]"
+            }`}
+          >
+            {navItems.map((item) => {
+              const isActive = activeSection === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className={`px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 flex items-center gap-2 relative ${
+                    isActive
+                      ? isDarkMode
+                        ? "text-[#22C55E] font-bold"
+                        : "text-[#16A34A] font-bold"
+                      : isDarkMode
+                      ? "text-slate-400 hover:text-slate-200"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="activePrismNav"
+                      className={`absolute inset-0 rounded-full shadow-sm ${
+                        isDarkMode
+                          ? "bg-[#16A34A]/20 border border-[#16A34A]/40"
+                          : "bg-white border border-[#16A34A]/30"
+                      }`}
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <item.icon className="w-3.5 h-3.5 relative z-10" />
+                  <span className="relative z-10">{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
 
-        <div className="t15-badge-royal">
-          <Crown size={14} /> ROYAL HAND: OPEN TO OPPORTUNITIES
+          {/* Actions on Right */}
+          <div className="flex items-center gap-3">
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={toggleTheme}
+              className={`p-2.5 rounded-full border transition-all duration-300 shadow-sm flex items-center justify-center cursor-pointer ${
+                isDarkMode
+                  ? "bg-[#111827] border-slate-800 text-amber-400 hover:border-[#16A34A]"
+                  : "bg-[#F8FAFC] border-[#E2E8F0] text-slate-800 hover:border-[#16A34A]"
+              }`}
+              title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
+            {/* Share Link */}
+            <button
+              onClick={handleCopyLink}
+              className={`p-2.5 rounded-full border transition-all duration-300 shadow-sm hidden sm:flex items-center justify-center cursor-pointer ${
+                isDarkMode
+                  ? "bg-[#111827] border-slate-800 text-slate-300 hover:text-[#22C55E]"
+                  : "bg-[#F8FAFC] border-[#E2E8F0] text-slate-800 hover:text-[#16A34A]"
+              }`}
+              title="Share Portfolio"
+            >
+              {copiedLink ? <Check className="w-4 h-4 text-[#16A34A]" /> : <Copy className="w-4 h-4" />}
+            </button>
+
+            {/* Mobile Hamburger Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className={`md:hidden p-2.5 rounded-full border transition-colors ${
+                isDarkMode ? "bg-[#111827] border-slate-800 text-slate-200" : "bg-[#F8FAFC] border-[#E2E8F0] text-slate-800"
+              }`}
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Menu Drawer */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className={`md:hidden border-b overflow-hidden backdrop-blur-2xl ${
+                isDarkMode ? "bg-[#0B0F19]/95 border-slate-800" : "bg-white/95 border-[#E2E8F0]"
+              }`}
+            >
+              <div className="px-6 py-5 space-y-2">
+                {navItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => scrollToSection(item.id)}
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-full text-sm font-semibold transition-all ${
+                      activeSection === item.id
+                        ? isDarkMode
+                          ? "bg-[#16A34A]/20 text-[#22C55E] border border-[#16A34A]/40"
+                          : "bg-[#F8FAFC] text-[#16A34A] border border-[#16A34A]/30 font-bold"
+                        : isDarkMode
+                        ? "text-slate-300 hover:bg-slate-900"
+                        : "text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <item.icon className="w-4 h-4 text-[#16A34A]" />
+                      <span>{item.label}</span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 opacity-50" />
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
-      {/* HERO SECTION: ACE OF SPADES PROFILE CARD */}
-      <section id="hero" className="t15-hero">
-        <div className="t15-container">
-          <div className="t15-hero-card">
-            {/* Top-Left Rank Index */}
-            <div className="t15-card-index t15-index-top-left t15-suit-black">
-              <span>A</span>
-              <span>♠</span>
-            </div>
-
-            {/* Bottom-Right Rank Index */}
-            <div className="t15-card-index t15-index-bottom-right t15-suit-black">
-              <span>A</span>
-              <span>♠</span>
-            </div>
-
-            <div className="t15-hero-inner">
-              <div className="t15-avatar-wrap">
-                <div className="t15-avatar-gold-frame">
-                  {profile.pictureUrl ? (
-                    <img src={profile.pictureUrl} alt={profile.fullName} className="t15-avatar" />
-                  ) : (
-                    <div className="t15-avatar-fallback">{profile.fullName?.[0] || "A"}</div>
-                  )}
-                </div>
+      {/* MAIN CONTENT AREA */}
+      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24 space-y-28">
+        
+        {/* ASYMMETRICAL HERO SECTION WITH LAYERED SURFACES & 32PX BORDER RADIUS */}
+        <section id="hero" className="pt-6 lg:pt-12 scroll-mt-28">
+          <div className="grid lg:grid-cols-12 gap-10 items-center">
+            {/* Left Column: Asymmetrical Executive Text (7 Cols) */}
+            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#F8FAFC] dark:bg-slate-900/60 text-[#16A34A] dark:text-[#22C55E] text-xs font-semibold tracking-wide shadow-sm">
+                <Sparkles className="w-3.5 h-3.5 text-[#16A34A]" />
+                <span>Crafted Portfolio • Apple & Linear Inspired</span>
               </div>
 
-              <div className="t15-hero-content">
-                <div className="t15-card-rank-tag">
-                  ACE OF SPADES · MASTER DEVELOPER
-                </div>
-                <h1 className="t15-name">
-                  {profile.fullName || "Developer Name"}
+              {/* Title & Headline */}
+              <div className="space-y-3">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12]">
+                  Designed with precision for{" "}
+                  <span className="bg-gradient-to-r from-[#16A34A] via-[#22C55E] to-[#4F46E5] bg-clip-text text-transparent">
+                    {profile?.fullName || "Senior Designer & Engineer"}
+                  </span>
                 </h1>
-                <p className="t15-headline">{profile.headline || "Full Stack Software Engineer"}</p>
-                
-                {profile.summary && <p className="t15-summary">{profile.summary}</p>}
+                <h2 className={`text-xl sm:text-2xl font-semibold tracking-tight ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
+                  {profile?.headline || "Senior Staff Engineer & UI/UX Specialist"}
+                </h2>
+              </div>
 
-                <div className="t15-contact-chips">
-                  {profile.email && (
-                    <a href={`mailto:${profile.email}`} className="t15-chip-item">
-                      <Mail size={12} /> {profile.email}
-                    </a>
-                  )}
-                  {profile.mobileNumber && (
-                    <span className="t15-chip-item"><Phone size={12} /> {profile.mobileNumber}</span>
-                  )}
-                  {profile.location && (
-                    <span className="t15-chip-item"><MapPin size={12} /> {profile.location}</span>
-                  )}
-                </div>
+              {/* Summary */}
+              <p className={`text-base sm:text-lg leading-relaxed max-w-2xl mx-auto lg:mx-0 ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                {profile?.summary ||
+                  "Handcrafted software products, design systems, and digital experiences created with intentional visual rhythm, clean whitespace, and refined micro-interactions."}
+              </p>
 
-                {/* Casino Chip Social Links */}
-                {socialLinks.length > 0 && (
-                  <div className="t15-chip-btns">
-                    {socialLinks.map((link, i) => (
-                      <a
-                        key={i}
-                        href={formatUrl(link.profileUrl || link.url)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="t15-casino-chip"
-                        title={link.platform}
-                      >
-                        {getSocialIcon(link.platform)}
-                      </a>
-                    ))}
+              {/* Two Magnetic CTA Buttons */}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+                {/* Primary CTA: Download Resume */}
+                {profile?.resumeUrl ? (
+                  <a
+                    href={profile.resumeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-8 py-4 rounded-full bg-[#16A34A] hover:bg-[#15803D] text-white font-extrabold text-sm shadow-[0_10px_25px_rgba(22,163,74,0.3)] hover:shadow-[0_15px_35px_rgba(22,163,74,0.45)] hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2.5 group cursor-pointer"
+                  >
+                    <Download className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
+                    <span>Download Resume</span>
+                  </a>
+                ) : (
+                  <button
+                    onClick={() => scrollToSection("contact")}
+                    className="px-8 py-4 rounded-full bg-[#16A34A] hover:bg-[#15803D] text-white font-extrabold text-sm shadow-[0_10px_25px_rgba(22,163,74,0.3)] hover:shadow-[0_15px_35px_rgba(22,163,74,0.45)] hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2.5 group cursor-pointer"
+                  >
+                    <Download className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
+                    <span>View Resume</span>
+                  </button>
+                )}
+
+                {/* Secondary CTA: Contact Me */}
+                <button
+                  onClick={() => scrollToSection("contact")}
+                  className={`px-8 py-4 rounded-full font-extrabold text-sm border-2 backdrop-blur-xl transition-all duration-300 flex items-center gap-2.5 hover:-translate-y-0.5 shadow-sm cursor-pointer ${
+                    isDarkMode
+                      ? "border-[#4F46E5] text-indigo-400 hover:bg-[#4F46E5]/15"
+                      : "border-[#4F46E5] text-[#4F46E5] hover:bg-[#4F46E5]/10"
+                  }`}
+                >
+                  <Mail className="w-4 h-4" />
+                  <span>Contact Me</span>
+                </button>
+              </div>
+
+              {/* Quick Info Chips */}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 pt-4 text-xs font-medium text-slate-500">
+                {profile?.email && (
+                  <a href={`mailto:${profile.email}`} className="flex items-center gap-2 hover:text-[#16A34A] transition-colors">
+                    <Mail className="w-3.5 h-3.5 text-[#16A34A]" />
+                    <span>{profile.email}</span>
+                  </a>
+                )}
+                {profile?.mobileNumber && (
+                  <a href={`tel:${profile.mobileNumber}`} className="flex items-center gap-2 hover:text-[#16A34A] transition-colors">
+                    <Phone className="w-3.5 h-3.5 text-[#16A34A]" />
+                    <span>{profile.mobileNumber}</span>
+                  </a>
+                )}
+                {profile?.location && (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-3.5 h-3.5 text-[#16A34A]" />
+                    <span>{profile.location}</span>
                   </div>
                 )}
               </div>
             </div>
+
+            {/* Right Column: Layered Surface Profile Photo (5 Cols, 32px Radius) */}
+            <div className="lg:col-span-5 flex justify-center">
+              <div className="relative group w-full max-w-sm">
+                {/* Background Layer Card */}
+                <div className="absolute -inset-2 rounded-[36px] bg-gradient-to-tr from-[#16A34A] via-[#22C55E] to-[#4F46E5] opacity-20 blur-xl group-hover:opacity-40 transition duration-500" />
+
+                {/* Profile Photo Surface Card */}
+                <div
+                  className={`relative p-3 rounded-[32px] border backdrop-blur-xl shadow-2xl transition-all duration-300 ${
+                    isDarkMode ? "bg-[#111827] border-slate-800" : "bg-white border-[#E2E8F0]"
+                  }`}
+                >
+                  <div className="w-full h-80 sm:h-96 rounded-[24px] overflow-hidden bg-slate-100 dark:bg-slate-900 relative">
+                    {profile?.pictureUrl || profile?.photo ? (
+                      <img
+                        src={profile.pictureUrl || profile.photo}
+                        alt={profile.fullName || "Profile"}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      />
+                    ) : (
+                      <div
+                        className={`w-full h-full flex flex-col items-center justify-center font-extrabold text-6xl ${
+                          isDarkMode ? "bg-[#111827] text-[#22C55E]" : "bg-[#F8FAFC] text-[#16A34A]"
+                        }`}
+                      >
+                        <span>{profile?.fullName?.[0] || "P"}</span>
+                        <span className="text-[10px] font-mono tracking-widest uppercase mt-3 text-[#4F46E5]">PRISM FLOW</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Floating Glass Distinction Card */}
+                <div
+                  className={`absolute -bottom-6 -left-4 sm:-left-6 px-5 py-3.5 rounded-2xl border backdrop-blur-xl shadow-xl flex items-center gap-3 ${
+                    isDarkMode ? "bg-[#111827]/90 border-slate-800 text-white" : "bg-white/95 border-[#E2E8F0] text-[#111827]"
+                  }`}
+                >
+                  <div className="w-9 h-9 rounded-xl bg-[#F8FAFC] dark:bg-slate-900 border border-[#16A34A]/30 flex items-center justify-center text-[#16A34A] font-bold text-xs">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-extrabold">Handcrafted Design</div>
+                    <div className="text-[10px] text-[#4F46E5] dark:text-indigo-400 font-mono">WCAG Compliant • 8pt Grid</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* STATS STRIP: THE WINNING HAND */}
-      <section className="t15-stats-section">
-        <div className="t15-container">
-          <div className="t15-stats-grid">
-            <div className="t15-stat-card">
-              <div className="t15-card-index t15-index-top-left t15-suit-red"><span>A</span><span>♥</span></div>
-              <div className="t15-stat-val">{experience.length || 3}+</div>
-              <div className="t15-stat-lbl">Years Experience</div>
-            </div>
+        {/* FEATURED METRICS (ANIMATED COUNTERS & ASYMMETRICAL CARDS) */}
+        <section className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+          {stats.map((st, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: idx * 0.1 }}
+              className={`p-6 rounded-[28px] border backdrop-blur-xl flex flex-col justify-between transition-all hover:border-[#16A34A]/60 shadow-sm ${
+                isDarkMode ? "bg-[#111827]/70 border-slate-800" : "bg-[#F8FAFC] border-[#E2E8F0]"
+              }`}
+            >
+              <div className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-900 border border-[#16A34A]/30 flex items-center justify-center text-[#16A34A] mb-3">
+                <st.icon className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-3xl font-extrabold tracking-tight text-[#111827] dark:text-white mb-1">
+                  {st.value}
+                  <span className="text-[#4F46E5] dark:text-indigo-400">{st.suffix}</span>
+                </div>
+                <div className="text-xs font-semibold text-slate-500">
+                  {st.label}
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </section>
 
-            <div className="t15-stat-card">
-              <div className="t15-card-index t15-index-top-left t15-suit-black"><span>K</span><span>♠</span></div>
-              <div className="t15-stat-val">{projects.length || 10}+</div>
-              <div className="t15-stat-lbl">Completed Projects</div>
+        {/* SKILLS AS INTERACTIVE CHIPS */}
+        <section id="skills" className="scroll-mt-28 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#F8FAFC] text-[#16A34A] dark:text-[#22C55E] text-xs font-mono uppercase tracking-widest font-bold">
+              <Code className="w-3.5 h-3.5 text-[#16A34A]" /> Capabilities
             </div>
-
-            <div className="t15-stat-card">
-              <div className="t15-card-index t15-index-top-left t15-suit-red"><span>Q</span><span>♦</span></div>
-              <div className="t15-stat-val">{skills.length || 15}+</div>
-              <div className="t15-stat-lbl">Skills Mastered</div>
-            </div>
-
-            <div className="t15-stat-card">
-              <div className="t15-card-index t15-index-top-left t15-suit-black"><span>J</span><span>♣</span></div>
-              <div className="t15-stat-val">{certifications.length || 5}+</div>
-              <div className="t15-stat-lbl">Credentials Earned</div>
-            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Core Skills & Proficiency
+            </h2>
+            <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Interactive chips with smooth hover lift effects and 28px border radius.
+            </p>
           </div>
-        </div>
-      </section>
 
-      {/* MAIN SECTIONS GRID */}
-      <main className="t15-main">
-        {/* SKILLS DECK */}
-        {skills.length > 0 && (
-          <section id="skills" style={{ marginBottom: "40px" }}>
-            <div className="t15-sec-header">
-              <span className="t15-sec-icon-suit">♠</span>
-              <h2 className="t15-sec-title">THE DECK OF SKILLS</h2>
+          <div className="flex flex-wrap justify-center gap-3.5 max-w-4xl mx-auto">
+            {normalizedSkills.map((sk, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                whileHover={{ scale: 1.05, y: -2 }}
+                transition={{ duration: 0.3, delay: idx * 0.03 }}
+                className={`px-6 py-3.5 rounded-full border backdrop-blur-xl shadow-sm transition-all duration-300 flex items-center gap-3 cursor-default ${
+                  isDarkMode
+                    ? "bg-[#111827] border-slate-800 text-slate-200 hover:border-[#16A34A]"
+                    : "bg-[#F8FAFC] border-[#E2E8F0] text-[#111827] hover:border-[#16A34A] shadow-sm"
+                }`}
+              >
+                <div className="w-2.5 h-2.5 rounded-full bg-[#16A34A]" />
+                <span className="font-bold text-xs sm:text-sm tracking-wide">{sk.name}</span>
+                {sk.proficiency && (
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#16A34A]/15 text-[#16A34A] dark:text-[#22C55E]">
+                    {sk.proficiency}%
+                  </span>
+                )}
+              </motion.div>
+            ))}
+            {normalizedSkills.length === 0 && (
+              <p className="text-xs italic text-slate-500">No skills listed yet.</p>
+            )}
+          </div>
+        </section>
+
+        {/* EXPERIENCE TIMELINE */}
+        <section id="experience" className="scroll-mt-28 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#F8FAFC] text-[#16A34A] dark:text-[#22C55E] text-xs font-mono uppercase tracking-widest font-bold">
+              <Briefcase className="w-3.5 h-3.5 text-[#16A34A]" /> Professional History
             </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Experience Timeline
+            </h2>
+            <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Key positions, career progression, and deliverable highlights.
+            </p>
+          </div>
 
-            <div className="t15-grid-2">
-              {Object.entries(categorizedSkills).map(([catName, catSkills], idx) => {
-                if (catSkills.length === 0) return null;
-                const isRed = catName.includes("♥") || catName.includes("♦");
-                return (
-                  <div key={idx} className="t15-playing-card">
-                    <div className={`t15-card-index t15-index-top-left ${isRed ? "t15-suit-red" : "t15-suit-black"}`}>
-                      <span>10</span>
-                      <span>{catName[0]}</span>
+          <div className="space-y-6 max-w-4xl mx-auto">
+            {profile?.experience?.map((exp, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: idx * 0.1 }}
+                className={`p-8 rounded-[32px] border backdrop-blur-xl transition-all duration-300 hover:border-[#16A34A]/60 ${
+                  isDarkMode
+                    ? "bg-[#111827]/70 border-slate-800 shadow-md"
+                    : "bg-[#F8FAFC] border-[#E2E8F0] hover:bg-white shadow-sm hover:shadow-xl"
+                }`}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#16A34A] to-[#4F46E5] p-0.5 shadow-md shrink-0">
+                      <div className="w-full h-full rounded-[14px] bg-white dark:bg-[#0B0F19] flex items-center justify-center text-[#16A34A] font-bold text-lg">
+                        {exp.company?.[0] || "C"}
+                      </div>
                     </div>
-
-                    <h3 className="t15-pcard-title" style={{ marginLeft: "14px", marginBottom: "12px" }}>
-                      {catName}
-                    </h3>
-                    <div className="t15-skills-grid">
-                      {catSkills.map((sk, i) => (
-                        <span key={i} className="t15-skill-chip">{sk}</span>
-                      ))}
+                    <div>
+                      <h3 className="text-xl font-bold tracking-tight">
+                        {exp.position || exp.role || "Software Engineer"}
+                      </h3>
+                      <div className="text-sm font-semibold text-[#16A34A] dark:text-[#22C55E] flex items-center gap-2 mt-0.5">
+                        <span>{exp.company || "Company"}</span>
+                        {exp.location && (
+                          <span className={`text-xs font-normal ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
+                            • {exp.location}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                );
-              })}
+
+                  <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold border shrink-0 ${
+                    isDarkMode ? "bg-[#0B0F19] border-slate-800 text-slate-300" : "bg-white border-[#E2E8F0] text-slate-800 shadow-sm"
+                  }`}>
+                    <Calendar className="w-3.5 h-3.5 text-[#16A34A]" />
+                    <span>{exp.startDate || "2023"} - {exp.endDate || "Present"}</span>
+                  </div>
+                </div>
+
+                <p className={`text-sm leading-relaxed ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                  {exp.description}
+                </p>
+              </motion.div>
+            ))}
+            {(!profile?.experience || profile.experience.length === 0) && (
+              <p className="text-center text-xs italic text-slate-500">No experience listed yet.</p>
+            )}
+          </div>
+        </section>
+
+        {/* EDUCATION TIMELINE */}
+        <section id="education" className="scroll-mt-28 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#F8FAFC] text-[#16A34A] dark:text-[#22C55E] text-xs font-mono uppercase tracking-widest font-bold">
+              <GraduationCap className="w-3.5 h-3.5 text-[#16A34A]" /> Academic Excellence
             </div>
-          </section>
-        )}
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Education Timeline
+            </h2>
+            <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Degrees, institution details, and academic milestones.
+            </p>
+          </div>
 
-        {/* FEATURED PROJECTS (ROYAL FLUSH) */}
-        {projects.length > 0 && (
-          <section id="projects" style={{ marginBottom: "40px" }}>
-            <div className="t15-sec-header">
-              <span className="t15-sec-icon-suit">♥</span>
-              <h2 className="t15-sec-title">FEATURED PROJECTS (ROYAL FLUSH)</h2>
+          <div className="relative max-w-3xl mx-auto pl-6 sm:pl-8 border-l-2 border-[#16A34A]/40 space-y-10 my-6">
+            {profile?.education?.map((edu, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: idx * 0.1 }}
+                className="relative group"
+              >
+                {/* Node Marker */}
+                <div className="absolute -left-[31px] sm:-left-[39px] top-2 w-5 h-5 rounded-full bg-white dark:bg-[#0B0F19] border-2 border-[#16A34A] flex items-center justify-center shadow-md group-hover:scale-125 transition-transform">
+                  <div className="w-2 h-2 rounded-full bg-[#4F46E5]" />
+                </div>
+
+                <div
+                  className={`p-7 rounded-[28px] border backdrop-blur-xl transition-all duration-300 hover:border-[#16A34A]/60 ${
+                    isDarkMode ? "bg-[#111827]/70 border-slate-800" : "bg-[#F8FAFC] border-[#E2E8F0] hover:bg-white shadow-sm hover:shadow-xl"
+                  }`}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <span className="text-xs font-mono font-bold text-[#16A34A] dark:text-[#22C55E] tracking-wider uppercase">
+                      {edu.startDate || "2020"} — {edu.endDate || "2024"}
+                    </span>
+                    {edu.gpa && (
+                      <span className="text-xs font-bold px-3 py-1 rounded-full border bg-[#16A34A]/10 border-[#16A34A]/30 text-[#16A34A] dark:text-[#22C55E]">
+                        GPA: {edu.gpa}
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="text-xl font-bold tracking-tight mb-1">
+                    {edu.degree}
+                  </h3>
+                  <div className={`text-sm font-semibold mb-3 ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
+                    {edu.institution} {edu.fieldOfStudy && `• ${edu.fieldOfStudy}`}
+                  </div>
+
+                  {edu.description && (
+                    <p className={`text-xs leading-relaxed ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                      {edu.description}
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+            {(!profile?.education || profile.education.length === 0) && (
+              <p className="text-xs italic text-slate-500">No education entries listed.</p>
+            )}
+          </div>
+        </section>
+
+        {/* PROJECTS SHOWCASE (ALTERNATING LARGE & SMALL CARDS) */}
+        <section id="projects" className="scroll-mt-28 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#F8FAFC] text-[#16A34A] dark:text-[#22C55E] text-xs font-mono uppercase tracking-widest font-bold">
+              <FolderGit2 className="w-3.5 h-3.5 text-[#16A34A]" /> Portfolio Showcase
             </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Featured Work & Products
+            </h2>
+            <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Asymmetrical layout with alternating feature cards and screenshots.
+            </p>
+          </div>
 
-            <div className="t15-grid-2">
-              {projects.map((proj, i) => {
-                const ranks = ["K", "Q", "J", "10", "A"];
-                const suits = ["♠", "♥", "♦", "♣"];
-                const rank = ranks[i % ranks.length];
-                const suit = suits[i % suits.length];
-                const isRed = suit === "♥" || suit === "♦";
+          <div className="space-y-8">
+            {profile?.projects?.map((proj, idx) => {
+              const isLarge = idx % 2 === 0; // Alternating large (even index) and small (odd index) cards
+              const techList =
+                proj.technologies ||
+                (typeof proj.techStack === "string" ? proj.techStack.split(",") : []) ||
+                [];
 
-                return (
-                  <div key={i} className="t15-playing-card">
-                    <div className={`t15-card-index t15-index-top-left ${isRed ? "t15-suit-red" : "t15-suit-black"}`}>
-                      <span>{rank}</span>
-                      <span>{suit}</span>
-                    </div>
-
-                    <div style={{ marginLeft: "14px" }}>
-                      <h3 className="t15-pcard-title">{proj.title}</h3>
-                      {proj.description && <p className="t15-pcard-text">{proj.description}</p>}
-                      {proj.techStack && (
-                        <div style={{ marginTop: "8px" }}>
-                          {proj.techStack.split(",").map((tech, idx) => (
-                            <span key={idx} className="t15-tech-badge">{tech.trim()}</span>
-                          ))}
+              return (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 25 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: idx * 0.1 }}
+                  className={`rounded-[32px] border overflow-hidden backdrop-blur-xl transition-all duration-500 hover:border-[#16A34A]/60 group ${
+                    isDarkMode
+                      ? "bg-[#111827]/70 border-slate-800 hover:shadow-2xl"
+                      : "bg-[#F8FAFC] border-[#E2E8F0] hover:bg-white shadow-sm hover:shadow-xl"
+                  }`}
+                >
+                  <div className={`grid ${isLarge ? "lg:grid-cols-12" : "lg:grid-cols-12"} items-center gap-8 p-6 sm:p-8`}>
+                    {/* Image Column */}
+                    <div className={`${isLarge ? "lg:col-span-7" : "lg:col-span-5"} overflow-hidden rounded-[24px] bg-slate-900 relative h-64 sm:h-80`}>
+                      {proj.imageUrl || proj.image ? (
+                        <img
+                          src={proj.imageUrl || proj.image}
+                          alt={proj.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-[#0B0F19] via-slate-950 to-emerald-950 flex items-center justify-center p-6 text-center">
+                          <Code className="w-12 h-12 text-[#16A34A]/40 mb-2 group-hover:scale-110 transition-transform" />
                         </div>
                       )}
-                      {(proj.projectUrl || proj.link) && (
-                        <a
-                          href={formatUrl(proj.projectUrl || proj.link)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="t15-link"
-                        >
-                          View Project {suit} <ExternalLink size={12} />
-                        </a>
+                    </div>
+
+                    {/* Content Column */}
+                    <div className={`${isLarge ? "lg:col-span-5" : "lg:col-span-7"} space-y-4`}>
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-[#16A34A]/10 text-[#16A34A] dark:text-[#22C55E]">
+                        <span>PROJECT 0{idx + 1}</span>
+                      </div>
+
+                      <h3 className="text-2xl font-bold tracking-tight group-hover:text-[#16A34A] transition-colors">
+                        {proj.title}
+                      </h3>
+
+                      <p className={`text-xs sm:text-sm leading-relaxed ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                        {proj.description}
+                      </p>
+
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {techList.map((t, i) => (
+                          <span
+                            key={i}
+                            className="px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-[#4F46E5]/10 text-[#4F46E5] dark:text-indigo-400 border border-[#4F46E5]/20"
+                          >
+                            {t.trim()}
+                          </span>
+                        ))}
+                      </div>
+
+                      {(proj.link || proj.projectUrl || proj.githubUrl) && (
+                        <div className="pt-2">
+                          <a
+                            href={proj.link || proj.projectUrl || proj.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#16A34A] hover:bg-[#15803D] text-white font-extrabold text-xs shadow-md transition-all group/btn cursor-pointer"
+                          >
+                            <span>View Project</span>
+                            <ArrowUpRight className="w-4 h-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                          </a>
+                        </div>
                       )}
                     </div>
                   </div>
-                );
-              })}
+                </motion.div>
+              );
+            })}
+            {(!profile?.projects || profile.projects.length === 0) && (
+              <p className="text-center text-xs italic text-slate-500">No projects listed yet.</p>
+            )}
+          </div>
+        </section>
+
+        {/* CERTIFICATIONS IN CLEAN HORIZONTAL CARDS */}
+        <section id="certifications" className="scroll-mt-28 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#F8FAFC] text-[#16A34A] dark:text-[#22C55E] text-xs font-mono uppercase tracking-widest font-bold">
+              <Award className="w-3.5 h-3.5 text-[#16A34A]" /> Verified Credentials
             </div>
-          </section>
-        )}
-
-        {/* WORK EXPERIENCE (CAREER DECK) */}
-        {experience.length > 0 && (
-          <section id="experience" style={{ marginBottom: "40px" }}>
-            <div className="t15-sec-header">
-              <span className="t15-sec-icon-suit">♦</span>
-              <h2 className="t15-sec-title">CAREER EXPERIENCE DECK</h2>
-            </div>
-
-            <div className="t15-grid-2">
-              {experience.map((exp, i) => (
-                <div key={i} className="t15-playing-card">
-                  <div className="t15-card-index t15-index-top-left t15-suit-red">
-                    <span>9</span>
-                    <span>♦</span>
-                  </div>
-
-                  <div style={{ marginLeft: "14px" }}>
-                    <h3 className="t15-pcard-title">{exp.position}</h3>
-                    <div className="t15-pcard-sub">{exp.company}</div>
-                    <div className="t15-card-date">{exp.startDate} — {exp.endDate || "Present"}</div>
-                    {exp.description && <p className="t15-pcard-text">{exp.description}</p>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* EDUCATION & CERTIFICATIONS (HONORS CARDS) */}
-        {(education.length > 0 || certifications.length > 0) && (
-          <section style={{ marginBottom: "40px" }}>
-            <div className="t15-sec-header">
-              <span className="t15-sec-icon-suit">♣</span>
-              <h2 className="t15-sec-title">ACADEMICS & CERTIFICATIONS</h2>
-            </div>
-
-            <div className="t15-grid-2">
-              {education.map((edu, i) => (
-                <div key={i} className="t15-playing-card">
-                  <div className="t15-card-index t15-index-top-left t15-suit-black">
-                    <span>8</span>
-                    <span>♣</span>
-                  </div>
-
-                  <div style={{ marginLeft: "14px" }}>
-                    <h3 className="t15-pcard-title">{edu.degree}</h3>
-                    <div className="t15-pcard-sub">{edu.institution}</div>
-                    <div className="t15-card-date">{edu.startDate || edu.startYear} — {edu.endDate || edu.endYear}</div>
-                    {(edu.gpa || edu.cgpa) && <div className="t15-pcard-text" style={{ fontWeight: 700, color: "#854d0e" }}>SCORE: {edu.gpa || edu.cgpa}</div>}
-                  </div>
-                </div>
-              ))}
-
-              {certifications.map((cert, i) => (
-                <div key={i} className="t15-playing-card">
-                  <div className="t15-card-index t15-index-top-left t15-suit-black">
-                    <span>7</span>
-                    <span>♣</span>
-                  </div>
-
-                  <div style={{ marginLeft: "14px" }}>
-                    <h3 className="t15-pcard-title">{cert.name}</h3>
-                    <div className="t15-pcard-sub">{cert.issuingOrganization}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* SERVICES OFFERED */}
-        {services.length > 0 && (
-          <section style={{ marginBottom: "40px" }}>
-            <div className="t15-sec-header">
-              <span className="t15-sec-icon-suit">♠</span>
-              <h2 className="t15-sec-title">HIGH ROLLER SERVICE PACKAGES</h2>
-            </div>
-
-            <div className="t15-grid-2">
-              {services.map((svc, i) => (
-                <div key={i} className="t15-playing-card">
-                  <div className="t15-card-index t15-index-top-left t15-suit-black"><span>K</span><span>♠</span></div>
-                  <div style={{ marginLeft: "14px" }}>
-                    <h3 className="t15-pcard-title">{svc.title}</h3>
-                    <p className="t15-pcard-text">{svc.description}</p>
-                    {svc.price && <div style={{ marginTop: "6px", fontWeight: 800, color: "#059669", fontSize: "11px" }}>RATE: {svc.price}</div>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* CONTACT CONSOLE (DEAL A MESSAGE) */}
-        <section id="contact">
-          <div className="t15-sec-header">
-            <span className="t15-sec-icon-suit">♥</span>
-            <h2 className="t15-sec-title">DEAL A MESSAGE TO DEVELOPER</h2>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Certifications & Recognitions
+            </h2>
+            <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Clean horizontal cards displaying verified industry qualifications.
+            </p>
           </div>
 
-          <div className="t15-playing-card" style={{ padding: "28px" }}>
-            <div className="t15-card-index t15-index-top-left t15-suit-red"><span>A</span><span>♥</span></div>
+          <div className="space-y-4 max-w-4xl mx-auto">
+            {profile?.certifications?.map((cert, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.3, delay: idx * 0.08 }}
+                className={`p-6 rounded-[28px] border backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:border-[#16A34A]/60 ${
+                  isDarkMode
+                    ? "bg-[#111827]/70 border-slate-800 shadow-md"
+                    : "bg-[#F8FAFC] border-[#E2E8F0] hover:bg-white shadow-sm"
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-900 border border-[#16A34A]/30 flex items-center justify-center text-[#16A34A] shrink-0">
+                    <Award className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold tracking-tight">
+                      {cert.name || cert.title}
+                    </h3>
+                    <div className="text-xs font-semibold text-[#4F46E5] dark:text-indigo-400">
+                      {cert.issuingOrganization || cert.issuer || "Issuing Body"} • {cert.issueDate || cert.date || "2024"}
+                    </div>
+                  </div>
+                </div>
 
-            <form onSubmit={handleSubmit} style={{ marginLeft: "14px" }}>
-              <input
-                type="text"
-                name="name"
-                placeholder="Your Name"
-                value={formData.name}
-                onChange={handleChange}
-                className="t15-input"
-                required
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="Your Email"
-                value={formData.email}
-                onChange={handleChange}
-                className="t15-input"
-                required
-              />
-              <textarea
-                name="message"
-                placeholder="Your Message..."
-                value={formData.message}
-                onChange={handleChange}
-                className="t15-input t15-textarea"
-                required
-              />
-              <button type="submit" className="t15-btn-deal" disabled={isSubmitting}>
-                <Zap size={14} /> {isSubmitting ? "Dealing Message..." : "DEAL MESSAGE ♠"}
-              </button>
-            </form>
+                {cert.credentialUrl && (
+                  <a
+                    href={cert.credentialUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#16A34A] dark:text-[#22C55E] hover:underline shrink-0"
+                  >
+                    <span>Verify Credential</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
+              </motion.div>
+            ))}
+            {(!profile?.certifications || profile.certifications.length === 0) && (
+              <p className="text-center text-xs italic text-slate-500">No certifications listed yet.</p>
+            )}
+          </div>
+        </section>
+
+        {/* PROFESSIONAL RECRUITER CONTACT SECTION */}
+        <section id="contact" className="scroll-mt-28 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#16A34A]/30 bg-[#F8FAFC] text-[#16A34A] dark:text-[#22C55E] text-xs font-mono uppercase tracking-widest font-bold">
+              <Mail className="w-3.5 h-3.5 text-[#16A34A]" /> Recruiter Connection
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+              Get in Touch
+            </h2>
+            <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+              Direct dispatch interface to connect with the candidate.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-12 gap-8 max-w-5xl mx-auto">
+            {/* Direct Info */}
+            <div
+              className={`lg:col-span-5 p-8 rounded-[32px] border backdrop-blur-xl space-y-6 flex flex-col justify-between ${
+                isDarkMode ? "bg-[#111827]/70 border-slate-800" : "bg-[#F8FAFC] border-[#E2E8F0] shadow-md"
+              }`}
+            >
+              <div>
+                <h3 className="text-2xl font-extrabold tracking-tight mb-2">Let's Build Together</h3>
+                <p className={`text-xs leading-relaxed mb-6 ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                  Inquiring about full-time engineering roles, technical consulting, or leadership positions? Reach out directly.
+                </p>
+
+                <div className="space-y-4">
+                  {profile?.email && (
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-900 border border-[#16A34A]/30 flex items-center justify-center text-[#16A34A] shrink-0">
+                        <Mail className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase font-mono text-slate-500 font-bold">Email</div>
+                        <a href={`mailto:${profile.email}`} className="text-sm font-bold hover:text-[#16A34A] transition-colors">
+                          {profile.email}
+                        </a>
+                      </div>
+                    </div>
+                  )}
+
+                  {profile?.mobileNumber && (
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-900 border border-[#16A34A]/30 flex items-center justify-center text-[#16A34A] shrink-0">
+                        <Phone className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="text-[10px] uppercase font-mono text-slate-500 font-bold">Phone</div>
+                        <a href={`tel:${profile.mobileNumber}`} className="text-sm font-bold hover:text-[#16A34A] transition-colors">
+                          {profile.mobileNumber}
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-slate-200 dark:border-slate-800">
+                <div className="text-xs font-bold mb-3">Portfolio Share</div>
+                <button
+                  onClick={handleCopyLink}
+                  className="w-full py-3 px-4 rounded-full border border-[#16A34A]/40 text-[#16A34A] dark:text-[#22C55E] bg-white dark:bg-[#0B0F19] text-xs font-extrabold transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:border-[#16A34A]"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy Portfolio Link</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Form */}
+            <div
+              className={`lg:col-span-7 p-8 rounded-[32px] border backdrop-blur-xl shadow-xl ${
+                isDarkMode ? "bg-[#111827]/80 border-slate-800" : "bg-white border-[#E2E8F0]"
+              }`}
+            >
+              <form onSubmit={handleSubmitContact} className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-extrabold mb-1.5">Your Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Jane Doe"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all ${
+                        isDarkMode
+                          ? "bg-[#0B0F19] border-slate-800 text-white focus:border-[#16A34A]"
+                          : "bg-[#F8FAFC] border-[#E2E8F0] text-[#111827] focus:border-[#16A34A] focus:bg-white"
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-extrabold mb-1.5">Your Email *</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="recruiter@company.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all ${
+                        isDarkMode
+                          ? "bg-[#0B0F19] border-slate-800 text-white focus:border-[#16A34A]"
+                          : "bg-[#F8FAFC] border-[#E2E8F0] text-[#111827] focus:border-[#16A34A] focus:bg-white"
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-extrabold mb-1.5">Subject</label>
+                  <input
+                    type="text"
+                    placeholder="Senior Engineering Opportunity"
+                    value={formData.subject}
+                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                    className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all ${
+                      isDarkMode
+                        ? "bg-[#0B0F19] border-slate-800 text-white focus:border-[#16A34A]"
+                        : "bg-[#F8FAFC] border-[#E2E8F0] text-[#111827] focus:border-[#16A34A] focus:bg-white"
+                    }`}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-extrabold mb-1.5">Message *</label>
+                  <textarea
+                    required
+                    rows={4}
+                    placeholder="Hi, I reviewed your Prism Flow portfolio and would like to connect..."
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all resize-none ${
+                      isDarkMode
+                        ? "bg-[#0B0F19] border-slate-800 text-white focus:border-[#16A34A]"
+                        : "bg-[#F8FAFC] border-[#E2E8F0] text-[#111827] focus:border-[#16A34A] focus:bg-white"
+                    }`}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-4 px-6 rounded-full bg-[#16A34A] hover:bg-[#15803D] text-white font-extrabold text-sm shadow-[0_10px_25px_rgba(22,163,74,0.3)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Sending Message...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      <span>Send Direct Message</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
           </div>
         </section>
       </main>
 
+      {/* FLOATING SOCIAL MEDIA DOCK */}
+      <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
+        {profile?.socialMediaLinks?.map((soc, idx) => (
+          <motion.a
+            key={idx}
+            href={soc.url || soc.profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.15 }}
+            whileTap={{ scale: 0.9 }}
+            className={`w-12 h-12 rounded-full border shadow-lg backdrop-blur-xl flex items-center justify-center transition-all ${
+              isDarkMode
+                ? "bg-[#111827]/90 border-slate-800 text-[#22C55E] hover:border-[#16A34A]"
+                : "bg-white/95 border-[#E2E8F0] text-[#16A34A] hover:border-[#16A34A] shadow-md"
+            }`}
+            title={soc.platform}
+          >
+            {renderSocialIcon(soc.platform)}
+          </motion.a>
+        ))}
+      </div>
+
       {/* FOOTER */}
-      <footer className="t15-footer">
-        ♠ ♥ ♦ ♣ BYTEBODH CASINO FOLIO · TEMPLATE 15 (PLAYING CARDS THEME) ♣ ♦ ♥ ♠
+      <footer
+        className={`border-t backdrop-blur-xl py-12 relative z-10 ${
+          isDarkMode ? "bg-[#0B0F19]/90 border-slate-800 text-slate-400" : "bg-white/90 border-[#E2E8F0] text-slate-600"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs font-semibold">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-[#16A34A] flex items-center justify-center text-white font-extrabold text-xs">
+              PF
+            </div>
+            <span className="font-extrabold text-[#111827] dark:text-white">{profile?.fullName || "Prism Flow"}</span>
+            <span>• © {new Date().getFullYear()} All Rights Reserved.</span>
+          </div>
+
+          <div className="flex items-center gap-6">
+            {profile?.email && (
+              <a href={`mailto:${profile.email}`} className="hover:text-[#16A34A] transition-colors">
+                {profile.email}
+              </a>
+            )}
+            {profile?.mobileNumber && (
+              <a href={`tel:${profile.mobileNumber}`} className="hover:text-[#16A34A] transition-colors">
+                {profile.mobileNumber}
+              </a>
+            )}
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="text-[#16A34A] dark:text-[#22C55E] hover:underline font-bold"
+            >
+              Back to Top ↑
+            </button>
+          </div>
+        </div>
       </footer>
     </div>
   );

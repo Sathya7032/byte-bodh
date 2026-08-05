@@ -1051,73 +1051,7 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* TEMPLATE GALLERY - Enhanced */}
-      <section className="py-24 bg-gradient-to-b from-slate-50/50 to-white border-t border-slate-100">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-            <span className="px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2">
-              <FaPalette size={12} />
-              Template Gallery
-            </span>
-            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
-              Explore Our <span className="text-emerald-500">Live Layouts</span>
-            </h2>
-            <p className="text-lg text-slate-500">
-              Choose from our premium designs, optimized to display your career milestones with rich aesthetics.
-            </p>
-          </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {templatesShowcase.map((tpl) => (
-              <div
-                key={tpl.id}
-                className="bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group hover:-translate-y-2 hover:border-emerald-500/30"
-              >
-                <div>
-                  {/* Live Web Preview Iframe */}
-                  <div className="aspect-[16/10] bg-slate-900 border border-slate-200 rounded-2xl mb-5 overflow-hidden relative shadow-inner pointer-events-none select-none">
-                    <iframe
-                      src={`/templates/preview/${tpl.id}`}
-                      title={`${tpl.name} Live Preview`}
-                      className="w-[1000px] h-[650px] origin-top-left transform scale-[0.32] sm:scale-[0.38] border-0 pointer-events-none select-none"
-                      loading="lazy"
-                    />
-                    <div className="absolute top-3 right-3 z-10">
-                      <span className="px-3 py-1 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white text-[10px] font-black uppercase rounded-lg backdrop-blur-sm border border-white/10 shadow-lg">
-                        {tpl.badge}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
-                      {tpl.category}
-                    </span>
-                    <h3 className="text-lg font-black text-slate-900 group-hover:text-emerald-500 transition-colors leading-snug">
-                      {tpl.name}
-                    </h3>
-                    <p className="text-xs text-slate-500 leading-relaxed">
-                      {tpl.desc}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-[10px] text-slate-400 font-extrabold uppercase">Template #{tpl.id}</span>
-                  <a
-                    href={`/templates/preview/${tpl.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-500 hover:text-emerald-600 transition-colors group-hover:underline"
-                  >
-                    Live Preview <FaArrowRight size={10} className="group-hover:translate-x-1 transition-transform" />
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* TESTIMONIALS SECTION - Enhanced */}
       <section className="py-24 bg-white border-t border-slate-100 overflow-hidden">

@@ -1,1262 +1,1284 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { useParams } from "react-router-dom";
-import {
-  FaGithub,
-  FaLinkedin,
-  FaGlobe,
-  FaGraduationCap,
-  FaBriefcase,
-  FaProjectDiagram,
-  FaTools,
-  FaHome,
-  FaUser,
-  FaCode,
-  FaDatabase,
-  FaCloud,
-  FaServer,
-  FaMobile,
-  FaPalette,
-  FaChevronRight,
-  FaChevronUp,
-  FaExternalLinkAlt,
-  FaCertificate,
-  FaShareAlt,
-  FaDownload,
-  FaCopy,
-  FaWhatsapp,
-  FaTwitter,
-  FaLinkedinIn,
-  FaFacebook,
-  FaSun,
-  FaMoon
-} from "react-icons/fa";
-import { 
-  SiJavascript, 
-  SiPython, 
-  SiReact, 
-  SiNodedotjs, 
-  SiSpringboot,
-  SiMysql,
-  SiMongodb,
-  SiDocker,
-  SiKubernetes,
-  SiGooglecloud,
-  SiGit,
-  SiLeetcode,
-  SiTypescript,
-  SiTailwindcss,
-  SiAmazon
-} from "react-icons/si";
-import { TbBrandNextjs } from "react-icons/tb";
-import { createContactMessage } from "../api/profileService";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import QRCode from "react-qr-code";
-import { saveAs } from "file-saver";
+import {
+  User,
+  Briefcase,
+  GraduationCap,
+  FolderGit2,
+  Award,
+  Mail,
+  Phone,
+  ArrowUpRight,
+  Sun,
+  Moon,
+  Menu,
+  X,
+  ChevronRight,
+  ExternalLink,
+  Github,
+  Linkedin,
+  Twitter,
+  Globe,
+  FileText,
+  Send,
+  Eye,
+  Copy,
+  Check,
+  ShieldCheck,
+  MapPin,
+  Calendar,
+  Code,
+  Clock
+} from "lucide-react";
+import { toast } from "react-toastify";
+import { createContactMessage } from "../api/profileService";
 
 const TemplateThree = ({ profile }) => {
-  const { username: routeUsername } = useParams();
+  const [isDarkMode, setIsDarkMode] = useState(false); // Royal Sapphire light mode by default
+  const [activeSection, setActiveSection] = useState("hero");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [resumeModalOpen, setResumeModalOpen] = useState(false);
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
 
-  const getUsernameFromDomain = () => {
-    const hostname = window.location.hostname;
-    // For local development (e.g., username.localhost)
-    if (hostname.endsWith(".localhost")) {
-      const subdomain = hostname.replace(".localhost", "");
-      return subdomain && subdomain !== "www" ? subdomain : null;
-    }
-    // For production (e.g., username.bytebodh.in)
-    if (hostname.endsWith(".bytebodh.in")) {
-      const subdomain = hostname.replace(".bytebodh.in", "");
-      return subdomain && subdomain !== "www" ? subdomain : null;
-    }
-    return null;
-  };
-
-  const username = routeUsername || getUsernameFromDomain() || "user";
-  const [activeSection, setActiveSection] = useState("home");
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  // Form State
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    subject: "",
     message: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [qrCodeValue, setQrCodeValue] = useState("");
-  const [copied, setCopied] = useState(false);
 
-  // Toggle Theme Mode
+  // Meeting Schedule State
+  const [meetingData, setMeetingData] = useState({
+    name: "",
+    email: "",
+    date: "",
+    time: "",
+    notes: ""
+  });
+  const [isScheduling, setIsScheduling] = useState(false);
+
+  // Extract recipient identifier
+  const username =
+    profile?.user?.username ||
+    profile?.username ||
+    profile?.fullName?.toLowerCase().replace(/\s+/g, "") ||
+    "user";
+
+  // Toggle Theme
   const toggleTheme = () => setIsDarkMode((prev) => !prev);
 
-  // Dynamic Color Palette
-  const colors = useMemo(() => ({
-    primary: {
-      light: "#818cf8", // Indigo 400
-      main: "#6366f1",  // Indigo 500
-      dark: "#4f46e5",  // Indigo 600
-      gradient: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)"
-    },
-    secondary: {
-      light: "#fdba74", // Orange 300
-      main: "#f97316",  // Orange 500
-      dark: "#ea580c",  // Orange 600
-      gradient: "linear-gradient(135deg, #fdba74 0%, #f97316 100%)"
-    },
-    accent: {
-      light: "#34d399", // Emerald 400
-      main: "#10b981",  // Emerald 500
-      dark: "#059669",  // Emerald 600
-      gradient: "linear-gradient(135deg, #34d399 0%, #059669 100%)"
-    }
-  }), []);
+  // Copy Profile Link
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopiedLink(true);
+    toast.success("Portfolio link copied!");
+    setTimeout(() => setCopiedLink(false), 2500);
+  };
 
-  const sections = useMemo(() => [
-    { id: "home", label: "Home", icon: <FaHome /> },
-    { id: "skills", label: "Skills", icon: <FaTools /> },
-    { id: "projects", label: "Projects", icon: <FaProjectDiagram /> },
-    { id: "experience", label: "Experience", icon: <FaBriefcase /> },
-    { id: "education", label: "Education", icon: <FaGraduationCap /> },
-    { id: "certifications", label: "Certifications", icon: <FaCertificate /> },
-    { id: "contact", label: "Contact", icon: <FaUser /> },
-  ], []);
-
+  // Scroll Spy for Navbar active section highlighting
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const sections = ["hero", "summary", "skills", "experience", "education", "projects", "certifications", "contact"];
+      const scrollPosition = window.scrollY + 200;
+
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sections[i]);
+        if (el && el.offsetTop <= scrollPosition) {
+          setActiveSection(sections[i]);
+          break;
+        }
+      }
     };
+
     window.addEventListener("scroll", handleScroll);
-    
-    // Set current URL for QR code
-    setQrCodeValue(window.location.href);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-    // Observe sections for active navigation
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
-        });
-      },
-      { threshold: 0.3 }
-    );
+  const scrollToSection = (id) => {
+    setMobileMenuOpen(false);
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 40;
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = element.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
 
-    sections.forEach((section) => {
-      const element = document.getElementById(section.id);
-      if (element) observer.observe(element);
-    });
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      observer.disconnect();
-    };
-  }, [sections]);
-
-  const getInitials = (fullName) => {
-    if (!fullName) return "";
-    return fullName
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
-      toast.error("Please fill in all fields", {
-        position: "top-right",
-        autoClose: 3000,
-        theme: isDarkMode ? "dark" : "light"
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
       });
-      return;
     }
+  };
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      toast.error("Please enter a valid email address", {
-        position: "top-right",
-        autoClose: 3000,
-        theme: isDarkMode ? "dark" : "light"
-      });
+  // Contact Form Submission
+  const handleSubmitContact = async (e) => {
+    e.preventDefault();
+
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      toast.error("Please fill in all required fields.");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const contactData = {
-        id: profile?.user?.id,
-        name: formData.name,
-        email: formData.email,
-        message: formData.message,
-        recipientUsername: username
+      const payload = {
+        recipientUsername: username,
+        receiverId: profile?.user?.id || profile?.userId,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        subject: formData.subject.trim() || `Royal Sapphire Inquiry from ${formData.name}`,
+        message: formData.message.trim()
       };
 
-      const response = await createContactMessage(contactData);
-      
-      if (response.data?.success) {
-        toast.success("Message sent successfully! I'll get back to you soon.", {
-          position: "top-right",
-          autoClose: 5000,
-          theme: isDarkMode ? "dark" : "light"
-        });
+      const response = await createContactMessage(payload);
 
-        setFormData({
-          name: "",
-          email: "",
-          message: ""
-        });
+      if (response?.data?.success || response?.status === 200 || response?.status === 201) {
+        toast.success("🚀 Message dispatched successfully! I will respond shortly.");
+        setFormData({ name: "", email: "", subject: "", message: "" });
       } else {
-        throw new Error(response.data?.message || "Failed to send message");
+        throw new Error(response?.data?.message || "Failed to send message");
       }
-    } catch (error) {
-      console.error("Error sending message:", error);
-      
-      toast.error(
-        error.response?.data?.message || 
-        "Failed to send message. Please try again later.", 
-        {
-          position: "top-right",
-          autoClose: 5000,
-          theme: isDarkMode ? "dark" : "light"
-        }
-      );
+    } catch (err) {
+      console.error("Contact Form Error:", err);
+      toast.error(err?.response?.data?.message || err?.message || "Failed to deliver message. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    toast.success("Link copied to clipboard!", {
-      position: "top-right",
-      autoClose: 2000,
-      theme: isDarkMode ? "dark" : "light"
+  // Meeting Schedule Request
+  const handleScheduleSubmit = async (e) => {
+    e.preventDefault();
+    if (!meetingData.name || !meetingData.email || !meetingData.date || !meetingData.time) {
+      toast.error("Please fill in meeting date, time, and contact info.");
+      return;
+    }
+
+    setIsScheduling(true);
+
+    try {
+      const payload = {
+        recipientUsername: username,
+        receiverId: profile?.user?.id || profile?.userId,
+        name: meetingData.name,
+        email: meetingData.email,
+        subject: `📅 Meeting Schedule Request for ${meetingData.date} at ${meetingData.time}`,
+        message: `Requested Meeting Date: ${meetingData.date}\nTime: ${meetingData.time}\nNotes: ${meetingData.notes || "N/A"}`
+      };
+
+      await createContactMessage(payload);
+      toast.success("🗓️ Meeting request sent! I will confirm via email.");
+      setScheduleModalOpen(false);
+      setMeetingData({ name: "", email: "", date: "", time: "", notes: "" });
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to send meeting request. Please try again.");
+    } finally {
+      setIsScheduling(false);
+    }
+  };
+
+  // Parse Skills Data
+  const normalizedSkills = useMemo(() => {
+    if (!profile?.skills) return [];
+    return profile.skills.map((skill) => {
+      if (typeof skill === "object" && skill !== null) {
+        return {
+          name: skill.name || "Technical Skill",
+          proficiency: skill.proficiency || skill.level || 85,
+          category: skill.category || "Engineering"
+        };
+      }
+      return {
+        name: String(skill),
+        proficiency: 85,
+        category: "Engineering"
+      };
     });
-    setTimeout(() => setCopied(false), 2000);
+  }, [profile?.skills]);
+
+  // Social Icon Helper
+  const renderSocialIcon = (platform, className = "w-5 h-5") => {
+    const p = (platform || "").toUpperCase();
+    if (p.includes("LINKEDIN")) return <Linkedin className={className} />;
+    if (p.includes("GITHUB")) return <Github className={className} />;
+    if (p.includes("TWITTER") || p.includes("X")) return <Twitter className={className} />;
+    return <Globe className={className} />;
   };
 
-  const downloadQRCode = () => {
-    const svg = document.getElementById("qr-code-svg");
-    if (!svg) return;
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
-    
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
-      
-      canvas.toBlob((blob) => {
-        saveAs(blob, `${username}-portfolio-qr.png`);
-      });
-    };
-    
-    img.src = "data:image/svg+xml;base64," + btoa(svgData);
-  };
+  // Nav Items Configuration
+  const navItems = [
+    { id: "hero", label: "Overview", icon: User },
+    { id: "summary", label: "Summary", icon: FileText },
+    { id: "skills", label: "Skills", icon: Code },
+    { id: "experience", label: "Experience", icon: Briefcase },
+    { id: "education", label: "Education", icon: GraduationCap },
+    { id: "projects", label: "Projects", icon: FolderGit2 },
+    { id: "certifications", label: "Certifications", icon: Award },
+    { id: "contact", label: "Contact", icon: Mail }
+  ];
 
-  const shareOnSocial = (platform) => {
-    const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(`Check out ${profile?.fullName}'s portfolio!`);
-    
-    let shareUrl = "";
-    switch(platform) {
-      case 'twitter':
-        shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
-        break;
-      case 'linkedin':
-        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
-        break;
-      case 'facebook':
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-        break;
-      case 'whatsapp':
-        shareUrl = `https://wa.me/?text=${text}%20${url}`;
-        break;
-      default:
-        return;
+  // Calculated Statistics
+  const stats = [
+    {
+      label: "Projects Completed",
+      value: profile?.projects?.length || 12,
+      suffix: "+",
+      icon: FolderGit2
+    },
+    {
+      label: "Technical Skills",
+      value: normalizedSkills.length || 18,
+      suffix: "+",
+      icon: Code
+    },
+    {
+      label: "Certifications",
+      value: profile?.certifications?.length || 4,
+      suffix: "",
+      icon: Award
+    },
+    {
+      label: "Recruiter Views",
+      value: profile?.viewsCount || 1650,
+      suffix: "+",
+      icon: Eye
     }
-    
-    window.open(shareUrl, '_blank', 'noopener,noreferrer');
-  };
-
-  const getSkillIcon = (skill) => {
-    if (!skill) return <FaCode className="w-6 h-6" />;
-    
-    const skillLower = skill.toLowerCase();
-    const iconProps = { className: "w-6 h-6" };
-    
-    if (skillLower.includes("javascript")) return <SiJavascript {...iconProps} />;
-    if (skillLower.includes("typescript")) return <SiTypescript {...iconProps} />;
-    if (skillLower.includes("python")) return <SiPython {...iconProps} />;
-    if (skillLower.includes("react")) return <SiReact {...iconProps} />;
-    if (skillLower.includes("next")) return <TbBrandNextjs {...iconProps} />;
-    if (skillLower.includes("node")) return <SiNodedotjs {...iconProps} />;
-    if (skillLower.includes("spring")) return <SiSpringboot {...iconProps} />;
-    if (skillLower.includes("mysql")) return <SiMysql {...iconProps} />;
-    if (skillLower.includes("mongodb")) return <SiMongodb {...iconProps} />;
-    if (skillLower.includes("docker")) return <SiDocker {...iconProps} />;
-    if (skillLower.includes("kubernetes")) return <SiKubernetes {...iconProps} />;
-    if (skillLower.includes("aws")) return <SiAmazon {...iconProps} />;
-    if (skillLower.includes("gcp") || skillLower.includes("google cloud")) return <SiGooglecloud {...iconProps} />;
-    if (skillLower.includes("git")) return <SiGit {...iconProps} />;
-    if (skillLower.includes("tailwind")) return <SiTailwindcss {...iconProps} />;
-    if (skillLower.includes("ui/ux") || skillLower.includes("design")) return <FaPalette {...iconProps} />;
-    if (skillLower.includes("mobile")) return <FaMobile {...iconProps} />;
-    if (skillLower.includes("database")) return <FaDatabase {...iconProps} />;
-    if (skillLower.includes("cloud")) return <FaCloud {...iconProps} />;
-    if (skillLower.includes("server")) return <FaServer {...iconProps} />;
-    
-    return <FaCode {...iconProps} />;
-  };
-
-  const iconByPlatform = (platform) => {
-    switch (platform) {
-      case "LINKEDIN":
-        return <FaLinkedin className="w-5 h-5" />;
-      case "GITHUB":
-        return <FaGithub className="w-5 h-5" />;
-      case "LEETCODE":
-        return <SiLeetcode className="w-5 h-5" />;
-      case "PORTFOLIO":
-        return <FaGlobe className="w-5 h-5" />;
-      default:
-        return <FaGlobe className="w-5 h-5" />;
-    }
-  };
-
-  const skills = profile?.skills || [];
-  const socialMediaLinks = profile?.socialMediaLinks || [];
-  const projects = profile?.projects || [];
-  const experience = profile?.experience || [];
-  const education = profile?.education || [];
-  const certifications = profile?.certifications || [];
-
-  const getSkillCategory = (skill) => {
-    if (!skill) return "Other";
-    const skillLower = typeof skill === "object" ? (skill.name || "").toLowerCase() : skill.toLowerCase();
-    
-    const backendKeywords = [
-      "java", "spring", "node", "express", "python", "django", "flask",
-      "php", "laravel", "ruby", "rails", "c#", "dotnet", "asp.net",
-      "go", "golang", "rust", "api", "rest", "graphql", "microservices",
-      "serverless", "aws", "azure", "gcp", "docker", "kubernetes", "jenkins",
-      "ci/cd", "nginx", "apache", "mysql", "mongodb", "postgresql", "redis",
-      "elasticsearch", "kafka", "rabbitmq"
-    ];
-    
-    const frontendKeywords = [
-      "react", "angular", "vue", "next", "javascript", "typescript", "html",
-      "css", "sass", "less", "tailwind", "bootstrap", "material-ui", "chakra",
-      "redux", "zustand", "context", "jquery", "webpack", "vite", "babel",
-      "figma", "photoshop", "illustrator", "ui/ux", "responsive", "mobile",
-      "pwa", "spa", "webgl", "three.js", "gsap", "animation"
-    ];
-    
-    for (const keyword of backendKeywords) {
-      if (skillLower.includes(keyword)) return "Backend";
-    }
-    
-    for (const keyword of frontendKeywords) {
-      if (skillLower.includes(keyword)) return "Frontend";
-    }
-    
-    return "Other";
-  };
-
-  const categorizedSkills = {
-    Backend: [],
-    Frontend: [],
-    Other: []
-  };
-
-  skills.forEach(skillItem => {
-    const skillName = typeof skillItem === "object" ? skillItem.name : skillItem;
-    const category = getSkillCategory(skillName);
-    categorizedSkills[category].push(skillName);
-  });
-
-  const filteredCategories = Object.fromEntries(
-    Object.entries(categorizedSkills).filter(([_, skillList]) => skillList.length > 0)
-  );
-
-  const getCategoryColor = (category) => {
-    switch (category) {
-      case "Backend":
-        return { 
-          bg: isDarkMode ? "from-red-950/30 to-orange-950/30" : "from-red-50 to-orange-50", 
-          text: isDarkMode ? "text-red-400" : "text-red-600", 
-          border: isDarkMode ? "border-red-900/40" : "border-red-200",
-          gradient: "linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(249, 115, 22, 0.2) 100%)"
-        };
-      case "Frontend":
-        return { 
-          bg: isDarkMode ? "from-blue-950/30 to-cyan-950/30" : "from-blue-50 to-cyan-50", 
-          text: isDarkMode ? "text-blue-400" : "text-blue-600", 
-          border: isDarkMode ? "border-blue-900/40" : "border-blue-200",
-          gradient: "linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)"
-        };
-      default:
-        return { 
-          bg: isDarkMode ? "from-slate-900 to-slate-950" : "from-slate-100 to-slate-200", 
-          text: isDarkMode ? "text-slate-400" : "text-slate-700", 
-          border: isDarkMode ? "border-slate-800" : "border-slate-300",
-          gradient: "linear-gradient(135deg, rgba(148, 163, 184, 0.2) 0%, rgba(71, 85, 105, 0.2) 100%)"
-        };
-    }
-  };
-
-  // Share Modal Component
-  const ShareModal = () => (
-    <AnimatePresence>
-      {showShareModal && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm"
-            onClick={() => setShowShareModal(false)}
-          />
-          
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className={`relative w-full max-w-md border rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto ${
-                isDarkMode ? "bg-[#0d101a] border-slate-800 text-white" : "bg-white border-slate-200 text-slate-900"
-              }`}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className={`text-xl font-bold ${isDarkMode ? "text-slate-100" : "text-slate-900"}`}>
-                    Share Portfolio
-                  </h3>
-                  <button
-                    onClick={() => setShowShareModal(false)}
-                    className={`p-2 rounded-full transition-colors ${
-                      isDarkMode ? "hover:bg-slate-800 text-slate-400 hover:text-white" : "hover:bg-slate-100 text-slate-500 hover:text-slate-900"
-                    }`}
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-
-                {/* QR Code */}
-                <div className="flex flex-col items-center mb-8">
-                  <div className={`p-4 rounded-xl border shadow-sm mb-4 ${isDarkMode ? "bg-white border-slate-700" : "bg-slate-50 border-slate-200"}`}>
-                    <QRCode
-                      id="qr-code-svg"
-                      value={qrCodeValue}
-                      size={180}
-                      level="H"
-                      fgColor={colors.primary.dark}
-                      bgColor="white"
-                    />
-                  </div>
-                  <p className={`text-sm ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
-                    Scan to visit portfolio
-                  </p>
-                </div>
-
-                {/* Share Links */}
-                <div className="space-y-4">
-                  <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
-                      Share Link
-                    </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        readOnly
-                        value={qrCodeValue}
-                        className={`flex-1 px-4 py-2 border rounded-lg text-sm outline-none ${
-                          isDarkMode ? "border-slate-800 bg-slate-950 text-slate-300" : "border-slate-300 bg-slate-50 text-slate-800"
-                        }`}
-                      />
-                      <button
-                        onClick={copyToClipboard}
-                        className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-medium rounded-lg hover:shadow-lg transition-all flex items-center gap-2"
-                      >
-                        <FaCopy className="w-4 h-4" />
-                        {copied ? "Copied!" : "Copy"}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Social Share Buttons */}
-                  <div>
-                    <label className={`block text-sm font-medium mb-3 ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
-                      Share on Social Media
-                    </label>
-                    <div className="grid grid-cols-4 gap-3">
-                      {[
-                        { id: "twitter", name: "Twitter", icon: FaTwitter, iconColor: "text-blue-400" },
-                        { id: "linkedin", name: "LinkedIn", icon: FaLinkedinIn, iconColor: "text-blue-600" },
-                        { id: "facebook", name: "Facebook", icon: FaFacebook, iconColor: "text-blue-700" },
-                        { id: "whatsapp", name: "WhatsApp", icon: FaWhatsapp, iconColor: "text-emerald-500" }
-                      ].map((s) => (
-                        <button
-                          key={s.id}
-                          onClick={() => shareOnSocial(s.id)}
-                          className={`flex flex-col items-center justify-center p-3 border rounded-xl transition-colors group ${
-                            isDarkMode
-                              ? "bg-slate-950 border-slate-800 hover:bg-slate-800 text-slate-300"
-                              : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700"
-                          }`}
-                        >
-                          <s.icon className={`w-5 h-5 mb-1 ${s.iconColor}`} />
-                          <span className="text-[10px] font-semibold">{s.name}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Download QR Code */}
-                  <div className={`pt-4 border-t ${isDarkMode ? "border-slate-800" : "border-slate-200"}`}>
-                    <button
-                      onClick={downloadQRCode}
-                      className="w-full px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2"
-                    >
-                      <FaDownload className="w-4 h-4" />
-                      Download QR Code
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </>
-      )}
-    </AnimatePresence>
-  );
+  ];
 
   return (
     <div
-      className={`min-h-screen font-sans transition-colors duration-500 selection:bg-indigo-500/20 selection:text-indigo-400 ${
-        isDarkMode ? "bg-[#07090e] text-slate-100" : "bg-[#f8fafc] text-slate-900"
+      className={`min-h-screen font-sans transition-colors duration-500 overflow-x-hidden selection:bg-[#2563EB]/20 selection:text-[#2563EB] ${
+        isDarkMode ? "bg-[#0B132B] text-[#F9FAFB]" : "bg-[#FFFFFF] text-[#111827]"
       }`}
     >
-      <ToastContainer position="bottom-right" theme={isDarkMode ? "dark" : "light"} />
-      <ShareModal />
+      {/* Background Soft Mesh Glow */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div
+          className={`absolute -top-40 left-1/4 w-[500px] h-[500px] rounded-full blur-[160px] transition-colors duration-700 ${
+            isDarkMode ? "bg-[#2563EB]/15" : "bg-[#60A5FA]/20"
+          }`}
+        />
+        <div
+          className={`absolute top-1/2 -right-40 w-[450px] h-[450px] rounded-full blur-[150px] transition-colors duration-700 ${
+            isDarkMode ? "bg-[#60A5FA]/10" : "bg-[#2563EB]/10"
+          }`}
+        />
+      </div>
 
-      {/* TOP BAR */}
-      <div
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-          isScrolled
-            ? isDarkMode
-              ? "bg-[#090b14]/90 shadow-2xl border-b border-slate-800/80 backdrop-blur-md"
-              : "bg-white/90 shadow-md border-b border-slate-200/80 backdrop-blur-md"
-            : "bg-transparent"
+      {/* MOBILE TOP BAR NAVIGATION */}
+      <header
+        className={`lg:hidden sticky top-0 z-50 backdrop-blur-xl border-b p-4 flex items-center justify-between ${
+          isDarkMode ? "bg-[#0B132B]/90 border-slate-800" : "bg-white/90 border-[#E5E7EB]"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo/Name */}
-            <div className="flex items-center gap-3">
-              {profile?.pictureUrl ? (
-                <img
-                  src={profile.pictureUrl}
-                  alt={profile.fullName || "User"}
-                  className="w-10 h-10 rounded-full border-2 border-indigo-500/40 object-cover shadow-sm"
-                />
-              ) : (
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-md" style={{ background: colors.primary.gradient }}>
-                  {getInitials(profile?.fullName)}
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#2563EB] to-[#60A5FA] flex items-center justify-center text-white font-extrabold text-xs shadow-md">
+            RS
+          </div>
+          <span className="font-extrabold text-sm tracking-tight">{profile?.fullName || "Royal Sapphire"}</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className={`p-2 rounded-xl border ${
+              isDarkMode ? "bg-slate-900 border-slate-800 text-amber-400" : "bg-[#F9FAFB] border-[#E5E7EB] text-slate-700"
+            }`}
+          >
+            {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
+
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className={`p-2 rounded-xl border ${
+              isDarkMode ? "bg-slate-900 border-slate-800 text-white" : "bg-[#F9FAFB] border-[#E5E7EB] text-slate-800"
+            }`}
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
+      </header>
+
+      {/* MOBILE MENU DRAWER */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className={`lg:hidden fixed top-[61px] inset-x-0 z-40 border-b backdrop-blur-2xl p-6 space-y-3 ${
+              isDarkMode ? "bg-[#0B132B]/95 border-slate-800" : "bg-white/95 border-[#E5E7EB]"
+            }`}
+          >
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => scrollToSection(item.id)}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition-all ${
+                  activeSection === item.id
+                    ? isDarkMode
+                      ? "bg-[#2563EB]/20 text-[#60A5FA] border border-[#2563EB]/40 font-bold"
+                      : "bg-[#2563EB]/10 text-[#2563EB] border border-[#2563EB]/30 font-bold"
+                    : isDarkMode
+                    ? "text-slate-300 hover:bg-slate-900"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <item.icon className="w-4 h-4 text-[#2563EB]" />
+                  <span>{item.label}</span>
+                </div>
+                <ChevronRight className="w-4 h-4 opacity-50" />
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* DUAL COLUMN CONTAINER (Left Sidebar + Right Content Area) */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-12 flex flex-col lg:flex-row gap-8 relative z-10">
+        
+        {/* LEFT PROFILE SIDEBAR (Sticky on Desktop) */}
+        <aside className="lg:w-[360px] shrink-0">
+          <div
+            className={`lg:sticky lg:top-8 p-7 rounded-3xl border backdrop-blur-xl shadow-[0_10px_30px_rgba(37,99,235,0.08)] space-y-7 transition-all duration-300 ${
+              isDarkMode ? "bg-[#1C2541]/70 border-slate-800" : "bg-[#F9FAFB] border-[#E5E7EB]"
+            }`}
+          >
+            {/* Header Controls inside Sidebar */}
+            <div className="hidden lg:flex items-center justify-between pb-4 border-b border-[#E5E7EB]/80 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-[#2563EB] text-white flex items-center justify-center font-extrabold text-xs shadow-md">
+                  RS
+                </div>
+                <span className="font-extrabold text-xs uppercase tracking-widest text-[#2563EB]">
+                  Royal Sapphire
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleCopyLink}
+                  className={`p-2 rounded-2xl border transition-all duration-300 cursor-pointer ${
+                    isDarkMode
+                      ? "bg-slate-900 border-slate-800 text-slate-300 hover:text-[#60A5FA]"
+                      : "bg-white border-[#E5E7EB] text-slate-700 hover:text-[#2563EB]"
+                  }`}
+                  title="Copy Portfolio Link"
+                >
+                  {copiedLink ? <Check className="w-4 h-4 text-[#2563EB]" /> : <Copy className="w-4 h-4" />}
+                </button>
+
+                <button
+                  onClick={toggleTheme}
+                  className={`p-2 rounded-2xl border transition-all duration-300 cursor-pointer ${
+                    isDarkMode
+                      ? "bg-slate-900 border-slate-800 text-amber-400 hover:bg-slate-800"
+                      : "bg-white border-[#E5E7EB] text-slate-700 hover:bg-slate-100"
+                  }`}
+                  title={isDarkMode ? "Light Mode" : "Dark Mode"}
+                >
+                  {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Floating Profile Image */}
+            <div className="text-center">
+              <div className="relative inline-block mb-4 group">
+                <div className="absolute -inset-2 rounded-full bg-gradient-to-r from-[#2563EB] to-[#60A5FA] opacity-75 blur-md group-hover:opacity-100 transition duration-500 animate-pulse" />
+                <div className="relative w-36 h-36 rounded-full p-1.5 bg-gradient-to-tr from-[#2563EB] to-[#60A5FA] shadow-xl">
+                  {profile?.pictureUrl || profile?.photo ? (
+                    <img
+                      src={profile.pictureUrl || profile.photo}
+                      alt={profile.fullName || "Profile"}
+                      className="w-full h-full rounded-full object-cover shadow-inner"
+                    />
+                  ) : (
+                    <div
+                      className={`w-full h-full rounded-full flex flex-col items-center justify-center text-4xl font-extrabold ${
+                        isDarkMode ? "bg-[#0B132B] text-[#60A5FA]" : "bg-white text-[#2563EB]"
+                      }`}
+                    >
+                      <span>{profile?.fullName?.[0] || "R"}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="absolute bottom-0 right-0 p-1.5 rounded-full bg-[#2563EB] text-white shadow-md border-2 border-white dark:border-slate-900">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+              </div>
+
+              <h1 className="text-2xl font-extrabold tracking-tight mb-1">
+                {profile?.fullName || "Royal Executive"}
+              </h1>
+              <p className="text-xs font-bold text-[#2563EB] uppercase tracking-wider leading-relaxed">
+                {profile?.headline || "Executive Engineering Leader"}
+              </p>
+            </div>
+
+            {/* Two Action Buttons in Sidebar */}
+            <div className="space-y-3 pt-2">
+              {/* Primary: Download Resume */}
+              <button
+                onClick={() => setResumeModalOpen(true)}
+                className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-[#2563EB] to-[#60A5FA] hover:from-[#1D4ED8] hover:to-[#2563EB] text-white font-extrabold text-xs shadow-[0_8px_20px_rgba(37,99,235,0.3)] hover:shadow-[0_12px_28px_rgba(37,99,235,0.45)] hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <FileText className="w-4 h-4" />
+                <span>Download Resume</span>
+              </button>
+
+              {/* Secondary: Schedule Meeting */}
+              <button
+                onClick={() => setScheduleModalOpen(true)}
+                className={`w-full py-3.5 px-5 rounded-2xl font-extrabold text-xs border transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-0.5 shadow-sm cursor-pointer ${
+                  isDarkMode
+                    ? "bg-slate-900 border-slate-700 text-slate-200 hover:border-[#2563EB]"
+                    : "bg-white border-[#E5E7EB] text-[#111827] hover:border-[#2563EB] hover:bg-slate-50"
+                }`}
+              >
+                <Clock className="w-4 h-4 text-[#2563EB]" />
+                <span>Schedule Meeting</span>
+              </button>
+            </div>
+
+            {/* Recruiter Quick Details */}
+            <div className="space-y-3 pt-4 border-t border-[#E5E7EB]/80 dark:border-slate-800 text-xs font-medium">
+              {profile?.email && (
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-[#2563EB]/10 flex items-center justify-center text-[#2563EB] shrink-0">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <a href={`mailto:${profile.email}`} className="truncate hover:text-[#2563EB] transition-colors">
+                    {profile.email}
+                  </a>
                 </div>
               )}
+
+              {profile?.mobileNumber && (
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-[#2563EB]/10 flex items-center justify-center text-[#2563EB] shrink-0">
+                    <Phone className="w-4 h-4" />
+                  </div>
+                  <a href={`tel:${profile.mobileNumber}`} className="hover:text-[#2563EB] transition-colors">
+                    {profile.mobileNumber}
+                  </a>
+                </div>
+              )}
+
+              {profile?.location && (
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-[#2563EB]/10 flex items-center justify-center text-[#2563EB] shrink-0">
+                    <MapPin className="w-4 h-4" />
+                  </div>
+                  <span>{profile.location}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Desktop Navigation Links inside Sidebar */}
+            <nav className="hidden lg:block space-y-1 pt-4 border-t border-[#E5E7EB]/80 dark:border-slate-800">
+              {navItems.map((item) => {
+                const isActive = activeSection === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => scrollToSection(item.id)}
+                    className={`w-full flex items-center justify-between px-4 py-2.5 rounded-2xl text-xs font-semibold transition-all ${
+                      isActive
+                        ? isDarkMode
+                          ? "bg-[#2563EB]/20 text-[#60A5FA] border border-[#2563EB]/40 font-bold"
+                          : "bg-[#2563EB]/10 text-[#2563EB] border border-[#2563EB]/30 font-bold"
+                        : isDarkMode
+                        ? "text-slate-400 hover:text-slate-200 hover:bg-slate-900"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <item.icon className="w-3.5 h-3.5 text-[#2563EB]" />
+                      <span>{item.label}</span>
+                    </div>
+                    <ChevronRight className="w-3.5 h-3.5 opacity-40" />
+                  </button>
+                );
+              })}
+            </nav>
+
+            {/* Social Links inside Sidebar */}
+            <div className="pt-4 border-t border-[#E5E7EB]/80 dark:border-slate-800 flex items-center justify-center gap-3">
+              {profile?.socialMediaLinks?.map((soc, idx) => (
+                <a
+                  key={idx}
+                  href={soc.url || soc.profileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all shadow-sm ${
+                    isDarkMode
+                      ? "bg-slate-900 border-slate-800 text-[#60A5FA] hover:border-[#2563EB]"
+                      : "bg-white border-[#E5E7EB] text-[#2563EB] hover:border-[#2563EB] hover:bg-slate-50"
+                  }`}
+                  title={soc.platform}
+                >
+                  {renderSocialIcon(soc.platform, "w-4 h-4")}
+                </a>
+              ))}
+            </div>
+          </div>
+        </aside>
+
+        {/* RIGHT CONTENT AREA */}
+        <main className="flex-1 space-y-24 min-w-0">
+          
+          {/* HERO & EXECUTIVE BRIEFING */}
+          <section id="hero" className="scroll-mt-12">
+            <div
+              className={`p-8 sm:p-10 rounded-3xl border backdrop-blur-xl shadow-[0_10px_30px_rgba(37,99,235,0.08)] space-y-6 ${
+                isDarkMode ? "bg-[#1C2541]/70 border-slate-800" : "bg-[#F9FAFB] border-[#E5E7EB]"
+              }`}
+            >
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#2563EB]/30 bg-[#2563EB]/10 text-[#2563EB] dark:text-[#60A5FA] text-xs font-semibold tracking-wide">
+                <span className="w-2 h-2 rounded-full bg-[#2563EB] animate-ping" />
+                <span>Executive Recruiter Portfolio</span>
+              </div>
+
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+                Architecting high-impact engineering solutions & leading tech teams.
+              </h2>
+
+              <p className={`text-base leading-relaxed ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                Welcome to my executive portfolio. I specialize in designing scalable cloud platforms, driving engineering velocity, and delivering mission-critical digital applications.
+              </p>
+
+              {/* Quick Statistics Strip */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4">
+                {stats.map((st, idx) => (
+                  <div
+                    key={idx}
+                    className={`p-4 rounded-2xl border backdrop-blur-xl ${
+                      isDarkMode ? "bg-slate-900/60 border-slate-800" : "bg-white border-[#E5E7EB] shadow-sm"
+                    }`}
+                  >
+                    <div className="text-2xl sm:text-3xl font-extrabold text-[#2563EB] dark:text-[#60A5FA]">
+                      {st.value}
+                      <span>{st.suffix}</span>
+                    </div>
+                    <div className={`text-[11px] font-semibold ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                      {st.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* SUMMARY SECTION */}
+          <section id="summary" className="scroll-mt-12 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-[#2563EB]/10 text-[#2563EB]">
+                <FileText className="w-5 h-5" />
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                Executive Summary
+              </h2>
+            </div>
+
+            <div
+              className={`p-8 rounded-3xl border backdrop-blur-xl space-y-4 leading-relaxed ${
+                isDarkMode ? "bg-[#1C2541]/70 border-slate-800 text-slate-300" : "bg-[#F9FAFB] border-[#E5E7EB] text-slate-700 shadow-sm"
+              }`}
+            >
+              <p className="text-sm sm:text-base">
+                {profile?.summary ||
+                  "Seasoned Software Engineering Professional with extensive experience in cloud architecture, full-stack microservices, and leading distributed engineering organizations. Proven track record of improving operational metrics and delivering enterprise products."}
+              </p>
+            </div>
+          </section>
+
+          {/* SKILLS SECTION */}
+          <section id="skills" className="scroll-mt-12 space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-[#2563EB]/10 text-[#2563EB]">
+                <Code className="w-5 h-5" />
+              </div>
               <div>
-                <h1 className={`text-base font-bold leading-tight ${isDarkMode ? "text-white" : "text-slate-900"}`}>
-                  {profile?.fullName || "User Profile"}
-                </h1>
-                <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
-                  @{profile?.user?.username || username}
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                  Technical Stack & Skills
+                </h2>
+                <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                  Core competencies displayed as rounded animated pills.
                 </p>
               </div>
             </div>
 
-            {/* Desktop Navigation & Actions */}
-            <div className="hidden md:flex items-center gap-4">
-              <nav className="flex items-center gap-1">
-                {sections.map((section) => {
-                  const isActive = activeSection === section.id;
-                  return (
-                    <a
-                      key={section.id}
-                      href={`#${section.id}`}
-                      onClick={() => setActiveSection(section.id)}
-                      className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-300 ${
-                        isActive
-                          ? "text-white shadow-sm"
-                          : isDarkMode
-                            ? "text-slate-400 hover:text-white hover:bg-slate-800/50"
-                            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                      }`}
-                      style={isActive ? { background: colors.primary.gradient } : {}}
-                    >
-                      <span className="text-sm">{section.icon}</span>
-                      <span>{section.label}</span>
-                    </a>
-                  );
-                })}
-              </nav>
-              
-              {/* Light/Dark Mode Switcher */}
-              <button
-                onClick={toggleTheme}
-                className={`p-2 rounded-lg border transition-all flex items-center justify-center ${
-                  isDarkMode
-                    ? "bg-slate-900 border-slate-700 text-amber-400 hover:bg-slate-800"
-                    : "bg-slate-100 border-slate-300 text-indigo-600 hover:bg-slate-200 shadow-sm"
-                }`}
-                title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-              >
-                {isDarkMode ? <FaSun className="w-4 h-4" /> : <FaMoon className="w-4 h-4" />}
-              </button>
-
-              <button
-                onClick={() => setShowShareModal(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 text-xs font-semibold shadow-md hover:shadow-lg text-white"
-                style={{ background: colors.secondary.gradient }}
-              >
-                <FaShareAlt className="w-3.5 h-3.5" />
-                <span>Share</span>
-              </button>
-            </div>
-
-            {/* Mobile Actions & Menu Toggle */}
-            <div className="flex md:hidden items-center gap-2">
-              <button
-                onClick={toggleTheme}
-                className={`p-2 rounded-lg border transition-all ${
-                  isDarkMode
-                    ? "bg-slate-900 border-slate-700 text-amber-400"
-                    : "bg-slate-100 border-slate-300 text-indigo-600 shadow-sm"
-                }`}
-              >
-                {isDarkMode ? <FaSun className="w-4 h-4" /> : <FaMoon className="w-4 h-4" />}
-              </button>
-
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className={`p-2 rounded-lg border ${
-                  isDarkMode ? "bg-slate-900 border-slate-800 text-slate-300" : "bg-white border-slate-200 text-slate-700"
-                }`}
-              >
-                <div className="w-5 h-5 flex flex-col justify-center gap-1">
-                  <span className={`w-5 h-0.5 transition-all ${isDarkMode ? "bg-slate-300" : "bg-slate-700"} ${isMenuOpen ? "rotate-45 translate-y-1.5" : ""}`}></span>
-                  <span className={`w-5 h-0.5 transition-all ${isDarkMode ? "bg-slate-300" : "bg-slate-700"} ${isMenuOpen ? "opacity-0" : ""}`}></span>
-                  <span className={`w-5 h-0.5 transition-all ${isDarkMode ? "bg-slate-300" : "bg-slate-700"} ${isMenuOpen ? "-rotate-45 -translate-y-1.5" : ""}`}></span>
-                </div>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Navigation Drawer */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className={`md:hidden border-b ${
-                isDarkMode ? "bg-[#090b14] border-slate-800 text-white" : "bg-white border-slate-200 text-slate-900 shadow-lg"
-              }`}
-            >
-              <div className="px-4 py-3 space-y-1">
-                {sections.map((section) => (
-                  <a
-                    key={section.id}
-                    href={`#${section.id}`}
-                    onClick={() => {
-                      setActiveSection(section.id);
-                      setIsMenuOpen(false);
-                    }}
-                    className={`flex items-center justify-between px-4 py-2.5 rounded-lg text-xs font-semibold transition-all ${
-                      activeSection === section.id
-                        ? "text-white"
-                        : isDarkMode
-                          ? "text-slate-400 hover:bg-slate-800/50"
-                          : "text-slate-600 hover:bg-slate-100"
-                    }`}
-                    style={activeSection === section.id ? { background: colors.primary.gradient } : {}}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span>{section.icon}</span>
-                      <span>{section.label}</span>
-                    </div>
-                    <FaChevronRight className="w-3.5 h-3.5 opacity-60" />
-                  </a>
-                ))}
-                
-                <button
-                  onClick={() => {
-                    setShowShareModal(true);
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold text-white shadow-md mt-2"
-                  style={{ background: colors.secondary.gradient }}
-                >
-                  <FaShareAlt className="w-3.5 h-3.5" />
-                  <span>Share Portfolio</span>
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* HERO SECTION */}
-      <section id="home" className="relative pt-28 pb-16 lg:pt-36 lg:pb-24">
-        {/* Ambient Grid overlay */}
-        <div className="absolute inset-0 opacity-20 pointer-events-none">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `linear-gradient(90deg, ${isDarkMode ? "#6366f133" : "#6366f120"} 1px, transparent 1px), linear-gradient(${isDarkMode ? "#6366f133" : "#6366f120"} 1px, transparent 1px)`,
-              backgroundSize: "40px 40px"
-            }}
-          ></div>
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row items-center gap-12">
-            {/* Profile Image */}
-            <div className="relative group shrink-0">
-              <div
-                className="absolute -inset-2 rounded-full opacity-30 group-hover:opacity-60 transition duration-500 blur-xl"
-                style={{ background: colors.primary.gradient }}
-              ></div>
-              <div className="relative">
-                {profile?.pictureUrl ? (
-                  <img
-                    src={profile.pictureUrl}
-                    alt={profile.fullName || "User Avatar"}
-                    className={`w-56 h-56 lg:w-64 lg:h-64 rounded-full object-cover border-4 shadow-2xl ${
-                      isDarkMode ? "border-slate-800 bg-slate-900" : "border-white bg-slate-100"
-                    }`}
-                  />
-                ) : (
-                  <div
-                    className={`w-56 h-56 lg:w-64 lg:h-64 rounded-full border-4 shadow-2xl flex items-center justify-center text-white ${
-                      isDarkMode ? "border-slate-800" : "border-white"
-                    }`}
-                    style={{ background: colors.primary.gradient }}
-                  >
-                    <span className="text-6xl font-bold">
-                      {getInitials(profile?.fullName)}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Hero Content */}
-            <div className="flex-1 text-center lg:text-left">
-              <div
-                className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold mb-5 border ${
-                  isDarkMode ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-emerald-50 text-emerald-700 border-emerald-200"
-                }`}
-              >
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>Available for opportunities</span>
-              </div>
-
-              <h1 className={`text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-3 tracking-tight ${isDarkMode ? "text-white" : "text-slate-900"}`}>
-                Hi, I'm{" "}
-                <span
-                  style={{
-                    background: colors.primary.gradient,
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent"
-                  }}
-                >
-                  {profile?.fullName || "Developer"}
-                </span>
-              </h1>
-
-              <h2 className={`text-xl lg:text-2xl font-bold mb-5 ${isDarkMode ? "text-indigo-300" : "text-indigo-600"}`}>
-                {profile?.headline || "Full Stack Software Engineer"}
-              </h2>
-
-              <p className={`text-sm sm:text-base mb-8 max-w-2xl leading-relaxed ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
-                {profile?.summary || "Passionate engineer producing performant code systems, modern applications, and scalable web solutions."}
-              </p>
-
-              {/* CTA Buttons */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mb-8">
-                <a
-                  href="#projects"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-bold text-white shadow-lg hover:shadow-indigo-500/25 transition-all group"
-                  style={{ background: colors.primary.gradient }}
-                >
-                  <span>View My Work</span>
-                  <FaChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                </a>
-
-                <a
-                  href="#contact"
-                  className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-bold border transition-all ${
+            <div className="flex flex-wrap gap-3">
+              {normalizedSkills.map((sk, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  transition={{ duration: 0.3, delay: idx * 0.02 }}
+                  className={`px-5 py-3 rounded-full border backdrop-blur-xl shadow-sm transition-all flex items-center gap-3 cursor-default ${
                     isDarkMode
-                      ? "bg-slate-900 border-slate-800 text-slate-200 hover:bg-slate-800"
-                      : "bg-white border-slate-300 text-slate-800 hover:bg-slate-100 shadow-sm"
+                      ? "bg-slate-900 border-slate-800 text-slate-200 hover:border-[#2563EB]"
+                      : "bg-[#F9FAFB] border-[#E5E7EB] text-[#111827] hover:border-[#2563EB] hover:bg-white shadow-sm"
                   }`}
                 >
-                  Get In Touch
-                </a>
-              </div>
-
-              {/* Social Links */}
-              {socialMediaLinks.length > 0 && (
-                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
-                  {socialMediaLinks.map((link, index) => (
-                    <motion.a
-                      key={link.id || index}
-                      href={link.profileUrl || link.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      whileHover={{ scale: 1.1, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                      className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all ${
-                        isDarkMode
-                          ? "bg-slate-900/80 border-slate-800 text-slate-300 hover:text-white hover:border-indigo-500/40"
-                          : "bg-white border-slate-200 text-slate-700 hover:text-indigo-600 hover:border-indigo-300 shadow-sm"
-                      }`}
-                      title={link.platform}
-                    >
-                      {iconByPlatform(link.platform)}
-                    </motion.a>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SKILLS SECTION */}
-      {skills.length > 0 && (
-        <section id="skills" className="py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className={`text-2xl lg:text-3xl font-extrabold mb-3 ${isDarkMode ? "text-white" : "text-slate-900"}`}>
-                Technical Expertise
-              </h2>
-              <p className={`text-xs sm:text-sm max-w-2xl mx-auto ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
-                Proficient in modern technologies, stacks, and developer tools
-              </p>
-            </div>
-
-            <div className="space-y-10">
-              {Object.entries(filteredCategories).map(([category, categorySkills]) => {
-                const colorsCat = getCategoryColor(category);
-                return (
-                  <div key={category}>
-                    <h3 className={`text-lg font-bold mb-4 flex items-center gap-2 ${colorsCat.text}`}>
-                      <div className="p-2 rounded-lg border" style={{ background: colorsCat.gradient, borderColor: colorsCat.border }}>
-                        <FaTools className="w-4 h-4 text-white" />
-                      </div>
-                      {category} Stack
-                    </h3>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                      {categorySkills.map((skillName, index) => (
-                        <motion.div
-                          key={skillName + index}
-                          initial={{ opacity: 0, y: 15 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.3, delay: index * 0.05 }}
-                          viewport={{ once: true }}
-                          whileHover={{ y: -4 }}
-                          className="group"
-                        >
-                          <div
-                            className={`p-4 rounded-2xl border transition-all duration-300 flex items-center gap-3 ${
-                              isDarkMode
-                                ? "bg-[#0d101a]/80 border-slate-800/80 hover:bg-[#121624] hover:border-indigo-500/30"
-                                : "bg-white border-slate-200 shadow-sm hover:shadow-md hover:border-indigo-300"
-                            }`}
-                          >
-                            <div
-                              className="p-2.5 rounded-xl border shrink-0 text-white"
-                              style={{ background: colorsCat.gradient, borderColor: colorsCat.border }}
-                            >
-                              {getSkillIcon(skillName)}
-                            </div>
-                            <span className={`text-xs font-bold truncate ${isDarkMode ? "text-slate-200" : "text-slate-800"}`}>
-                              {skillName}
-                            </span>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* PROJECTS SECTION */}
-      {projects.length > 0 && (
-        <section id="projects" className={`py-16 ${isDarkMode ? "bg-[#0a0d16]/50" : "bg-slate-100/60"}`}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className={`text-2xl lg:text-3xl font-extrabold mb-3 ${isDarkMode ? "text-white" : "text-slate-900"}`}>
-                Featured Projects
-              </h2>
-              <p className={`text-xs sm:text-sm max-w-2xl mx-auto ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
-                Showcasing built products, architecture, and live projects
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              {projects.map((project, index) => (
-                <motion.div
-                  key={project.id || index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  whileHover={{ y: -6 }}
-                  className="group"
-                >
-                  <div
-                    className={`rounded-2xl border transition-all duration-300 overflow-hidden flex flex-col h-full ${
-                      isDarkMode
-                        ? "bg-[#0d101a] border-slate-800/90 hover:border-indigo-500/30"
-                        : "bg-white border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-300"
-                    }`}
-                  >
-                    {/* Project Gradient Banner */}
-                    <div
-                      className="h-32 relative flex items-center justify-center p-4"
-                      style={{ background: colors.primary.gradient }}
-                    >
-                      <div className="absolute inset-0 bg-black/20"></div>
-                      <h3 className="text-lg font-bold text-white text-center relative z-10 px-4 py-2 bg-black/40 backdrop-blur-md rounded-xl w-full truncate">
-                        {project.title || "Project Title"}
-                      </h3>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
-                      <div>
-                        <p className={`text-xs leading-relaxed line-clamp-3 mb-4 ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
-                          {project.description || "No project description available."}
-                        </p>
-
-                        <div className="flex flex-wrap gap-1.5">
-                          {(project.technologies || project.techStack?.split(",") || []).map((tech, i) => (
-                            <span
-                              key={i}
-                              className={`px-2.5 py-0.5 text-[10px] font-bold rounded-md border ${
-                                isDarkMode
-                                  ? "bg-slate-900 border-slate-800 text-indigo-300"
-                                  : "bg-indigo-50 border-indigo-200 text-indigo-700"
-                              }`}
-                            >
-                              {typeof tech === "string" ? tech.trim() : tech}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      {(project.projectUrl || project.link) && (
-                        <a
-                          href={project.projectUrl || project.link}
-                          target="_blank"
-                          rel="noreferrer"
-                          className={`inline-flex items-center justify-between w-full px-4 py-2.5 rounded-xl text-xs font-bold border transition-all ${
-                            isDarkMode
-                              ? "bg-slate-950 border-slate-800 text-indigo-400 hover:bg-slate-900"
-                              : "bg-slate-50 border-slate-200 text-indigo-600 hover:bg-slate-100"
-                          }`}
-                        >
-                          <span>View Project</span>
-                          <FaExternalLinkAlt className="w-3 h-3" />
-                        </a>
-                      )}
-                    </div>
-                  </div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#2563EB]" />
+                  <span className="font-bold text-xs sm:text-sm">{sk.name}</span>
+                  {sk.proficiency && (
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#2563EB]/10 text-[#2563EB]">
+                      {sk.proficiency}%
+                    </span>
+                  )}
                 </motion.div>
               ))}
+              {normalizedSkills.length === 0 && (
+                <p className="text-xs italic text-slate-500">No skills listed yet.</p>
+              )}
             </div>
-          </div>
-        </section>
-      )}
+          </section>
 
-      {/* EXPERIENCE SECTION */}
-      {experience.length > 0 && (
-        <section id="experience" className="py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className={`text-2xl lg:text-3xl font-extrabold mb-3 ${isDarkMode ? "text-white" : "text-slate-900"}`}>
-                Professional Experience
-              </h2>
-              <p className={`text-xs sm:text-sm max-w-2xl mx-auto ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
-                Work history, engineering roles, and achievements
-              </p>
+          {/* EXPERIENCE TIMELINE */}
+          <section id="experience" className="scroll-mt-12 space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-[#2563EB]/10 text-[#2563EB]">
+                <Briefcase className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                  Work Experience
+                </h2>
+                <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                  Executive career journey and technical impact.
+                </p>
+              </div>
             </div>
 
-            <div className="space-y-6 max-w-4xl mx-auto">
-              {experience.map((exp, index) => (
+            <div className="space-y-6">
+              {profile?.experience?.map((exp, idx) => (
                 <motion.div
-                  key={exp.id || index}
-                  initial={{ opacity: 0, y: 15 }}
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4 }}
                   viewport={{ once: true }}
-                  className={`p-6 lg:p-8 rounded-2xl border transition-all ${
+                  transition={{ duration: 0.4, delay: idx * 0.1 }}
+                  className={`p-7 rounded-3xl border backdrop-blur-xl transition-all hover:border-[#2563EB]/50 ${
                     isDarkMode
-                      ? "bg-[#0d101a] border-slate-800/90"
-                      : "bg-white border-slate-200 shadow-sm hover:shadow-md"
+                      ? "bg-[#1C2541]/70 border-slate-800 shadow-md"
+                      : "bg-[#F9FAFB] border-[#E5E7EB] hover:bg-white shadow-[0_10px_30px_rgba(37,99,235,0.08)]"
                   }`}
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-                    <div>
-                      <h3 className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-slate-900"}`}>
-                        {exp.position || exp.jobTitle || "Engineer"}
-                      </h3>
-                      <div className={`text-xs font-bold mt-0.5 ${isDarkMode ? "text-indigo-400" : "text-indigo-600"}`}>
-                        {exp.company} {exp.location && `• ${exp.location}`}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-12 h-12 rounded-2xl bg-[#2563EB]/10 border border-[#2563EB]/20 flex items-center justify-center text-[#2563EB] font-extrabold text-lg shrink-0">
+                        {exp.company?.[0] || "C"}
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold tracking-tight">
+                          {exp.position || exp.role || "Software Engineer"}
+                        </h3>
+                        <div className="text-xs font-semibold text-[#2563EB] flex items-center gap-2 mt-0.5">
+                          <span>{exp.company || "Company"}</span>
+                          {exp.location && (
+                            <span className={`font-normal ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
+                              • {exp.location}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
 
-                    <span
-                      className={`text-[10px] font-bold px-3 py-1 rounded-full border self-start sm:self-auto uppercase tracking-wider ${
-                        isDarkMode
-                          ? "bg-slate-900 border-slate-800 text-slate-400"
-                          : "bg-slate-100 border-slate-200 text-slate-600"
-                      }`}
-                    >
-                      {exp.startDate || exp.startYear} — {exp.endDate || exp.endYear || "Present"}
+                    <span className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold border self-start sm:self-auto ${
+                      isDarkMode ? "bg-slate-900 border-slate-800 text-slate-300" : "bg-white border-[#E5E7EB] text-slate-700 shadow-sm"
+                    }`}>
+                      <Calendar className="w-3.5 h-3.5 text-[#2563EB]" />
+                      <span>{exp.startDate || "2023"} - {exp.endDate || "Present"}</span>
                     </span>
                   </div>
 
-                  <p className={`text-xs leading-relaxed whitespace-pre-wrap ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                  <p className={`text-xs sm:text-sm leading-relaxed ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
                     {exp.description}
                   </p>
                 </motion.div>
               ))}
+              {(!profile?.experience || profile.experience.length === 0) && (
+                <p className="text-xs italic text-slate-500">No work experience listed yet.</p>
+              )}
             </div>
-          </div>
-        </section>
-      )}
+          </section>
 
-      {/* EDUCATION & CERTIFICATIONS */}
-      {(education.length > 0 || certifications.length > 0) && (
-        <section id="education" className={`py-16 ${isDarkMode ? "bg-[#0a0d16]/50" : "bg-slate-100/60"}`}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Education Column */}
-              {education.length > 0 && (
-                <div>
-                  <h3 className={`text-xl font-bold mb-6 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-slate-900"}`}>
-                    <FaGraduationCap className="text-indigo-500" /> Education
-                  </h3>
+          {/* EDUCATION TIMELINE */}
+          <section id="education" className="scroll-mt-12 space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-[#2563EB]/10 text-[#2563EB]">
+                <GraduationCap className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                  Education Timeline
+                </h2>
+                <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                  Academic qualifications and degree certifications.
+                </p>
+              </div>
+            </div>
 
-                  <div className="space-y-4">
-                    {education.map((edu, idx) => (
-                      <div
-                        key={idx}
-                        className={`p-6 rounded-2xl border transition-all ${
-                          isDarkMode ? "bg-[#0d101a] border-slate-800" : "bg-white border-slate-200 shadow-sm"
-                        }`}
-                      >
-                        <h4 className={`font-bold text-base ${isDarkMode ? "text-white" : "text-slate-900"}`}>{edu.degree}</h4>
-                        <p className={`text-xs mt-1 ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>{edu.institution}</p>
-                        {edu.fieldOfStudy && (
-                          <p className={`text-xs mt-0.5 ${isDarkMode ? "text-slate-500" : "text-slate-500"}`}>
-                            Field: {edu.fieldOfStudy}
-                          </p>
-                        )}
-                        <div className={`mt-3 text-[10px] font-bold ${isDarkMode ? "text-indigo-400" : "text-indigo-600"}`}>
-                          {edu.startDate || edu.startYear} — {edu.endDate || edu.endYear} {edu.gpa && `• GPA: ${edu.gpa}`}
+            <div className="relative pl-6 border-l-2 border-[#2563EB]/40 space-y-8 my-4">
+              {profile?.education?.map((edu, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: idx * 0.1 }}
+                  className="relative group"
+                >
+                  <div className="absolute -left-[31px] top-2 w-5 h-5 rounded-full bg-white border-2 border-[#2563EB] flex items-center justify-center shadow-md">
+                    <div className="w-2 h-2 rounded-full bg-[#2563EB]" />
+                  </div>
+
+                  <div
+                    className={`p-6 rounded-3xl border backdrop-blur-xl transition-all ${
+                      isDarkMode ? "bg-[#1C2541]/70 border-slate-800" : "bg-[#F9FAFB] border-[#E5E7EB] hover:bg-white shadow-sm"
+                    }`}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                      <span className="text-xs font-mono font-bold text-[#2563EB] tracking-wider uppercase">
+                        {edu.startDate || "2020"} — {edu.endDate || "2024"}
+                      </span>
+                      {edu.gpa && (
+                        <span className="text-xs font-bold px-3 py-1 rounded-full border bg-[#2563EB]/10 border-[#2563EB]/30 text-[#2563EB]">
+                          GPA: {edu.gpa}
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className="text-lg font-bold tracking-tight mb-1">
+                      {edu.degree}
+                    </h3>
+                    <div className={`text-xs font-semibold mb-2 ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
+                      {edu.institution} {edu.fieldOfStudy && `• ${edu.fieldOfStudy}`}
+                    </div>
+
+                    {edu.description && (
+                      <p className={`text-xs leading-relaxed ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                        {edu.description}
+                      </p>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+              {(!profile?.education || profile.education.length === 0) && (
+                <p className="text-xs italic text-slate-500">No education entries listed.</p>
+              )}
+            </div>
+          </section>
+
+          {/* PROJECTS SHOWCASE (ELEGANT HORIZONTAL CARDS) */}
+          <section id="projects" className="scroll-mt-12 space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-[#2563EB]/10 text-[#2563EB]">
+                <FolderGit2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                  Featured Projects
+                </h2>
+                <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                  Elegant horizontal project cards with technology tags and visit project buttons.
+                </p>
+              </div>
+            </div>
+
+            {/* Horizontal Project Cards Grid */}
+            <div className="space-y-6">
+              {profile?.projects?.map((proj, idx) => {
+                const techList =
+                  proj.technologies ||
+                  (typeof proj.techStack === "string" ? proj.techStack.split(",") : []) ||
+                  [];
+
+                return (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: idx * 0.1 }}
+                    className={`rounded-3xl border overflow-hidden backdrop-blur-xl flex flex-col md:flex-row items-stretch transition-all duration-300 hover:-translate-y-1 group ${
+                      isDarkMode
+                        ? "bg-[#1C2541]/70 border-slate-800 shadow-md"
+                        : "bg-[#F9FAFB] border-[#E5E7EB] hover:bg-white shadow-[0_10px_30px_rgba(37,99,235,0.08)]"
+                    }`}
+                  >
+                    {/* Left Screenshot / Image Frame */}
+                    <div className="md:w-2/5 relative h-52 md:h-auto overflow-hidden bg-slate-900 shrink-0">
+                      {proj.imageUrl || proj.image ? (
+                        <img
+                          src={proj.imageUrl || proj.image}
+                          alt={proj.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-[#0B132B] to-[#2563EB] flex items-center justify-center p-6 text-center">
+                          <Code className="w-12 h-12 text-white/40 mb-2 group-hover:scale-110 transition-transform" />
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                      )}
+                    </div>
 
-              {/* Certifications Column */}
-              {certifications.length > 0 && (
-                <div id="certifications">
-                  <h3 className={`text-xl font-bold mb-6 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-slate-900"}`}>
-                    <FaCertificate className="text-emerald-500" /> Certifications
-                  </h3>
-
-                  <div className="space-y-4">
-                    {certifications.map((cert, idx) => (
-                      <div
-                        key={idx}
-                        className={`p-6 rounded-2xl border transition-all ${
-                          isDarkMode ? "bg-[#0d101a] border-slate-800" : "bg-white border-slate-200 shadow-sm"
-                        }`}
-                      >
-                        <h4 className={`font-bold text-base ${isDarkMode ? "text-white" : "text-slate-900"}`}>{cert.name}</h4>
-                        <p className={`text-xs mt-1 uppercase font-semibold ${isDarkMode ? "text-emerald-400" : "text-emerald-600"}`}>
-                          {cert.issuingOrganization || cert.issuer}
+                    {/* Right Card Content */}
+                    <div className="p-7 md:w-3/5 flex flex-col justify-between space-y-4">
+                      <div>
+                        <h3 className="text-xl font-bold tracking-tight mb-2 group-hover:text-[#2563EB] transition-colors">
+                          {proj.title}
+                        </h3>
+                        <p className={`text-xs leading-relaxed line-clamp-3 ${isDarkMode ? "text-slate-300" : "text-slate-600"}`}>
+                          {proj.description}
                         </p>
-                        {cert.issueDate && (
-                          <p className={`text-[10px] mt-1 ${isDarkMode ? "text-slate-500" : "text-slate-400"}`}>
-                            Issued: {cert.issueDate}
-                          </p>
+                      </div>
+
+                      <div className="space-y-4 pt-2">
+                        {/* Tech Tags */}
+                        <div className="flex flex-wrap gap-1.5">
+                          {techList.map((t, i) => (
+                            <span
+                              key={i}
+                              className="px-3 py-1 rounded-full text-[10px] font-mono font-bold bg-[#2563EB]/10 text-[#2563EB] border border-[#2563EB]/20"
+                            >
+                              {t.trim()}
+                            </span>
+                          ))}
+                        </div>
+
+                        {/* Visit Project Button */}
+                        {(proj.link || proj.projectUrl || proj.githubUrl) && (
+                          <a
+                            href={proj.link || proj.projectUrl || proj.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 py-3 px-6 rounded-2xl bg-gradient-to-r from-[#2563EB] to-[#60A5FA] hover:from-[#1D4ED8] hover:to-[#2563EB] text-white font-extrabold text-xs shadow-[0_8px_20px_rgba(37,99,235,0.25)] hover:shadow-[0_12px_28px_rgba(37,99,235,0.4)] transition-all duration-300 cursor-pointer group/btn"
+                          >
+                            <span>Visit Project</span>
+                            <ArrowUpRight className="w-4 h-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                          </a>
                         )}
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+              {(!profile?.projects || profile.projects.length === 0) && (
+                <p className="text-center text-xs italic text-slate-500">No projects listed yet.</p>
               )}
             </div>
-          </div>
-        </section>
-      )}
+          </section>
 
-      {/* CONTACT SECTION */}
-      <section id="contact" className="py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className={`text-2xl lg:text-3xl font-extrabold mb-3 ${isDarkMode ? "text-white" : "text-slate-900"}`}>
-              Get In Touch
-            </h2>
-            <p className={`text-xs sm:text-sm max-w-xl mx-auto ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
-              Have a question or proposal? Send a message directly.
-            </p>
-          </div>
+          {/* CERTIFICATIONS SECTION */}
+          <section id="certifications" className="scroll-mt-12 space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-[#2563EB]/10 text-[#2563EB]">
+                <Award className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                  Certifications & Recognitions
+                </h2>
+                <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                  Horizontal premium cards highlighting industry credentials.
+                </p>
+              </div>
+            </div>
 
-          <div
-            className={`p-6 sm:p-10 rounded-3xl border shadow-xl ${
-              isDarkMode ? "bg-[#0d101a] border-slate-800" : "bg-white border-slate-200"
-            }`}
-          >
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="grid sm:grid-cols-2 gap-5">
+            <div className="space-y-4">
+              {profile?.certifications?.map((cert, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: idx * 0.08 }}
+                  className={`p-6 rounded-3xl border backdrop-blur-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all hover:border-[#2563EB]/50 ${
+                    isDarkMode
+                      ? "bg-[#1C2541]/70 border-slate-800 shadow-md"
+                      : "bg-[#F9FAFB] border-[#E5E7EB] hover:bg-white shadow-sm"
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    {cert.image ? (
+                      <img src={cert.image} alt={cert.name} className="w-14 h-14 rounded-2xl object-cover shrink-0" />
+                    ) : (
+                      <div className="w-14 h-14 rounded-2xl bg-[#2563EB]/10 border border-[#2563EB]/30 flex items-center justify-center text-[#2563EB] shrink-0">
+                        <Award className="w-7 h-7" />
+                      </div>
+                    )}
+                    <div>
+                      <h3 className="text-lg font-bold tracking-tight">
+                        {cert.name || cert.title}
+                      </h3>
+                      <div className="text-xs font-semibold text-[#2563EB]">
+                        {cert.issuingOrganization || cert.issuer || "Issuing Authority"}
+                      </div>
+                      {cert.description && (
+                        <p className={`text-xs mt-1 ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                          {cert.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 shrink-0 self-end sm:self-auto">
+                    <span className={`text-xs font-mono font-bold px-3 py-1 rounded-full border ${
+                      isDarkMode ? "bg-slate-900 border-slate-800 text-slate-300" : "bg-white border-[#E5E7EB] text-slate-700 shadow-sm"
+                    }`}>
+                      {cert.issueDate || cert.date || "2024"}
+                    </span>
+                    {cert.credentialUrl && (
+                      <a
+                        href={cert.credentialUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 rounded-xl border border-[#2563EB]/30 text-[#2563EB] hover:bg-[#2563EB]/10 transition-colors"
+                        title="Verify Credential"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+              {(!profile?.certifications || profile.certifications.length === 0) && (
+                <p className="text-center text-xs italic text-slate-500">No certifications listed yet.</p>
+              )}
+            </div>
+          </section>
+
+          {/* RECRUITER CONTACT FORM SECTION */}
+          <section id="contact" className="scroll-mt-12 space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-[#2563EB]/10 text-[#2563EB]">
+                <Mail className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                  Recruiter Contact Form
+                </h2>
+                <p className={`text-xs ${isDarkMode ? "text-slate-400" : "text-slate-600"}`}>
+                  Direct backend dispatch interface to connect with the candidate.
+                </p>
+              </div>
+            </div>
+
+            <div
+              className={`p-8 rounded-3xl border backdrop-blur-xl shadow-lg ${
+                isDarkMode ? "bg-[#1C2541]/70 border-slate-800" : "bg-[#F9FAFB] border-[#E5E7EB]"
+              }`}
+            >
+              <form onSubmit={handleSubmitContact} className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-extrabold mb-1.5">Your Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Jane Doe"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all ${
+                        isDarkMode
+                          ? "bg-slate-900 border-slate-800 text-white focus:border-[#2563EB]"
+                          : "bg-white border-[#E5E7EB] text-[#111827] focus:border-[#2563EB]"
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-extrabold mb-1.5">Your Email *</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="recruiter@company.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all ${
+                        isDarkMode
+                          ? "bg-slate-900 border-slate-800 text-white focus:border-[#2563EB]"
+                          : "bg-white border-[#E5E7EB] text-[#111827] focus:border-[#2563EB]"
+                      }`}
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <label className={`block text-xs font-bold mb-2 ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
-                    Your Name
-                  </label>
+                  <label className="block text-xs font-extrabold mb-1.5">Subject</label>
                   <input
                     type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className={`w-full px-4 py-2.5 rounded-xl border text-xs outline-none transition-all ${
+                    placeholder="Executive Software Engineering Opportunity"
+                    value={formData.subject}
+                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                    className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all ${
                       isDarkMode
-                        ? "bg-slate-950 border-slate-800 text-white focus:border-indigo-500"
-                        : "bg-slate-50 border-slate-300 text-slate-900 focus:bg-white focus:border-indigo-500"
+                        ? "bg-slate-900 border-slate-800 text-white focus:border-[#2563EB]"
+                        : "bg-white border-[#E5E7EB] text-[#111827] focus:border-[#2563EB]"
                     }`}
-                    placeholder="John Doe"
-                    disabled={isSubmitting}
                   />
                 </div>
 
                 <div>
-                  <label className={`block text-xs font-bold mb-2 ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
-                    Your Email
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className={`w-full px-4 py-2.5 rounded-xl border text-xs outline-none transition-all ${
+                  <label className="block text-xs font-extrabold mb-1.5">Message *</label>
+                  <textarea
+                    required
+                    rows={4}
+                    placeholder="Hi, I reviewed your executive portfolio and would like to discuss..."
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none transition-all resize-none ${
                       isDarkMode
-                        ? "bg-slate-950 border-slate-800 text-white focus:border-indigo-500"
-                        : "bg-slate-50 border-slate-300 text-slate-900 focus:bg-white focus:border-indigo-500"
+                        ? "bg-slate-900 border-slate-800 text-white focus:border-[#2563EB]"
+                        : "bg-white border-[#E5E7EB] text-[#111827] focus:border-[#2563EB]"
                     }`}
-                    placeholder="john@example.com"
-                    disabled={isSubmitting}
                   />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#2563EB] to-[#60A5FA] hover:from-[#1D4ED8] hover:to-[#2563EB] text-white font-extrabold text-sm shadow-[0_10px_25px_rgba(37,99,235,0.3)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Sending Message...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      <span>Send Direct Message</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+          </section>
+
+          {/* FOOTER */}
+          <footer
+            className={`border-t backdrop-blur-xl py-10 ${
+              isDarkMode ? "border-slate-800 text-slate-400" : "border-[#E5E7EB] text-slate-600"
+            }`}
+          >
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-lg bg-[#2563EB] flex items-center justify-center text-white font-bold text-xs">
+                  RS
+                </div>
+                <span className="font-extrabold text-[#111827] dark:text-white">{profile?.fullName || "Royal Sapphire"}</span>
+                <span>• © {new Date().getFullYear()} All Rights Reserved.</span>
+              </div>
+
+              <div className="flex items-center gap-6">
+                {profile?.email && (
+                  <a href={`mailto:${profile.email}`} className="hover:text-[#2563EB] transition-colors">
+                    {profile.email}
+                  </a>
+                )}
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  className="text-[#2563EB] hover:underline font-bold"
+                >
+                  Back to Top ↑
+                </button>
+              </div>
+            </div>
+          </footer>
+        </main>
+      </div>
+
+      {/* RESUME VIEWER MODAL */}
+      <AnimatePresence>
+        {resumeModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className={`w-full max-w-2xl p-6 sm:p-8 rounded-3xl border shadow-2xl space-y-6 ${
+                isDarkMode ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-[#E5E7EB] text-[#111827]"
+              }`}
+            >
+              <div className="flex items-center justify-between border-b border-[#E5E7EB] dark:border-slate-800 pb-4">
+                <div className="flex items-center gap-3">
+                  <FileText className="w-6 h-6 text-[#2563EB]" />
+                  <div>
+                    <h3 className="font-bold text-lg">{profile?.fullName || "Executive"} — Official Resume</h3>
+                    <div className="text-xs text-[#2563EB] font-mono">Recruiter Document Access</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setResumeModalOpen(false)}
+                  className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4 text-xs leading-relaxed">
+                <div className={`p-4 rounded-2xl border space-y-2 ${isDarkMode ? "bg-slate-950 border-slate-800" : "bg-[#F9FAFB] border-[#E5E7EB]"}`}>
+                  <div className="font-bold text-[#2563EB] uppercase tracking-widest text-[10px]">Executive Summary Brief</div>
+                  <p>{profile?.summary || "Executive resume details available for official download."}</p>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div className={`p-3 rounded-xl border ${isDarkMode ? "bg-slate-950 border-slate-800" : "bg-[#F9FAFB] border-[#E5E7EB]"}`}>
+                    <span className="font-bold block">Email:</span>
+                    <span>{profile?.email || "N/A"}</span>
+                  </div>
+                  <div className={`p-3 rounded-xl border ${isDarkMode ? "bg-slate-950 border-slate-800" : "bg-[#F9FAFB] border-[#E5E7EB]"}`}>
+                    <span className="font-bold block">Mobile:</span>
+                    <span>{profile?.mobileNumber || "N/A"}</span>
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <label className={`block text-xs font-bold mb-2 ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
-                  Message
-                </label>
-                <textarea
-                  rows="4"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-2.5 rounded-xl border text-xs outline-none transition-all resize-none ${
-                    isDarkMode
-                      ? "bg-slate-950 border-slate-800 text-white focus:border-indigo-500"
-                      : "bg-slate-50 border-slate-300 text-slate-900 focus:bg-white focus:border-indigo-500"
-                  }`}
-                  placeholder="Hello, I'd like to talk about..."
-                  disabled={isSubmitting}
-                ></textarea>
+              <div className="flex flex-wrap gap-3 pt-2">
+                <a
+                  href={profile?.resumeUrl || profile?.resume || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 py-3.5 px-5 rounded-2xl bg-gradient-to-r from-[#2563EB] to-[#60A5FA] text-white font-extrabold text-xs text-center shadow-md hover:opacity-95 transition-opacity"
+                >
+                  Download Official PDF Resume
+                </a>
+                <button
+                  onClick={() => setResumeModalOpen(false)}
+                  className="px-6 py-3.5 rounded-2xl border border-[#E5E7EB] dark:border-slate-700 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* SCHEDULE MEETING MODAL */}
+      <AnimatePresence>
+        {scheduleModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className={`w-full max-w-lg p-6 sm:p-8 rounded-3xl border shadow-2xl space-y-6 ${
+                isDarkMode ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-[#E5E7EB] text-[#111827]"
+              }`}
+            >
+              <div className="flex items-center justify-between border-b border-[#E5E7EB] dark:border-slate-800 pb-4">
+                <div className="flex items-center gap-3">
+                  <Clock className="w-6 h-6 text-[#2563EB]" />
+                  <div>
+                    <h3 className="font-bold text-lg">Schedule Recruiter Interview</h3>
+                    <div className="text-xs text-[#2563EB] font-mono">Select preferred time slot</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setScheduleModalOpen(false)}
+                  className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className={`w-full py-3 px-6 rounded-xl font-bold text-xs text-white shadow-lg transition-all flex items-center justify-center gap-2 ${
-                  isSubmitting ? "opacity-70 cursor-not-allowed" : "hover:shadow-indigo-500/20"
-                }`}
-                style={{ background: colors.primary.gradient }}
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Sending...</span>
-                  </>
-                ) : (
-                  <span>Send Message</span>
-                )}
-              </button>
-            </form>
+              <form onSubmit={handleScheduleSubmit} className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-extrabold mb-1">Your Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Recruiter Name"
+                      value={meetingData.name}
+                      onChange={(e) => setMeetingData({ ...meetingData, name: e.target.value })}
+                      className={`w-full px-4 py-2.5 rounded-xl border text-xs outline-none ${
+                        isDarkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-[#F9FAFB] border-[#E5E7EB] text-[#111827]"
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-extrabold mb-1">Your Email *</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="recruiter@company.com"
+                      value={meetingData.email}
+                      onChange={(e) => setMeetingData({ ...meetingData, email: e.target.value })}
+                      className={`w-full px-4 py-2.5 rounded-xl border text-xs outline-none ${
+                        isDarkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-[#F9FAFB] border-[#E5E7EB] text-[#111827]"
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-extrabold mb-1">Preferred Date *</label>
+                    <input
+                      type="date"
+                      required
+                      value={meetingData.date}
+                      onChange={(e) => setMeetingData({ ...meetingData, date: e.target.value })}
+                      className={`w-full px-4 py-2.5 rounded-xl border text-xs outline-none ${
+                        isDarkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-[#F9FAFB] border-[#E5E7EB] text-[#111827]"
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-extrabold mb-1">Preferred Time *</label>
+                    <input
+                      type="time"
+                      required
+                      value={meetingData.time}
+                      onChange={(e) => setMeetingData({ ...meetingData, time: e.target.value })}
+                      className={`w-full px-4 py-2.5 rounded-xl border text-xs outline-none ${
+                        isDarkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-[#F9FAFB] border-[#E5E7EB] text-[#111827]"
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-extrabold mb-1">Interview Topic / Agenda</label>
+                  <textarea
+                    rows={3}
+                    placeholder="Role details, interview format..."
+                    value={meetingData.notes}
+                    onChange={(e) => setMeetingData({ ...meetingData, notes: e.target.value })}
+                    className={`w-full px-4 py-2.5 rounded-xl border text-xs outline-none resize-none ${
+                      isDarkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-[#F9FAFB] border-[#E5E7EB] text-[#111827]"
+                    }`}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isScheduling}
+                  className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-[#2563EB] to-[#60A5FA] text-white font-extrabold text-xs shadow-md hover:opacity-95 cursor-pointer disabled:opacity-50"
+                >
+                  {isScheduling ? "Sending Request..." : "Request Meeting Slot"}
+                </button>
+              </form>
+            </motion.div>
           </div>
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className={`py-10 border-t ${isDarkMode ? "bg-[#090b14] border-slate-900 text-slate-400" : "bg-slate-900 border-slate-800 text-slate-400"}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs space-y-2">
-          <p>© {new Date().getFullYear()} {profile?.fullName || "User Portfolio"}. All rights reserved.</p>
-          <p className="text-slate-500">ByteBodh Portfolio Platform — Enhanced Mode</p>
-        </div>
-      </footer>
-
-      {/* Back to Top Floating Button */}
-      <button
-        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className={`fixed bottom-6 right-6 w-11 h-11 text-white rounded-full shadow-2xl transition-all flex items-center justify-center z-40 ${
-          isScrolled ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6 pointer-events-none"
-        }`}
-        style={{ background: colors.primary.gradient }}
-        title="Back to Top"
-      >
-        <FaChevronUp className="w-4 h-4" />
-      </button>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -26,21 +26,21 @@ const ALL_TEMPLATES = [
   },
   {
     id: 2,
-    name: "Hacker Terminal",
-    category: "Developers & Sysadmins",
-    tagCategory: "Developers & IDE",
-    desc: "A responsive monospace command-line interface with dark & light mode toggles, git logs, and terminal prompts.",
-    badge: "CLI Terminal • Dark/Light",
-    tags: ["Monospace", "CLI Prompts", "Theme Toggle", "Git Commit Graph"]
+    name: "Ivory Elite",
+    category: "Recruiter Ready & Professionals",
+    tagCategory: "Executive & Professional",
+    desc: "A clean white theme with emerald green accents, 24px rounded cards, glassmorphism, Apple + Linear aesthetic, experience & education timelines, animated skill pills, project cards with gradient buttons, and recruiter contact form.",
+    badge: "Ivory White • Emerald Accents",
+    tags: ["White Theme", "Emerald Accents", "24px Cards", "Timelines", "Glassmorphism", "Dark/Light Toggle"]
   },
   {
     id: 3,
-    name: "Creative Gallery",
-    category: "Designers & Artists",
-    tagCategory: "Creative & Vector",
-    desc: "A visual grid layout with frosted glass backdrop controls, portfolio image sliders, and share/QR code modals.",
-    badge: "Glassmorphism • Light/Dark",
-    tags: ["Glassmorphism", "Project Grid", "Share Modal", "Theme Toggle"]
+    name: "Royal Sapphire",
+    category: "Executive Leaders & Directors",
+    tagCategory: "Executive & Professional",
+    desc: "A premium dual-column executive portfolio featuring a sticky profile sidebar, horizontal project cards, download resume & schedule meeting modals, and recruiter contact form.",
+    badge: "Royal Sapphire • Executive",
+    tags: ["Royal Blue", "Left Sidebar", "Horizontal Projects", "Schedule Meeting", "Timelines", "Glassmorphism"]
   },
   {
     id: 4,
@@ -62,12 +62,12 @@ const ALL_TEMPLATES = [
   },
   {
     id: 6,
-    name: "Nature Aurora",
-    category: "Creative Freshers",
+    name: "Coral Studio",
+    category: "Designers & Creative Developers",
     tagCategory: "Creative & Vector",
-    desc: "Fresh, organic emerald green design with floating leaf particles, smooth scroll transitions, and quick stats strip.",
-    badge: "Nature Green • Organic",
-    tags: ["Emerald Theme", "Particle Effects", "Organic Cards", "Timeline"]
+    desc: "A modern creative portfolio inspired by Framer and Stripe with coral orange accents, abstract shape hero, masonry project grid with hover zoom, animated skill badges, and gallery certifications.",
+    badge: "Coral Studio • Framer/Stripe UI",
+    tags: ["Coral Theme", "Abstract Shapes", "Masonry Grid", "Hover Zoom", "Skill Badges", "Minimal Illustrations"]
   },
   {
     id: 7,
@@ -98,75 +98,84 @@ const ALL_TEMPLATES = [
   },
   {
     id: 10,
-    name: "Dual-Column Slate & Cocoa",
-    category: "Modern Student",
+    name: "Bento Pro",
+    category: "Senior Product Designers & Architects",
     tagCategory: "Executive & Professional",
-    desc: "Dual-column Dark Slate & Cocoa layout featuring Anime.js animated skill progress meters.",
-    badge: "Dual-Column • Anime.js",
-    tags: ["Dual-Column", "Skill Meters", "Cocoa Accents", "Smooth Scroll"]
+    desc: "An Apple, Notion & Linear inspired Bento Grid portfolio featuring 28px rounded cards, colorful technology chips, vertical mini timeline education, visual project cards with floating badges, and dark mode.",
+    badge: "Bento Pro • Apple + Notion UI",
+    tags: ["Bento Grid", "Apple UI", "Notion Style", "Tech Chips", "28px Rounded", "Dark Mode"]
   },
   {
     id: 11,
-    name: "Interactive Desktop OS",
-    category: "OS Workspace Desktop",
-    tagCategory: "3D & Interactive",
-    desc: "Interactive Mac/NeXT-inspired OS Desktop interface (BYTEBODH OS v11.0) with dock app switcher & window pop-ins.",
-    badge: "Desktop OS • App Dock",
-    tags: ["BYTEBODH OS", "App Dock", "Window Pop-ins", "Interactive Desktop"]
+    name: "Journey",
+    category: "Storytelling Professionals & Engineers",
+    tagCategory: "Creative & Vector",
+    desc: "A storytelling portfolio telling your career like a continuous vertical timeline connecting Hero → Education → Internships → Experience → Projects → Achievements → Certifications → Contact.",
+    badge: "Journey • Career Timeline",
+    tags: ["Storytelling", "Vertical Timeline", "Internships Chapter", "Achievements", "Soft Gradients", "Dark Mode"]
   },
   {
     id: 12,
-    name: "Career Roadmap Journey",
-    category: "Milestone Metro Roadmap",
-    tagCategory: "3D & Interactive",
-    desc: "Interactive visual subway station career timeline with glowing station nodes & Anime.js v4 path animations.",
-    badge: "Subway Metro • Anime.js",
-    tags: ["Subway Map", "Station Nodes", "Career Metro", "Path Animation"]
+    name: "Swiss One",
+    category: "Senior Product Architects & Engineers",
+    tagCategory: "Executive & Professional",
+    desc: "An ultra-minimal Swiss International typographic portfolio inspired by Dieter Rams & Apple adhering strictly to a 3-color palette (White, Black, Red), huge luxury typography, and clean horizontal row projects.",
+    badge: "Swiss One • Minimal 3-Color",
+    tags: ["Swiss Style", "3-Color Palette", "Dieter Rams UI", "Clean Rows", "Huge Typography", "Animated Underlines"]
   },
   {
     id: 13,
-    name: "3D Square Cube Rotator",
-    category: "Train Express & 3D Geometry",
-    tagCategory: "3D & Interactive",
-    desc: "Interactive 3D 4-Sided Square Cube portfolio with Anime.js scroll rotation, executive white theme, & left title/right details split.",
-    badge: "3D Square Cube • Anime.js",
-    tags: ["3D Cube Geometry", "Anime.js Scroll", "White Executive Theme", "Split Panel"]
+    name: "Golden Frame",
+    category: "Executive Leaders & Directors",
+    tagCategory: "Executive & Professional",
+    desc: "A luxury brand-inspired executive portfolio featuring a white premium background, soft golden borders (#D4AF37), gold gradients, large profile photo with gold frame ring, and floating glass buttons.",
+    badge: "Golden Frame • Luxury Glass",
+    tags: ["Golden Frame", "Luxury Brand", "Gold Accents", "Glassmorphism", "Timelines", "Dark Mode"]
   },
   {
     id: 14,
-    name: "3D Triangular Prism Rotator",
-    category: "Aviation & 3D Geometry",
-    tagCategory: "3D & Interactive",
-    desc: "Interactive 3D 3-Sided Triangular Prism portfolio with Anime.js 120° scroll rotation & flight dispatch console.",
-    badge: "3D Triangle Prism • Anime.js",
-    tags: ["3D Triangle Prism", "Anime.js Scroll", "Sky Navy Theme", "Split Panel"]
+    name: "Float UI",
+    category: "Senior Staff Product Architects",
+    tagCategory: "Executive & Professional",
+    desc: "An Apple-inspired floating glass portfolio where nothing touches each other. Every section lives in an isolated floating glass capsule with glowing hover buttons, levitation animations, and 36-40px rounded corners.",
+    badge: "Float UI • Floating Glass",
+    tags: ["Float UI", "Apple Design", "Floating Glass Cards", "Levitation UI", "Glowing Buttons", "Dark Mode"]
   },
   {
     id: 15,
-    name: "Playing Cards Poker Deck",
-    category: "Casino Poker Royal",
-    tagCategory: "Creative & Vector",
-    desc: "Interactive Poker & Casino Deck theme with suit badges (♠ ♥ ♦ ♣), gold foil borders, Ace of Spades profile, & card hands.",
-    badge: "Poker Deck • ♠♥♦♣",
-    tags: ["Casino Deck", "Gold Foil Borders", "Suit Indices ♠♥♦♣", "Ace Profile Card"]
+    name: "Prism Flow",
+    category: "Senior UI/UX Designers & Engineers",
+    tagCategory: "Executive & Professional",
+    desc: "An Apple, Stripe, Framer & Linear inspired handcrafted portfolio featuring an asymmetrical layout, white background (#FFFFFF), soft gray surfaces (#F8FAFC), emerald & indigo accents, and 24-32px rounded cards.",
+    badge: "Prism Flow • Apple & Linear",
+    tags: ["Apple Design", "Stripe Aesthetic", "Asymmetrical Grid", "Emerald & Indigo", "24-32px Radius", "Dark Mode"]
   },
   {
     id: 16,
-    name: "Monochrome Vector Noir",
-    category: "B&W Vector Line Art",
-    tagCategory: "Creative & Vector",
-    desc: "High-contrast Black & White vector illustration theme featuring noir SVG graphics, stark line art, and developer cards.",
-    badge: "B&W Vector Art • Noir",
-    tags: ["Monochrome SVGs", "Stark Line Art", "Vector Banners", "High Contrast"]
+    name: "Horizon Slides",
+    category: "Senior Interactive & UI/UX Engineers",
+    tagCategory: "Executive & Professional",
+    desc: "An Apple, Linear & Framer inspired 100vw x 100vh horizontal storytelling portfolio featuring 7 full-screen slides traversed via mousewheel, touch swipe, or left vertical navigation dock.",
+    badge: "Horizon Slides • 100vw Storytelling",
+    tags: ["Horizontal Scroll", "100vw x 100vh", "Apple Design", "Linear UI", "Vertical Dock Nav", "Dark Mode"]
   },
   {
     id: 17,
-    name: "Vibrant Color Vector Art",
-    category: "Modern Color Vector",
-    tagCategory: "Creative & Vector",
-    desc: "Lively full-color vector illustration theme with vivid gradients, 2D/3D tech graphics, and colorful project banners.",
-    badge: "Color Vector • Vibrant",
-    tags: ["Colorful SVGs", "Vivid Gradients", "Tech Vector Art", "Colorful Banners"]
+    name: "Metro Flow",
+    category: "Principal Product Designers & Architects",
+    tagCategory: "Executive & Professional",
+    desc: "A Microsoft Fluent Design, Vercel & Notion inspired infinite horizontal workspace portfolio featuring asymmetrical left-to-right sections (Welcome → Skills → Projects → Education → Experience → Certificates Wall → Contact).",
+    badge: "Metro Flow • Fluent Canvas",
+    tags: ["Microsoft Fluent", "Infinite Workspace", "Horizontal Track", "Sticky Certificates", "Progress Line", "Dark Mode"]
+  },
+  {
+    id: 18,
+    name: "Emerald Edge",
+    category: "Recruiter Ready & Professionals",
+    tagCategory: "Executive & Professional",
+    desc: "A recruiter-friendly portfolio template featuring glassmorphism, animated skill pills, vertical timeline education, premium experience cards, project grid, horizontal certifications, floating social links, and direct contact dispatching.",
+    badge: "Recruiter Ready • Emerald Glass",
+    tags: ["Recruiter Friendly", "Glassmorphism", "Animated Skills", "Vertical Timeline", "Project Grid", "Dark/Light Toggle"]
   }
 ];
 
