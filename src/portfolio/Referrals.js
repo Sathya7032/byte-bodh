@@ -99,7 +99,7 @@ const Referrals = () => {
     return (
       <DashboardLayout>
         <div className="flex flex-col items-center justify-center min-h-[400px]">
-          <div className="w-12 h-12 border-4 border-[#6C63FF] border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
           <p className="mt-4 text-slate-550 font-bold">Loading referral portal...</p>
         </div>
       </DashboardLayout>
@@ -109,13 +109,13 @@ const Referrals = () => {
   return (
     <DashboardLayout containerClassName="w-full space-y-8 flex flex-col bg-transparent animate-fadeIn text-left">
       {/* HEADER BANNER */}
-      <div className="bg-gradient-to-r from-slate-900 via-[#1e1b4b] to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800">
-        <div className="absolute -top-[10%] -left-[10%] w-[200px] h-[200px] rounded-full bg-[#6C63FF]/10 blur-[50px] pointer-events-none"></div>
-        <div className="absolute -bottom-[20%] -right-[10%] w-[250px] h-[250px] rounded-full bg-indigo-500/10 blur-[60px] pointer-events-none"></div>
+      <div className="bg-gradient-to-r from-slate-900 via-[#064e3b] to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800">
+        <div className="absolute -top-[10%] -left-[10%] w-[200px] h-[200px] rounded-full bg-emerald-500/10 blur-[50px] pointer-events-none"></div>
+        <div className="absolute -bottom-[20%] -right-[10%] w-[250px] h-[250px] rounded-full bg-teal-500/10 blur-[60px] pointer-events-none"></div>
 
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-[#6C63FF] rounded-2xl flex items-center justify-center shadow-lg shadow-[#6C63FF]/30">
+            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
               <FaGift className="w-7 h-7 text-white" />
             </div>
             <div>
@@ -132,7 +132,7 @@ const Referrals = () => {
           {/* STATS BENTO CHECKLIST */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col md:flex-row md:items-center gap-6 justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-indigo-50 border border-indigo-100 text-[#6C63FF] rounded-xl inline-flex items-center justify-center">
+              <div className="p-3 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl inline-flex items-center justify-center">
                 <FaUsers className="w-6 h-6" />
               </div>
               <div>
@@ -147,20 +147,20 @@ const Referrals = () => {
             <div className="flex flex-col gap-2 min-w-[200px]">
               <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider text-left">Your Referral Code</span>
               <div className="bg-slate-50 border border-slate-200/80 rounded-xl px-3.5 py-2.5 flex items-center justify-between gap-3 shadow-inner">
-                <span className="font-mono text-base font-black text-[#6C63FF] tracking-widest">
+                <span className="font-mono text-base font-black text-emerald-600 tracking-widest">
                   {referralData.referralCode || "N/A"}
                 </span>
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={handleCopyCode}
-                    className="p-1.5 hover:bg-slate-200 text-slate-500 hover:text-[#6C63FF] rounded-lg transition-colors cursor-pointer"
+                    className="p-1.5 hover:bg-slate-200 text-slate-500 hover:text-emerald-600 rounded-lg transition-colors cursor-pointer"
                     title="Copy code"
                   >
                     <FaCopy size={14} className={copied ? "text-emerald-500 scale-110" : "transition-transform active:scale-90"} />
                   </button>
                   <button
                     onClick={handleShare}
-                    className="p-1.5 hover:bg-slate-200 text-slate-500 hover:text-[#6C63FF] rounded-lg transition-colors cursor-pointer"
+                    className="p-1.5 hover:bg-slate-200 text-slate-500 hover:text-emerald-600 rounded-lg transition-colors cursor-pointer"
                     title="Share Invitation"
                   >
                     <FaShareAlt size={14} />
@@ -203,7 +203,7 @@ const Referrals = () => {
                       return (
                         <tr key={u.userId} className="hover:bg-slate-50/50 transition-colors">
                           <td className="py-3 flex items-center gap-3">
-                            <div className="w-8 h-8 bg-indigo-50 border border-indigo-100 text-[#6C63FF] rounded-lg flex items-center justify-center font-bold text-[10px]">
+                            <div className="w-8 h-8 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center font-bold text-[10px]">
                               {initials}
                             </div>
                             <span className="font-bold text-slate-800">{u.fullName || "User"}</span>
@@ -252,14 +252,14 @@ const Referrals = () => {
                     placeholder="ENTER CODE"
                     required
                     disabled={submitting}
-                    className="w-full px-4 py-3 border border-slate-200 focus:border-[#6C63FF] rounded-2xl text-xs font-black focus:ring-4 focus:ring-[#6C63FF]/10 transition-all font-mono tracking-widest text-center uppercase placeholder-slate-350"
+                    className="w-full px-4 py-3 border border-slate-200 focus:border-emerald-500 rounded-2xl text-xs font-black focus:ring-4 focus:ring-emerald-500/10 transition-all font-mono tracking-widest text-center uppercase placeholder-slate-350"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={submitting || !inputCode.trim()}
-                  className="w-full bg-[#6C63FF] hover:bg-[#5b52e6] text-white py-3.5 rounded-2xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xs shadow-md shadow-[#6C63FF]/15 hover:shadow-lg cursor-pointer"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-2xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xs shadow-md shadow-emerald-600/15 hover:shadow-lg cursor-pointer"
                 >
                   {submitting ? (
                     <>

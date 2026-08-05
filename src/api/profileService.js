@@ -1,10 +1,8 @@
 import axios from "axios";
 import {
   getAccessToken,
-  getRefreshToken,
-  saveAuthData,
-  logout,
-} from "../services/auth"; // 👈 the file where your axios code exists
+  handleUnauthorizedError,
+} from "../services/auth";
 import API_BASE_URL from "../config/api";
 
 /* =========================
@@ -29,27 +27,7 @@ api.interceptors.request.use((config) => {
 // Refresh token interceptor
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      try {
-        const refreshToken = getRefreshToken();
-        const res = await api.post("/auth/refresh-token", { refreshToken });
-
-        if (res.data?.success) {
-          saveAuthData(res.data.data);
-          originalRequest.headers.Authorization =
-            `Bearer ${res.data.data.accessToken}`;
-          return api(originalRequest);
-        }
-      } catch (e) {
-        logout();
-      }
-    }
-    return Promise.reject(error);
-  }
+  (error) => handleUnauthorizedError(error, api)
 );
 
 /* =========================
@@ -58,14 +36,27 @@ api.interceptors.response.use(
 
 export const getMyProfile = () => api.get("/api/profile");
 
-export const createProfile = (data) => api.post("/api/profile", data);
+export const createProfile = (data) => {
+  if (data instanceof FormData) {
+    return api.post("/api/profile", data, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    });
+  }
+  return api.post("/api/profile", data);
+};
 
-export const updateProfile = (data) =>
-  api.put("/api/profile", data, {
-    headers: {
-      "Content-Type": "multipart/form-data"
-    }
-  });
+export const updateProfile = (data) => {
+  if (data instanceof FormData) {
+    return api.put("/api/profile", data, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    });
+  }
+  return api.put("/api/profile", data);
+};
 
 
 export const deleteProfile = () => api.delete("/api/profile");
@@ -117,3 +108,89 @@ export const getMyReferrals = () =>
 
 export const applyReferralCode = (referralCode) => 
   api.post('/api/referrals/apply-referral-code', { referralCode });
+
+/* =========================
+   PROJECT & CERTIFICATION INDIVIDUAL APIs
+   (Supports Multipart Image Uploads)
+========================= */
+export const addProject = (formData) => 
+  api.post('/api/profile/projects', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+
+export const deleteProject = (id) => 
+  api.delete(`/api/profile/projects/${id}`);
+
+export const addCertification = (formData) => 
+  api.post('/api/profile/certifications', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+
+export const deleteCertification = (id) => 
+  api.delete(`/api/profile/certifications/${id}`);
+
+/* =========================
+   CUSTOM DOMAIN APIs
+========================= */
+export const getMyCustomDomain = () => 
+  api.get('/api/custom-domain/my-domain');
+
+export const checkCustomDomain = (domainName) => 
+  api.get(`/api/custom-domain/check?domainName=${encodeURIComponent(domainName)}`);
+
+export const createCustomDomainOrder = (dto) => 
+  api.post('/api/payment/custom-domain/create-order', dto);
+
+export const getCustomDomainConfig = () => 
+  api.get('/api/admin/custom-domain-config');
+
+export const updateCustomDomainConfig = (request) => 
+  api.put('/api/admin/custom-domain-config', request);
+
+/* =========================
+   NOTIFICATION APIs
+========================= */
+export const getMyNotifications = () => 
+  api.get('/api/notifications');
+
+export const markNotificationRead = (id) => 
+  api.put(`/api/notifications/${id}/read`);
+
+export const markAllNotificationsRead = () => 
+  api.put('/api/notifications/read-all');
+
+export const deleteNotification = (id) => 
+  api.delete(`/api/notifications/${id}`);
+
+export const deleteAllNotifications = () => 
+  api.delete('/api/notifications/all');
+
+/* =========================
+   USER BLOG APIs
+   Base: /api/profile/blogs
+========================= */
+export const getMyBlogs = () =>
+  api.get('/api/profile/blogs');
+
+export const getBlogById = (id) =>
+  api.get(`/api/profile/blogs/${id}`);
+
+export const createBlog = (formData) =>
+  api.post('/api/profile/blogs', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+
+export const updateBlog = (id, formData) =>
+  api.put(`/api/profile/blogs/${id}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+
+export const deleteUserBlog = (id) =>
+  api.delete(`/api/profile/blogs/${id}`);
+
+export const getBlogsByUsername = (username) =>
+  api.get(`/api/profile/blogs/public/${username}`);

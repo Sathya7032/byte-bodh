@@ -112,7 +112,7 @@ const DashboardLayout = ({ children, containerClassName }) => {
                 <React.Fragment key={crumb.path}>
                   {idx > 0 && <span className="text-slate-350 select-none">/</span>}
                   {idx === arr.length - 1 ? (
-                    <span className="text-[#6C63FF] font-black">{crumb.label}</span>
+                    <span className="text-emerald-600 font-black">{crumb.label}</span>
                   ) : (
                     <Link to={crumb.path} className="hover:text-slate-600 transition-colors">
                       {crumb.label}

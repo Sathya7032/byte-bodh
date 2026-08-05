@@ -98,28 +98,28 @@ export default function DashboardJobDetail() {
     <DashboardLayout containerClassName="w-full text-left space-y-6">
       {/* Breadcrumbs */}
       <div className="flex items-center text-sm font-semibold text-slate-500 mb-2">
-        <Link to="/dashboard" className="hover:text-indigo-600 transition-colors">Dashboard</Link>
+        <Link to="/dashboard" className="hover:text-emerald-600 transition-colors">Dashboard</Link>
         <span className="mx-2">/</span>
-        <Link to="/dashboard-jobs" className="hover:text-indigo-600 transition-colors">Jobs</Link>
+        <Link to="/dashboard-jobs" className="hover:text-emerald-600 transition-colors">Jobs</Link>
         <span className="mx-2">/</span>
         <span className="text-slate-800 truncate max-w-xs" title={job.title}>{job.title}</span>
       </div>
 
       <div className="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-200/80">
         {/* Header Section */}
-        <div className="bg-gradient-to-r from-slate-900 via-[#1e1b4b] to-slate-900 p-8 text-white relative overflow-hidden">
-          <div className="absolute -top-[10%] -left-[10%] w-[200px] h-[200px] rounded-full bg-[#6C63FF]/10 blur-[50px] pointer-events-none"></div>
+        <div className="bg-gradient-to-r from-slate-900 via-[#064e3b] to-slate-900 p-8 text-white relative overflow-hidden">
+          <div className="absolute -top-[10%] -left-[10%] w-[200px] h-[200px] rounded-full bg-emerald-500/10 blur-[50px] pointer-events-none"></div>
           
           <div className="relative z-10">
             <button 
               onClick={() => navigate('/dashboard-jobs')}
-              className="inline-flex items-center text-slate-300 hover:text-white transition-colors mb-6 text-sm font-semibold"
+              className="inline-flex items-center text-slate-300 hover:text-white transition-colors mb-6 text-sm font-semibold cursor-pointer"
             >
               <FaArrowLeft className="mr-2" /> Back to Jobs
             </button>
             
             <div className="mb-4">
-              <span className="inline-block bg-indigo-600 text-white px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider">
+              <span className="inline-block bg-emerald-600 text-white px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider">
                 {job.employmentType}
               </span>
             </div>
@@ -130,15 +130,15 @@ export default function DashboardJobDetail() {
             
             <div className="flex flex-wrap gap-4 text-slate-300 text-xs md:text-sm font-semibold">
               <div className="flex items-center gap-2">
-                <FaBriefcase className="text-indigo-400" />
+                <FaBriefcase className="text-emerald-400" />
                 <span>{job.company}</span>
               </div>
               <div className="flex items-center gap-2">
-                <FaMapMarkerAlt className="text-indigo-400" />
+                <FaMapMarkerAlt className="text-emerald-400" />
                 <span>{job.location}</span>
               </div>
               <div className="flex items-center gap-2">
-                <FaCalendarAlt className="text-indigo-400" />
+                <FaCalendarAlt className="text-emerald-400" />
                 <span>Apply by {formatDate(job.applicationDeadline)}</span>
               </div>
             </div>
@@ -202,7 +202,7 @@ export default function DashboardJobDetail() {
                     href={job.jobLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-xl transition-colors text-sm"
+                    className="block w-full text-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl transition-colors text-sm cursor-pointer shadow-md shadow-emerald-600/15"
                   >
                     Apply Externally
                   </a>
@@ -233,7 +233,7 @@ export default function DashboardJobDetail() {
               )}
 
               {job.jobLink && (
-                <div className="bg-indigo-50 rounded-2xl p-6 text-center border border-indigo-100 mt-8">
+                <div className="bg-emerald-50 rounded-2xl p-6 text-center border border-emerald-100 mt-8">
                   <h4 className="text-lg font-black text-slate-800 mb-2">Ready to Apply?</h4>
                   <p className="text-slate-600 text-sm mb-6 font-semibold">
                     Don't miss this opportunity to join the team. Click the button below to apply directly.
@@ -242,7 +242,7 @@ export default function DashboardJobDetail() {
                     href={job.jobLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-sm shadow-indigo-200"
+                    className="inline-block bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-md shadow-emerald-600/20 cursor-pointer"
                   >
                     Apply for this Position
                   </a>

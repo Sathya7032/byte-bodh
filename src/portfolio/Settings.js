@@ -75,9 +75,9 @@ const Settings = () => {
           transition={{ duration: 0.3 }}
           className="space-y-6"
         >
-          <div className="bg-gradient-to-br from-[#6C63FF]/5 to-indigo-600/5 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
+          <div className="bg-gradient-to-br from-emerald-500/5 to-teal-600/5 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2.5 bg-[#6C63FF]/10 text-[#6C63FF] rounded-xl">
+              <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
                 <FaLock className="w-5 h-5" />
               </div>
               <div>
@@ -106,7 +106,7 @@ const Settings = () => {
                   <label className="block text-xs font-bold text-slate-600">Current Password</label>
                   <input
                     type="password"
-                    className={`w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400 ${
+                    className={`w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400 ${
                       securityErrors.oldPassword ? "border-red-500 focus:ring-red-500/15" : ""
                     }`}
                     value={securityData.oldPassword}
@@ -124,7 +124,7 @@ const Settings = () => {
                   <label className="block text-xs font-bold text-slate-600">New Password</label>
                   <input
                     type="password"
-                    className={`w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400 ${
+                    className={`w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400 ${
                       securityErrors.newPassword ? "border-red-500 focus:ring-red-500/15" : ""
                     }`}
                     value={securityData.newPassword}
@@ -142,7 +142,7 @@ const Settings = () => {
                   <label className="block text-xs font-bold text-slate-600">Confirm New Password</label>
                   <input
                     type="password"
-                    className={`w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400 ${
+                    className={`w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400 ${
                       securityErrors.confirmPassword ? "border-red-500 focus:ring-red-500/15" : ""
                     }`}
                     value={securityData.confirmPassword}
@@ -158,7 +158,7 @@ const Settings = () => {
                 <button
                   type="submit"
                   disabled={securityLoading}
-                  className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
+                  className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-600/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
                 >
                   {securityLoading ? (
                     <>

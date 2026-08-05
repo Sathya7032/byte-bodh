@@ -39,6 +39,7 @@ import QRCodePage from "./portfolio/QRCodePage";
 import BillingsPage from "./portfolio/BillingsPage";
 import Settings from "./portfolio/Settings";
 import Referrals from "./portfolio/Referrals";
+import CustomDomain from "./portfolio/CustomDomain";
 import AdminLogin from "./admin/AdminLogin";
 import DashboardPage from "./admin/pages/DashboardPage";
 import InvoiceGenerator from "./products/InvoiceGenerator";
@@ -57,6 +58,7 @@ import Quiz from "./admin/pages/Quiz";
 import Templates from "./admin/pages/Templates";
 import AdminUserTemplates from "./admin/pages/AdminUserTemplates";
 import AdminPayments from "./admin/pages/AdminPayments";
+import AdminCustomDomainConfig from "./admin/pages/AdminCustomDomainConfig";
 import PageNotFound from "./pages/PageNotFound";
 import TemplatesPage from "./pages/Templates";
 import PublicPortfolioPage from "./bytebodh-folio/PublicPortfolioPage";
@@ -132,9 +134,10 @@ const App = () => {
             <Route path="/dashboard-blogs/:slug" element={<DashboardBlogDetail />} />
             <Route path="/help" element={<HelpSupportPage />} />
             <Route path="/qr-code" element={<QRCodePage />} />
-            <Route path="/billings" element={<BillingsPage />} />
+             <Route path="/billings" element={<BillingsPage />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/referrals" element={<Referrals />} />
+            <Route path="/custom-domain" element={<CustomDomain />} />
           </Route>
 
           <Route element={<AdminPrivateRoutes />}>
@@ -154,6 +157,7 @@ const App = () => {
             <Route path="/admin/job-notifications/:id" element={<JobNotificationDetail />} />
             <Route path="/admin/job-notifications/:id/edit" element={<JobNotificationForm />} />
             <Route path="/admin-quiz" element={<Quiz />} />
+            <Route path="/admin/custom-domain-config" element={<AdminCustomDomainConfig />} />
           </Route>
 
           {/* ===== ADMIN LOGIN ===== */}

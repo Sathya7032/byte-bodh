@@ -596,7 +596,7 @@ const StudentProfileBuilder = () => {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="relative">
-              <div className="w-16 h-16 border-4 border-[#6C63FF] border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
             </div>
             <p className="text-lg text-slate-600 mt-6 font-medium">Loading profile and templates...</p>
           </div>
@@ -639,13 +639,13 @@ const StudentProfileBuilder = () => {
         )}
 
         {/* Header */}
-        <div className="bg-gradient-to-r from-slate-900 via-[#1e1b4b] to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl mb-8 relative overflow-hidden border border-slate-800 text-left">
-          <div className="absolute -top-[10%] -left-[10%] w-[200px] h-[200px] rounded-full bg-[#6C63FF]/10 blur-[50px] pointer-events-none"></div>
-          <div className="absolute -bottom-[20%] -right-[10%] w-[250px] h-[250px] rounded-full bg-indigo-500/10 blur-[60px] pointer-events-none"></div>
+        <div className="bg-gradient-to-r from-slate-900 via-[#064e3b] to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl mb-8 relative overflow-hidden border border-slate-800 text-left">
+          <div className="absolute -top-[10%] -left-[10%] w-[200px] h-[200px] rounded-full bg-emerald-500/10 blur-[50px] pointer-events-none"></div>
+          <div className="absolute -bottom-[20%] -right-[10%] w-[250px] h-[250px] rounded-full bg-teal-500/10 blur-[60px] pointer-events-none"></div>
           
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-[#6C63FF] rounded-2xl flex items-center justify-center shadow-lg shadow-[#6C63FF]/30">
+              <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
                 <FileText className="w-7 h-7 text-white" />
               </div>
               <div>
@@ -659,7 +659,7 @@ const StudentProfileBuilder = () => {
         {/* Dynamic Premium Resume Showcase Grid */}
         <div className="bg-white rounded-3xl border border-slate-200/80 p-6 md:p-8 shadow-sm mb-8 text-left">
           <div className="flex items-center mb-6">
-            <FileCheck className="w-6 h-6 text-[#6C63FF] mr-2.5" />
+            <FileCheck className="w-6 h-6 text-emerald-600 mr-2.5" />
             <div>
               <h3 className="text-lg font-black text-slate-800 tracking-tight">Premium Resume Templates</h3>
               <p className="text-xs text-slate-400 font-semibold mt-0.5">Select a layout to preview in real-time or download as a PDF.</p>
@@ -670,10 +670,10 @@ const StudentProfileBuilder = () => {
             {resumeTemplates.map((template) => (
               <div
                 key={template.id}
-                className="group relative border border-slate-200 hover:border-[#6C63FF] bg-slate-50/50 hover:bg-white rounded-2xl p-5 transition-all duration-300 shadow-sm hover:shadow-lg flex flex-col justify-between"
+                className="group relative border border-slate-200 hover:border-emerald-500 bg-slate-50/50 hover:bg-white rounded-2xl p-5 transition-all duration-300 shadow-sm hover:shadow-lg flex flex-col justify-between"
               >
                 <div>
-                  <div className="w-12 h-12 rounded-xl bg-[#6C63FF]/5 text-[#6C63FF] flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
                     {template.thumbnail}
                   </div>
                   <h4 className="font-bold text-slate-800 text-sm">{template.name}</h4>
@@ -683,14 +683,14 @@ const StudentProfileBuilder = () => {
                 <div className="mt-5 flex items-center gap-2 pt-4 border-t border-slate-100">
                   <button
                     onClick={() => setPreviewTemplate(template)}
-                    className="flex-1 py-2 px-3 border border-slate-200 hover:border-[#6C63FF] text-slate-600 hover:text-[#6C63FF] text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer bg-white"
+                    className="flex-1 py-2 px-3 border border-slate-200 hover:border-emerald-500 text-slate-600 hover:text-emerald-600 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer bg-white"
                   >
                     <Eye className="w-3.5 h-3.5" /> Preview
                   </button>
                   <button
                     onClick={() => generateResumePDF(template)}
                     disabled={generatingPDF}
-                    className="flex-1 py-2 px-3 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm shadow-[#6C63FF]/10"
+                    className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm shadow-emerald-600/10"
                   >
                     <Download className="w-3.5 h-3.5" /> Download
                   </button>
@@ -713,28 +713,28 @@ const StudentProfileBuilder = () => {
                     className="w-20 h-20 rounded-2xl object-cover border-4 border-slate-50 shadow-sm"
                   />
                 ) : (
-                  <div className="w-20 h-20 bg-indigo-50 text-[#6C63FF] rounded-2xl flex items-center justify-center text-3xl font-black">
+                  <div className="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-3xl font-black">
                     {profile?.fullName?.charAt(0) || "U"}
                   </div>
                 )}
                 <div className="flex-1">
                   <h2 className="text-xl font-black text-slate-800">{profile.fullName}</h2>
-                  <p className="text-[#6C63FF] text-xs font-bold tracking-wider mt-0.5 uppercase">{profile.headline}</p>
+                  <p className="text-emerald-600 text-xs font-bold tracking-wider mt-0.5 uppercase">{profile.headline}</p>
                   <p className="text-xs text-slate-500 font-medium mt-3 leading-relaxed">{profile.summary}</p>
                   
                   <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4 pt-4 border-t border-slate-100">
                     <div className="flex items-center text-xs text-slate-500 font-semibold">
-                      <Mail className="w-4 h-4 mr-2 text-[#6C63FF]" />
+                      <Mail className="w-4 h-4 mr-2 text-emerald-600" />
                       <span>{profile.email}</span>
                     </div>
                     {profile.mobileNumber && (
                       <div className="flex items-center text-xs text-slate-500 font-semibold">
-                        <Phone className="w-4 h-4 mr-2 text-[#6C63FF]" />
+                        <Phone className="w-4 h-4 mr-2 text-emerald-600" />
                         <span>{profile.mobileNumber}</span>
                       </div>
                     )}
                     <div className="flex items-center text-xs text-slate-500 font-semibold">
-                      <Award className="w-4 h-4 mr-2 text-[#6C63FF]" />
+                      <Award className="w-4 h-4 mr-2 text-emerald-600" />
                       <span>{profile.isFresher ? 'Entry-Level Candidate' : 'Experienced Professional'}</span>
                     </div>
                   </div>
@@ -745,13 +745,13 @@ const StudentProfileBuilder = () => {
             {/* Education Section */}
             <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
               <div className="flex items-center mb-5 pb-3 border-b border-slate-100">
-                <GraduationCap className="w-5.5 h-5.5 text-[#6C63FF] mr-2.5" />
+                <GraduationCap className="w-5.5 h-5.5 text-emerald-600 mr-2.5" />
                 <h3 className="text-base font-black text-slate-800">Education Details</h3>
               </div>
               {profile.education && profile.education.length > 0 ? (
                 <div className="space-y-4">
                   {profile.education.map((edu, index) => (
-                    <div key={index} className="pl-4 border-l-4 border-[#6C63FF] py-0.5">
+                    <div key={index} className="pl-4 border-l-4 border-emerald-500 py-0.5">
                       <h4 className="font-bold text-slate-800 text-sm">{edu.degree} in {edu.fieldOfStudy}</h4>
                       <p className="text-xs text-slate-500 font-semibold mt-0.5">{edu.institution}</p>
                       <p className="text-[10px] text-slate-400 font-bold mt-1">
@@ -768,7 +768,7 @@ const StudentProfileBuilder = () => {
             {/* Experience Section */}
             <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
               <div className="flex items-center mb-5 pb-3 border-b border-slate-100">
-                <Briefcase className="w-5.5 h-5.5 text-[#6C63FF] mr-2.5" />
+                <Briefcase className="w-5.5 h-5.5 text-emerald-600 mr-2.5" />
                 <h3 className="text-base font-black text-slate-800">Professional Experience</h3>
               </div>
               {profile.experience && profile.experience.length > 0 ? (
@@ -794,7 +794,7 @@ const StudentProfileBuilder = () => {
               {/* Skills */}
               <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
                 <div className="flex items-center mb-5 pb-3 border-b border-slate-100">
-                  <Code className="w-5.5 h-5.5 text-[#6C63FF] mr-2.5" />
+                  <Code className="w-5.5 h-5.5 text-emerald-600 mr-2.5" />
                   <h3 className="text-base font-black text-slate-800">Skills</h3>
                 </div>
                 {profile.skills && profile.skills.length > 0 ? (
@@ -802,7 +802,7 @@ const StudentProfileBuilder = () => {
                     {profile.skills.map((skill, index) => (
                       <span
                         key={index}
-                        className="px-3 py-1 bg-indigo-50 border border-indigo-100 text-[#6C63FF] rounded-xl text-xs font-bold"
+                        className="px-3 py-1 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl text-xs font-bold"
                       >
                         {skill}
                       </span>
@@ -816,22 +816,22 @@ const StudentProfileBuilder = () => {
               {/* Projects */}
               <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
                 <div className="flex items-center mb-5 pb-3 border-b border-slate-100">
-                  <Globe className="w-5.5 h-5.5 text-[#6C63FF] mr-2.5" />
+                  <Globe className="w-5.5 h-5.5 text-emerald-600 mr-2.5" />
                   <h3 className="text-base font-black text-slate-800">Projects</h3>
                 </div>
                 {profile.projects && profile.projects.length > 0 ? (
                   <div className="space-y-4">
                     {profile.projects.map((project, index) => (
-                      <div key={index} className="border border-slate-100 rounded-2xl p-4 hover:border-indigo-100 transition-colors">
+                      <div key={index} className="border border-slate-100 rounded-2xl p-4 hover:border-emerald-100 transition-colors">
                         <h4 className="font-bold text-slate-800 text-xs">{project.title}</h4>
-                        <p className="text-[10px] text-indigo-500 font-bold mt-0.5">{project.techStack}</p>
+                        <p className="text-[10px] text-emerald-600 font-bold mt-0.5">{project.techStack}</p>
                         <p className="text-[11px] text-slate-400 font-semibold mt-2 line-clamp-2 leading-relaxed">{project.description}</p>
                         {project.projectUrl && (
                           <a
                             href={project.projectUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center text-xs text-[#6C63FF] font-bold mt-3 hover:underline"
+                            className="inline-flex items-center text-xs text-emerald-600 font-bold mt-3 hover:underline"
                           >
                             <ExternalLink className="w-3 h-3 mr-1" />
                             View Source
@@ -860,7 +860,7 @@ const StudentProfileBuilder = () => {
                       href={link.profileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between p-3 border border-slate-100 hover:border-indigo-100 hover:bg-slate-50/50 rounded-2xl transition-all group"
+                      className="flex items-center justify-between p-3 border border-slate-100 hover:border-emerald-100 hover:bg-slate-50/50 rounded-2xl transition-all group"
                     >
                       <div className="flex items-center">
                         {link.platform === 'LINKEDIN' ? (
@@ -870,7 +870,7 @@ const StudentProfileBuilder = () => {
                         )}
                         <span className="font-bold text-slate-700 text-xs">{link.platform}</span>
                       </div>
-                      <ExternalLink className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#6C63FF] transition-colors" />
+                      <ExternalLink className="w-3.5 h-3.5 text-slate-300 group-hover:text-emerald-600 transition-colors" />
                     </a>
                   ))}
                 </div>
@@ -878,21 +878,21 @@ const StudentProfileBuilder = () => {
             )}
 
             {/* Instruction Card */}
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl border border-indigo-100/50 p-6 shadow-sm text-left">
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl border border-emerald-100/50 p-6 shadow-sm text-left">
               <h3 className="text-base font-black text-slate-800 mb-2.5 flex items-center gap-1.5">
                 <span>💡</span> Resume Tips
               </h3>
               <ul className="space-y-2.5 text-xs text-slate-500 font-semibold">
                 <li className="flex gap-2">
-                  <span className="text-[#6C63FF]">•</span>
+                  <span className="text-emerald-600">•</span>
                   <span><strong>ATS Compliance</strong>: Standard linear templates (Minimalist, Academic) achieve the highest readability on automated applicant tracking systems.</span>
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-[#6C63FF]">•</span>
+                  <span className="text-emerald-600">•</span>
                   <span><strong>Keep it updated</strong>: Add milestones, new skills, and certifications in the Profile tab to automatically reflect them here.</span>
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-[#6C63FF]">•</span>
+                  <span className="text-emerald-600">•</span>
                   <span><strong>Action verbs</strong>: Describe your work experience tasks using strong action verbs (e.g. Developed, Led, Architected).</span>
                 </li>
               </ul>
@@ -914,7 +914,7 @@ const StudentProfileBuilder = () => {
                 <button
                   onClick={() => generateResumePDF(previewTemplate)}
                   disabled={generatingPDF}
-                  className="px-4 py-2 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-[#6C63FF]/20 cursor-pointer active:scale-95 disabled:opacity-50"
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-emerald-600/20 cursor-pointer active:scale-95 disabled:opacity-50"
                 >
                   {generatingPDF ? (
                     <>

@@ -2,13 +2,17 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import {
   FaCheckCircle,
+  FaTimesCircle,
   FaFolder,
   FaDownload,
   FaShoppingBag,
   FaRocket,
   FaSpinner,
   FaPalette,
-  FaEye
+  FaEye,
+  FaExclamationTriangle,
+  FaBookOpen,
+  FaGift
 } from "react-icons/fa";
 import DashboardLayout from "./components/DashboardLayout";
 import { getUser } from "../services/auth";
@@ -31,6 +35,7 @@ const PortfolioTemplates = () => {
   const [processingId, setProcessingId] = useState(null);
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [billingCycle, setBillingCycle] = useState("MONTHLY");
 
   // Fallback mock images if previewImageUrl is empty
   const mockImageMap = {
@@ -63,6 +68,7 @@ const PortfolioTemplates = () => {
         getUserTemplates(),
         getMyProfile().catch(() => ({ data: null }))
       ]);
+      console.log("user templates ", userRes)
 
       if (allRes.data?.success) {
         setTemplates(allRes.data.data || []);
@@ -114,9 +120,12 @@ const PortfolioTemplates = () => {
   const handlePurchase = async (template) => {
     try {
       setProcessingId(template.id);
-      
+
       // 1. Create payment order on server
-      const orderRes = await createPaymentOrder({ templateId: template.id });
+      const orderRes = await createPaymentOrder({
+        templateId: template.id,
+        planType: billingCycle
+      });
       if (!orderRes.data?.success) {
         throw new Error(orderRes.data?.message || "Order creation failed on backend");
       }
@@ -130,6 +139,7 @@ const PortfolioTemplates = () => {
         setProcessingId(null);
         return;
       }
+
 
       // 3. Configure Checkout Options
       const options = {
@@ -167,7 +177,7 @@ const PortfolioTemplates = () => {
           email: user?.email || "",
         },
         theme: {
-          color: "#6C63FF",
+          color: "#10B981",
         },
         modal: {
           ondismiss: async function () {
@@ -200,6 +210,14 @@ const PortfolioTemplates = () => {
   const handleFreeActivation = async (template) => {
     // Free templates are immediately activated on activateTemplate in backend
     await handleActivate(template.id);
+  };
+
+  const checkIsExpired = (expiryDate) => {
+    if (!expiryDate) return false;
+    const exp = new Date(expiryDate);
+    if (isNaN(exp.getTime())) return false;
+    exp.setHours(23, 59, 59, 999);
+    return exp < new Date();
   };
 
   const categories = ["All", ...new Set(templates.map((t) => t.category).filter(Boolean))];
@@ -235,7 +253,7 @@ const PortfolioTemplates = () => {
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-2">
-            <FaPalette className="text-[#6C63FF]" /> Portfolio Templates
+            <FaPalette className="text-emerald-600" /> Portfolio Templates
           </h1>
           <p className="text-gray-500 font-medium mt-1">
             Choose a professional template to represent your online resume.
@@ -243,29 +261,54 @@ const PortfolioTemplates = () => {
         </div>
       </div>
 
-      {/* Categories filter tabs */}
-      <div className="flex flex-wrap gap-2 mb-8 bg-gray-50 p-2 rounded-2xl border border-gray-200/50 max-w-2xl">
-        {categories.map((cat) => (
+      {/* Categories & Billing Cycle layout */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        {/* Categories filter tabs */}
+        <div className="flex flex-wrap gap-2 bg-gray-50 p-2 rounded-2xl border border-gray-200/50 max-w-2xl text-left">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-5 py-2 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer ${selectedCategory === cat
+                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
+                  : "text-gray-500 hover:text-gray-800 hover:bg-white"
+                }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Plan Billing Cycle Toggle */}
+        <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200 p-1.5 rounded-2xl self-start md:self-auto">
           <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            className={`px-5 py-2 rounded-xl text-xs font-bold transition-all duration-300 ${
-              selectedCategory === cat
-                ? "bg-[#6C63FF] text-white shadow-md shadow-[#6C63FF]/20"
-                : "text-gray-500 hover:text-gray-800 hover:bg-white"
-            }`}
+            onClick={() => setBillingCycle("MONTHLY")}
+            className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all duration-300 cursor-pointer ${billingCycle === "MONTHLY"
+                ? "bg-slate-900 text-white shadow-md"
+                : "text-slate-500 hover:text-slate-800"
+              }`}
           >
-            {cat}
+            Monthly
           </button>
-        ))}
+          <button
+            onClick={() => setBillingCycle("YEARLY")}
+            className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${billingCycle === "YEARLY"
+                ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
+                : "text-slate-500 hover:text-emerald-600"
+              }`}
+          >
+            Yearly Plan
+            <span className="px-1.5 py-0.5 text-[9px] font-black bg-emerald-500 text-white rounded-md uppercase tracking-wider animate-pulse">Save 10%</span>
+          </button>
+        </div>
       </div>
 
       {/* Loading */}
       {loading && (
         <div className="bg-white rounded-3xl border border-gray-100 p-20 text-center shadow-sm">
           <div className="relative inline-block">
-            <div className="w-12 h-12 border-4 border-[#6C63FF] border-t-transparent rounded-full animate-spin"></div>
-            <FaSpinner className="absolute inset-0 m-auto text-[#6C63FF] text-lg animate-spin" />
+            <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+            <FaSpinner className="absolute inset-0 m-auto text-emerald-600 text-lg animate-spin" />
           </div>
           <p className="text-gray-500 mt-6 font-semibold">Loading portfolios catalog...</p>
         </div>
@@ -278,7 +321,7 @@ const PortfolioTemplates = () => {
           <h3 className="text-lg font-bold text-gray-900 mb-2">{error}</h3>
           <button
             onClick={fetchData}
-            className="mt-4 px-6 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white font-bold rounded-xl shadow-md transition-colors"
+            className="mt-4 px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-colors cursor-pointer"
           >
             Retry Connection
           </button>
@@ -299,7 +342,8 @@ const PortfolioTemplates = () => {
           {filteredTemplates.map((template) => {
             const userTemplate = userTemplates.find((ut) => ut.templateId === template.id);
             const isPurchased = !!userTemplate;
-            const isActive = userTemplate?.active || false;
+            const isExpired = isPurchased ? checkIsExpired(userTemplate.expiryDate) : false;
+            const isActive = (userTemplate?.active || false) && !isExpired;
             const previewUrl = template.previewImageUrl || mockImageMap[template.id] || mockImageMap[1];
 
             return (
@@ -319,7 +363,7 @@ const PortfolioTemplates = () => {
                     <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
                       <button
                         onClick={() => window.open(`/templates/preview/${template.id}`, '_blank')}
-                        className="px-4 py-2 bg-white text-slate-800 rounded-xl text-xs font-bold hover:bg-slate-100 shadow-lg flex items-center gap-1.5 transition-all"
+                        className="px-4 py-2 bg-white text-slate-800 rounded-xl text-xs font-bold hover:bg-slate-100 shadow-lg flex items-center gap-1.5 transition-all cursor-pointer"
                       >
                         <FaEye /> Live Preview
                       </button>
@@ -330,34 +374,48 @@ const PortfolioTemplates = () => {
                       {isPurchased ? (
                         <span
                           className={`px-3.5 py-1.5 rounded-full text-xs font-black tracking-wide shadow-md flex items-center gap-1.5 ${
-                            isActive
+                            isExpired
+                              ? "bg-rose-500 text-white shadow-rose-500/20"
+                              : isActive
                               ? "bg-emerald-500 text-white shadow-emerald-500/20"
-                              : "bg-blue-600 text-white shadow-blue-500/20"
+                              : "bg-emerald-600 text-white shadow-emerald-600/20"
                           }`}
                         >
-                          {isActive ? (
-                            <>
-                              <FaCheckCircle /> ACTIVE
-                            </>
+                          {isExpired ? (
+                            <><FaExclamationTriangle /> EXPIRED</>
+                          ) : isActive ? (
+                            <><FaCheckCircle /> ACTIVE</>
                           ) : (
-                            <>
-                              <FaCheckCircle /> OWNED
-                            </>
+                            <><FaCheckCircle /> OWNED</>
                           )}
                         </span>
                       ) : (
-                        <span className="px-3.5 py-1.5 rounded-full text-xs font-black tracking-wide shadow-md bg-white border border-gray-100 text-[#6C63FF] shadow-slate-950/5">
-                          {template.isFree ? "FREE" : `₹${template.cost || 0}`}
+                        <span className="px-3.5 py-1.5 rounded-full text-xs font-black tracking-wide shadow-md bg-white border border-gray-100 text-emerald-600 shadow-slate-950/5">
+                          {template.isFree
+                            ? "FREE"
+                            : billingCycle === "YEARLY"
+                              ? `₹${template.yearlyCost ?? template.monthlyCost ?? 0}/yr`
+                              : `₹${template.monthlyCost ?? template.cost ?? 0}/mo`
+                          }
                         </span>
                       )}
                     </div>
+
+                    {/* 1 Month Free ribbon */}
+                    {template.hasOneMonthFree && !isPurchased && (
+                      <div className="absolute top-4 left-4">
+                        <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-amber-400 text-white shadow-md shadow-amber-400/30">
+                          <FaGift size={9} /> 1 Month Free
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Body Content */}
                   <div className="p-6 text-left">
                     <div className="flex items-center gap-2 mb-3">
                       {template.category && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 border border-indigo-100 text-[#6C63FF] text-[10px] font-extrabold uppercase tracking-wide">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 text-[10px] font-extrabold uppercase tracking-wide">
                           <FaFolder size={9} /> {template.category}
                         </span>
                       )}
@@ -372,41 +430,111 @@ const PortfolioTemplates = () => {
                     <p className="text-xs text-gray-500 leading-relaxed">
                       {template.description || "Beautiful portfolio outline to present details, timeline and responsive references."}
                     </p>
+
+                    {/* Feature checklist — always visible */}
+                    <div className="mt-4 grid grid-cols-2 gap-2">
+                      {/* Blogs feature */}
+                      <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-[10px] font-black uppercase tracking-wider ${
+                        template.hasBlogsFeature
+                          ? "bg-violet-50 border-violet-100 text-violet-700"
+                          : "bg-slate-50 border-slate-100 text-slate-400"
+                      }`}>
+                        {template.hasBlogsFeature ? (
+                          <FaCheckCircle size={12} className="text-violet-500 flex-shrink-0" />
+                        ) : (
+                          <FaTimesCircle size={12} className="text-slate-300 flex-shrink-0" />
+                        )}
+                        <span className="flex items-center gap-1">
+                          <FaBookOpen size={9} /> Blogs
+                        </span>
+                      </div>
+
+                      {/* 1 Month Free */}
+                      <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-[10px] font-black uppercase tracking-wider ${
+                        template.hasOneMonthFree
+                          ? "bg-amber-50 border-amber-100 text-amber-700"
+                          : "bg-slate-50 border-slate-100 text-slate-400"
+                      }`}>
+                        {template.hasOneMonthFree ? (
+                          <FaCheckCircle size={12} className="text-amber-500 flex-shrink-0" />
+                        ) : (
+                          <FaTimesCircle size={12} className="text-slate-300 flex-shrink-0" />
+                        )}
+                        <span className="flex items-center gap-1">
+                          <FaGift size={9} /> 1 Mo Free
+                        </span>
+                      </div>
+                    </div>
+
+                    {userTemplate?.expiryDate && (
+                      <div className="mt-3 text-[11px] font-bold flex items-center gap-1.5">
+                        <span className={isExpired ? "text-rose-500 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-100" : "text-gray-400 bg-gray-50 px-2 py-0.5 rounded-md border border-gray-100"}>
+                          {isExpired ? `Expired on: ${userTemplate.expiryDate}` : `Expires on: ${userTemplate.expiryDate}`}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 {/* Footer Buttons */}
                 <div className="p-6 pt-0 text-left border-t border-gray-50 mt-4">
                   {isPurchased ? (
-                    <button
-                      disabled={isActive || processingId === template.id}
-                      onClick={() => handleActivate(template.id)}
-                      className={`w-full py-3 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-                        isActive
-                          ? "bg-slate-100 text-slate-400 cursor-default"
-                          : "bg-slate-900 hover:bg-slate-800 text-white shadow-md hover:shadow-lg"
-                      }`}
-                    >
-                      {processingId === template.id ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-[#6C63FF] border-t-transparent rounded-full animate-spin"></div>
-                          Activating...
-                        </>
-                      ) : isActive ? (
-                        "Currently Active Theme"
-                      ) : (
-                        <>
-                          <FaRocket /> Activate Layout
-                        </>
-                      )}
-                    </button>
+                    isExpired ? (
+                      <button
+                        disabled={processingId === template.id}
+                        onClick={() =>
+                          template.isFree ? handleFreeActivation(template) : handlePurchase(template)
+                        }
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-2xl text-xs font-bold transition-all shadow-md shadow-emerald-600/15 hover:shadow-lg hover:shadow-emerald-600/30 flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        {processingId === template.id ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Processing...
+                          </>
+                        ) : template.isFree ? (
+                          <>
+                            <FaRocket /> Get Template (Free)
+                          </>
+                        ) : (
+                          <>
+                            <FaShoppingBag /> Buy Again ({billingCycle === "YEARLY"
+                              ? `₹${template.yearlyCost ?? template.monthlyCost ?? 0}/yr`
+                              : `₹${template.monthlyCost ?? template.cost ?? 0}/mo`
+                            })
+                          </>
+                        )}
+                      </button>
+                    ) : (
+                      <button
+                        disabled={isActive || processingId === template.id}
+                        onClick={() => handleActivate(template.id)}
+                        className={`w-full py-3 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${isActive
+                            ? "bg-slate-100 text-slate-400 cursor-default"
+                            : "bg-slate-900 hover:bg-slate-800 text-white shadow-md hover:shadow-lg"
+                          }`}
+                      >
+                        {processingId === template.id ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                            Activating...
+                          </>
+                        ) : isActive ? (
+                          "Currently Active Theme"
+                        ) : (
+                          <>
+                            <FaRocket /> Activate Layout
+                          </>
+                        )}
+                      </button>
+                    )
                   ) : (
                     <button
                       disabled={processingId === template.id}
                       onClick={() =>
                         template.isFree ? handleFreeActivation(template) : handlePurchase(template)
                       }
-                      className="w-full bg-[#6C63FF] hover:bg-[#5b52e6] text-white py-3 rounded-2xl text-xs font-bold transition-all shadow-md shadow-[#6C63FF]/15 hover:shadow-lg hover:shadow-[#6C63FF]/30 flex items-center justify-center gap-2"
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-2xl text-xs font-bold transition-all shadow-md shadow-emerald-600/15 hover:shadow-lg hover:shadow-emerald-600/30 flex items-center justify-center gap-2 cursor-pointer"
                     >
                       {processingId === template.id ? (
                         <>
@@ -419,7 +547,12 @@ const PortfolioTemplates = () => {
                         </>
                       ) : (
                         <>
-                          <FaShoppingBag /> Purchase Template (₹{template.cost || 0})
+                          <FaShoppingBag />
+                          {template.hasOneMonthFree ? "Start Free Month — " : "Purchase Template — "}
+                          {billingCycle === "YEARLY"
+                            ? `₹${template.yearlyCost ?? template.monthlyCost ?? 0}/yr`
+                            : `₹${template.monthlyCost ?? template.cost ?? 0}/mo`
+                          }
                         </>
                       )}
                     </button>

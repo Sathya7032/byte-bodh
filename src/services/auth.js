@@ -25,36 +25,80 @@ api.interceptors.request.use(
   }
 );
 
-// Add response interceptor for token refresh
+/* =========================
+   TOKEN REFRESH INTERCEPTOR LOGIC
+========================= */
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+export const handleUnauthorizedError = async (error, axiosInstance) => {
+  const originalRequest = error.config;
+  if (!originalRequest) return Promise.reject(error);
+
+  if (error.response?.status === 401 && !originalRequest._retry) {
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      })
+        .then((token) => {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          return (axiosInstance || axios)(originalRequest);
+        })
+        .catch((err) => Promise.reject(err));
+    }
+
+    originalRequest._retry = true;
+    isRefreshing = true;
+
+    try {
+      const refreshToken = getRefreshToken();
+      if (!refreshToken) {
+        throw new Error("No refresh token available");
+      }
+
+      // Send POST /auth/refresh-token with raw axios to prevent attaching expired access token
+      const refreshUrl = `${API_ENDPOINTS.AUTH}/refresh-token`;
+      const response = await axios.post(refreshUrl, { refreshToken });
+      const apiResponse = response.data;
+
+      if (apiResponse && (apiResponse.success || response.status === 200) && apiResponse.data) {
+        const newAuthData = apiResponse.data;
+        saveAuthData(newAuthData);
+        const newAccessToken = newAuthData.accessToken;
+
+        processQueue(null, newAccessToken);
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        return (axiosInstance || axios)(originalRequest);
+      } else {
+        throw new Error(apiResponse?.message || "Token refresh failed");
+      }
+    } catch (refreshErr) {
+      processQueue(refreshErr, null);
+      logout();
+      return Promise.reject(refreshErr);
+    } finally {
+      isRefreshing = false;
+    }
+  }
+
+  return Promise.reject(error);
+};
+
+// Response interceptor for auth api instance
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      
-      try {
-        const refreshToken = getRefreshToken();
-        if (!refreshToken) {
-          throw new Error("No refresh token");
-        }
-        
-        const response = await api.post("/refresh-token", { refreshToken });
-        const apiResponse = response.data;
-        
-        if (apiResponse.success) {
-          saveAuthData(apiResponse.data);
-          originalRequest.headers.Authorization = `Bearer ${apiResponse.data.accessToken}`;
-          return api(originalRequest);
-        }
-      } catch (refreshError) {
-        logout();
-      }
-    }
-    
-    return Promise.reject(error);
-  }
+  (error) => handleUnauthorizedError(error, api)
 );
 
 /* =========================
@@ -63,14 +107,35 @@ api.interceptors.response.use(
 export const saveAuthData = (authData) => {
   if (!authData) return;
 
-  localStorage.setItem("accessToken", authData.accessToken);
-  localStorage.setItem("refreshToken", authData.refreshToken);
-  localStorage.setItem("user", JSON.stringify({
-    fullName: authData.fullName,
-    email: authData.email,
-    role: authData.role,
-    username: authData.username || (authData.user && authData.user.username) || "",
-  }));
+  const path = typeof window !== "undefined" ? window.location.pathname : "";
+  const isAdmin = path.startsWith("/admin") || path === "/categories" || path.startsWith("/categories/") || path.startsWith("/admin-");
+
+  if (isAdmin || authData.role === "ADMIN") {
+    if (authData.accessToken) localStorage.setItem("adminAccessToken", authData.accessToken);
+    if (authData.refreshToken) localStorage.setItem("adminRefreshToken", authData.refreshToken);
+    if (authData.fullName || authData.email) {
+      const existingAdmin = localStorage.getItem("admin") ? JSON.parse(localStorage.getItem("admin")) : {};
+      localStorage.setItem("admin", JSON.stringify({
+        ...existingAdmin,
+        fullName: authData.fullName || existingAdmin.fullName,
+        email: authData.email || existingAdmin.email,
+        role: authData.role || existingAdmin.role,
+      }));
+    }
+  }
+
+  if (authData.accessToken) localStorage.setItem("accessToken", authData.accessToken);
+  if (authData.refreshToken) localStorage.setItem("refreshToken", authData.refreshToken);
+  if (authData.fullName || authData.email || authData.role) {
+    const existingUser = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {};
+    localStorage.setItem("user", JSON.stringify({
+      ...existingUser,
+      fullName: authData.fullName || existingUser.fullName,
+      email: authData.email || existingUser.email,
+      role: authData.role || existingUser.role,
+      username: authData.username || (authData.user && authData.user.username) || existingUser.username || "",
+    }));
+  }
 };
 
 /* =========================

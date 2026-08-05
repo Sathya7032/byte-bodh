@@ -12,8 +12,8 @@ import {
   CreditCard,
   Gear,
   Gift,
-  Briefcase,
-  Book,
+  Globe,
+  BookmarkFill,
 } from "react-bootstrap-icons";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -34,6 +34,7 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
     if (path === "/tasks") return "tasks";
     if (path === "/dashboard-jobs") return "dashboard-jobs";
     if (path === "/dashboard-blogs") return "dashboard-blogs";
+    if (path === "/custom-domain") return "custom-domain";
     if (path === "/billings") return "billings";
     if (path === "/referrals") return "referrals";
     if (path === "/resources") return "resources";
@@ -83,16 +84,16 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
       path: "/tasks",
     },
     {
-      id: "dashboard-jobs",
-      label: "Job Notifications",
-      icon: <Briefcase size={20} />,
-      path: "/dashboard-jobs",
+      id: "dashboard-blogs",
+      label: "My Blogs",
+      icon: <BookmarkFill size={20} />,
+      path: "/dashboard-blogs",
     },
     {
-      id: "dashboard-blogs",
-      label: "Blogs",
-      icon: <Book size={20} />,
-      path: "/dashboard-blogs",
+      id: "custom-domain",
+      label: "Custom Domain",
+      icon: <Globe size={20} />,
+      path: "/custom-domain",
     },
     {
       id: "qr-code",
@@ -135,25 +136,25 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
         {isOpen ? (
           <>
             <div className="flex items-center">
-              <div className="w-9 h-9 bg-gradient-to-br from-[#6C63FF] to-indigo-600 text-white rounded-xl flex items-center justify-center mr-2 shadow-lg shadow-[#6C63FF]/20 animate-pulse">
+              <div className="w-9 h-9 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-xl flex items-center justify-center mr-2 shadow-lg shadow-emerald-500/20 animate-pulse">
                 <FileEarmarkPerson size={18} />
               </div>
               <div className="flex flex-col">
                 <span className="font-black text-slate-800 text-sm tracking-tight">ByteBodh</span>
-                <span className="text-[9px] text-[#6C63FF] font-bold tracking-wider -mt-0.5">FOLIO BUILDER</span>
+                <span className="text-[9px] text-emerald-600 font-bold tracking-wider -mt-0.5">FOLIO BUILDER</span>
               </div>
             </div>
 
             <button
               onClick={() => onMenuItemClick("collapse")}
-              className="lg:hidden text-slate-500 hover:text-[#6C63FF] hover:bg-slate-100 p-1.5 rounded-xl transition-colors"
+              className="lg:hidden text-slate-500 hover:text-emerald-600 hover:bg-slate-100 p-1.5 rounded-xl transition-colors"
               title="Collapse"
             >
               <XLg size={16} />
             </button>
           </>
         ) : (
-          <div className="mx-auto w-9 h-9 bg-gradient-to-br from-[#6C63FF] to-indigo-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-[#6C63FF]/15">
+          <div className="mx-auto w-9 h-9 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/15">
             <FileEarmarkPerson size={18} />
           </div>
         )}
@@ -168,8 +169,8 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
             className={`w-full cursor-pointer flex items-center justify-between rounded-xl px-4 py-3 transition-all duration-300 transform active:scale-95
               ${
                 activeItem === item.id
-                  ? "bg-gradient-to-r from-[#6C63FF] to-indigo-600 text-white shadow-md shadow-[#6C63FF]/20 font-semibold"
-                  : "text-slate-600 hover:text-[#6C63FF] hover:bg-indigo-50/50 hover:translate-x-1"
+                  ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/20 font-semibold"
+                  : "text-slate-600 hover:text-emerald-600 hover:bg-emerald-50/50 hover:translate-x-1"
               }`}
           >
             <div className="flex items-center gap-3">
@@ -182,7 +183,7 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
             {isOpen && item.badge && (
               <span
                 className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                  activeItem === item.id ? "bg-white/20 text-white" : "bg-[#6C63FF]/10 text-[#6C63FF]"
+                  activeItem === item.id ? "bg-white/20 text-white" : "bg-emerald-50 text-emerald-600 border border-emerald-100"
                 }`}
               >
                 {item.badge}
@@ -199,8 +200,8 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
           className={`w-full cursor-pointer flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-300 transform active:scale-95
             ${
               activeItem === "help"
-                ? "bg-gradient-to-r from-[#6C63FF] to-indigo-600 text-white shadow-md shadow-[#6C63FF]/20 font-semibold"
-                : "text-slate-600 hover:text-[#6C63FF] hover:bg-indigo-50/50 hover:translate-x-1"
+                ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/20 font-semibold"
+                : "text-slate-600 hover:text-emerald-600 hover:bg-emerald-50/50 hover:translate-x-1"
             }`}
         >
           <span className={`flex-shrink-0 transition-colors duration-300 ${activeItem === "help" ? "text-white" : "text-slate-400"}`}>

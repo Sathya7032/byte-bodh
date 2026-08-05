@@ -88,13 +88,13 @@ export default function DashboardJobs() {
   return (
     <DashboardLayout containerClassName="w-full space-y-6 animate-fadeIn text-left">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-[#1e1b4b] to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800">
-        <div className="absolute -top-[10%] -left-[10%] w-[200px] h-[200px] rounded-full bg-[#6C63FF]/10 blur-[50px] pointer-events-none"></div>
-        <div className="absolute -bottom-[20%] -right-[10%] w-[250px] h-[250px] rounded-full bg-indigo-500/10 blur-[60px] pointer-events-none"></div>
+      <div className="bg-gradient-to-r from-slate-900 via-[#064e3b] to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800">
+        <div className="absolute -top-[10%] -left-[10%] w-[200px] h-[200px] rounded-full bg-emerald-500/10 blur-[50px] pointer-events-none"></div>
+        <div className="absolute -bottom-[20%] -right-[10%] w-[250px] h-[250px] rounded-full bg-teal-500/10 blur-[60px] pointer-events-none"></div>
         
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="flex items-center gap-4 text-left">
-            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-[#6C63FF] rounded-2xl flex items-center justify-center shadow-lg shadow-[#6C63FF]/30">
+            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
               <Briefcase className="w-7 h-7 text-white" />
             </div>
             <div>
@@ -135,7 +135,7 @@ export default function DashboardJobs() {
         {[
           { label: "Total Jobs", val: stats.total, color: "text-slate-800", bg: "bg-slate-50 border-slate-100", icon: <Target className="w-5 h-5 text-slate-400" /> },
           { label: "Active Postings", val: stats.active, color: "text-emerald-600", bg: "bg-emerald-50 border-emerald-100", icon: <Briefcase className="w-5 h-5 text-emerald-500" /> },
-          { label: "Remote Options", val: stats.remote, color: "text-indigo-600", bg: "bg-indigo-50 border-indigo-100", icon: <Building className="w-5 h-5 text-indigo-500" /> },
+          { label: "Remote Options", val: stats.remote, color: "text-emerald-600", bg: "bg-emerald-50 border-emerald-100", icon: <Building className="w-5 h-5 text-emerald-500" /> },
         ].map((item, idx) => (
           <div key={idx} className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex items-center justify-between hover:shadow-md transition-shadow">
             <div>
@@ -160,16 +160,16 @@ export default function DashboardJobs() {
                 placeholder="Search jobs by title, company, or location..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 focus:border-[#6C63FF] rounded-xl text-xs font-semibold focus:ring-4 focus:ring-[#6C63FF]/10 transition-all placeholder-slate-400"
+                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 focus:border-emerald-500 rounded-xl text-xs font-semibold focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder-slate-400"
               />
             </div>
           </div>
           
           <div className="flex flex-wrap gap-2">
             {[
-              { id: "ALL", label: "All Jobs", activeClass: "bg-[#6C63FF] text-white shadow-md shadow-[#6C63FF]/15 border-transparent" },
+              { id: "ALL", label: "All Jobs", activeClass: "bg-emerald-600 text-white shadow-md shadow-emerald-600/15 border-transparent" },
               { id: "ACTIVE", label: "Active", activeClass: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-              { id: "REMOTE", label: "Remote", activeClass: "bg-indigo-50 text-indigo-700 border-indigo-200" },
+              { id: "REMOTE", label: "Remote", activeClass: "bg-emerald-50 text-emerald-700 border-emerald-200" },
             ].map((btn) => (
               <button
                 key={btn.id}
@@ -191,7 +191,7 @@ export default function DashboardJobs() {
       <div className="space-y-4">
         {loading ? (
           <div className="bg-white rounded-3xl border border-slate-200/80 p-16 text-center shadow-sm">
-            <Loader className="w-8 h-8 text-[#6C63FF] animate-spin mx-auto mb-4" />
+            <Loader className="w-8 h-8 text-emerald-600 animate-spin mx-auto mb-4" />
             <p className="text-slate-500 font-bold">Fetching latest job notifications...</p>
           </div>
         ) : filteredJobs.length === 0 ? (
@@ -214,7 +214,7 @@ export default function DashboardJobs() {
                 <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                   <div className="flex items-start gap-4 flex-1">
                     <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Building className="w-5 h-5 text-[#6C63FF]" />
+                      <Building className="w-5 h-5 text-emerald-600" />
                     </div>
                     
                     <div className="flex-1">
@@ -231,7 +231,7 @@ export default function DashboardJobs() {
                         </div>
                       </div>
                       
-                      <p className="text-xs font-bold text-indigo-600 mb-2">{job.company || 'Company: Not Available'}</p>
+                      <p className="text-xs font-bold text-emerald-600 mb-2">{job.company || 'Company: Not Available'}</p>
                       <p className="text-xs text-slate-500 font-semibold mb-3 leading-relaxed line-clamp-2">
                         {job.description || "No description provided."}
                       </p>
@@ -264,7 +264,7 @@ export default function DashboardJobs() {
                       href={job.jobLink || '#'} 
                       target="_blank" 
                       rel="noreferrer"
-                      className="px-4 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-[#6C63FF] border border-indigo-100 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+                      className="px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-100 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
                     >
                       Apply Now
                       <ExternalLink className="w-3.5 h-3.5" />

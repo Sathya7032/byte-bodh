@@ -18,7 +18,8 @@ import {
   ClipboardList,
   Layers,
   LayoutTemplate,
-  CreditCard
+  CreditCard,
+  Globe
 } from 'lucide-react';
 import { getAdmin, adminLogout } from '../services/auth';
 
@@ -39,6 +40,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile }) => {
     { path: '/admin-templates', icon: <Layers size={20} />, label: 'Templates' },
     { path: '/admin-user-templates', icon: <LayoutTemplate size={20} />, label: 'User Templates' },
     { path: '/admin-payments', icon: <CreditCard size={20} />, label: 'Payments' },
+    { path: '/admin/custom-domain-config', icon: <Globe size={20} />, label: 'Domain Config' },
     { path: '/admin/job-notifications', icon: <Briefcase size={20} />, label: 'Job Notifications' },
     { path: '/admin-contacts', icon: <Package size={20} />, label: 'Contacts' },
     { path: '/admin-quiz', icon: <ClipboardList size={20} />, label: 'Quiz' },

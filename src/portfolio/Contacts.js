@@ -37,13 +37,13 @@ const Contacts = () => {
   return (
     <DashboardLayout containerClassName="w-full space-y-6 animate-fadeIn">
       {/* Page Header */}
-      <div className="bg-gradient-to-r from-slate-900 via-[#1e1b4b] to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800 text-left">
-        <div className="absolute -top-[10%] -left-[10%] w-[200px] h-[200px] rounded-full bg-[#6C63FF]/10 blur-[50px] pointer-events-none"></div>
-        <div className="absolute -bottom-[20%] -right-[10%] w-[250px] h-[250px] rounded-full bg-indigo-500/10 blur-[60px] pointer-events-none"></div>
+      <div className="bg-gradient-to-r from-slate-900 via-[#064e3b] to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800 text-left">
+        <div className="absolute -top-[10%] -left-[10%] w-[200px] h-[200px] rounded-full bg-emerald-500/10 blur-[50px] pointer-events-none"></div>
+        <div className="absolute -bottom-[20%] -right-[10%] w-[250px] h-[250px] rounded-full bg-teal-500/10 blur-[60px] pointer-events-none"></div>
         
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-[#6C63FF] rounded-2xl flex items-center justify-center shadow-lg shadow-[#6C63FF]/30">
+            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
               <MessageSquare className="w-7 h-7 text-white" />
             </div>
             <div>
@@ -57,7 +57,7 @@ const Contacts = () => {
       {/* Loading State */}
       {loading && (
         <div className="bg-white rounded-3xl border border-slate-200/80 p-20 text-center shadow-sm">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-[#6C63FF] border-t-transparent mb-4"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent mb-4"></div>
           <p className="text-slate-500 font-bold">Loading message submissions...</p>
         </div>
       )}
@@ -115,14 +115,14 @@ const Contacts = () => {
                   <tr key={msg.id} className="hover:bg-slate-50/40 transition-colors">
                     <td className="py-5 px-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-indigo-50 text-[#6C63FF] border border-indigo-100 rounded-xl flex items-center justify-center font-bold text-xs">
+                        <div className="w-10 h-10 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-xl flex items-center justify-center font-bold text-xs">
                           {getInitials(msg.name)}
                         </div>
                         <div className="min-w-0">
                           <p className="text-sm font-bold text-slate-800 truncate">{msg.name}</p>
                           <a 
                             href={`mailto:${msg.email}`}
-                            className="text-xs text-[#6C63FF] hover:underline flex items-center gap-1 mt-1 font-semibold truncate"
+                            className="text-xs text-emerald-600 hover:underline flex items-center gap-1 mt-1 font-semibold truncate"
                           >
                             <Mail size={11} /> {msg.email}
                           </a>
@@ -145,14 +145,14 @@ const Contacts = () => {
             {messages.map((msg) => (
               <div key={msg.id} className="p-5 space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-indigo-50 text-[#6C63FF] border border-indigo-100 rounded-xl flex items-center justify-center font-bold text-xs">
+                  <div className="w-10 h-10 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-xl flex items-center justify-center font-bold text-xs">
                     {getInitials(msg.name)}
                   </div>
                   <div>
                     <p className="text-sm font-bold text-slate-800">{msg.name}</p>
                     <a 
                       href={`mailto:${msg.email}`}
-                      className="text-xs text-[#6C63FF] hover:underline flex items-center gap-1 mt-0.5 font-semibold"
+                      className="text-xs text-emerald-600 hover:underline flex items-center gap-1 mt-0.5 font-semibold"
                     >
                       <Mail size={11} /> {msg.email}
                     </a>

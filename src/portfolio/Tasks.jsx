@@ -212,7 +212,7 @@ const Tasks = () => {
       case "COMPLETED":
         return <CheckCircle className="w-5 h-5 text-emerald-500 hover:scale-115 transition-transform" />;
       case "IN_PROGRESS":
-        return <div className="w-5 h-5 border-2 border-[#6C63FF] border-t-transparent rounded-full animate-spin" />;
+        return <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />;
       case "PENDING":
         return <Circle className="w-5 h-5 text-slate-300 hover:text-emerald-550 transition-colors" />;
       default:
@@ -258,13 +258,13 @@ const Tasks = () => {
   return (
     <DashboardLayout containerClassName="w-full space-y-6 animate-fadeIn text-left">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-[#1e1b4b] to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800">
-        <div className="absolute -top-[10%] -left-[10%] w-[200px] h-[200px] rounded-full bg-[#6C63FF]/10 blur-[50px] pointer-events-none"></div>
-        <div className="absolute -bottom-[20%] -right-[10%] w-[250px] h-[250px] rounded-full bg-indigo-500/10 blur-[60px] pointer-events-none"></div>
+      <div className="bg-gradient-to-r from-slate-900 via-[#064e3b] to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800">
+        <div className="absolute -top-[10%] -left-[10%] w-[200px] h-[200px] rounded-full bg-emerald-500/10 blur-[50px] pointer-events-none"></div>
+        <div className="absolute -bottom-[20%] -right-[10%] w-[250px] h-[250px] rounded-full bg-teal-500/10 blur-[60px] pointer-events-none"></div>
         
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="flex items-center gap-4 text-left">
-            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-[#6C63FF] rounded-2xl flex items-center justify-center shadow-lg shadow-[#6C63FF]/30">
+            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
               <Target className="w-7 h-7 text-white" />
             </div>
             <div>
@@ -285,7 +285,7 @@ const Tasks = () => {
             
             <button
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all cursor-pointer active:scale-95 whitespace-nowrap"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-600/20 hover:shadow-lg transition-all cursor-pointer active:scale-95 whitespace-nowrap"
             >
               <Plus className="w-4 h-4" />
               Add Milestone
@@ -340,17 +340,17 @@ const Tasks = () => {
                 placeholder="Search checklist..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 focus:border-[#6C63FF] rounded-xl text-xs font-semibold focus:ring-4 focus:ring-[#6C63FF]/10 transition-all placeholder-slate-400"
+                className="w-full pl-10 pr-4 py-2.5 border border-slate-200 focus:border-emerald-500 rounded-xl text-xs font-semibold focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder-slate-400"
               />
             </div>
           </div>
           
           <div className="flex flex-wrap gap-2">
             {[
-              { id: "all", label: "All Milestones", activeClass: "bg-[#6C63FF] text-white shadow-md shadow-[#6C63FF]/15" },
+              { id: "all", label: "All Milestones", activeClass: "bg-emerald-600 text-white shadow-md shadow-emerald-600/15" },
               { id: "PENDING", label: "Pending", activeClass: "bg-amber-100 text-amber-800 border-amber-200" },
               { id: "HIGH", label: "High Priority", activeClass: "bg-rose-100 text-rose-800 border-rose-200" },
-              { id: "ACADEMIC", label: "Academic", activeClass: "bg-blue-100 text-blue-800 border-blue-200" }
+              { id: "ACADEMIC", label: "Academic", activeClass: "bg-emerald-100 text-emerald-800 border-emerald-200" }
             ].map((btn) => (
               <button
                 key={btn.id}
@@ -372,7 +372,7 @@ const Tasks = () => {
       <div className="space-y-4">
         {loading ? (
           <div className="bg-white rounded-3xl border border-slate-200/80 p-16 text-center shadow-sm">
-            <Loader className="w-8 h-8 text-[#6C63FF] animate-spin mx-auto mb-4" />
+            <Loader className="w-8 h-8 text-emerald-600 animate-spin mx-auto mb-4" />
             <p className="text-slate-500 font-bold">Refreshing database feed...</p>
           </div>
         ) : filteredTasks.length === 0 ? (
@@ -388,7 +388,7 @@ const Tasks = () => {
             </p>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md cursor-pointer transition-all active:scale-95"
+              className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer transition-all active:scale-95"
             >
               <Plus className="w-4 h-4" />
               Add Milestone Checkpoint
@@ -562,7 +562,7 @@ const Tasks = () => {
                           <button
                             onClick={() => handleEditTask(task)}
                             disabled={operationLoading}
-                            className="flex-1 px-3 py-2 bg-indigo-50 border border-indigo-150 text-[#6C63FF] rounded-xl text-xs font-bold hover:bg-indigo-100 transition-all cursor-pointer active:scale-95"
+                            className="flex-1 px-3 py-2 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl text-xs font-bold hover:bg-emerald-100 transition-all cursor-pointer active:scale-95"
                           >
                             Edit Properties
                           </button>
@@ -619,7 +619,7 @@ const Tasks = () => {
                   required
                   value={newTask.title}
                   onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 focus:border-[#6C63FF] rounded-xl text-xs font-semibold focus:ring-4 focus:ring-[#6C63FF]/10 transition-all placeholder-slate-400"
+                  className="w-full px-3.5 py-2.5 border border-slate-200 focus:border-emerald-500 rounded-xl text-xs font-semibold focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder-slate-400"
                   placeholder="e.g., Complete AWS Practitioner review"
                   disabled={operationLoading}
                 />
@@ -632,7 +632,7 @@ const Tasks = () => {
                 <textarea
                   value={newTask.description}
                   onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 focus:border-[#6C63FF] rounded-xl text-xs font-semibold focus:ring-4 focus:ring-[#6C63FF]/10 transition-all placeholder-slate-400 resize-none"
+                  className="w-full px-3.5 py-2.5 border border-slate-200 focus:border-emerald-500 rounded-xl text-xs font-semibold focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder-slate-400 resize-none"
                   rows="3"
                   placeholder="Details and objectives of this milestone..."
                   disabled={operationLoading}
@@ -647,7 +647,7 @@ const Tasks = () => {
                   <select
                     value={newTask.priority}
                     onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
-                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:ring-4 focus:ring-[#6C63FF]/10 transition-all"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 transition-all"
                     disabled={operationLoading}
                   >
                     <option value="HIGH">High Priority</option>
@@ -663,7 +663,7 @@ const Tasks = () => {
                   <select
                     value={newTask.category}
                     onChange={(e) => setNewTask({ ...newTask, category: e.target.value })}
-                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:ring-4 focus:ring-[#6C63FF]/10 transition-all"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 transition-all"
                     disabled={operationLoading}
                   >
                     <option value="ACADEMIC">Academic</option>
@@ -687,7 +687,7 @@ const Tasks = () => {
                     required
                     value={newTask.dueDate}
                     onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
-                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-4 focus:ring-[#6C63FF]/10 transition-all"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 transition-all"
                     disabled={operationLoading}
                   />
                 </div>
@@ -699,7 +699,7 @@ const Tasks = () => {
                   <select
                     value={newTask.estimatedTime}
                     onChange={(e) => setNewTask({ ...newTask, estimatedTime: e.target.value })}
-                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:ring-4 focus:ring-[#6C63FF]/10 transition-all"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:ring-4 focus:ring-emerald-500/10 transition-all"
                     disabled={operationLoading}
                   >
                     <option value="">Select duration</option>
@@ -723,7 +723,7 @@ const Tasks = () => {
                     type="text"
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
-                    className="flex-1 px-3.5 py-2.5 border border-slate-200 focus:border-[#6C63FF] rounded-xl text-xs font-semibold focus:ring-4 focus:ring-[#6C63FF]/10 transition-all placeholder-slate-400"
+                    className="flex-1 px-3.5 py-2.5 border border-slate-200 focus:border-emerald-500 rounded-xl text-xs font-semibold focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder-slate-400"
                     placeholder="e.g., theory, aws"
                     disabled={operationLoading}
                     onKeyDown={(e) => {
@@ -744,7 +744,7 @@ const Tasks = () => {
                 {newTask.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-2.5">
                     {newTask.tags.map((tag, idx) => (
-                      <span key={idx} className="flex items-center gap-1 px-2.5 py-1 bg-indigo-50 border border-indigo-100 rounded-xl text-[10px] font-bold text-[#6C63FF]">
+                      <span key={idx} className="flex items-center gap-1 px-2.5 py-1 bg-emerald-50 border border-emerald-100 rounded-xl text-[10px] font-bold text-emerald-600">
                         #{tag}
                         <button
                           type="button"
@@ -783,7 +783,7 @@ const Tasks = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-[#6C63FF]/25 cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-emerald-600/25 cursor-pointer disabled:opacity-50"
                   disabled={operationLoading}
                 >
                   {operationLoading ? (

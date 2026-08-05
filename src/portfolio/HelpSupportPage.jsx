@@ -98,7 +98,7 @@ const HelpSupportPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16 px-4">
+      <div className="bg-gradient-to-r from-slate-900 via-[#064e3b] to-slate-900 text-white py-16 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Help & Support Center
@@ -114,7 +114,7 @@ const HelpSupportPage = () => {
               <input
                 type="text"
                 placeholder="Search for answers..."
-                className="w-full pl-12 pr-4 py-3 rounded-lg text-gray-800"
+                className="w-full pl-12 pr-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/20"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -130,39 +130,39 @@ const HelpSupportPage = () => {
         <div className="grid md:grid-cols-3 gap-6 mb-12">
           <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
             <div className="flex items-center mb-4">
-              <div className="bg-blue-100 p-3 rounded-lg mr-4">
-                <FaQrcode className="text-blue-600 text-2xl" />
+              <div className="bg-emerald-50 p-3 rounded-lg mr-4 border border-emerald-100">
+                <FaQrcode className="text-emerald-600 text-2xl" />
               </div>
               <h3 className="text-xl font-semibold">QR Code Generator</h3>
             </div>
             <p className="text-gray-600 mb-4">Create custom QR codes for any purpose</p>
-            <a href="/qr-generator" className="text-blue-600 font-medium hover:text-blue-700 flex items-center">
+            <a href="/qr-generator" className="text-emerald-600 font-medium hover:text-emerald-700 flex items-center">
               Generate Now <FaArrowRight className="ml-2" />
             </a>
           </div>
 
           <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
             <div className="flex items-center mb-4">
-              <div className="bg-purple-100 p-3 rounded-lg mr-4">
-                <FaUser className="text-purple-600 text-2xl" />
+              <div className="bg-emerald-50 p-3 rounded-lg mr-4 border border-emerald-100">
+                <FaUser className="text-emerald-600 text-2xl" />
               </div>
               <h3 className="text-xl font-semibold">My Portfolio</h3>
             </div>
             <p className="text-gray-600 mb-4">Build and customize your online portfolio</p>
-            <a href="/portfolio" className="text-purple-600 font-medium hover:text-purple-700 flex items-center">
+            <a href="/portfolio" className="text-emerald-600 font-medium hover:text-emerald-700 flex items-center">
               Manage Portfolio <FaArrowRight className="ml-2" />
             </a>
           </div>
 
           <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
             <div className="flex items-center mb-4">
-              <div className="bg-green-100 p-3 rounded-lg mr-4">
-                <FaLightbulb className="text-green-600 text-2xl" />
+              <div className="bg-emerald-50 p-3 rounded-lg mr-4 border border-emerald-100">
+                <FaLightbulb className="text-emerald-600 text-2xl" />
               </div>
               <h3 className="text-xl font-semibold">Coming Soon</h3>
             </div>
             <p className="text-gray-600 mb-4">New features and tools in development</p>
-            <button className="text-green-600 font-medium hover:text-green-700 flex items-center">
+            <button className="text-emerald-600 font-medium hover:text-emerald-700 flex items-center cursor-pointer">
               View Roadmap <FaArrowRight className="ml-2" />
             </button>
           </div>
@@ -178,9 +178,9 @@ const HelpSupportPage = () => {
               <button
                 key={category.id}
                 onClick={() => setActiveCategory(category.id)}
-                className={`px-4 py-2 rounded-full transition-colors ${
+                className={`px-4 py-2 rounded-full transition-colors cursor-pointer ${
                   activeCategory === category.id
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-600/15'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
@@ -194,7 +194,7 @@ const HelpSupportPage = () => {
             {filteredFaqs.map(faq => (
               <div key={faq.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                 <button
-                  className="w-full text-left p-6 hover:bg-gray-50 transition-colors"
+                  className="w-full text-left p-6 hover:bg-gray-50 transition-colors cursor-pointer"
                   onClick={() => {
                     const element = document.getElementById(`answer-${faq.id}`);
                     if (element) {
@@ -204,7 +204,7 @@ const HelpSupportPage = () => {
                 >
                   <div className="flex justify-between items-center">
                     <h3 className="text-lg font-semibold">{faq.question}</h3>
-                    <FaQuestionCircle className="text-blue-500" />
+                    <FaQuestionCircle className="text-emerald-500" />
                   </div>
                 </button>
                 <div id={`answer-${faq.id}`} className="hidden px-6 pb-6">
@@ -221,34 +221,34 @@ const HelpSupportPage = () => {
           
           <div className="grid md:grid-cols-3 gap-6">
             <div className="bytebodh-contact-method bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
-              <div className="bytebodh-method-icon bg-blue-100 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-4">
-                <FaEnvelope className="text-blue-600 text-2xl" />
+              <div className="bytebodh-method-icon bg-emerald-50 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-4 border border-emerald-100">
+                <FaEnvelope className="text-emerald-600 text-2xl" />
               </div>
               <div className="bytebodh-method-details">
                 <h5 className="text-xl font-semibold mb-2">Email Us</h5>
-                <p className="text-lg text-blue-600 mb-2">info@bytebodh.in</p>
+                <p className="text-lg text-emerald-600 mb-2 font-bold">info@bytebodh.in</p>
                 <span className="text-gray-600 text-sm">Professional responses within 24 hours</span>
               </div>
             </div>
 
             <div className="bytebodh-contact-method bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
-              <div className="bytebodh-method-icon bg-green-100 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-4">
-                <FaPhone className="text-green-600 text-2xl" />
+              <div className="bytebodh-method-icon bg-emerald-50 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-4 border border-emerald-100">
+                <FaPhone className="text-emerald-600 text-2xl" />
               </div>
               <div className="bytebodh-method-details">
                 <h5 className="text-xl font-semibold mb-2">Call Us</h5>
-                <p className="text-lg text-green-600 mb-2">+91 8519965746</p>
+                <p className="text-lg text-emerald-600 mb-2 font-bold">+91 8519965746</p>
                 <span className="text-gray-600 text-sm">Mon-Fri: 9:00 AM - 6:00 PM IST</span>
               </div>
             </div>
 
             <div className="bytebodh-contact-method bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
-              <div className="bytebodh-method-icon bg-green-100 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-4">
-                <FaWhatsapp className="text-green-600 text-2xl" />
+              <div className="bytebodh-method-icon bg-emerald-50 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-4 border border-emerald-100">
+                <FaWhatsapp className="text-emerald-600 text-2xl" />
               </div>
               <div className="bytebodh-method-details">
                 <h5 className="text-xl font-semibold mb-2">WhatsApp</h5>
-                <p className="text-lg text-green-600 mb-2">+91 8519965746</p>
+                <p className="text-lg text-emerald-600 mb-2 font-bold">+91 8519965746</p>
                 <span className="text-gray-600 text-sm">Quick chat for instant support</span>
               </div>
             </div>
@@ -266,13 +266,13 @@ const HelpSupportPage = () => {
                 className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow hover:-translate-y-1"
               >
                 <div className="flex items-center mb-4">
-                  <div className="mr-4">
+                  <div className="mr-4 text-emerald-600">
                     {resource.icon}
                   </div>
                   <h3 className="text-xl font-semibold">{resource.title}</h3>
                 </div>
                 <p className="text-gray-600 mb-4">{resource.description}</p>
-                <span className="text-blue-600 font-medium flex items-center">
+                <span className="text-emerald-600 font-medium flex items-center">
                   Read Guide <FaArrowRight className="ml-2" />
                 </span>
               </a>
@@ -281,7 +281,7 @@ const HelpSupportPage = () => {
         </div>
 
         {/* Community & Social */}
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8">
+        <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-8 border border-emerald-100/50">
           <div className="text-center">
             <h2 className="text-3xl font-bold mb-4">Join Our Community</h2>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
@@ -289,16 +289,16 @@ const HelpSupportPage = () => {
             </p>
             
             <div className="flex justify-center space-x-6">
-              <a href="/" className="text-blue-600 hover:text-blue-700">
+              <a href="/" className="text-emerald-600 hover:text-emerald-700">
                 <FaFacebook size={28} />
               </a>
-              <a href="/" className="text-blue-400 hover:text-blue-500">
+              <a href="/" className="text-emerald-500 hover:text-emerald-600">
                 <FaTwitter size={28} />
               </a>
-              <a href="/" className="text-pink-600 hover:text-pink-700">
+              <a href="/" className="text-emerald-600 hover:text-emerald-700">
                 <FaInstagram size={28} />
               </a>
-              <a href="/" className="text-blue-700 hover:text-blue-800">
+              <a href="/" className="text-emerald-700 hover:text-emerald-800">
                 <FaLinkedin size={28} />
               </a>
             </div>

@@ -8,16 +8,106 @@ import {
   Moon,
   Sun,
   XLg,
+  Bell,
+  Trash,
+  Check2All
 } from "react-bootstrap-icons";
 import { getUser, logout } from "../../services/auth";
-import { getMyProfile } from "../../api/profileService";
+import { 
+  getMyProfile,
+  getMyNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+  deleteNotification,
+  deleteAllNotifications
+} from "../../api/profileService";
+import { toast } from "react-toastify";
 
 const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSidebarOpen }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifDropdownOpen, setNotifDropdownOpen] = useState(false);
+  const notifRef = useRef(null);
+
   const user = getUser();
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await getMyNotifications();
+      if (res.data?.success && res.data.data) {
+        const list = res.data.data;
+        setNotifications(list);
+        setUnreadCount(list.filter(n => !n.read).length);
+      } else if (Array.isArray(res.data)) {
+        setNotifications(res.data);
+        setUnreadCount(res.data.filter(n => !n.read).length);
+      }
+    } catch (err) {
+      console.error("Error fetching notifications:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 45000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setNotifDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleMarkAsRead = async (id) => {
+    try {
+      await markNotificationRead(id);
+      fetchNotifications();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await markAllNotificationsRead();
+      fetchNotifications();
+      toast.success("All notifications marked as read");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteNotif = async (id) => {
+    try {
+      await deleteNotification(id);
+      fetchNotifications();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleClearAll = async () => {
+    try {
+      await deleteAllNotifications();
+      setNotifications([]);
+      setUnreadCount(0);
+      toast.success("Notifications cleared");
+    } catch (err) {
+      console.error(err);
+    }
+  };
   const [username, setUsername] = useState(user?.username || "");
 
   const fullName = user?.fullName || "User";
@@ -50,7 +140,7 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
 
   const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
     fullName
-  )}&background=3b82f6&color=fff&bold=true&size=128`;
+  )}&background=10b981&color=fff&bold=true&size=128`;
 
   const handleSidebarToggle = () => {
     onToggleSidebar?.();
@@ -82,12 +172,12 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
             )}
 
             <div className="flex items-center">
-              <div className="w-8 h-8 bg-gradient-to-br from-[#6C63FF] to-indigo-600 rounded-lg flex items-center justify-center mr-2 shadow-sm shadow-[#6C63FF]/15 animate-pulse">
+              <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center mr-2 shadow-sm shadow-emerald-500/15 animate-pulse">
                 <span className="text-white font-extrabold text-sm">B</span>
               </div>
               <a
                 href="/dashboard"
-                className="hidden sm:block text-xl font-black tracking-tight bg-gradient-to-r from-[#6C63FF] to-indigo-600 bg-clip-text text-transparent"
+                className="hidden sm:block text-xl font-black tracking-tight bg-gradient-to-r from-emerald-500 to-teal-600 bg-clip-text text-transparent"
               >
                 ByteBodh
               </a>
@@ -115,6 +205,96 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
               </button>
             )}
 
+            {/* Notification Bell */}
+            <div className="relative" ref={notifRef}>
+              <button
+                onClick={() => setNotifDropdownOpen(!notifDropdownOpen)}
+                className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all relative active:scale-90 cursor-pointer"
+                title="Notifications"
+              >
+                <Bell size={18} />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-rose-500 text-white text-[8px] font-black rounded-full flex items-center justify-center animate-bounce">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Dropdown Menu */}
+              {notifDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-xl border border-slate-200/60 overflow-hidden z-50 animate-fadeIn text-left">
+                  <div className="px-4 py-3 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                      <h3 className="font-extrabold text-slate-800 text-xs">Notifications</h3>
+                      <p className="text-[10px] text-slate-405 font-bold">You have {unreadCount} unread alerts</p>
+                    </div>
+                    {notifications.length > 0 && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleMarkAllAsRead}
+                          className="p-1 text-emerald-600 hover:bg-emerald-50 rounded text-[10px] font-bold flex items-center gap-0.5 cursor-pointer"
+                          title="Mark all read"
+                        >
+                          <Check2All size={14} /> Read All
+                        </button>
+                        <button
+                          onClick={handleClearAll}
+                          className="p-1 text-slate-450 hover:text-red-500 hover:bg-red-50 rounded text-[10px] font-bold cursor-pointer"
+                          title="Clear all"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                    {notifications.length === 0 ? (
+                      <div className="px-4 py-8 text-center text-slate-400">
+                        <Bell size={24} className="mx-auto mb-2 text-slate-300 animate-pulse" />
+                        <p className="text-xs font-semibold">No notifications yet</p>
+                      </div>
+                    ) : (
+                      notifications.map((notif) => (
+                        <div
+                          key={notif.id}
+                          className={`p-4 flex gap-3 transition-colors ${
+                            notif.read ? "bg-white" : "bg-emerald-50/50"
+                          }`}
+                        >
+                          <div className="flex-1 space-y-1">
+                            <p className="text-xs font-semibold text-slate-700 leading-normal">
+                              {notif.message}
+                            </p>
+                            <span className="block text-[9px] font-bold text-slate-450">
+                              {new Date(notif.createdAt).toLocaleDateString()} at{" "}
+                              {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                          <div className="flex flex-col gap-1 items-end shrink-0">
+                            {!notif.read && (
+                              <button
+                                onClick={() => handleMarkAsRead(notif.id)}
+                                className="w-2 h-2 bg-emerald-600 rounded-full cursor-pointer"
+                                title="Mark read"
+                              />
+                            )}
+                            <button
+                              onClick={() => handleDeleteNotif(notif.id)}
+                              className="text-slate-350 hover:text-red-500 p-1 cursor-pointer"
+                              title="Delete"
+                            >
+                              <Trash size={12} />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* User Profile */}
             <div className="relative" ref={dropdownRef}>
               <button
@@ -136,7 +316,7 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
                   <div className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                     <span>{displayName || (username ? `@${username}` : "User")}</span>
                     {displayName && username && (
-                      <span className="text-[9px] text-[#6C63FF] font-black bg-[#6C63FF]/10 border border-[#6C63FF]/15 px-1.5 py-0.5 rounded-lg tracking-wide">
+                      <span className="text-[9px] text-emerald-600 font-black bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-lg tracking-wide">
                         @{username}
                       </span>
                     )}
@@ -152,7 +332,7 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-slate-200/60 overflow-hidden animate-fadeIn">
                   {/* Header */}
-                  <div className="px-4 py-4 bg-gradient-to-br from-[#6C63FF]/5 to-indigo-600/5 border-b border-slate-100">
+                  <div className="px-4 py-4 bg-gradient-to-br from-emerald-500/5 to-teal-600/5 border-b border-slate-100">
                     <div className="flex items-center gap-3">
                       <img
                         src={avatarUrl}
@@ -162,10 +342,10 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
                       <div>
                         <h3 className="font-bold text-slate-800 text-sm leading-tight">{fullName}</h3>
                         {username && (
-                          <p className="text-[10px] font-bold text-[#6C63FF] mt-0.5">@{username}</p>
+                          <p className="text-[10px] font-bold text-emerald-600 mt-0.5">@{username}</p>
                         )}
                         <p className="text-xs text-slate-500 truncate max-w-[170px] mt-0.5">{email}</p>
-                        <span className="inline-block mt-1.5 px-2 py-0.5 bg-[#6C63FF]/10 text-[#6C63FF] text-[10px] font-bold rounded-full">
+                        <span className="inline-block mt-1.5 px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-100 text-[10px] font-bold rounded-full">
                           {role}
                         </span>
                       </div>
@@ -176,7 +356,7 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
                   <div className="py-1 px-2 space-y-0.5">
                     <a
                       href="/profile"
-                      className="flex items-center px-3 py-2.5 text-slate-700 hover:text-[#6C63FF] hover:bg-indigo-50/50 rounded-xl transition-all"
+                      className="flex items-center px-3 py-2.5 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50/50 rounded-xl transition-all"
                     >
                       <div className="w-6 flex justify-center">
                         <PersonCircle size={18} className="text-slate-400" />
@@ -188,7 +368,7 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
 
                     <a
                       href="/help"
-                      className="flex items-center px-3 py-2.5 text-slate-700 hover:text-[#6C63FF] hover:bg-indigo-50/50 rounded-xl transition-all"
+                      className="flex items-center px-3 py-2.5 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50/50 rounded-xl transition-all"
                     >
                       <div className="w-6 flex justify-center text-slate-400 font-bold text-sm">
                         <span>?</span>
@@ -229,7 +409,7 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
               <input
                 type="text"
                 placeholder="Search..."
-                className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 autoFocus
               />
             </div>

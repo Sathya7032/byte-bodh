@@ -222,9 +222,9 @@ const Dashboard = () => {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="relative">
-              <div className="w-16 h-16 border-4 border-[#6C63FF] border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <FaSpinner className="text-[#6C63FF] text-2xl animate-spin" />
+                <FaSpinner className="text-emerald-500 text-2xl animate-spin" />
               </div>
             </div>
             <p className="text-lg text-slate-600 mt-6 font-medium">Loading your dashboard...</p>
@@ -275,13 +275,13 @@ const Dashboard = () => {
       )}
 
       {/* PREMIUM BANNER CARD */}
-      <div className="bg-gradient-to-r from-slate-900 via-[#1e1b4b] to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800 animate-fadeIn text-left">
-        <div className="absolute -top-[10%] -left-[10%] w-[250px] h-[250px] rounded-full bg-[#6C63FF]/10 blur-[60px] pointer-events-none"></div>
-        <div className="absolute -bottom-[20%] -right-[15%] w-[350px] h-[350px] rounded-full bg-indigo-500/10 blur-[80px] pointer-events-none"></div>
+      <div className="bg-gradient-to-r from-slate-900 via-[#064e3b] to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800 animate-fadeIn text-left">
+        <div className="absolute -top-[10%] -left-[10%] w-[250px] h-[250px] rounded-full bg-emerald-500/10 blur-[60px] pointer-events-none"></div>
+        <div className="absolute -bottom-[20%] -right-[15%] w-[350px] h-[350px] rounded-full bg-teal-500/10 blur-[80px] pointer-events-none"></div>
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-[#6C63FF] rounded-2xl flex items-center justify-center font-black text-2xl shadow-lg shadow-[#6C63FF]/30">
+            <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center font-black text-2xl shadow-lg shadow-emerald-500/30">
               {userInitial}
             </div>
             <div>
@@ -302,7 +302,7 @@ const Dashboard = () => {
           {/* Share widget */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-white/5 border border-white/10 rounded-2xl p-2 max-w-xl w-full">
             <div className="flex items-center gap-2 pl-3 flex-1 overflow-hidden min-w-0">
-              <FaGlobe className="text-[#6C63FF] flex-shrink-0 text-sm" />
+              <FaGlobe className="text-emerald-400 flex-shrink-0 text-sm" />
               <span className="text-xs font-semibold text-slate-200 truncate">{portfolioUrl}</span>
             </div>
             <div className="flex items-center gap-2">
@@ -310,13 +310,13 @@ const Dashboard = () => {
                 onClick={handleCopyLink}
                 className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer"
               >
-                <FaCopy className="text-indigo-200" /> {copied ? "Copied!" : "Copy"}
+                <FaCopy className="text-emerald-200" /> {copied ? "Copied!" : "Copy"}
               </button>
               <a
                 href={portfolioUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="px-4 py-2 bg-[#6C63FF] hover:bg-[#5b52e6] text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md shadow-[#6C63FF]/20 hover:shadow-lg hover:shadow-[#6C63FF]/30 active:scale-95"
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md shadow-emerald-600/20 hover:shadow-lg hover:shadow-emerald-600/30 active:scale-95"
               >
                 <FaExternalLinkAlt size={10} /> View Site
               </a>
@@ -329,11 +329,11 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
 
         {/* CARD 1: VIEWS */}
-        <div className="group relative bg-white border border-slate-200 rounded-3xl p-5 hover:shadow-xl hover:border-[#6C63FF]/30 transition-all duration-300 overflow-hidden shadow-sm flex flex-col justify-between">
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/20 to-purple-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div className="group relative bg-white border border-slate-200 rounded-3xl p-5 hover:shadow-xl hover:border-emerald-500/30 transition-all duration-300 overflow-hidden shadow-sm flex flex-col justify-between">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/20 to-teal-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <div className="relative z-10">
             <div className="flex justify-between items-start">
-              <div className="p-2 bg-indigo-50 border border-indigo-100 text-[#6C63FF] rounded-xl inline-flex items-center justify-center mb-3">
+              <div className="p-2 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl inline-flex items-center justify-center mb-3">
                 <FaEye className="w-4 h-4" />
               </div>
               <div className="text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded-full font-bold">
@@ -446,21 +446,21 @@ const Dashboard = () => {
         </div>
 
         {/* CARD 3: ACTIVE TEMPLATE */}
-        <div className="group relative bg-white border border-slate-200 rounded-3xl p-5 hover:shadow-xl hover:border-purple-200 transition-all duration-300 overflow-hidden shadow-sm flex flex-col justify-between">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-50/20 to-indigo-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div className="group relative bg-white border border-slate-200 rounded-3xl p-5 hover:shadow-xl hover:border-emerald-200 transition-all duration-300 overflow-hidden shadow-sm flex flex-col justify-between">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/20 to-teal-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <div className="relative z-10">
-            <div className="p-2 bg-purple-50 border border-purple-100 text-purple-600 rounded-xl inline-flex items-center justify-center mb-3">
+            <div className="p-2 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl inline-flex items-center justify-center mb-3">
               <FaPalette className="w-4 h-4" />
             </div>
             <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Active Design Layout</span>
             <h3 className="text-base font-black text-slate-800 mt-2 truncate flex items-center gap-1.5" title={stats.activeTemplateName || "None"}>
-              <span className="w-2.5 h-2.5 rounded-full bg-[#6C63FF] inline-block"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
               {stats.activeTemplateName || "None"}
             </h3>
             <span className="block text-[10px] text-slate-400 font-semibold mt-1">Owned: {stats.totalTemplatesOwned || 0} template(s)</span>
           </div>
           <div className="flex flex-col gap-1.5 mt-4">
-            <Link to="/portfolio-templates" className="text-[10px] text-[#6C63FF] font-extrabold hover:underline flex items-center gap-1">
+            <Link to="/portfolio-templates" className="text-[10px] text-emerald-600 font-extrabold hover:underline flex items-center gap-1">
               Change Template <FaArrowRight size={8} />
             </Link>
           </div>
@@ -489,11 +489,11 @@ const Dashboard = () => {
       </div>
 
       {/* REFERRALS CARD */}
-      <div className="group relative bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-xl hover:border-indigo-200 transition-all duration-300 overflow-hidden shadow-sm flex flex-col justify-between md:flex-row md:items-center gap-6 text-left">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/20 to-purple-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <div className="group relative bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-xl hover:border-emerald-200 transition-all duration-300 overflow-hidden shadow-sm flex flex-col justify-between md:flex-row md:items-center gap-6 text-left">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/20 to-teal-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         <div className="relative z-10 flex-1">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-indigo-50 border border-indigo-100 text-indigo-600 rounded-xl inline-flex items-center justify-center">
+            <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl inline-flex items-center justify-center">
               <FaUsers className="w-5 h-5" />
             </div>
             <div>
@@ -505,7 +505,7 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2 text-xs font-semibold text-slate-500">
-            <FaGift className="text-indigo-500 text-xs animate-bounce" />
+            <FaGift className="text-emerald-500 text-xs animate-bounce" />
             <span>Share your code to invite your friends!</span>
           </div>
         </div>
@@ -513,13 +513,13 @@ const Dashboard = () => {
         <div className="relative z-10 flex flex-col gap-2 min-w-[200px]">
           <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Your Referral Code</span>
           <div className="bg-slate-50 border border-slate-200/80 rounded-xl px-3.5 py-2 flex items-center justify-between gap-3 shadow-inner">
-            <span className="font-mono text-sm font-extrabold text-indigo-600 tracking-wider">
+            <span className="font-mono text-sm font-extrabold text-emerald-600 tracking-wider">
               {stats.referralCode || "N/A"}
             </span>
             {stats.referralCode && (
               <button
                 onClick={() => handleCopyReferral(stats.referralCode)}
-                className="p-1.5 hover:bg-slate-200/80 text-slate-500 hover:text-indigo-600 rounded-lg transition-colors cursor-pointer"
+                className="p-1.5 hover:bg-slate-200/80 text-slate-500 hover:text-emerald-600 rounded-lg transition-colors cursor-pointer"
                 title="Copy referral code"
               >
                 <FaCopy size={12} className={copiedReferral ? "text-emerald-500 scale-110" : "transition-transform active:scale-90"} />
@@ -540,7 +540,7 @@ const Dashboard = () => {
               </h3>
               <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Let others scan to view your live profile</p>
             </div>
-            <Link to="/qr-code" className="text-[10px] text-[#6C63FF] font-extrabold hover:underline">
+            <Link to="/qr-code" className="text-[10px] text-emerald-600 font-extrabold hover:underline">
               Customize
             </Link>
           </div>
@@ -551,7 +551,7 @@ const Dashboard = () => {
                 value={portfolioUrl || "https://bytebodh.in"}
                 size={120}
                 level="H"
-                fgColor="#6C63FF"
+                fgColor="#059669"
                 bgColor="transparent"
               />
             </div>
@@ -562,7 +562,7 @@ const Dashboard = () => {
             </span>
             <button
               onClick={handleCopyLink}
-              className="w-full py-2 bg-indigo-50 border border-indigo-105 hover:bg-indigo-100 text-[#6C63FF] rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+              className="w-full py-2 bg-emerald-50 border border-emerald-100 hover:bg-emerald-100 text-emerald-600 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
             >
               <FaCopy size={11} /> Copy Public Link
             </button>
@@ -576,7 +576,7 @@ const Dashboard = () => {
               <h3 className="text-sm font-black text-slate-800 flex items-center gap-2">
                 <span>💳</span> Recent Payments
               </h3>
-              <Link to="/billings" className="text-[10px] text-[#6C63FF] font-extrabold hover:underline">
+              <Link to="/billings" className="text-[10px] text-emerald-600 font-extrabold hover:underline">
                 View All
               </Link>
             </div>
@@ -624,7 +624,7 @@ const Dashboard = () => {
       {/* LOWER GRID: INSPIRATION, RECRUITER INBOX & MILESTONES */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
         {/* ROTATING QUOTE BANNER */}
-        <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-6 text-white relative overflow-hidden shadow-lg border border-white/10 flex flex-col justify-between min-h-[200px]">
+        <div className="bg-gradient-to-br from-emerald-600 via-teal-600 to-green-700 rounded-3xl p-6 text-white relative overflow-hidden shadow-lg border border-white/10 flex flex-col justify-between min-h-[200px]">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
 
           <div className="relative z-10">
@@ -664,7 +664,7 @@ const Dashboard = () => {
               <h3 className="text-sm font-black text-slate-800 flex items-center gap-2">
                 <span>📩</span> Recruiter Inbox
               </h3>
-              <Link to="/contacts" className="text-[10px] text-[#6C63FF] font-extrabold hover:underline">
+              <Link to="/contacts" className="text-[10px] text-emerald-600 font-extrabold hover:underline">
                 View All
               </Link>
             </div>
@@ -681,7 +681,7 @@ const Dashboard = () => {
                   const initials = msg.name ? msg.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) : "?";
                   return (
                     <div key={msg.id} className="flex items-start gap-3 p-2.5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors">
-                      <div className="w-7 h-7 bg-indigo-50 border border-indigo-100 text-[#6C63FF] rounded-lg flex items-center justify-center text-[10px] font-bold">
+                      <div className="w-7 h-7 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center text-[10px] font-bold">
                         {initials}
                       </div>
                       <div className="min-w-0 flex-1">
@@ -705,7 +705,7 @@ const Dashboard = () => {
               <h3 className="text-sm font-black text-slate-800 flex items-center gap-2">
                 <span>🎯</span> Active Milestones
               </h3>
-              <Link to="/tasks" className="text-[10px] text-[#6C63FF] font-extrabold hover:underline">
+              <Link to="/tasks" className="text-[10px] text-emerald-600 font-extrabold hover:underline">
                 View All
               </Link>
             </div>

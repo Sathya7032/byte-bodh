@@ -120,16 +120,16 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-slate-50 font-sans antialiased text-slate-800 selection:bg-[#6C63FF]/20 selection:text-[#6C63FF]">
+    <div className="min-h-screen flex bg-slate-50 font-sans antialiased text-slate-800 selection:bg-emerald-500/20 selection:text-emerald-600">
       {/* Left Section - Brand/Info */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-tr from-indigo-50/30 via-white to-purple-50/40 p-16 flex-col justify-between relative overflow-hidden border-r border-slate-200/50 text-left">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-tr from-emerald-50/40 via-white to-teal-50/40 p-16 flex-col justify-between relative overflow-hidden border-r border-slate-200/50 text-left">
         {/* Soft glowing ambient circle */}
-        <div className="absolute top-[30%] left-[-10%] w-[350px] h-[350px] rounded-full bg-[#6C63FF]/5 blur-[80px] pointer-events-none"></div>
+        <div className="absolute top-[30%] left-[-10%] w-[350px] h-[350px] rounded-full bg-emerald-500/10 blur-[80px] pointer-events-none"></div>
 
         <div>
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group relative z-10">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#6C63FF] to-blue-500 text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-[#6C63FF]/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-emerald-500/20">
               BB
             </div>
             <div>
@@ -147,7 +147,7 @@ const ForgotPassword = () => {
             <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6">
               Recover Your<br />
               Account<br />
-              <span className="bg-gradient-to-r from-[#6C63FF] to-blue-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-emerald-500 to-teal-600 bg-clip-text text-transparent">
                 Secured.
               </span>
             </h1>
@@ -183,7 +183,7 @@ const ForgotPassword = () => {
           {/* Mobile Logo */}
           <div className="lg:hidden flex justify-center mb-4">
             <Link to="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#6C63FF] to-blue-500 text-white flex items-center justify-center font-bold text-xl shadow-lg">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-emerald-500/20">
                 BB
               </div>
               <span className="text-xl font-black text-slate-900">ByteBodh</span>
@@ -232,7 +232,7 @@ const ForgotPassword = () => {
                     placeholder="Enter your registered email"
                     required
                     disabled={loading}
-                    className={`w-full pl-12 pr-4 py-3.5 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#6C63FF] focus:ring-2 focus:ring-[#6C63FF]/15 disabled:bg-slate-50 transition-all text-sm ${
+                    className={`w-full pl-12 pr-4 py-3.5 border border-slate-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15 disabled:bg-slate-50 transition-all text-sm ${
                       showErrors && fieldErrors.email ? "border-red-500 focus:ring-red-500" : ""
                     }`}
                   />
@@ -248,7 +248,7 @@ const ForgotPassword = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#6C63FF] hover:bg-[#5b52e6] text-white py-3.5 rounded-2xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 shadow-md shadow-[#6C63FF]/10 hover:shadow-lg hover:shadow-[#6C63FF]/25 mt-4 text-sm cursor-pointer"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-2xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 shadow-md shadow-emerald-600/10 hover:shadow-lg hover:shadow-emerald-600/25 mt-4 text-sm cursor-pointer"
               >
                 {loading ? (
                   <>
@@ -285,7 +285,7 @@ const ForgotPassword = () => {
                     placeholder="Enter 6-digit OTP"
                     required
                     disabled={loading}
-                    className={`w-full pl-12 pr-4 py-3.5 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#6C63FF] focus:ring-2 focus:ring-[#6C63FF]/15 disabled:bg-slate-50 transition-all text-sm tracking-[0.2em] font-mono text-center ${
+                    className={`w-full pl-12 pr-4 py-3.5 border border-slate-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15 disabled:bg-slate-50 transition-all text-sm tracking-[0.2em] font-mono text-center ${
                       showErrors && fieldErrors.otp ? "border-red-500 focus:ring-red-500" : ""
                     }`}
                   />
@@ -313,7 +313,7 @@ const ForgotPassword = () => {
                     placeholder="Enter new password"
                     required
                     disabled={loading}
-                    className={`w-full pl-12 pr-4 py-3.5 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#6C63FF] focus:ring-2 focus:ring-[#6C63FF]/15 disabled:bg-slate-50 transition-all text-sm ${
+                    className={`w-full pl-12 pr-4 py-3.5 border border-slate-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15 disabled:bg-slate-50 transition-all text-sm ${
                       showErrors && fieldErrors.newPassword ? "border-red-500 focus:ring-red-500" : ""
                     }`}
                   />
@@ -341,7 +341,7 @@ const ForgotPassword = () => {
                     placeholder="Confirm new password"
                     required
                     disabled={loading}
-                    className={`w-full pl-12 pr-4 py-3.5 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#6C63FF] focus:ring-2 focus:ring-[#6C63FF]/15 disabled:bg-slate-50 transition-all text-sm ${
+                    className={`w-full pl-12 pr-4 py-3.5 border border-slate-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15 disabled:bg-slate-50 transition-all text-sm ${
                       showErrors && fieldErrors.confirmPassword ? "border-red-500 focus:ring-red-500" : ""
                     }`}
                   />
@@ -357,7 +357,7 @@ const ForgotPassword = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#6C63FF] hover:bg-[#5b52e6] text-white py-3.5 rounded-2xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 shadow-md shadow-[#6C63FF]/10 hover:shadow-lg hover:shadow-[#6C63FF]/25 mt-4 text-sm cursor-pointer"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-2xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 shadow-md shadow-emerald-600/10 hover:shadow-lg hover:shadow-emerald-600/25 mt-4 text-sm cursor-pointer"
               >
                 {loading ? (
                   <>
@@ -378,7 +378,7 @@ const ForgotPassword = () => {
                   type="button"
                   onClick={handleRequestOtp}
                   disabled={loading}
-                  className="text-[#6C63FF] hover:underline disabled:text-slate-400 cursor-pointer"
+                  className="text-emerald-600 hover:underline disabled:text-slate-400 cursor-pointer"
                 >
                   Resend OTP Code
                 </button>
@@ -401,7 +401,7 @@ const ForgotPassword = () => {
               Remembered your password?{" "}
               <Link 
                 to="/login" 
-                className="text-[#6C63FF] font-extrabold hover:underline"
+                className="text-emerald-600 font-extrabold hover:underline"
                 onClick={(e) => loading && e.preventDefault()}
               >
                 Back to Login

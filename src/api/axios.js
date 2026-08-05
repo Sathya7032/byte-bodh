@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getAccessToken, logout } from "../services/auth";
+import { getAccessToken, handleUnauthorizedError } from "../services/auth";
 import { API_ENDPOINTS } from "../config/api";
 
 const api = axios.create({
@@ -29,12 +29,7 @@ api.interceptors.request.use(
 ========================= */
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      logout();
-    }
-    return Promise.reject(error);
-  }
+  (error) => handleUnauthorizedError(error, api)
 );
 
 export default api;

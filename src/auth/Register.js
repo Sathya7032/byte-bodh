@@ -135,24 +135,24 @@ const Register = () => {
 
   const strengthColor =
     passwordStrength >= 75
-      ? "bg-green-500"
+      ? "bg-emerald-600"
       : passwordStrength >= 50
-      ? "bg-blue-500"
+      ? "bg-emerald-400"
       : passwordStrength >= 25
-      ? "bg-yellow-500"
-      : "bg-red-500";
+      ? "bg-amber-400"
+      : "bg-rose-500";
 
   return (
-    <div className="min-h-screen flex bg-slate-50 font-sans antialiased text-slate-800 selection:bg-[#6C63FF]/20 selection:text-[#6C63FF]">
+    <div className="min-h-screen flex bg-slate-50 font-sans antialiased text-slate-800 selection:bg-emerald-500/20 selection:text-emerald-600">
       {/* Left Section - Brand/Info */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-tr from-indigo-50/30 via-white to-purple-50/40 p-16 flex-col justify-between relative overflow-hidden border-r border-slate-200/50 text-left font-sans animate-fadeIn">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-tr from-emerald-50/40 via-white to-teal-50/40 p-16 flex-col justify-between relative overflow-hidden border-r border-slate-200/50 text-left font-sans animate-fadeIn">
         {/* Soft glowing ambient circle */}
-        <div className="absolute top-[30%] left-[-10%] w-[350px] h-[350px] rounded-full bg-[#6C63FF]/5 blur-[80px] pointer-events-none"></div>
+        <div className="absolute top-[30%] left-[-10%] w-[350px] h-[350px] rounded-full bg-emerald-500/10 blur-[80px] pointer-events-none"></div>
 
         <div>
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group relative z-10">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#6C63FF] to-blue-500 text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-[#6C63FF]/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-emerald-500/20">
               BB
             </div>
             <div>
@@ -170,7 +170,7 @@ const Register = () => {
             <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6">
               Showcase Your<br />
               Skills to the<br />
-              <span className="bg-gradient-to-r from-[#6C63FF] to-blue-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-emerald-500 to-teal-600 bg-clip-text text-transparent">
                 World.
               </span>
             </h1>
@@ -183,11 +183,11 @@ const Register = () => {
             <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xl space-y-6">
               <div className="flex justify-between items-center text-xs border-b border-slate-100 pb-3">
                 <span className="font-bold text-slate-900">Your Journey</span>
-                <span className="px-2 py-0.5 bg-[#6C63FF]/10 text-[#6C63FF] text-[9px] font-bold rounded">1-Click Live</span>
+                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-100 text-[9px] font-bold rounded">1-Click Live</span>
               </div>
-              <div className="relative pl-6 border-l-2 border-indigo-100 space-y-6 text-left">
+              <div className="relative pl-6 border-l-2 border-emerald-100 space-y-6 text-left">
                 <div className="relative">
-                  <div className="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-[#6C63FF] border-4 border-white shadow"></div>
+                  <div className="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-emerald-600 border-4 border-white shadow"></div>
                   <h4 className="text-xs font-bold text-slate-800 leading-none">Register & Verify</h4>
                   <p className="text-[10px] text-slate-400 mt-1">Claim your custom portfolio link instantly.</p>
                 </div>
@@ -218,7 +218,7 @@ const Register = () => {
           {/* Mobile Logo */}
           <div className="lg:hidden flex justify-center mb-4">
             <Link to="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#6C63FF] to-blue-500 text-white flex items-center justify-center font-bold text-xl shadow-lg">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-emerald-500/20">
                 BB
               </div>
               <span className="text-xl font-black text-slate-900">ByteBodh</span>
@@ -279,7 +279,7 @@ const Register = () => {
                   placeholder="Enter your full name"
                   required
                   disabled={loading}
-                  className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#6C63FF] focus:ring-2 focus:ring-[#6C63FF]/15 disabled:bg-slate-50 transition-all text-sm"
+                  className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15 disabled:bg-slate-50 transition-all text-sm"
                 />
               </div>
             </div>
@@ -299,7 +299,7 @@ const Register = () => {
                   placeholder="Choose a username"
                   required
                   disabled={loading}
-                  className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#6C63FF] focus:ring-2 focus:ring-[#6C63FF]/15 disabled:bg-slate-50 transition-all text-sm"
+                  className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15 disabled:bg-slate-50 transition-all text-sm"
                 />
               </div>
             </div>
@@ -319,7 +319,7 @@ const Register = () => {
                   placeholder="Enter your email"
                   required
                   disabled={loading}
-                  className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#6C63FF] focus:ring-2 focus:ring-[#6C63FF]/15 disabled:bg-slate-50 transition-all text-sm"
+                  className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15 disabled:bg-slate-50 transition-all text-sm"
                 />
               </div>
             </div>
@@ -339,7 +339,7 @@ const Register = () => {
                   placeholder="Create a strong password"
                   required
                   disabled={loading}
-                  className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-2xl focus:outline-none focus:border-[#6C63FF] focus:ring-2 focus:ring-[#6C63FF]/15 disabled:bg-slate-50 transition-all text-sm"
+                  className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15 disabled:bg-slate-50 transition-all text-sm"
                 />
               </div>
 
@@ -386,7 +386,7 @@ const Register = () => {
                   placeholder="Confirm your password"
                   required
                   disabled={loading}
-                  className={`w-full pl-12 pr-4 py-3 border rounded-2xl focus:outline-none focus:border-[#6C63FF] focus:ring-2 focus:ring-[#6C63FF]/15 disabled:bg-slate-50 transition-all text-sm ${
+                  className={`w-full pl-12 pr-4 py-3 border rounded-2xl focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15 disabled:bg-slate-50 transition-all text-sm ${
                     formData.confirmPassword && formData.password !== formData.confirmPassword
                       ? "border-rose-400 focus:border-rose-500 focus:ring-rose-500/15"
                       : "border-slate-200"
@@ -406,16 +406,16 @@ const Register = () => {
                 type="checkbox" 
                 id="terms"
                 required 
-                className="w-4 h-4 mt-0.5 rounded border-slate-300 text-[#6C63FF] focus:ring-[#6C63FF] cursor-pointer" 
+                className="w-4 h-4 mt-0.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer" 
                 disabled={loading}
               />
               <label htmlFor="terms" className="ml-2 text-xs text-slate-500 font-semibold cursor-pointer">
                 I agree to the{" "}
-                <Link to="/terms-and-conditions" className="text-[#6C63FF] font-bold hover:underline">
+                <Link to="/terms-and-conditions" className="text-emerald-600 font-bold hover:underline">
                   Terms of Service
                 </Link>{" "}
                 and{" "}
-                <Link to="/privacy-policy" className="text-[#6C63FF] font-bold hover:underline">
+                <Link to="/privacy-policy" className="text-emerald-600 font-bold hover:underline">
                   Privacy Policy
                 </Link>
               </label>
@@ -425,7 +425,7 @@ const Register = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#6C63FF] hover:bg-[#5b52e6] text-white py-3.5 rounded-2xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 shadow-md shadow-[#6C63FF]/10 hover:shadow-lg hover:shadow-[#6C63FF]/25 mt-4 text-sm"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-2xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 shadow-md shadow-emerald-600/10 hover:shadow-lg hover:shadow-emerald-600/25 mt-4 text-sm"
             >
               {loading ? (
                 <>
@@ -447,7 +447,7 @@ const Register = () => {
               Already have an account?{" "}
               <Link 
                 to="/login" 
-                className="text-[#6C63FF] font-extrabold hover:underline"
+                className="text-emerald-600 font-extrabold hover:underline"
                 onClick={(e) => loading && e.preventDefault()}
               >
                 Sign in here

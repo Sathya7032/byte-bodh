@@ -23,7 +23,7 @@
   justify-content: center;
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   border-radius: 12px;
   margin-bottom: 1rem;
 }
@@ -68,7 +68,7 @@
 }
 
 .auth-btn {
-  background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%) !important;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
   border: none !important;
   padding: 0.75rem !important;
   font-weight: 600 !important;
@@ -78,7 +78,7 @@
 
 .auth-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(2, 132, 199, 0.3) !important;
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3) !important;
 }
 
 .auth-btn:disabled {
@@ -117,7 +117,7 @@
 }
 
 .forgot-password-link:hover {
-  color: #0284c7;
+  color: #059669;
 }
 
 .auth-switch-text {
@@ -126,14 +126,14 @@
 }
 
 .auth-switch-link {
-  color: #0284c7;
+  color: #059669;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s ease;
 }
 
 .auth-switch-link:hover {
-  color: #0369a1;
+  color: #047857;
   text-decoration: underline;
 }
 

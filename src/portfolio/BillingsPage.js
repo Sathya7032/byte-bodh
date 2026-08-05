@@ -117,13 +117,13 @@ const BillingsPage = () => {
   return (
     <DashboardLayout containerClassName="w-full space-y-6 animate-fadeIn text-left">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-[#1e1b4b] to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800">
-        <div className="absolute -top-[10%] -left-[10%] w-[200px] h-[200px] rounded-full bg-[#6C63FF]/10 blur-[50px] pointer-events-none"></div>
-        <div className="absolute -bottom-[20%] -right-[10%] w-[250px] h-[250px] rounded-full bg-indigo-500/10 blur-[60px] pointer-events-none"></div>
+      <div className="bg-gradient-to-r from-slate-900 via-[#064e3b] to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800">
+        <div className="absolute -top-[10%] -left-[10%] w-[200px] h-[200px] rounded-full bg-emerald-500/10 blur-[50px] pointer-events-none"></div>
+        <div className="absolute -bottom-[20%] -right-[10%] w-[250px] h-[250px] rounded-full bg-teal-500/10 blur-[60px] pointer-events-none"></div>
         
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="flex items-center gap-4 text-left">
-            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-[#6C63FF] rounded-2xl flex items-center justify-center shadow-lg shadow-[#6C63FF]/30">
+            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
               <FaCreditCard className="w-7 h-7 text-white" />
             </div>
             <div>
@@ -164,9 +164,9 @@ const BillingsPage = () => {
           {
             label: "Successful payments",
             val: stats.successfulPayments,
-            color: "text-indigo-600",
-            bg: "bg-indigo-50 border-indigo-100",
-            icon: <FaCheckCircle className="w-5 h-5 text-indigo-500" />,
+            color: "text-emerald-600",
+            bg: "bg-emerald-50 border-emerald-100",
+            icon: <FaCheckCircle className="w-5 h-5 text-emerald-500" />,
           },
           {
             label: "Failed payments",
@@ -197,7 +197,7 @@ const BillingsPage = () => {
             placeholder="Search payments by template or ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-slate-200 focus:border-[#6C63FF] rounded-xl text-xs font-semibold focus:ring-4 focus:ring-[#6C63FF]/10 transition-all placeholder-slate-400"
+            className="w-full pl-10 pr-4 py-2.5 border border-slate-200 focus:border-emerald-500 rounded-xl text-xs font-semibold focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder-slate-400"
           />
         </div>
 
@@ -213,7 +213,7 @@ const BillingsPage = () => {
               onClick={() => setStatusFilter(btn.id)}
               className={`px-4 py-2.5 border rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 statusFilter === btn.id
-                  ? "bg-[#6C63FF] text-white shadow-md shadow-[#6C63FF]/15 border-transparent"
+                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/15 border-transparent"
                   : "bg-slate-50 border-slate-200 text-slate-650 hover:bg-slate-100"
               }`}
             >
@@ -227,7 +227,7 @@ const BillingsPage = () => {
       <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
         {loading ? (
           <div className="p-16 text-center">
-            <FaSpinner className="w-8 h-8 text-[#6C63FF] animate-spin mx-auto mb-4" />
+            <FaSpinner className="w-8 h-8 text-emerald-600 animate-spin mx-auto mb-4" />
             <p className="text-slate-500 font-bold">Fetching transaction history...</p>
           </div>
         ) : error ? (

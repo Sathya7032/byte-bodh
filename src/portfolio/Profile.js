@@ -2,7 +2,12 @@ import React, { useEffect, useState } from "react";
 import DashboardLayout from "../portfolio/components/DashboardLayout";
 import {
   getMyProfile,
+  createProfile,
   updateProfile,
+  addProject,
+  deleteProject,
+  addCertification,
+  deleteCertification,
 } from "../api/profileService";
 import { getPortfolioUrl } from "../config/api";
 import { toast } from "react-toastify";
@@ -28,7 +33,9 @@ import {
   FaUserCircle,
   FaCertificate,
   FaMobileAlt,
-  FaSync
+  FaSync,
+  FaCloudUploadAlt,
+  FaQuestionCircle
 } from "react-icons/fa";
 import { SiLeetcode } from "react-icons/si";
 import { motion } from "framer-motion";
@@ -48,7 +55,10 @@ const Profile = () => {
     projects: [],
     socialMediaLinks: [],
     certifications: [],
-    pictureUrl: ""
+    pictureUrl: "",
+    metaTitle: "",
+    metaDescription: "",
+    metaKeywords: ""
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -62,7 +72,45 @@ const Profile = () => {
   const [imagePreview, setImagePreview] = useState("");
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   const [previewKey, setPreviewKey] = useState(0);
-  
+
+  const [projectImageFile, setProjectImageFile] = useState(null);
+  const [projectImagePreview, setProjectImagePreview] = useState("");
+  const [certImageFile, setCertImageFile] = useState(null);
+  const [certImagePreview, setCertImagePreview] = useState("");
+
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: null,
+    onDiscard: null
+  });
+
+  const promptSaveOrDiscard = ({ title, message, onSave, onDiscard }) => {
+    setConfirmModal({
+      isOpen: true,
+      title: title || "Save or Discard Changes?",
+      message: message || "Would you like to save your changes or discard them?",
+      onConfirm: onSave ? () => {
+        onSave();
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      } : null,
+      onDiscard: () => {
+        if (onDiscard) {
+          onDiscard();
+        } else {
+          setEditingSection(null);
+          setTempItem({});
+          setProjectImageFile(null);
+          setProjectImagePreview("");
+          setCertImageFile(null);
+          setCertImagePreview("");
+        }
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      }
+    });
+  };
+
 
   const defaultEducation = {
     degree: "",
@@ -136,7 +184,10 @@ const Profile = () => {
   const fetchProfile = async () => {
     try {
       const response = await getMyProfile();
-      const data = response.data || {};
+      const rawData = response.data || {};
+      const data = rawData.data || rawData;
+      console.log("User data", data)
+
       setProfile({
         fullName: data.fullName || "",
         mobileNumber: data.mobileNumber || "",
@@ -151,13 +202,16 @@ const Profile = () => {
         projects: data.projects || [],
         socialMediaLinks: data.socialMediaLinks || [],
         certifications: data.certifications || [],
-        pictureUrl: data.pictureUrl || ""
+        pictureUrl: data.pictureUrl || "",
+        metaTitle: data.metaTitle || data.seoDetails?.metaTitle || data.seo_details?.metaTitle || "",
+        metaDescription: data.metaDescription || data.seoDetails?.metaDescription || data.seo_details?.metaDescription || "",
+        metaKeywords: data.metaKeywords || data.seoDetails?.metaKeywords || data.seo_details?.metaKeywords || ""
       });
-      
+
       if (data.pictureUrl) {
         setImagePreview(data.pictureUrl);
       }
-      
+
       if (data.id) {
         setProfile(prev => ({ ...prev, id: data.id }));
       }
@@ -177,15 +231,15 @@ const Profile = () => {
         toast.error("Image size should be less than 5MB");
         return;
       }
-      
+
       // Check file type
       if (!file.type.match('image/jpeg|image/jpg|image/png|image/gif')) {
         toast.error("Only JPG, PNG, and GIF images are allowed");
         return;
       }
-      
+
       setProfileImage(file);
-      
+
       // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -195,45 +249,126 @@ const Profile = () => {
     }
   };
 
+  const handleProjectImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image size should be less than 5MB");
+        return;
+      }
+      setProjectImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProjectImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCertImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image size should be less than 5MB");
+        return;
+      }
+      setCertImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCertImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
 
-    const formData = new FormData();
-
     const payload = {
-      fullName: profile.fullName,
-      mobileNumber: profile.mobileNumber,
-      email: profile.email,
-      headline: profile.headline,
-      summary: profile.summary,
+      fullName: profile.fullName || "",
+      mobileNumber: profile.mobileNumber || "",
+      email: profile.email || "",
+      headline: profile.headline || "",
+      summary: profile.summary || "",
       isFresher: profile.isFresher,
-      skills: profile.skills,
-      education: profile.education,
-      experience: profile.experience,
-      projects: profile.projects,
-      socialMediaLinks: profile.socialMediaLinks,
-      certifications: profile.certifications,
+      skills: profile.skills || [],
+      education: profile.education || [],
+      experience: profile.experience || [],
+      projects: profile.projects || [],
+      socialMediaLinks: profile.socialMediaLinks || [],
+      certifications: profile.certifications || [],
+      metaTitle: profile.metaTitle || "",
+      metaDescription: profile.metaDescription || "",
+      metaKeywords: profile.metaKeywords || "",
+      seoDetails: {
+        metaTitle: profile.metaTitle || "",
+        metaDescription: profile.metaDescription || "",
+        metaKeywords: profile.metaKeywords || ""
+      }
     };
 
-    // ✅ MUST be Blob
+    const formData = new FormData();
+
+    // 1) Append JSON Blob under "profile"
     formData.append(
       "profile",
       new Blob([JSON.stringify(payload)], { type: "application/json" })
     );
+
+    // 2) Append individual top-level fields for form-data handlers
+    formData.append("fullName", profile.fullName || "");
+    formData.append("mobileNumber", profile.mobileNumber || "");
+    formData.append("email", profile.email || "");
+    formData.append("headline", profile.headline || "");
+    formData.append("summary", profile.summary || "");
+    formData.append("isFresher", profile.isFresher ? "true" : "false");
+    formData.append("metaTitle", profile.metaTitle || "");
+    formData.append("metaDescription", profile.metaDescription || "");
+    formData.append("metaKeywords", profile.metaKeywords || "");
 
     if (profileImage) {
       formData.append("profileImage", profileImage);
     }
 
     try {
-      const res = await updateProfile(formData);
+      let res;
+      if (profile.id) {
+        try {
+          res = await updateProfile(formData);
+        } catch (updateErr) {
+          if (updateErr.response && (updateErr.response.status === 404 || updateErr.response.status === 405)) {
+            res = await createProfile(formData);
+          } else {
+            throw updateErr;
+          }
+        }
+      } else {
+        try {
+          res = await createProfile(formData);
+        } catch (createErr) {
+          if (createErr.response && (createErr.response.status === 409 || createErr.response.status === 405 || createErr.response.status === 400)) {
+            res = await updateProfile(formData);
+          } else {
+            throw createErr;
+          }
+        }
+      }
 
-      toast.success("Profile updated successfully");
+      toast.success("Profile saved successfully");
+      const rawData = res.data || {};
+      const data = rawData.data || rawData;
 
-      setProfile((prev) => ({ ...prev, ...res.data }));
+      setProfile((prev) => ({
+        ...prev,
+        ...data,
+        id: data.id || prev.id,
+        metaTitle: data.metaTitle || data.seoDetails?.metaTitle || data.seo_details?.metaTitle || prev.metaTitle || "",
+        metaDescription: data.metaDescription || data.seoDetails?.metaDescription || data.seo_details?.metaDescription || prev.metaDescription || "",
+        metaKeywords: data.metaKeywords || data.seoDetails?.metaKeywords || data.seo_details?.metaKeywords || prev.metaKeywords || ""
+      }));
 
-      if (res.data.pictureUrl) {
-        setImagePreview(res.data.pictureUrl);
+      if (data.pictureUrl) {
+        setImagePreview(data.pictureUrl);
         setProfileImage(null);
       }
     } catch (err) {
@@ -243,6 +378,7 @@ const Profile = () => {
       setSaving(false);
     }
   };
+
 
   const handleAddSkill = () => {
     if (newSkill.trim() && !profile.skills.includes(newSkill.trim())) {
@@ -262,42 +398,158 @@ const Profile = () => {
   const handleAddCertification = () => {
     setEditingSection("certification");
     setTempItem(defaultCertification);
+    setCertImageFile(null);
+    setCertImagePreview("");
   };
 
-  const handleSaveCertification = () => {
+  const handleSaveCertification = async () => {
     if (!tempItem.name) {
       toast.error("Certification name is required");
       return;
     }
 
-    const updatedCertifications = [...profile.certifications, tempItem];
-    setProfile({ ...profile, certifications: updatedCertifications });
-    setEditingSection(null);
-    setTempItem({});
-    toast.success("Certification added successfully");
+    setSaving(true);
+    try {
+      const formData = new FormData();
+      const certPayload = {
+        name: tempItem.name,
+        startDate: tempItem.startDate,
+        endDate: tempItem.endDate,
+        description: tempItem.description
+      };
+
+      formData.append(
+        "certification",
+        new Blob([JSON.stringify(certPayload)], { type: "application/json" })
+      );
+      if (certImageFile) {
+        formData.append("image", certImageFile);
+      }
+
+      const res = await addCertification(formData);
+      const data = res.data || {};
+      const returnedCerts = data.certifications || data.data?.certifications || [];
+      setProfile(prev => ({
+        ...prev,
+        certifications: returnedCerts.length > 0 ? returnedCerts : [...prev.certifications, certPayload]
+      }));
+      setEditingSection(null);
+      setTempItem({});
+      setCertImageFile(null);
+      setCertImagePreview("");
+      toast.success("Certification added successfully");
+    } catch (err) {
+      console.error("Error saving certification:", err);
+      toast.error(err.response?.data?.message || "Failed to add certification");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleEditCertification = (index) => {
     setEditingSection(`certification-${index}`);
-    setTempItem(profile.certifications[index]);
+    const cert = profile.certifications[index] || {};
+    setTempItem({
+      ...cert,
+      name: cert.name || "",
+      startDate: cert.startDate || "",
+      endDate: cert.endDate || "",
+      description: cert.description || ""
+    });
+    setCertImageFile(null);
+    setCertImagePreview(cert.imageUrl || "");
   };
 
-  const handleUpdateCertification = (index) => {
-    const updatedCertifications = [...profile.certifications];
-    updatedCertifications[index] = tempItem;
-    setProfile({ ...profile, certifications: updatedCertifications });
-    setEditingSection(null);
-    setTempItem({});
-    toast.success("Certification updated successfully");
-  };
+  const handleUpdateCertification = async (index) => {
+    if (!tempItem.name) {
+      toast.error("Certification name is required");
+      return;
+    }
 
-  const handleRemoveCertification = (index) => {
-    if (window.confirm("Are you sure you want to delete this certification?")) {
-      const updatedCertifications = profile.certifications.filter((_, i) => i !== index);
-      setProfile({ ...profile, certifications: updatedCertifications });
-      toast.success("Certification removed successfully");
+    setSaving(true);
+    try {
+      const oldCert = profile.certifications[index];
+      if (oldCert.id) {
+        await deleteCertification(oldCert.id);
+      }
+
+      const formData = new FormData();
+      const certPayload = {
+        name: tempItem.name,
+        startDate: tempItem.startDate,
+        endDate: tempItem.endDate,
+        description: tempItem.description
+      };
+
+      if (tempItem.imageUrl && !certImageFile) {
+        certPayload.imageUrl = tempItem.imageUrl;
+      }
+
+      formData.append(
+        "certification",
+        new Blob([JSON.stringify(certPayload)], { type: "application/json" })
+      );
+
+      if (certImageFile) {
+        formData.append("image", certImageFile);
+      }
+
+      const res = await addCertification(formData);
+      const data = res.data || {};
+      const returnedCerts = data.certifications || data.data?.certifications || [];
+      setProfile(prev => {
+        let newCerts;
+        if (returnedCerts.length > 0) {
+          newCerts = returnedCerts;
+        } else {
+          newCerts = [...prev.certifications];
+          newCerts[index] = certPayload;
+        }
+        return {
+          ...prev,
+          certifications: newCerts
+        };
+      });
+      setEditingSection(null);
+      setTempItem({});
+      setCertImageFile(null);
+      setCertImagePreview("");
+      toast.success("Certification updated successfully");
+    } catch (err) {
+      console.error("Error updating certification:", err);
+      toast.error(err.response?.data?.message || "Failed to update certification");
+    } finally {
+      setSaving(false);
     }
   };
+
+  const handleRemoveCertification = async (index) => {
+    if (window.confirm("Are you sure you want to delete this certification?")) {
+      const cert = profile.certifications[index];
+      if (cert.id) {
+        setSaving(true);
+        try {
+          const res = await deleteCertification(cert.id);
+          const data = res.data || {};
+          setProfile(prev => ({
+            ...prev,
+            certifications: data.certifications || data.data?.certifications || []
+          }));
+          toast.success("Certification removed successfully");
+        } catch (err) {
+          console.error("Error deleting certification:", err);
+          toast.error("Failed to delete certification");
+        } finally {
+          setSaving(false);
+        }
+      } else {
+        const updatedCertifications = profile.certifications.filter((_, i) => i !== index);
+        setProfile({ ...profile, certifications: updatedCertifications });
+        toast.success("Certification removed successfully");
+      }
+    }
+  };
+
 
   const handleAddEducation = () => {
     setEditingSection("education");
@@ -382,42 +634,160 @@ const Profile = () => {
   const handleAddProject = () => {
     setEditingSection("project");
     setTempItem(defaultProject);
+    setProjectImageFile(null);
+    setProjectImagePreview("");
   };
 
-  const handleSaveProject = () => {
+  const handleSaveProject = async () => {
     if (!tempItem.title) {
       toast.error("Project title is required");
       return;
     }
 
-    const updatedProjects = [...profile.projects, tempItem];
-    setProfile({ ...profile, projects: updatedProjects });
-    setEditingSection(null);
-    setTempItem({});
-    toast.success("Project added successfully");
+    setSaving(true);
+    try {
+      const formData = new FormData();
+      const projectPayload = {
+        title: tempItem.title,
+        techStack: tempItem.techStack,
+        projectUrl: tempItem.projectUrl,
+        description: tempItem.description
+      };
+
+      formData.append(
+        "project",
+        new Blob([JSON.stringify(projectPayload)], { type: "application/json" })
+      );
+      if (projectImageFile) {
+        formData.append("image", projectImageFile);
+      }
+
+      const res = await addProject(formData);
+      const data = res.data || {};
+      const returnedProjects = data.projects || data.data?.projects || [];
+
+      setProfile(prev => ({
+        ...prev,
+        projects: returnedProjects.length > 0 ? returnedProjects : [...prev.projects, projectPayload]
+      }));
+      setEditingSection(null);
+      setTempItem({});
+      setProjectImageFile(null);
+      setProjectImagePreview("");
+      toast.success("Project added successfully");
+    } catch (err) {
+      console.error("Error saving project:", err);
+      toast.error(err.response?.data?.message || "Failed to add project");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleEditProject = (index) => {
     setEditingSection(`project-${index}`);
-    setTempItem(profile.projects[index]);
+    const proj = profile.projects[index] || {};
+    setTempItem({
+      ...proj,
+      title: proj.title || "",
+      techStack: proj.techStack || "",
+      projectUrl: proj.projectUrl || "",
+      description: proj.description || ""
+    });
+    setProjectImageFile(null);
+    setProjectImagePreview(proj.imageUrl || "");
   };
 
-  const handleUpdateProject = (index) => {
-    const updatedProjects = [...profile.projects];
-    updatedProjects[index] = tempItem;
-    setProfile({ ...profile, projects: updatedProjects });
-    setEditingSection(null);
-    setTempItem({});
-    toast.success("Project updated successfully");
-  };
+  const handleUpdateProject = async (index) => {
+    if (!tempItem.title) {
+      toast.error("Project title is required");
+      return;
+    }
 
-  const handleRemoveProject = (index) => {
-    if (window.confirm("Are you sure you want to delete this project?")) {
-      const updatedProjects = profile.projects.filter((_, i) => i !== index);
-      setProfile({ ...profile, projects: updatedProjects });
-      toast.success("Project removed successfully");
+    setSaving(true);
+    try {
+      const oldProject = profile.projects[index];
+      if (oldProject.id) {
+        await deleteProject(oldProject.id);
+      }
+
+      const formData = new FormData();
+      const projectPayload = {
+        title: tempItem.title,
+        techStack: tempItem.techStack,
+        projectUrl: tempItem.projectUrl,
+        description: tempItem.description
+      };
+
+      if (tempItem.imageUrl && !projectImageFile) {
+        projectPayload.imageUrl = tempItem.imageUrl;
+      }
+
+      formData.append(
+        "project",
+        new Blob([JSON.stringify(projectPayload)], { type: "application/json" })
+      );
+
+      if (projectImageFile) {
+        formData.append("image", projectImageFile);
+      }
+
+      const res = await addProject(formData);
+      const data = res.data || {};
+      const returnedProjects = data.projects || data.data?.projects || [];
+
+      setProfile(prev => {
+        let newProjects;
+        if (returnedProjects.length > 0) {
+          newProjects = returnedProjects;
+        } else {
+          newProjects = [...prev.projects];
+          newProjects[index] = projectPayload;
+        }
+        return {
+          ...prev,
+          projects: newProjects
+        };
+      });
+      setEditingSection(null);
+      setTempItem({});
+      setProjectImageFile(null);
+      setProjectImagePreview("");
+      toast.success("Project updated successfully");
+    } catch (err) {
+      console.error("Error updating project:", err);
+      toast.error(err.response?.data?.message || "Failed to update project");
+    } finally {
+      setSaving(false);
     }
   };
+
+  const handleRemoveProject = async (index) => {
+    if (window.confirm("Are you sure you want to delete this project?")) {
+      const project = profile.projects[index];
+      if (project.id) {
+        setSaving(true);
+        try {
+          const res = await deleteProject(project.id);
+          const data = res.data || {};
+          setProfile(prev => ({
+            ...prev,
+            projects: data.projects || data.data?.projects || []
+          }));
+          toast.success("Project removed successfully");
+        } catch (err) {
+          console.error("Error deleting project:", err);
+          toast.error("Failed to delete project");
+        } finally {
+          setSaving(false);
+        }
+      } else {
+        const updatedProjects = profile.projects.filter((_, i) => i !== index);
+        setProfile({ ...profile, projects: updatedProjects });
+        toast.success("Project removed successfully");
+      }
+    }
+  };
+
 
   const handleAddSocialLink = () => {
     setEditingSection("social");
@@ -462,8 +832,8 @@ const Profile = () => {
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
       month: 'short',
       day: 'numeric'
     });
@@ -479,9 +849,9 @@ const Profile = () => {
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            <div className="bg-gradient-to-br from-[#6C63FF]/5 to-indigo-600/5 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2.5 bg-[#6C63FF]/10 text-[#6C63FF] rounded-xl">
+                <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl">
                   <FaUser className="w-5 h-5" />
                 </div>
                 <div>
@@ -489,15 +859,15 @@ const Profile = () => {
                   <p className="text-[11px] text-slate-400 font-semibold mt-0.5">Basic details that describe your identity</p>
                 </div>
               </div>
-              
+
               {/* Profile Image Upload Section */}
               <div className="flex flex-col items-center mb-8 bg-white/40 border border-slate-200/50 rounded-2xl p-6 max-w-sm mx-auto">
                 <div className="relative group">
                   <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-md relative">
                     {imagePreview ? (
-                      <img 
-                        src={imagePreview} 
-                        alt="Profile" 
+                      <img
+                        src={imagePreview}
+                        alt="Profile"
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -506,9 +876,9 @@ const Profile = () => {
                       </div>
                     )}
                   </div>
-                  <label 
+                  <label
                     htmlFor="profileImage"
-                    className="absolute bottom-1 right-1 bg-[#6C63FF] hover:bg-[#5b52e6] text-white p-2.5 rounded-full cursor-pointer hover:shadow-lg transition-all active:scale-90"
+                    className="absolute bottom-1 right-1 bg-emerald-600 hover:bg-emerald-700 text-white p-2.5 rounded-full cursor-pointer hover:shadow-lg transition-all active:scale-90"
                   >
                     <FaCamera className="w-4 h-4" />
                     <input
@@ -529,14 +899,14 @@ const Profile = () => {
                   </p>
                 )}
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-2">
                   <label className="block text-xs font-bold text-slate-600">
                     Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                     value={profile.fullName}
                     onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
                     placeholder="Enter your full name"
@@ -545,7 +915,7 @@ const Profile = () => {
                 <div className="space-y-2">
                   <label className="block text-xs font-bold text-slate-600">Mobile Number</label>
                   <input
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                     value={profile.mobileNumber}
                     onChange={(e) => setProfile({ ...profile, mobileNumber: e.target.value })}
                     placeholder="Enter your mobile number"
@@ -556,7 +926,7 @@ const Profile = () => {
                     Email <span className="text-red-500">*</span>
                   </label>
                   <input
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                     type="email"
                     value={profile.email}
                     onChange={(e) => setProfile({ ...profile, email: e.target.value })}
@@ -574,6 +944,41 @@ const Profile = () => {
                   <p className="text-[10px] text-slate-400 font-semibold mt-0.5">This uniquely identifies your public portfolio link</p>
                 </div>
               </div>
+
+              {/* SEO DETAILS SECTION */}
+              <div className="mt-8 pt-6 border-t border-slate-200/60 text-left">
+                <h3 className="text-sm font-bold text-slate-800 mb-4">Portfolio SEO & Meta Fields</h3>
+                <div className="grid grid-cols-1 gap-5">
+                  <div className="space-y-2">
+                    <label className="block text-xs font-bold text-slate-600">Meta Title</label>
+                    <input
+                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-emerald-600 text-xs font-semibold placeholder-slate-450"
+                      value={profile.metaTitle || ""}
+                      onChange={(e) => setProfile({ ...profile, metaTitle: e.target.value })}
+                      placeholder="e.g., Satya's Portfolio | Java & Spring Boot Developer"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-xs font-bold text-slate-600">Meta Description</label>
+                    <textarea
+                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400 resize-none"
+                      value={profile.metaDescription || ""}
+                      onChange={(e) => setProfile({ ...profile, metaDescription: e.target.value })}
+                      placeholder="Enter a description for search engine results..."
+                      rows={3}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-xs font-bold text-slate-600">Meta Keywords</label>
+                    <input
+                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-emerald-600 text-xs font-semibold placeholder-slate-450"
+                      value={profile.metaKeywords || ""}
+                      onChange={(e) => setProfile({ ...profile, metaKeywords: e.target.value })}
+                      placeholder="e.g., portfolio, java, software engineer, spring boot"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.div>
         );
@@ -586,9 +991,9 @@ const Profile = () => {
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            <div className="bg-gradient-to-br from-[#6C63FF]/5 to-indigo-600/5 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2.5 bg-[#6C63FF]/10 text-[#6C63FF] rounded-xl">
+                <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl">
                   <FaBriefcase className="w-5 h-5" />
                 </div>
                 <div>
@@ -596,27 +1001,27 @@ const Profile = () => {
                   <p className="text-[11px] text-slate-400 font-semibold mt-0.5">Describe your professional headline and background</p>
                 </div>
               </div>
-              
+
               <div className="space-y-5">
                 <div className="space-y-2">
                   <label className="block text-xs font-bold text-slate-600">
                     Headline <span className="text-red-500">*</span>
                   </label>
                   <input
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                     value={profile.headline}
                     onChange={(e) => setProfile({ ...profile, headline: e.target.value })}
                     placeholder="e.g., Java Backend Developer | Spring Boot | Fresher"
                   />
                   <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Appears below your name on your portfolio</p>
                 </div>
-                
+
                 <div className="space-y-2">
                   <label className="block text-xs font-bold text-slate-600">
                     Professional Summary <span className="text-red-500">*</span>
                   </label>
                   <textarea
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400 resize-none"
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400 resize-none"
                     value={profile.summary}
                     onChange={(e) => setProfile({ ...profile, summary: e.target.value })}
                     rows={6}
@@ -624,14 +1029,14 @@ const Profile = () => {
                   />
                   <p className="text-[10px] text-slate-400 font-semibold mt-0.5">A compelling summary can attract more opportunities</p>
                 </div>
-                
+
                 <div className="flex items-center p-4 bg-white rounded-2xl border border-slate-200/60">
                   <input
                     type="checkbox"
                     id="isFresher"
                     checked={profile.isFresher}
                     onChange={(e) => setProfile({ ...profile, isFresher: e.target.checked })}
-                    className="w-4.5 h-4.5 text-[#6C63FF] border-slate-300 rounded focus:ring-[#6C63FF]/20"
+                    className="w-4.5 h-4.5 text-emerald-600 border-slate-300 rounded focus:ring-[#6C63FF]/20"
                   />
                   <label htmlFor="isFresher" className="ml-3 text-xs font-bold text-slate-600">
                     I am currently a fresher / looking for entry-level positions
@@ -650,10 +1055,10 @@ const Profile = () => {
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            <div className="bg-gradient-to-br from-[#6C63FF]/5 to-indigo-600/5 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-[#6C63FF]/10 text-[#6C63FF] rounded-xl shrink-0">
+                  <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl shrink-0">
                     <FaGraduationCap className="w-5 h-5" />
                   </div>
                   <div>
@@ -661,8 +1066,8 @@ const Profile = () => {
                     <p className="text-[11px] text-slate-400 font-semibold mt-0.5">Your academic background and qualifications</p>
                   </div>
                 </div>
-                <button 
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
+                <button
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
                   onClick={handleAddEducation}
                   disabled={editingSection}
                 >
@@ -670,7 +1075,7 @@ const Profile = () => {
                   Add Education
                 </button>
               </div>
-              
+
               {profile.education.length === 0 && !editingSection && (
                 <div className="text-center py-12 border-2 border-dashed border-green-200 rounded-xl bg-white/50">
                   <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -680,7 +1085,7 @@ const Profile = () => {
                   <p className="text-gray-600">Add your educational qualifications to showcase your academic background.</p>
                 </div>
               )}
-              
+
               <div className="space-y-4">
                 {profile.education.map((edu, index) => (
                   <div key={index} className="bg-white rounded-xl border border-slate-200/80 p-4 sm:p-5 hover:shadow-md transition-shadow">
@@ -702,29 +1107,26 @@ const Profile = () => {
                             <div key={field.value} className="space-y-2 text-left">
                               <label className="block text-xs font-bold text-slate-600">{field.label}</label>
                               <input
-                                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                                 type={field.type}
                                 value={tempItem[field.value] || ""}
-                                onChange={(e) => setTempItem({...tempItem, [field.value]: field.type === 'number' ? parseInt(e.target.value) : e.target.value})}
+                                onChange={(e) => setTempItem({ ...tempItem, [field.value]: field.type === 'number' ? parseInt(e.target.value) : e.target.value })}
                                 placeholder={field.placeholder}
                               />
                             </div>
                           ))}
                         </div>
                         <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                          <button 
-                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                            onClick={() => handleUpdateEducation(index)}
+                          <button
+                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
+                            onClick={() => promptSaveOrDiscard({ title: "Update Education?", message: "Do you want to save changes to this education entry?", onSave: () => handleUpdateEducation(index) })}
                           >
                             <FaCheck className="w-3.5 h-3.5" />
                             Save Changes
                           </button>
-                          <button 
+                          <button
                             className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                            onClick={() => {
-                              setEditingSection(null);
-                              setTempItem({});
-                            }}
+                            onClick={() => promptSaveOrDiscard({ title: "Discard Edits?", message: "Are you sure you want to discard your unsaved education edits?", onDiscard: () => { setEditingSection(null); setTempItem({}); } })}
                           >
                             <FaTimes className="w-3.5 h-3.5" />
                             Cancel
@@ -738,7 +1140,7 @@ const Profile = () => {
                           <p className="text-xs font-semibold text-slate-500">{edu.institution}</p>
                           <div className="flex flex-wrap gap-2 pt-2">
                             {edu.fieldOfStudy && (
-                              <span className="px-2.5 py-1 bg-[#6C63FF]/5 text-[#6C63FF] text-[10px] font-bold rounded-lg border border-[#6C63FF]/10">
+                              <span className="px-2.5 py-1 bg-[#6C63FF]/5 text-emerald-600 text-[10px] font-bold rounded-lg border border-[#6C63FF]/10">
                                 {edu.fieldOfStudy}
                               </span>
                             )}
@@ -753,15 +1155,15 @@ const Profile = () => {
                           </div>
                         </div>
                         <div className="flex gap-2 self-end sm:self-start shrink-0">
-                          <button 
-                            className="p-2 text-[#6C63FF] hover:bg-[#6C63FF]/5 rounded-lg transition-colors cursor-pointer"
+                          <button
+                            className="p-2 text-emerald-600 hover:bg-[#6C63FF]/5 rounded-lg transition-colors cursor-pointer"
                             onClick={() => handleEditEducation(index)}
                             disabled={editingSection}
                             title="Edit"
                           >
                             <FaEdit className="w-4 h-4" />
                           </button>
-                          <button 
+                          <button
                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                             onClick={() => handleRemoveEducation(index)}
                             disabled={editingSection}
@@ -775,11 +1177,11 @@ const Profile = () => {
                   </div>
                 ))}
               </div>
-              
+
               {editingSection === "education" && (
                 <div className="mt-6 bg-white rounded-xl sm:rounded-2xl border-2 border-dashed border-[#6C63FF]/30 p-4 sm:p-6">
                   <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2 text-left">
-                    <FaPlus className="w-4 h-4 text-[#6C63FF]" />
+                    <FaPlus className="w-4 h-4 text-emerald-600" />
                     Add New Education
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -794,29 +1196,26 @@ const Profile = () => {
                       <div key={field.value} className="space-y-2 text-left">
                         <label className="block text-xs font-bold text-slate-600">{field.label}</label>
                         <input
-                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                           type={field.type}
                           value={tempItem[field.value] || ""}
-                          onChange={(e) => setTempItem({...tempItem, [field.value]: field.type === 'number' ? parseInt(e.target.value) : e.target.value})}
+                          onChange={(e) => setTempItem({ ...tempItem, [field.value]: field.type === 'number' ? parseInt(e.target.value) : e.target.value })}
                           placeholder={field.placeholder}
                         />
                       </div>
                     ))}
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3 mt-6">
-                    <button 
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                      onClick={handleSaveEducation}
+                    <button
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
+                      onClick={() => promptSaveOrDiscard({ title: "Save Education Entry?", message: "Do you want to save this education entry to your profile?", onSave: handleSaveEducation })}
                     >
                       <FaCheck className="w-3.5 h-3.5" />
                       Save Education
                     </button>
-                    <button 
+                    <button
                       className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                      onClick={() => {
-                        setEditingSection(null);
-                        setTempItem({});
-                      }}
+                      onClick={() => promptSaveOrDiscard({ title: "Discard New Education?", message: "Are you sure you want to discard this new education entry?", onDiscard: () => { setEditingSection(null); setTempItem({}); } })}
                     >
                       <FaTimes className="w-3.5 h-3.5" />
                       Cancel
@@ -836,10 +1235,10 @@ const Profile = () => {
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            <div className="bg-gradient-to-br from-[#6C63FF]/5 to-indigo-600/5 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-[#6C63FF]/10 text-[#6C63FF] rounded-xl shrink-0">
+                  <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl shrink-0">
                     <FaHistory className="w-5 h-5" />
                   </div>
                   <div>
@@ -847,8 +1246,8 @@ const Profile = () => {
                     <p className="text-[11px] text-slate-400 font-semibold mt-0.5">Your professional work and employment history</p>
                   </div>
                 </div>
-                <button 
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
+                <button
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
                   onClick={handleAddExperience}
                   disabled={editingSection}
                 >
@@ -856,7 +1255,7 @@ const Profile = () => {
                   Add Experience
                 </button>
               </div>
-              
+
               {profile.experience.length === 0 && !editingSection && (
                 <div className="text-center py-12 border-2 border-dashed border-orange-200 rounded-xl bg-white/50">
                   <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -866,14 +1265,14 @@ const Profile = () => {
                   <p className="text-gray-600">Add your professional work experience to showcase your career journey.</p>
                 </div>
               )}
-              
+
               <div className="space-y-4">
                 {profile.experience.map((exp, index) => (
                   <div key={index} className="bg-white rounded-xl border border-slate-200/80 p-4 sm:p-5 hover:shadow-md transition-shadow">
                     {editingSection === `experience-${index}` ? (
                       <div className="space-y-6">
                         <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                          <FaEdit className="w-4 h-4 text-[#6C63FF]" />
+                          <FaEdit className="w-4 h-4 text-emerald-600" />
                           Edit Experience
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -889,10 +1288,10 @@ const Profile = () => {
                             <div key={field.value} className="space-y-2 text-left">
                               <label className="block text-xs font-bold text-slate-600">{field.label}</label>
                               <input
-                                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                                 type={field.type}
                                 value={tempItem[field.value] || ""}
-                                onChange={(e) => setTempItem({...tempItem, [field.value]: field.type === 'number' ? parseInt(e.target.value) : e.target.value})}
+                                onChange={(e) => setTempItem({ ...tempItem, [field.value]: field.type === 'number' ? parseInt(e.target.value) : e.target.value })}
                                 placeholder={field.placeholder}
                               />
                             </div>
@@ -903,8 +1302,8 @@ const Profile = () => {
                             type="checkbox"
                             id="currentlyWorking"
                             checked={tempItem.currentlyWorking}
-                            onChange={(e) => setTempItem({...tempItem, currentlyWorking: e.target.checked})}
-                            className="w-4.5 h-4.5 text-[#6C63FF] border-slate-300 rounded focus:ring-[#6C63FF]/20"
+                            onChange={(e) => setTempItem({ ...tempItem, currentlyWorking: e.target.checked })}
+                            className="w-4.5 h-4.5 text-emerald-600 border-slate-300 rounded focus:ring-[#6C63FF]/20"
                           />
                           <label htmlFor="currentlyWorking" className="ml-2.5 text-xs font-bold text-slate-600">
                             I currently work here
@@ -913,27 +1312,24 @@ const Profile = () => {
                         <div className="space-y-2 text-left">
                           <label className="block text-xs font-bold text-slate-600">Description</label>
                           <textarea
-                            className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                            className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                             value={tempItem.description}
-                            onChange={(e) => setTempItem({...tempItem, description: e.target.value})}
+                            onChange={(e) => setTempItem({ ...tempItem, description: e.target.value })}
                             placeholder="Describe your responsibilities and achievements..."
                             rows={4}
                           />
                         </div>
                         <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                          <button 
-                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                            onClick={() => handleUpdateExperience(index)}
+                          <button
+                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
+                            onClick={() => promptSaveOrDiscard({ title: "Update Work Experience?", message: "Do you want to save changes to this work experience entry?", onSave: () => handleUpdateExperience(index) })}
                           >
                             <FaCheck className="w-3.5 h-3.5" />
                             Save Changes
                           </button>
-                          <button 
+                          <button
                             className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                            onClick={() => {
-                              setEditingSection(null);
-                              setTempItem({});
-                            }}
+                            onClick={() => promptSaveOrDiscard({ title: "Discard Edits?", message: "Are you sure you want to discard your unsaved work experience edits?", onDiscard: () => { setEditingSection(null); setTempItem({}); } })}
                           >
                             <FaTimes className="w-3.5 h-3.5" />
                             Cancel
@@ -946,7 +1342,7 @@ const Profile = () => {
                           <h4 className="text-lg font-bold text-slate-800 tracking-tight">{exp.jobTitle}</h4>
                           <p className="text-xs font-semibold text-slate-500">{exp.company} • {exp.location}</p>
                           <div className="flex flex-wrap gap-2 pt-2">
-                            <span className="px-2.5 py-1 bg-[#6C63FF]/5 text-[#6C63FF] text-[10px] font-bold rounded-lg border border-[#6C63FF]/10">
+                            <span className="px-2.5 py-1 bg-[#6C63FF]/5 text-emerald-600 text-[10px] font-bold rounded-lg border border-[#6C63FF]/10">
                               {exp.startMonth}/{exp.startYear} - {exp.currentlyWorking ? 'Present' : `${exp.endMonth}/${exp.endYear}`}
                             </span>
                             {exp.currentlyWorking && (
@@ -960,7 +1356,7 @@ const Profile = () => {
                           )}
                         </div>
                         <div className="flex gap-2 self-end sm:self-start shrink-0">
-                          <button 
+                          <button
                             className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
                             onClick={() => handleEditExperience(index)}
                             disabled={editingSection}
@@ -968,7 +1364,7 @@ const Profile = () => {
                           >
                             <FaEdit className="w-4 h-4" />
                           </button>
-                          <button 
+                          <button
                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                             onClick={() => handleRemoveExperience(index)}
                             disabled={editingSection}
@@ -982,11 +1378,11 @@ const Profile = () => {
                   </div>
                 ))}
               </div>
-              
+
               {editingSection === "experience" && (
                 <div className="mt-6 bg-white rounded-xl sm:rounded-2xl border-2 border-dashed border-[#6C63FF]/30 p-4 sm:p-6">
                   <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <FaPlus className="w-4 h-4 text-[#6C63FF]" />
+                    <FaPlus className="w-4 h-4 text-emerald-600" />
                     Add New Experience
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1000,10 +1396,10 @@ const Profile = () => {
                       <div key={field.value} className="space-y-2 text-left">
                         <label className="block text-xs font-bold text-slate-600">{field.label}</label>
                         <input
-                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                           type={field.type}
                           value={tempItem[field.value] || ""}
-                          onChange={(e) => setTempItem({...tempItem, [field.value]: field.type === 'number' ? parseInt(e.target.value) : e.target.value})}
+                          onChange={(e) => setTempItem({ ...tempItem, [field.value]: field.type === 'number' ? parseInt(e.target.value) : e.target.value })}
                           placeholder={field.placeholder}
                         />
                       </div>
@@ -1014,8 +1410,8 @@ const Profile = () => {
                       type="checkbox"
                       id="newCurrentlyWorking"
                       checked={tempItem.currentlyWorking}
-                      onChange={(e) => setTempItem({...tempItem, currentlyWorking: e.target.checked})}
-                      className="w-4.5 h-4.5 text-[#6C63FF] border-slate-300 rounded focus:ring-[#6C63FF]/20"
+                      onChange={(e) => setTempItem({ ...tempItem, currentlyWorking: e.target.checked })}
+                      className="w-4.5 h-4.5 text-emerald-600 border-slate-300 rounded focus:ring-[#6C63FF]/20"
                     />
                     <label htmlFor="newCurrentlyWorking" className="ml-2.5 text-xs font-bold text-slate-600">
                       I currently work here
@@ -1026,20 +1422,20 @@ const Profile = () => {
                       <div className="space-y-2">
                         <label className="block text-xs font-bold text-slate-600">End Month</label>
                         <input
-                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                           type="number"
                           value={tempItem.endMonth || ""}
-                          onChange={(e) => setTempItem({...tempItem, endMonth: parseInt(e.target.value)})}
+                          onChange={(e) => setTempItem({ ...tempItem, endMonth: parseInt(e.target.value) })}
                           placeholder="12"
                         />
                       </div>
                       <div className="space-y-2">
                         <label className="block text-xs font-bold text-slate-600">End Year</label>
                         <input
-                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                           type="number"
                           value={tempItem.endYear || ""}
-                          onChange={(e) => setTempItem({...tempItem, endYear: parseInt(e.target.value)})}
+                          onChange={(e) => setTempItem({ ...tempItem, endYear: parseInt(e.target.value) })}
                           placeholder="2023"
                         />
                       </div>
@@ -1048,27 +1444,24 @@ const Profile = () => {
                   <div className="space-y-2 mt-4 text-left">
                     <label className="block text-xs font-bold text-slate-600">Description</label>
                     <textarea
-                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                       value={tempItem.description}
-                      onChange={(e) => setTempItem({...tempItem, description: e.target.value})}
+                      onChange={(e) => setTempItem({ ...tempItem, description: e.target.value })}
                       placeholder="Describe your responsibilities and achievements..."
                       rows={4}
                     />
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3 mt-6">
-                    <button 
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                      onClick={handleSaveExperience}
+                    <button
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
+                      onClick={() => promptSaveOrDiscard({ title: "Save Work Experience?", message: "Do you want to save this work experience entry to your profile?", onSave: handleSaveExperience })}
                     >
                       <FaCheck className="w-3.5 h-3.5" />
                       Save Experience
                     </button>
-                    <button 
+                    <button
                       className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                      onClick={() => {
-                        setEditingSection(null);
-                        setTempItem({});
-                      }}
+                      onClick={() => promptSaveOrDiscard({ title: "Discard New Experience?", message: "Are you sure you want to discard this new work experience entry?", onDiscard: () => { setEditingSection(null); setTempItem({}); } })}
                     >
                       <FaTimes className="w-3.5 h-3.5" />
                       Cancel
@@ -1088,10 +1481,10 @@ const Profile = () => {
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            <div className="bg-gradient-to-br from-[#6C63FF]/5 to-indigo-600/5 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-[#6C63FF]/10 text-[#6C63FF] rounded-xl shrink-0">
+                  <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl shrink-0">
                     <FaProjectDiagram className="w-5 h-5" />
                   </div>
                   <div>
@@ -1099,8 +1492,8 @@ const Profile = () => {
                     <p className="text-[11px] text-slate-400 font-semibold mt-0.5">Showcase your technical and creative projects</p>
                   </div>
                 </div>
-                <button 
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
+                <button
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
                   onClick={handleAddProject}
                   disabled={editingSection}
                 >
@@ -1108,7 +1501,7 @@ const Profile = () => {
                   Add Project
                 </button>
               </div>
-              
+
               {profile.projects.length === 0 && !editingSection && (
                 <div className="text-center py-12 border-2 border-dashed border-purple-200 rounded-xl bg-white/50">
                   <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -1118,69 +1511,109 @@ const Profile = () => {
                   <p className="text-gray-600">Add your technical projects to showcase your skills and experience.</p>
                 </div>
               )}
-              
+
               <div className="grid md:grid-cols-2 gap-4">
                 {profile.projects.map((project, index) => (
                   <div key={index} className="bg-white rounded-xl border border-slate-200/80 p-4 sm:p-5 hover:shadow-md transition-shadow">
                     {editingSection === `project-${index}` ? (
                       <div className="space-y-6">
                         <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                          <FaEdit className="w-4 h-4 text-[#6C63FF]" />
+                          <FaEdit className="w-4 h-4 text-emerald-600" />
                           Edit Project
                         </h3>
                         <div className="space-y-4 text-left">
+                          {/* Image Upload for Project */}
+                          <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-2">Project Image / Logo</label>
+                            <div className="flex items-center gap-4 bg-slate-50/80 p-3 rounded-2xl border border-slate-200/80">
+                              <div className="relative group shrink-0">
+                                {projectImagePreview ? (
+                                  <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-emerald-200 shadow-sm">
+                                    <img src={projectImagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setProjectImageFile(null);
+                                        setProjectImagePreview("");
+                                        setTempItem({ ...tempItem, imageUrl: "" });
+                                      }}
+                                      className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                      title="Remove image"
+                                    >
+                                      <FaTimes className="w-2.5 h-2.5" />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="w-16 h-16 rounded-xl bg-emerald-50 border border-dashed border-emerald-300 flex items-center justify-center text-emerald-600">
+                                    <FaCloudUploadAlt className="w-6 h-6" />
+                                  </div>
+                                )}
+                              </div>
+                              
+                              <div className="flex-1">
+                                <label className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm hover:shadow transition-all cursor-pointer">
+                                  <FaCamera className="w-3.5 h-3.5" />
+                                  <span>{projectImagePreview ? "Change Image" : "Upload Image"}</span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleProjectImageChange}
+                                    className="hidden"
+                                  />
+                                </label>
+                                <p className="text-[10px] text-slate-400 font-semibold mt-1.5">PNG, JPG or GIF up to 5MB</p>
+                              </div>
+                            </div>
+                          </div>
                           <div>
                             <label className="block text-xs font-bold text-slate-600 mb-2">Project Title *</label>
                             <input
-                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                               value={tempItem.title}
-                              onChange={(e) => setTempItem({...tempItem, title: e.target.value})}
+                              onChange={(e) => setTempItem({ ...tempItem, title: e.target.value })}
                               placeholder="e.g., Student Management System"
                             />
                           </div>
                           <div>
                             <label className="block text-xs font-bold text-slate-600 mb-2">Tech Stack</label>
                             <input
-                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                               value={tempItem.techStack}
-                              onChange={(e) => setTempItem({...tempItem, techStack: e.target.value})}
+                              onChange={(e) => setTempItem({ ...tempItem, techStack: e.target.value })}
                               placeholder="e.g., Java, Spring Boot, MySQL"
                             />
                           </div>
                           <div>
                             <label className="block text-xs font-bold text-slate-600 mb-2">Project URL</label>
                             <input
-                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                               value={tempItem.projectUrl}
-                              onChange={(e) => setTempItem({...tempItem, projectUrl: e.target.value})}
+                              onChange={(e) => setTempItem({ ...tempItem, projectUrl: e.target.value })}
                               placeholder="https://github.com/username/project"
                             />
                           </div>
                           <div>
                             <label className="block text-xs font-bold text-slate-600 mb-2">Description</label>
                             <textarea
-                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                               value={tempItem.description}
-                              onChange={(e) => setTempItem({...tempItem, description: e.target.value})}
+                              onChange={(e) => setTempItem({ ...tempItem, description: e.target.value })}
                               placeholder="Describe your project..."
                               rows={3}
                             />
                           </div>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                          <button 
-                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                            onClick={() => handleUpdateProject(index)}
+                          <button
+                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
+                            onClick={() => promptSaveOrDiscard({ title: "Update Project?", message: "Do you want to save changes to this project?", onSave: () => handleUpdateProject(index) })}
                           >
                             <FaCheck className="w-3.5 h-3.5" />
                             Save Changes
                           </button>
-                          <button 
+                          <button
                             className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                            onClick={() => {
-                              setEditingSection(null);
-                              setTempItem({});
-                            }}
+                            onClick={() => promptSaveOrDiscard({ title: "Discard Project Edits?", message: "Are you sure you want to discard your unsaved project edits?", onDiscard: () => { setEditingSection(null); setTempItem({}); setProjectImageFile(null); setProjectImagePreview(""); } })}
                           >
                             <FaTimes className="w-3.5 h-3.5" />
                             Cancel
@@ -1190,26 +1623,33 @@ const Profile = () => {
                     ) : (
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
                         <div className="space-y-1 flex-grow">
-                          <h4 className="text-lg font-bold text-slate-800 tracking-tight">{project.title}</h4>
-                          {project.techStack && (
-                            <div className="flex flex-wrap gap-1.5 pt-2">
-                              {project.techStack.split(',').map((tech, i) => (
-                                <span key={i} className="px-2 py-0.5 bg-[#6C63FF]/5 text-[#6C63FF] text-[10px] font-bold rounded-md border border-[#6C63FF]/10">
-                                  {tech.trim()}
-                                </span>
-                              ))}
+                          <div className="flex items-center gap-3">
+                            {project.imageUrl && (
+                              <img src={project.imageUrl} alt="Project banner" className="w-12 h-12 object-cover rounded-lg border border-slate-200 shrink-0" />
+                            )}
+                            <div>
+                              <h4 className="text-lg font-bold text-slate-800 tracking-tight">{project.title}</h4>
+                              {project.techStack && (
+                                <div className="flex flex-wrap gap-1.5 pt-1">
+                                  {project.techStack.split(',').map((tech, i) => (
+                                    <span key={i} className="px-2 py-0.5 bg-[#6C63FF]/5 text-emerald-600 text-[10px] font-bold rounded-md border border-[#6C63FF]/10">
+                                      {tech.trim()}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
                             </div>
-                          )}
+                          </div>
                           {project.description && (
                             <p className="mt-3 text-xs font-medium text-slate-600 leading-relaxed bg-slate-50/50 p-3 rounded-xl border border-slate-100">{project.description}</p>
                           )}
                           {project.projectUrl && (
                             <div className="pt-2">
-                              <a 
-                                href={project.projectUrl} 
-                                target="_blank" 
+                              <a
+                                href={project.projectUrl}
+                                target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#6C63FF] hover:text-[#5b52e6] hover:underline"
+                                className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-[#5b52e6] hover:underline"
                               >
                                 <FaExternalLinkAlt className="w-2.5 h-2.5" />
                                 View Project
@@ -1218,7 +1658,7 @@ const Profile = () => {
                           )}
                         </div>
                         <div className="flex gap-2 self-end sm:self-start shrink-0">
-                          <button 
+                          <button
                             className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
                             onClick={() => handleEditProject(index)}
                             disabled={editingSection}
@@ -1226,7 +1666,7 @@ const Profile = () => {
                           >
                             <FaEdit className="w-4 h-4" />
                           </button>
-                          <button 
+                          <button
                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                             onClick={() => handleRemoveProject(index)}
                             disabled={editingSection}
@@ -1240,66 +1680,105 @@ const Profile = () => {
                   </div>
                 ))}
               </div>
-              
+
               {editingSection === "project" && (
                 <div className="mt-6 bg-white rounded-xl sm:rounded-2xl border-2 border-dashed border-[#6C63FF]/30 p-4 sm:p-6">
                   <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <FaPlus className="w-4 h-4 text-[#6C63FF]" />
+                    <FaPlus className="w-4 h-4 text-emerald-600" />
                     Add New Project
                   </h3>
                   <div className="space-y-4 text-left">
+                    {/* Image Upload for Project */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-2">Project Image / Logo</label>
+                      <div className="flex items-center gap-4 bg-slate-50/80 p-3 rounded-2xl border border-slate-200/80">
+                        <div className="relative group shrink-0">
+                          {projectImagePreview ? (
+                            <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-emerald-200 shadow-sm">
+                              <img src={projectImagePreview} alt="Preview" className="w-full h-full object-cover" />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setProjectImageFile(null);
+                                  setProjectImagePreview("");
+                                }}
+                                className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                title="Remove image"
+                              >
+                                <FaTimes className="w-2.5 h-2.5" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="w-16 h-16 rounded-xl bg-emerald-50 border border-dashed border-emerald-300 flex items-center justify-center text-emerald-600">
+                              <FaCloudUploadAlt className="w-6 h-6" />
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="flex-1">
+                          <label className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm hover:shadow transition-all cursor-pointer">
+                            <FaCamera className="w-3.5 h-3.5" />
+                            <span>{projectImagePreview ? "Change Image" : "Upload Image"}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleProjectImageChange}
+                              className="hidden"
+                            />
+                          </label>
+                          <p className="text-[10px] text-slate-400 font-semibold mt-1.5">PNG, JPG or GIF up to 5MB</p>
+                        </div>
+                      </div>
+                    </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-600 mb-2">Project Title *</label>
                       <input
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                         value={tempItem.title}
-                        onChange={(e) => setTempItem({...tempItem, title: e.target.value})}
+                        onChange={(e) => setTempItem({ ...tempItem, title: e.target.value })}
                         placeholder="e.g., Student Management System"
                       />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-600 mb-2">Tech Stack</label>
                       <input
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                         value={tempItem.techStack}
-                        onChange={(e) => setTempItem({...tempItem, techStack: e.target.value})}
+                        onChange={(e) => setTempItem({ ...tempItem, techStack: e.target.value })}
                         placeholder="e.g., Java, Spring Boot, MySQL"
                       />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-600 mb-2">Project URL</label>
                       <input
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                         value={tempItem.projectUrl}
-                        onChange={(e) => setTempItem({...tempItem, projectUrl: e.target.value})}
+                        onChange={(e) => setTempItem({ ...tempItem, projectUrl: e.target.value })}
                         placeholder="https://github.com/username/project"
                       />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-600 mb-2">Description</label>
                       <textarea
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                         value={tempItem.description}
-                        onChange={(e) => setTempItem({...tempItem, description: e.target.value})}
+                        onChange={(e) => setTempItem({ ...tempItem, description: e.target.value })}
                         placeholder="Describe your project..."
                         rows={3}
                       />
                     </div>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3 mt-6">
-                    <button 
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                      onClick={handleSaveProject}
+                    <button
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
+                      onClick={() => promptSaveOrDiscard({ title: "Save Project?", message: "Do you want to save this project to your profile?", onSave: handleSaveProject })}
                     >
                       <FaCheck className="w-3.5 h-3.5" />
                       Save Project
                     </button>
-                    <button 
+                    <button
                       className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                      onClick={() => {
-                        setEditingSection(null);
-                        setTempItem({});
-                      }}
+                      onClick={() => promptSaveOrDiscard({ title: "Discard New Project?", message: "Are you sure you want to discard this new project?", onDiscard: () => { setEditingSection(null); setTempItem({}); setProjectImageFile(null); setProjectImagePreview(""); } })}
                     >
                       <FaTimes className="w-3.5 h-3.5" />
                       Cancel
@@ -1319,9 +1798,9 @@ const Profile = () => {
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            <div className="bg-gradient-to-br from-[#6C63FF]/5 to-indigo-600/5 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2.5 bg-[#6C63FF]/10 text-[#6C63FF] rounded-xl">
+                <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl">
                   <FaTools className="w-5 h-5" />
                 </div>
                 <div>
@@ -1329,7 +1808,7 @@ const Profile = () => {
                   <p className="text-[11px] text-slate-400 font-semibold mt-0.5">Your technical, design, and professional skills</p>
                 </div>
               </div>
-              
+
               <div className="mb-8">
                 <div className="flex flex-col sm:flex-row gap-3">
                   <input
@@ -1340,8 +1819,8 @@ const Profile = () => {
                     placeholder="Type a skill and press Enter to add"
                     disabled={editingSection}
                   />
-                  <button 
-                    className="px-6 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  <button
+                    className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     onClick={handleAddSkill}
                     disabled={editingSection || !newSkill.trim()}
                   >
@@ -1350,7 +1829,7 @@ const Profile = () => {
                 </div>
                 <p className="text-sm text-gray-500 mt-2">Press Enter or click "Add Skill" to add multiple skills</p>
               </div>
-              
+
               {profile.skills.length === 0 ? (
                 <div className="text-center py-12 border-2 border-dashed border-blue-200 rounded-xl bg-white/50">
                   <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -1365,7 +1844,7 @@ const Profile = () => {
                     <div key={index} className="group relative">
                       <div className="flex items-center gap-2 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 px-4 py-2.5 rounded-xl hover:shadow-md transition-all">
                         <span className="font-medium">{skill}</span>
-                        <button 
+                        <button
                           className="text-blue-600 hover:text-blue-800 text-lg font-bold transition-colors"
                           onClick={() => handleRemoveSkill(index)}
                           disabled={editingSection}
@@ -1390,10 +1869,10 @@ const Profile = () => {
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            <div className="bg-gradient-to-br from-[#6C63FF]/5 to-indigo-600/5 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-[#6C63FF]/10 text-[#6C63FF] rounded-xl shrink-0">
+                  <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl shrink-0">
                     <FaLink className="w-5 h-5" />
                   </div>
                   <div>
@@ -1401,8 +1880,8 @@ const Profile = () => {
                     <p className="text-[11px] text-slate-400 font-semibold mt-0.5">Your professional online coordinates</p>
                   </div>
                 </div>
-                <button 
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
+                <button
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
                   onClick={handleAddSocialLink}
                   disabled={editingSection}
                 >
@@ -1410,7 +1889,7 @@ const Profile = () => {
                   Add Link
                 </button>
               </div>
-              
+
               {profile.socialMediaLinks.length === 0 && !editingSection && (
                 <div className="text-center py-12 border-2 border-dashed border-indigo-200 rounded-xl bg-white/50">
                   <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -1420,23 +1899,23 @@ const Profile = () => {
                   <p className="text-gray-600">Add your professional profiles to help recruiters connect with you.</p>
                 </div>
               )}
-              
+
               <div className="grid md:grid-cols-2 gap-4">
                 {profile.socialMediaLinks.map((link, index) => (
                   <div key={index} className="bg-white rounded-xl border border-slate-200/80 p-4 sm:p-5 hover:shadow-md transition-shadow">
                     {editingSection === `social-${index}` ? (
                       <div className="space-y-6">
                         <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                          <FaEdit className="w-4 h-4 text-[#6C63FF]" />
+                          <FaEdit className="w-4 h-4 text-emerald-600" />
                           Edit Social Link
                         </h3>
                         <div className="space-y-4 text-left">
                           <div>
                             <label className="block text-xs font-bold text-slate-600 mb-2">Platform</label>
                             <select
-                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-bold text-slate-800"
+                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-bold text-slate-800"
                               value={tempItem.platform}
-                              onChange={(e) => setTempItem({...tempItem, platform: e.target.value})}
+                              onChange={(e) => setTempItem({ ...tempItem, platform: e.target.value })}
                             >
                               {socialPlatforms.map((platform) => (
                                 <option key={platform.value} value={platform.value}>
@@ -1448,27 +1927,24 @@ const Profile = () => {
                           <div>
                             <label className="block text-xs font-bold text-slate-600 mb-2">Profile URL *</label>
                             <input
-                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                               value={tempItem.profileUrl}
-                              onChange={(e) => setTempItem({...tempItem, profileUrl: e.target.value})}
+                              onChange={(e) => setTempItem({ ...tempItem, profileUrl: e.target.value })}
                               placeholder="https://linkedin.com/in/username"
                             />
                           </div>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                          <button 
-                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                            onClick={() => handleUpdateSocialLink(index)}
+                          <button
+                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
+                            onClick={() => promptSaveOrDiscard({ title: "Update Social Link?", message: "Do you want to save changes to this social media link?", onSave: () => handleUpdateSocialLink(index) })}
                           >
                             <FaCheck className="w-3.5 h-3.5" />
                             Save Changes
                           </button>
-                          <button 
+                          <button
                             className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                            onClick={() => {
-                              setEditingSection(null);
-                              setTempItem({});
-                            }}
+                            onClick={() => promptSaveOrDiscard({ title: "Discard Social Link Edits?", message: "Are you sure you want to discard your unsaved social link edits?", onDiscard: () => { setEditingSection(null); setTempItem({}); } })}
                           >
                             <FaTimes className="w-3.5 h-3.5" />
                             Cancel
@@ -1485,18 +1961,18 @@ const Profile = () => {
                             <h4 className="text-xs font-bold text-slate-800">
                               {socialPlatforms.find(p => p.value === link.platform)?.label || link.platform}
                             </h4>
-                            <a 
-                              href={link.profileUrl} 
-                              target="_blank" 
+                            <a
+                              href={link.profileUrl}
+                              target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[#6C63FF] hover:text-[#5b52e6] hover:underline text-xs font-semibold break-all"
+                              className="text-emerald-600 hover:text-[#5b52e6] hover:underline text-xs font-semibold break-all"
                             >
                               {link.profileUrl}
                             </a>
                           </div>
                         </div>
                         <div className="flex gap-2 self-end sm:self-start shrink-0">
-                          <button 
+                          <button
                             className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
                             onClick={() => handleEditSocialLink(index)}
                             disabled={editingSection}
@@ -1504,7 +1980,7 @@ const Profile = () => {
                           >
                             <FaEdit className="w-4 h-4" />
                           </button>
-                          <button 
+                          <button
                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                             onClick={() => handleRemoveSocialLink(index)}
                             disabled={editingSection}
@@ -1518,20 +1994,20 @@ const Profile = () => {
                   </div>
                 ))}
               </div>
-              
+
               {editingSection === "social" && (
                 <div className="mt-6 bg-white rounded-xl sm:rounded-2xl border-2 border-dashed border-[#6C63FF]/30 p-4 sm:p-6">
                   <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <FaPlus className="w-4 h-4 text-[#6C63FF]" />
+                    <FaPlus className="w-4 h-4 text-emerald-600" />
                     Add New Social Link
                   </h3>
                   <div className="space-y-4 text-left">
                     <div>
                       <label className="block text-xs font-bold text-slate-600 mb-2">Platform</label>
                       <select
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-bold text-slate-800"
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-bold text-slate-800"
                         value={tempItem.platform}
-                        onChange={(e) => setTempItem({...tempItem, platform: e.target.value})}
+                        onChange={(e) => setTempItem({ ...tempItem, platform: e.target.value })}
                       >
                         {socialPlatforms.map((platform) => (
                           <option key={platform.value} value={platform.value}>
@@ -1543,27 +2019,24 @@ const Profile = () => {
                     <div>
                       <label className="block text-xs font-bold text-slate-600 mb-2">Profile URL *</label>
                       <input
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                         value={tempItem.profileUrl}
-                        onChange={(e) => setTempItem({...tempItem, profileUrl: e.target.value})}
+                        onChange={(e) => setTempItem({ ...tempItem, profileUrl: e.target.value })}
                         placeholder="https://linkedin.com/in/username"
                       />
                     </div>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3 mt-6">
-                    <button 
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                      onClick={handleSaveSocialLink}
+                    <button
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
+                      onClick={() => promptSaveOrDiscard({ title: "Save Social Link?", message: "Do you want to save this social media link to your profile?", onSave: handleSaveSocialLink })}
                     >
                       <FaCheck className="w-3.5 h-3.5" />
                       Save Link
                     </button>
-                    <button 
+                    <button
                       className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                      onClick={() => {
-                        setEditingSection(null);
-                        setTempItem({});
-                      }}
+                      onClick={() => promptSaveOrDiscard({ title: "Discard New Social Link?", message: "Are you sure you want to discard this new social link?", onDiscard: () => { setEditingSection(null); setTempItem({}); } })}
                     >
                       <FaTimes className="w-3.5 h-3.5" />
                       Cancel
@@ -1583,10 +2056,10 @@ const Profile = () => {
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            <div className="bg-gradient-to-br from-[#6C63FF]/5 to-indigo-600/5 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-[#6C63FF]/10 text-[#6C63FF] rounded-xl shrink-0">
+                  <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl shrink-0">
                     <FaCertificate className="w-5 h-5" />
                   </div>
                   <div>
@@ -1594,8 +2067,8 @@ const Profile = () => {
                     <p className="text-[11px] text-slate-400 font-semibold mt-0.5">Your professional licenses, certifications, and courses</p>
                   </div>
                 </div>
-                <button 
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
+                <button
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
                   onClick={handleAddCertification}
                   disabled={editingSection}
                 >
@@ -1603,7 +2076,7 @@ const Profile = () => {
                   Add Certification
                 </button>
               </div>
-              
+
               {profile.certifications.length === 0 && !editingSection && (
                 <div className="text-center py-12 border-2 border-dashed border-teal-200 rounded-xl bg-white/50">
                   <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -1613,25 +2086,68 @@ const Profile = () => {
                   <p className="text-gray-600">Add your professional certifications to showcase your skills and knowledge.</p>
                 </div>
               )}
-              
+
               <div className="space-y-4">
                 {profile.certifications.map((cert, index) => (
                   <div key={index} className="bg-white rounded-xl border border-slate-200/80 p-4 sm:p-5 hover:shadow-md transition-shadow">
                     {editingSection === `certification-${index}` ? (
                       <div className="space-y-6">
                         <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                          <FaEdit className="w-4 h-4 text-[#6C63FF]" />
+                          <FaEdit className="w-4 h-4 text-emerald-600" />
                           Edit Certification
                         </h3>
                         <div className="space-y-4 text-left">
+                          {/* Image Upload for Certification */}
+                          <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-2">Certification Badge / Certificate Image</label>
+                            <div className="flex items-center gap-4 bg-slate-50/80 p-3 rounded-2xl border border-slate-200/80">
+                              <div className="relative group shrink-0">
+                                {certImagePreview ? (
+                                  <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-emerald-200 shadow-sm">
+                                    <img src={certImagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setCertImageFile(null);
+                                        setCertImagePreview("");
+                                        setTempItem({ ...tempItem, imageUrl: "" });
+                                      }}
+                                      className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                      title="Remove image"
+                                    >
+                                      <FaTimes className="w-2.5 h-2.5" />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="w-16 h-16 rounded-xl bg-emerald-50 border border-dashed border-emerald-300 flex items-center justify-center text-emerald-600">
+                                    <FaCloudUploadAlt className="w-6 h-6" />
+                                  </div>
+                                )}
+                              </div>
+                              
+                              <div className="flex-1">
+                                <label className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm hover:shadow transition-all cursor-pointer">
+                                  <FaCamera className="w-3.5 h-3.5" />
+                                  <span>{certImagePreview ? "Change Image" : "Upload Image"}</span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleCertImageChange}
+                                    className="hidden"
+                                  />
+                                </label>
+                                <p className="text-[10px] text-slate-400 font-semibold mt-1.5">PNG, JPG or GIF up to 5MB</p>
+                              </div>
+                            </div>
+                          </div>
                           <div>
                             <label className="block text-xs font-bold text-slate-600 mb-2">
                               Certification Name <span className="text-red-500">*</span>
                             </label>
                             <input
-                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                               value={tempItem.name}
-                              onChange={(e) => setTempItem({...tempItem, name: e.target.value})}
+                              onChange={(e) => setTempItem({ ...tempItem, name: e.target.value })}
                               placeholder="e.g., AWS Certified Solutions Architect"
                             />
                           </div>
@@ -1639,47 +2155,44 @@ const Profile = () => {
                             <div>
                               <label className="block text-xs font-bold text-slate-600 mb-2">Start Date</label>
                               <input
-                                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-450"
+                                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-450"
                                 type="date"
                                 value={tempItem.startDate || ""}
-                                onChange={(e) => setTempItem({...tempItem, startDate: e.target.value})}
+                                onChange={(e) => setTempItem({ ...tempItem, startDate: e.target.value })}
                               />
                             </div>
                             <div>
                               <label className="block text-xs font-bold text-slate-600 mb-2">End Date</label>
                               <input
-                                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-450"
+                                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-450"
                                 type="date"
                                 value={tempItem.endDate || ""}
-                                onChange={(e) => setTempItem({...tempItem, endDate: e.target.value})}
+                                onChange={(e) => setTempItem({ ...tempItem, endDate: e.target.value })}
                               />
                             </div>
                           </div>
                           <div>
                             <label className="block text-xs font-bold text-slate-600 mb-2">Description</label>
                             <textarea
-                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                               value={tempItem.description || ""}
-                              onChange={(e) => setTempItem({...tempItem, description: e.target.value})}
+                              onChange={(e) => setTempItem({ ...tempItem, description: e.target.value })}
                               placeholder="What does this certification cover? What skills did you learn?"
                               rows={3}
                             />
                           </div>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                          <button 
-                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                            onClick={() => handleUpdateCertification(index)}
+                          <button
+                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
+                            onClick={() => promptSaveOrDiscard({ title: "Update Certification?", message: "Do you want to save changes to this certification record?", onSave: () => handleUpdateCertification(index) })}
                           >
                             <FaCheck className="w-3.5 h-3.5" />
                             Save Changes
                           </button>
-                          <button 
+                          <button
                             className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                            onClick={() => {
-                              setEditingSection(null);
-                              setTempItem({});
-                            }}
+                            onClick={() => promptSaveOrDiscard({ title: "Discard Certification Edits?", message: "Are you sure you want to discard your unsaved certification edits?", onDiscard: () => { setEditingSection(null); setTempItem({}); setCertImageFile(null); setCertImagePreview(""); } })}
                           >
                             <FaTimes className="w-3.5 h-3.5" />
                             Cancel
@@ -1688,26 +2201,33 @@ const Profile = () => {
                       </div>
                     ) : (
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-                        <div className="space-y-1 text-left">
-                          <h4 className="text-lg font-bold text-slate-800 tracking-tight">{cert.name}</h4>
-                          <div className="flex flex-wrap gap-2 pt-2">
-                            {cert.startDate && (
-                              <span className="px-2.5 py-1 bg-slate-50 text-slate-600 text-[10px] font-bold rounded-lg border border-slate-100">
-                                Started: {formatDate(cert.startDate)}
-                              </span>
+                        <div className="space-y-1 text-left flex-grow">
+                          <div className="flex items-center gap-3">
+                            {cert.imageUrl && (
+                              <img src={cert.imageUrl} alt="Cert logo" className="w-12 h-12 object-cover rounded-lg border border-slate-200 shrink-0" />
                             )}
-                            {cert.endDate && (
-                              <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-lg border border-emerald-100">
-                                Completed: {formatDate(cert.endDate)}
-                              </span>
-                            )}
+                            <div>
+                              <h4 className="text-lg font-bold text-slate-800 tracking-tight">{cert.name}</h4>
+                              <div className="flex flex-wrap gap-2 pt-1">
+                                {cert.startDate && (
+                                  <span className="px-2.5 py-1 bg-slate-50 text-slate-600 text-[10px] font-bold rounded-lg border border-slate-100">
+                                    Started: {formatDate(cert.startDate)}
+                                  </span>
+                                )}
+                                {cert.endDate && (
+                                  <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-lg border border-emerald-100">
+                                    Completed: {formatDate(cert.endDate)}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </div>
                           {cert.description && (
                             <p className="mt-3 text-xs font-medium text-slate-600 leading-relaxed bg-slate-50/50 p-3 rounded-xl border border-slate-100">{cert.description}</p>
                           )}
                         </div>
                         <div className="flex gap-2 self-end sm:self-start shrink-0">
-                          <button 
+                          <button
                             className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
                             onClick={() => handleEditCertification(index)}
                             disabled={editingSection}
@@ -1715,7 +2235,7 @@ const Profile = () => {
                           >
                             <FaEdit className="w-4 h-4" />
                           </button>
-                          <button 
+                          <button
                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                             onClick={() => handleRemoveCertification(index)}
                             disabled={editingSection}
@@ -1729,22 +2249,64 @@ const Profile = () => {
                   </div>
                 ))}
               </div>
-              
+
               {editingSection === "certification" && (
                 <div className="mt-6 bg-white rounded-xl sm:rounded-2xl border-2 border-dashed border-[#6C63FF]/30 p-4 sm:p-6">
                   <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <FaPlus className="w-4 h-4 text-[#6C63FF]" />
+                    <FaPlus className="w-4 h-4 text-emerald-600" />
                     Add New Certification
                   </h3>
                   <div className="space-y-4 text-left">
+                    {/* Image Upload for Certification */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-2">Certification Badge / Certificate Image</label>
+                      <div className="flex items-center gap-4 bg-slate-50/80 p-3 rounded-2xl border border-slate-200/80">
+                        <div className="relative group shrink-0">
+                          {certImagePreview ? (
+                            <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-emerald-200 shadow-sm">
+                              <img src={certImagePreview} alt="Preview" className="w-full h-full object-cover" />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setCertImageFile(null);
+                                  setCertImagePreview("");
+                                }}
+                                className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                title="Remove image"
+                              >
+                                <FaTimes className="w-2.5 h-2.5" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="w-16 h-16 rounded-xl bg-emerald-50 border border-dashed border-emerald-300 flex items-center justify-center text-emerald-600">
+                              <FaCloudUploadAlt className="w-6 h-6" />
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="flex-1">
+                          <label className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm hover:shadow transition-all cursor-pointer">
+                            <FaCamera className="w-3.5 h-3.5" />
+                            <span>{certImagePreview ? "Change Image" : "Upload Image"}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleCertImageChange}
+                              className="hidden"
+                            />
+                          </label>
+                          <p className="text-[10px] text-slate-400 font-semibold mt-1.5">PNG, JPG or GIF up to 5MB</p>
+                        </div>
+                      </div>
+                    </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-600 mb-2">
                         Certification Name <span className="text-red-500">*</span>
                       </label>
                       <input
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                         value={tempItem.name}
-                        onChange={(e) => setTempItem({...tempItem, name: e.target.value})}
+                        onChange={(e) => setTempItem({ ...tempItem, name: e.target.value })}
                         placeholder="e.g., AWS Certified Solutions Architect"
                       />
                     </div>
@@ -1752,47 +2314,44 @@ const Profile = () => {
                       <div>
                         <label className="block text-xs font-bold text-slate-600 mb-2">Start Date</label>
                         <input
-                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-450"
+                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-450"
                           type="date"
                           value={tempItem.startDate || ""}
-                          onChange={(e) => setTempItem({...tempItem, startDate: e.target.value})}
+                          onChange={(e) => setTempItem({ ...tempItem, startDate: e.target.value })}
                         />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-slate-600 mb-2">End Date</label>
                         <input
-                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-450"
+                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-450"
                           type="date"
                           value={tempItem.endDate || ""}
-                          onChange={(e) => setTempItem({...tempItem, endDate: e.target.value})}
+                          onChange={(e) => setTempItem({ ...tempItem, endDate: e.target.value })}
                         />
                       </div>
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-600 mb-2">Description</label>
                       <textarea
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#6C63FF]/15 focus:border-[#6C63FF] transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
                         value={tempItem.description || ""}
-                        onChange={(e) => setTempItem({...tempItem, description: e.target.value})}
+                        onChange={(e) => setTempItem({ ...tempItem, description: e.target.value })}
                         placeholder="What does this certification cover? What skills did you learn?"
                         rows={3}
                       />
                     </div>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3 mt-6">
-                    <button 
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                      onClick={handleSaveCertification}
+                    <button
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
+                      onClick={() => promptSaveOrDiscard({ title: "Save Certification Record?", message: "Do you want to save this certification record to your profile?", onSave: handleSaveCertification })}
                     >
                       <FaCheck className="w-3.5 h-3.5" />
                       Save Certification
                     </button>
-                    <button 
+                    <button
                       className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                      onClick={() => {
-                        setEditingSection(null);
-                        setTempItem({});
-                      }}
+                      onClick={() => promptSaveOrDiscard({ title: "Discard New Certification?", message: "Are you sure you want to discard this new certification record?", onDiscard: () => { setEditingSection(null); setTempItem({}); setCertImageFile(null); setCertImagePreview(""); } })}
                     >
                       <FaTimes className="w-3.5 h-3.5" />
                       Cancel
@@ -1809,6 +2368,26 @@ const Profile = () => {
     }
   };
 
+  const handleTabClick = (tabId) => {
+    if (editingSection && activeTab !== tabId) {
+      promptSaveOrDiscard({
+        title: "Unsaved Section Edits",
+        message: "You have an active editing session in progress. Would you like to discard your unsaved changes to switch tabs?",
+        onDiscard: () => {
+          setEditingSection(null);
+          setTempItem({});
+          setProjectImageFile(null);
+          setProjectImagePreview("");
+          setCertImageFile(null);
+          setCertImagePreview("");
+          setActiveTab(tabId);
+        }
+      });
+      return;
+    }
+    setActiveTab(tabId);
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -1822,54 +2401,54 @@ const Profile = () => {
 
   return (
     <DashboardLayout containerClassName="w-full space-y-8 flex flex-col bg-transparent animate-fadeIn text-left">
-        <div className="mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-black text-slate-800 tracking-tight">My Profile</h1>
-              <p className="text-slate-500 text-xs font-semibold mt-1">Manage your digital resume & portfolio content parameters</p>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-              {previewUrl && (
-                <>
-                  <button 
-                    className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/15 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                    onClick={() => setMobilePreviewOpen(true)}
-                  >
-                    <FaMobileAlt className="w-3.5 h-3.5" />
-                    Mobile Preview
-                  </button>
-                  <button 
-                    className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                    onClick={() => window.open(previewUrl, '_blank')}
-                  >
-                    <FaGlobe className="w-3.5 h-3.5" />
-                    Web Preview
-                  </button>
-                </>
-              )}
-            </div>
+      <div className="mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-black text-slate-800 tracking-tight">My Profile</h1>
+            <p className="text-slate-500 text-xs font-semibold mt-1">Manage your digital resume & portfolio content parameters</p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            {previewUrl && (
+              <>
+                <button
+                  className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/15 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
+                  onClick={() => setMobilePreviewOpen(true)}
+                >
+                  <FaMobileAlt className="w-3.5 h-3.5" />
+                  Mobile Preview
+                </button>
+                <button
+                  className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
+                  onClick={() => window.open(previewUrl, '_blank')}
+                >
+                  <FaGlobe className="w-3.5 h-3.5" />
+                  Web Preview
+                </button>
+              </>
+            )}
           </div>
         </div>
-        
-        {error && !profile.id && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 bg-indigo-50 border border-indigo-100 rounded-xl"
-          >
-            <strong className="text-[#6C63FF]">Note:</strong> <span className="text-indigo-800 ml-1 font-medium">{error}</span>
-          </motion.div>
-        )}
+      </div>
 
-        {!loading && profile.id && !(
-          profile.fullName &&
-          profile.headline &&
-          profile.summary &&
-          profile.skills?.length > 0 &&
-          profile.education?.length > 0 &&
-          (profile.isFresher || profile.experience?.length > 0)
-        ) && (
+      {error && !profile.id && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 p-4 bg-indigo-50 border border-indigo-100 rounded-xl"
+        >
+          <strong className="text-emerald-600">Note:</strong> <span className="text-indigo-800 ml-1 font-medium">{error}</span>
+        </motion.div>
+      )}
+
+      {!loading && profile.id && !(
+        profile.fullName &&
+        profile.headline &&
+        profile.summary &&
+        profile.skills?.length > 0 &&
+        profile.education?.length > 0 &&
+        (profile.isFresher || profile.experience?.length > 0)
+      ) && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1884,115 +2463,167 @@ const Profile = () => {
             </div>
           </motion.div>
         )}
-        
-        
-        <div className="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
-          <div className="border-b border-slate-100 bg-slate-50/50">
-            <div 
-              className="flex overflow-x-auto px-4 gap-1 py-1.5 scrollbar-none"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-            >
-              {tabs.map((tab, index) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-3.5 font-bold text-xs rounded-xl whitespace-nowrap transition-all relative ${
-                    activeTab === tab.id 
-                      ? 'text-[#6C63FF]' 
-                      : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/60'
+
+
+      <div className="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
+        <div className="border-b border-slate-100 bg-slate-50/50">
+          <div
+            className="flex overflow-x-auto px-4 gap-1 py-1.5 scrollbar-none"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {tabs.map((tab, index) => (
+              <button
+                key={tab.id}
+                onClick={() => handleTabClick(tab.id)}
+                className={`flex items-center gap-2 px-4 py-3.5 font-bold text-xs rounded-xl whitespace-nowrap transition-all relative ${activeTab === tab.id
+                    ? 'text-emerald-600'
+                    : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/60'
                   }`}
-                >
-                  <span>{tab.icon}</span>
-                  <span>{tab.label}</span>
-                  {activeTab === tab.id && (
-                    <motion.div
-                      layoutId="activeTab"
-                      className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#6C63FF]"
-                    />
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-          
-          <div className="p-4 sm:p-6">
-            {renderTabContent()}
-            
-            {editingSection && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl"
               >
-                <p className="text-amber-800 text-xs flex items-center gap-2">
-                  <span className="font-bold">Editing in progress:</span> 
-                  Please save or cancel before switching tabs.
+                <span>{tab.icon}</span>
+                <span>{tab.label}</span>
+                {activeTab === tab.id && (
+                  <motion.div
+                    layoutId="activeTab"
+                    className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#6C63FF]"
+                  />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-4 sm:p-6">
+          {renderTabContent()}
+
+          {editingSection && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl"
+            >
+              <p className="text-amber-800 text-xs flex items-center gap-2">
+                <span className="font-bold">Editing in progress:</span>
+                Please save or cancel before switching tabs.
+              </p>
+            </motion.div>
+          )}
+
+          <div className="mt-8 pt-6 border-t border-slate-200/80">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <div className="text-center md:text-left">
+                <p className="text-xs text-slate-500 font-bold">
+                  YOUR PORTFOLIO LINK: <span className="font-extrabold text-emerald-600 hover:underline cursor-pointer" onClick={() => window.open(previewUrl, '_blank')}>{previewUrl}</span>
                 </p>
-              </motion.div>
-            )}
-            
-            <div className="mt-8 pt-6 border-t border-slate-200/80">
-              <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div className="text-center md:text-left">
-                  <p className="text-xs text-slate-500 font-bold">
-                    YOUR PORTFOLIO LINK: <span className="font-extrabold text-[#6C63FF] hover:underline cursor-pointer" onClick={() => window.open(previewUrl, '_blank')}>{previewUrl}</span>
-                  </p>
-                  <p className="text-[11px] text-slate-400 font-semibold mt-1">
-                    Share this live URL with recruiters, employers, and clients.
-                  </p>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                  <button 
-                    className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg hover:shadow-[#6C63FF]/30 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
-                    onClick={handleSave}
-                    disabled={editingSection || saving}
-                  >
-                    {saving ? (
-                      <>
-                        <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Saving...
-                      </>
-                    ) : profile.id ? (
-                      <>
-                        <FaSave className="w-3.5 h-3.5" />
-                        Update Profile
-                      </>
-                    ) : (
-                      <>
-                        <FaPlus className="w-3.5 h-3.5" />
-                        Create Profile
-                      </>
-                    )}
-                  </button>
-                  {previewUrl && (
+                <p className="text-[11px] text-slate-400 font-semibold mt-1">
+                  Share this live URL with recruiters, employers, and clients.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                <button
+                  className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg hover:shadow-[#6C63FF]/30 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
+                  onClick={handleSave}
+                  disabled={editingSection || saving}
+                >
+                  {saving ? (
                     <>
-                      <button 
-                        className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#6C63FF] hover:bg-[#5b52e6] text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/15 hover:shadow-lg transition-all active:scale-95 cursor-pointer animate-pulse w-full sm:w-auto"
-                        onClick={() => setMobilePreviewOpen(true)}
-                      >
-                        <FaMobileAlt className="w-3.5 h-3.5" />
-                        Mobile Preview
-                      </button>
-                      <button 
-                        className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                        onClick={() => window.open(previewUrl, '_blank')}
-                      >
-                        <FaGlobe className="w-3.5 h-3.5" />
-                        Web Preview
-                      </button>
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Saving...
+                    </>
+                  ) : profile.id ? (
+                    <>
+                      <FaSave className="w-3.5 h-3.5" />
+                      Update Profile
+                    </>
+                  ) : (
+                    <>
+                      <FaPlus className="w-3.5 h-3.5" />
+                      Create Profile
                     </>
                   )}
-                </div>
+                </button>
+                {previewUrl && (
+                  <>
+                    <button
+                      className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/15 hover:shadow-lg transition-all active:scale-95 cursor-pointer animate-pulse w-full sm:w-auto"
+                      onClick={() => setMobilePreviewOpen(true)}
+                    >
+                      <FaMobileAlt className="w-3.5 h-3.5" />
+                      Mobile Preview
+                    </button>
+                    <button
+                      className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
+                      onClick={() => window.open(previewUrl, '_blank')}
+                    >
+                      <FaGlobe className="w-3.5 h-3.5" />
+                      Web Preview
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
         </div>
-      
+      </div>
+
+      {/* ===== CUSTOM SAVE / DISCARD CONFIRMATION MODAL ===== */}
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 10 }}
+            className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm sm:max-w-md w-full shadow-2xl border border-slate-100 text-center relative"
+          >
+            <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-100">
+              <FaQuestionCircle className="w-7 h-7" />
+            </div>
+            
+            <h3 className="text-xl font-black text-slate-800 tracking-tight mb-2">
+              {confirmModal.title}
+            </h3>
+            <p className="text-xs font-semibold text-slate-500 mb-6 leading-relaxed">
+              {confirmModal.message}
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-2.5 justify-center">
+              {confirmModal.onConfirm && (
+                <button
+                  type="button"
+                  className="flex-1 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-1.5"
+                  onClick={confirmModal.onConfirm}
+                >
+                  <FaCheck className="w-3.5 h-3.5" />
+                  Save Changes
+                </button>
+              )}
+              {confirmModal.onDiscard && (
+                <button
+                  type="button"
+                  className="flex-1 px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold rounded-xl transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-1.5"
+                  onClick={confirmModal.onDiscard}
+                >
+                  <FaTrash className="w-3.5 h-3.5" />
+                  Discard
+                </button>
+              )}
+              <button
+                type="button"
+                className="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer active:scale-95"
+                onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       {/* ===== MOBILE PREVIEW SCREEN DRAWER MODAL ===== */}
       {mobilePreviewOpen && (
         <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl p-6 relative animate-slideUp flex flex-col items-center">
-            
+
             {/* Modal Close */}
             <button
               onClick={() => setMobilePreviewOpen(false)}
@@ -2009,9 +2640,9 @@ const Profile = () => {
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
               </span>
               <h3 className="font-black text-slate-800 text-sm">Live Mobile View</h3>
-              <button 
+              <button
                 onClick={() => setPreviewKey(prev => prev + 1)}
-                className="ml-auto p-1 text-slate-400 hover:text-[#6C63FF] rounded-lg transition-colors cursor-pointer"
+                className="ml-auto p-1 text-slate-400 hover:text-emerald-600 rounded-lg transition-colors cursor-pointer"
                 title="Refresh preview screen"
               >
                 <FaSync size={12} />
@@ -2022,7 +2653,7 @@ const Profile = () => {
             <div className="w-full sm:w-[280px] h-[60vh] sm:h-[520px] bg-slate-900 rounded-3xl sm:rounded-[40px] p-1.5 sm:p-3 shadow-2xl border border-slate-850 sm:border-4 sm:border-slate-800 relative">
               {/* Dynamic Island Notch */}
               <div className="hidden sm:block absolute top-4 left-1/2 transform -translate-x-1/2 w-16 h-3.5 bg-black rounded-full z-30"></div>
-              
+
               <div className="w-full h-full bg-white rounded-2xl sm:rounded-[32px] overflow-hidden relative border border-slate-950/10">
                 <iframe
                   key={previewKey}
