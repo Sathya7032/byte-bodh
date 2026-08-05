@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -24,15 +24,12 @@ import {
   FaUserTie,
   FaCheckCircle,
   FaTimesCircle,
-  FaPlay,
   FaRegHeart,
   FaShareAlt,
   FaQrcode,
   FaSearch,
   FaTimes,
-  FaExternalLinkAlt,
   FaEye,
-  FaDownload,
   FaBookOpen,
   FaGift
 } from "react-icons/fa";
@@ -305,7 +302,7 @@ const Homepage = () => {
           setBackendTemplates(data);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const displayTemplates = useMemo(() => {
@@ -594,249 +591,241 @@ const Homepage = () => {
           }
         `}</style>
 
-      {/* TEMPLATES CATALOG SECTION - ThemeWagon Style */}
-      <section className="py-24 bg-slate-50 border-t border-slate-200/80 relative overflow-hidden" id="templates">
-        <div className="max-w-7xl mx-auto px-6">
-          {/* Section Header */}
-          <motion.div
-            className="text-center max-w-3xl mx-auto mb-12 space-y-4"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            variants={staggerContainer}
-          >
-            <motion.span variants={fadeInUp} className="px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2">
-              <FaPalette size={12} />
-              ThemeWagon Showcase
-            </motion.span>
-            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
-              Explore Our <span className="text-emerald-500">Website Templates</span>
-            </motion.h2>
-            <motion.p variants={fadeInUp} className="text-lg text-slate-500">
-              Browse hand-crafted, high-performance web portfolio themes designed for students, developers, and leaders.
-            </motion.p>
-          </motion.div>
+        {/* TEMPLATES CATALOG SECTION - ThemeWagon Style */}
+        <section className="py-24 bg-slate-50 border-t border-slate-200/80 relative overflow-hidden" id="templates">
+          <div className="max-w-7xl mx-auto px-6">
+            {/* Section Header */}
+            <motion.div
+              className="text-center max-w-3xl mx-auto mb-12 space-y-4"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-50px" }}
+              variants={staggerContainer}
+            >
+              <motion.span variants={fadeInUp} className="px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2">
+                <FaPalette size={12} />
+                ThemeWagon Showcase
+              </motion.span>
+              <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
+                Explore Our <span className="text-emerald-500">Website Templates</span>
+              </motion.h2>
+              <motion.p variants={fadeInUp} className="text-lg text-slate-500">
+                Browse hand-crafted, high-performance web portfolio themes designed for students, developers, and leaders.
+              </motion.p>
+            </motion.div>
 
-          {/* ThemeWagon Filter & Search Bar */}
-          <div className="bg-white p-4 md:p-6 rounded-3xl border border-slate-200/80 shadow-sm mb-10 flex flex-col lg:flex-row gap-4 justify-between items-center">
-            {/* Categories Tabs */}
-            <div className="flex flex-wrap gap-2 w-full lg:w-auto">
-              {["All", "Students & Freshers", "Developers & Sysadmins", "Designers & Artists", "Product Managers & Leads"].map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    activeCategory === cat
+            {/* ThemeWagon Filter & Search Bar */}
+            <div className="bg-white p-4 md:p-6 rounded-3xl border border-slate-200/80 shadow-sm mb-10 flex flex-col lg:flex-row gap-4 justify-between items-center">
+              {/* Categories Tabs */}
+              <div className="flex flex-wrap gap-2 w-full lg:w-auto">
+                {["All", "Students & Freshers", "Developers & Sysadmins", "Designers & Artists", "Product Managers & Leads"].map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeCategory === cat
                       ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
+                      }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+
+              {/* Live Search */}
+              <div className="relative w-full lg:w-72">
+                <FaSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs" />
+                <input
+                  type="text"
+                  placeholder="Search templates by name, keyword..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2.5 border border-slate-200 focus:border-emerald-500 rounded-xl text-xs font-semibold focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all placeholder-slate-400"
+                />
+              </div>
+            </div>
+
+            {/* ThemeWagon Card Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredShowcase.map((item) => (
+                <div
+                  key={item.id}
+                  className="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover:shadow-2xl hover:border-emerald-500/40 transition-all duration-300 flex flex-col group text-left"
                 >
-                  {cat}
-                </button>
-              ))}
-            </div>
-
-            {/* Live Search */}
-            <div className="relative w-full lg:w-72">
-              <FaSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs" />
-              <input
-                type="text"
-                placeholder="Search templates by name, keyword..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 border border-slate-200 focus:border-emerald-500 rounded-xl text-xs font-semibold focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all placeholder-slate-400"
-              />
-            </div>
-          </div>
-
-          {/* ThemeWagon Card Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredShowcase.map((item) => (
-              <div
-                key={item.id}
-                className="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover:shadow-2xl hover:border-emerald-500/40 transition-all duration-300 flex flex-col group text-left"
-              >
-                {/* Browser Frame Header (ThemeWagon Signature) */}
-                <div className="bg-slate-900 px-4 py-2.5 flex items-center justify-between border-b border-slate-800">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                  </div>
-                  <span className="text-[10px] font-mono text-slate-400 truncate max-w-[160px]">
-                    bytebodh.in/template-{item.id}
-                  </span>
-                  <span className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md ${
-                    item.isFree !== false
+                  {/* Browser Frame Header (ThemeWagon Signature) */}
+                  <div className="bg-slate-900 px-4 py-2.5 flex items-center justify-between border-b border-slate-800">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                    </div>
+                    <span className="text-[10px] font-mono text-slate-400 truncate max-w-[160px]">
+                      bytebodh.in/template-{item.id}
+                    </span>
+                    <span className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md ${item.isFree !== false
                       ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
                       : "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
-                  }`}>
-                    {item.isFree !== false ? "FREE" : `₹${item.monthlyCost || 99}/mo`}
-                  </span>
-                </div>
-
-                {/* Live Preview Window */}
-                <div className="relative aspect-[16/10] bg-slate-950 overflow-hidden group">
-                  <iframe
-                    src={`/templates/preview/${item.id}`}
-                    title={`${item.name} Live Preview`}
-                    className="w-[1280px] h-[800px] origin-top-left transform scale-[0.28] sm:scale-[0.38] md:scale-[0.4] border-0 pointer-events-none select-none"
-                    loading="lazy"
-                  />
-                  {/* Hover Overlay Actions */}
-                  <div className="absolute inset-0 bg-slate-950/75 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-3 p-4">
-                    <button
-                      onClick={() => { setPreviewModalTemplate(item); setPreviewDevice("desktop"); }}
-                      className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-black rounded-xl shadow-lg flex items-center gap-2 transition-all cursor-pointer active:scale-95"
-                    >
-                      <FaEye /> Live Demo Preview
-                    </button>
-                    <Link
-                      to="/portfolio-templates"
-                      className="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white text-xs font-bold rounded-xl border border-white/20 transition-all flex items-center gap-1.5"
-                    >
-                      <FaRocket /> Use Template
-                    </Link>
+                      }`}>
+                      {item.isFree !== false ? "FREE" : `₹${item.monthlyCost || 99}/mo`}
+                    </span>
                   </div>
-                </div>
 
-                {/* Card Content */}
-                <div className="p-6 flex-1 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100">
-                        {item.category}
-                      </span>
-                      <div className="flex items-center gap-1 text-amber-400 text-xs font-bold">
-                        <FaStar /> <span>4.9</span>
-                        <span className="text-slate-400 font-medium text-[10px]">({item.usesCount || 850}+)</span>
-                      </div>
+                  {/* Live Preview Window */}
+                  <div className="relative aspect-[16/10] bg-slate-950 overflow-hidden group">
+                    <iframe
+                      src={`/templates/preview/${item.id}`}
+                      title={`${item.name} Live Preview`}
+                      className="w-[1280px] h-[800px] origin-top-left transform scale-[0.28] sm:scale-[0.38] md:scale-[0.4] border-0 pointer-events-none select-none"
+                      loading="lazy"
+                    />
+                    {/* Hover Overlay Actions */}
+                    <div className="absolute inset-0 bg-slate-950/75 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-3 p-4">
+                      <button
+                        onClick={() => { setPreviewModalTemplate(item); setPreviewDevice("desktop"); }}
+                        className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-black rounded-xl shadow-lg flex items-center gap-2 transition-all cursor-pointer active:scale-95"
+                      >
+                        <FaEye /> Live Demo Preview
+                      </button>
+                      <Link
+                        to="/portfolio-templates"
+                        className="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white text-xs font-bold rounded-xl border border-white/20 transition-all flex items-center gap-1.5"
+                      >
+                        <FaRocket /> Use Template
+                      </Link>
                     </div>
+                  </div>
 
-                    <h3 className="text-lg font-black text-slate-800 group-hover:text-emerald-600 transition-colors">
-                      {item.name}
-                    </h3>
-                    <p className="text-xs text-slate-500 font-semibold mt-1.5 line-clamp-2 leading-relaxed">
-                      {item.desc}
-                    </p>
+                  {/* Card Content */}
+                  <div className="p-6 flex-1 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100">
+                          {item.category}
+                        </span>
+                        <div className="flex items-center gap-1 text-amber-400 text-xs font-bold">
+                          <FaStar /> <span>4.9</span>
+                          <span className="text-slate-400 font-medium text-[10px]">({item.usesCount || 850}+)</span>
+                        </div>
+                      </div>
 
-                    {/* Features checklist (ThemeWagon style) */}
-                    <div className="grid grid-cols-2 gap-2 mt-4">
-                      <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[10px] font-bold ${
-                        item.hasBlogsFeature
+                      <h3 className="text-lg font-black text-slate-800 group-hover:text-emerald-600 transition-colors">
+                        {item.name}
+                      </h3>
+                      <p className="text-xs text-slate-500 font-semibold mt-1.5 line-clamp-2 leading-relaxed">
+                        {item.desc}
+                      </p>
+
+                      {/* Features checklist (ThemeWagon style) */}
+                      <div className="grid grid-cols-2 gap-2 mt-4">
+                        <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[10px] font-bold ${item.hasBlogsFeature
                           ? "bg-violet-50 border-violet-100 text-violet-700"
                           : "bg-slate-50 border-slate-100 text-slate-400"
-                      }`}>
-                        {item.hasBlogsFeature ? <FaCheckCircle className="text-violet-500" /> : <FaTimesCircle className="text-slate-300" />}
-                        <span className="flex items-center gap-1"><FaBookOpen size={9} /> Blogs</span>
-                      </div>
-                      <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[10px] font-bold ${
-                        item.hasOneMonthFree
+                          }`}>
+                          {item.hasBlogsFeature ? <FaCheckCircle className="text-violet-500" /> : <FaTimesCircle className="text-slate-300" />}
+                          <span className="flex items-center gap-1"><FaBookOpen size={9} /> Blogs</span>
+                        </div>
+                        <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[10px] font-bold ${item.hasOneMonthFree
                           ? "bg-amber-50 border-amber-100 text-amber-700"
                           : "bg-slate-50 border-slate-100 text-slate-400"
-                      }`}>
-                        {item.hasOneMonthFree ? <FaCheckCircle className="text-amber-500" /> : <FaTimesCircle className="text-slate-300" />}
-                        <span className="flex items-center gap-1"><FaGift size={9} /> 1 Mo Free</span>
+                          }`}>
+                          {item.hasOneMonthFree ? <FaCheckCircle className="text-amber-500" /> : <FaTimesCircle className="text-slate-300" />}
+                          <span className="flex items-center gap-1"><FaGift size={9} /> 1 Mo Free</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* ThemeWagon Footer Actions */}
-                  <div className="pt-4 border-t border-slate-100 mt-5 flex gap-2">
-                    <button
-                      onClick={() => { setPreviewModalTemplate(item); setPreviewDevice("desktop"); }}
-                      className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <FaEye className="text-slate-500" /> Live Demo
-                    </button>
-                    <Link
-                      to="/portfolio-templates"
-                      className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <FaRocket /> Get Started
-                    </Link>
+                    {/* ThemeWagon Footer Actions */}
+                    <div className="pt-4 border-t border-slate-100 mt-5 flex gap-2">
+                      <button
+                        onClick={() => { setPreviewModalTemplate(item); setPreviewDevice("desktop"); }}
+                        className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <FaEye className="text-slate-500" /> Live Demo
+                      </button>
+                      <Link
+                        to="/portfolio-templates"
+                        className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <FaRocket /> Get Started
+                      </Link>
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ThemeWagon Interactive Live Demo Modal */}
+        {previewModalTemplate && (
+          <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex flex-col">
+            {/* Modal Top Header Bar */}
+            <div className="bg-slate-900 border-b border-slate-800 px-4 md:px-8 py-3 flex items-center justify-between text-white flex-shrink-0">
+              <div className="flex items-center gap-3">
+                <span className="w-3 h-3 rounded-full bg-rose-500"></span>
+                <h3 className="text-sm font-black tracking-tight">{previewModalTemplate.name}</h3>
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  {previewModalTemplate.category}
+                </span>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* ThemeWagon Interactive Live Demo Modal */}
-      {previewModalTemplate && (
-        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex flex-col">
-          {/* Modal Top Header Bar */}
-          <div className="bg-slate-900 border-b border-slate-800 px-4 md:px-8 py-3 flex items-center justify-between text-white flex-shrink-0">
-            <div className="flex items-center gap-3">
-              <span className="w-3 h-3 rounded-full bg-rose-500"></span>
-              <h3 className="text-sm font-black tracking-tight">{previewModalTemplate.name}</h3>
-              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                {previewModalTemplate.category}
-              </span>
+              {/* Device Switcher (Desktop / Tablet / Mobile) */}
+              <div className="hidden sm:flex items-center bg-slate-800 border border-slate-700 rounded-xl p-1 gap-1">
+                <button
+                  onClick={() => setPreviewDevice("desktop")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${previewDevice === "desktop" ? "bg-emerald-600 text-white shadow" : "text-slate-400 hover:text-white"
+                    }`}
+                >
+                  <FaDesktop /> Desktop
+                </button>
+                <button
+                  onClick={() => setPreviewDevice("tablet")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${previewDevice === "tablet" ? "bg-emerald-600 text-white shadow" : "text-slate-400 hover:text-white"
+                    }`}
+                >
+                  <FaTabletAlt /> Tablet
+                </button>
+                <button
+                  onClick={() => setPreviewDevice("mobile")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${previewDevice === "mobile" ? "bg-emerald-600 text-white shadow" : "text-slate-400 hover:text-white"
+                    }`}
+                >
+                  <FaMobileAlt /> Mobile
+                </button>
+              </div>
+
+              {/* Right Actions */}
+              <div className="flex items-center gap-3">
+                <Link
+                  to="/portfolio-templates"
+                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5"
+                >
+                  <FaRocket /> Use Template
+                </Link>
+                <button
+                  onClick={() => setPreviewModalTemplate(null)}
+                  className="p-2 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  <FaTimes size={16} />
+                </button>
+              </div>
             </div>
 
-            {/* Device Switcher (Desktop / Tablet / Mobile) */}
-            <div className="hidden sm:flex items-center bg-slate-800 border border-slate-700 rounded-xl p-1 gap-1">
-              <button
-                onClick={() => setPreviewDevice("desktop")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                  previewDevice === "desktop" ? "bg-emerald-600 text-white shadow" : "text-slate-400 hover:text-white"
-                }`}
+            {/* Modal Frame Body */}
+            <div className="flex-1 bg-slate-950 p-4 flex items-center justify-center overflow-auto">
+              <div
+                className={`transition-all duration-300 h-full bg-white rounded-2xl overflow-hidden shadow-2xl border border-slate-800 ${previewDevice === "desktop" ? "w-full" : previewDevice === "tablet" ? "w-[768px]" : "w-[375px]"
+                  }`}
               >
-                <FaDesktop /> Desktop
-              </button>
-              <button
-                onClick={() => setPreviewDevice("tablet")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                  previewDevice === "tablet" ? "bg-emerald-600 text-white shadow" : "text-slate-400 hover:text-white"
-                }`}
-              >
-                <FaTabletAlt /> Tablet
-              </button>
-              <button
-                onClick={() => setPreviewDevice("mobile")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                  previewDevice === "mobile" ? "bg-emerald-600 text-white shadow" : "text-slate-400 hover:text-white"
-                }`}
-              >
-                <FaMobileAlt /> Mobile
-              </button>
-            </div>
-
-            {/* Right Actions */}
-            <div className="flex items-center gap-3">
-              <Link
-                to="/portfolio-templates"
-                className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5"
-              >
-                <FaRocket /> Use Template
-              </Link>
-              <button
-                onClick={() => setPreviewModalTemplate(null)}
-                className="p-2 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition-colors cursor-pointer"
-              >
-                <FaTimes size={16} />
-              </button>
+                <iframe
+                  src={`/templates/preview/${previewModalTemplate.id}`}
+                  title={previewModalTemplate.name}
+                  className="w-full h-full border-0"
+                />
+              </div>
             </div>
           </div>
-
-          {/* Modal Frame Body */}
-          <div className="flex-1 bg-slate-950 p-4 flex items-center justify-center overflow-auto">
-            <div
-              className={`transition-all duration-300 h-full bg-white rounded-2xl overflow-hidden shadow-2xl border border-slate-800 ${
-                previewDevice === "desktop" ? "w-full" : previewDevice === "tablet" ? "w-[768px]" : "w-[375px]"
-              }`}
-            >
-              <iframe
-                src={`/templates/preview/${previewModalTemplate.id}`}
-                title={previewModalTemplate.name}
-                className="w-full h-full border-0"
-              />
-            </div>
-          </div>
-        </div>
-      )}
+        )}
       </section>
 
       {/* FEATURES SECTION - Enhanced */}
