@@ -1,23 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { getContactMessages } from "../api/profileService";
 import DashboardLayout from "./components/DashboardLayout";
+import SubscriptionRequiredNotice from "./components/SubscriptionRequiredNotice";
 import { Mail, MessageSquare, AlertCircle } from "lucide-react";
 
 const Contacts = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [subscriptionRequired, setSubscriptionRequired] = useState(false);
+  const [subscriptionMessage, setSubscriptionMessage] = useState("");
 
   useEffect(() => {
     fetchMessages();
   }, []);
 
   const fetchMessages = async () => {
+    setLoading(true);
+    setError("");
+    setSubscriptionRequired(false);
     try {
       const response = await getContactMessages();
       setMessages(response.data?.data || []);
     } catch (err) {
-      setError("Failed to load contact messages");
+      if (err.response?.status === 402) {
+        setSubscriptionRequired(true);
+        setSubscriptionMessage(err.response?.data?.message || "");
+      } else {
+        setError("Failed to load contact messages");
+      }
       console.error(err);
     } finally {
       setLoading(false);
@@ -62,8 +73,13 @@ const Contacts = () => {
         </div>
       )}
 
+      {/* Subscription Required State */}
+      {!loading && subscriptionRequired && (
+        <SubscriptionRequiredNotice message={subscriptionMessage} title="Subscribe to view your contact messages" />
+      )}
+
       {/* Error State */}
-      {error && (
+      {error && !subscriptionRequired && (
         <div className="bg-red-50 border border-red-200 rounded-3xl p-6 mb-6 flex items-center gap-3 text-left">
           <AlertCircle className="w-6 h-6 text-red-650 flex-shrink-0" />
           <div>
@@ -74,7 +90,7 @@ const Contacts = () => {
       )}
 
       {/* Empty State */}
-      {!loading && messages.length === 0 && !error && (
+      {!loading && !subscriptionRequired && messages.length === 0 && !error && (
         <div className="bg-white rounded-3xl border border-slate-200/80 p-16 text-center shadow-sm text-left flex flex-col items-center">
           <div className="w-16 h-16 bg-slate-50 text-slate-400 border border-slate-100 rounded-2xl flex items-center justify-center text-2xl mb-4">
             📩

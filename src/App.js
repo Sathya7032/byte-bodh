@@ -40,6 +40,8 @@ import BillingsPage from "./portfolio/BillingsPage";
 import Settings from "./portfolio/Settings";
 import Referrals from "./portfolio/Referrals";
 import CustomDomain from "./portfolio/CustomDomain";
+import Subscription from "./portfolio/Subscription";
+import Wallet from "./portfolio/Wallet";
 import AdminLogin from "./admin/AdminLogin";
 import DashboardPage from "./admin/pages/DashboardPage";
 import InvoiceGenerator from "./products/InvoiceGenerator";
@@ -59,6 +61,10 @@ import Templates from "./admin/pages/Templates";
 import AdminUserTemplates from "./admin/pages/AdminUserTemplates";
 import AdminPayments from "./admin/pages/AdminPayments";
 import AdminCustomDomainConfig from "./admin/pages/AdminCustomDomainConfig";
+import AdminSubscriptions from "./admin/pages/AdminSubscriptions";
+import AdminWallets from "./admin/pages/AdminWallets";
+import AdminReferralMilestones from "./admin/pages/AdminReferralMilestones";
+import AdminGeminiKeys from "./admin/pages/AdminGeminiKeys";
 import PageNotFound from "./pages/PageNotFound";
 import TemplatesPage from "./pages/Templates";
 import PublicPortfolioPage from "./bytebodh-folio/PublicPortfolioPage";
@@ -138,6 +144,8 @@ const App = () => {
             <Route path="/settings" element={<Settings />} />
             <Route path="/referrals" element={<Referrals />} />
             <Route path="/custom-domain" element={<CustomDomain />} />
+            <Route path="/subscription" element={<Subscription />} />
+            <Route path="/wallet" element={<Wallet />} />
           </Route>
 
           <Route element={<AdminPrivateRoutes />}>
@@ -158,6 +166,10 @@ const App = () => {
             <Route path="/admin/job-notifications/:id/edit" element={<JobNotificationForm />} />
             <Route path="/admin-quiz" element={<Quiz />} />
             <Route path="/admin/custom-domain-config" element={<AdminCustomDomainConfig />} />
+            <Route path="/admin-subscriptions" element={<AdminSubscriptions />} />
+            <Route path="/admin-wallets" element={<AdminWallets />} />
+            <Route path="/admin-referral-milestones" element={<AdminReferralMilestones />} />
+            <Route path="/admin-gemini-keys" element={<AdminGeminiKeys />} />
           </Route>
 
           {/* ===== ADMIN LOGIN ===== */}

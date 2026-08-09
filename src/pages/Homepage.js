@@ -31,9 +31,10 @@ import {
   FaTimes,
   FaEye,
   FaBookOpen,
-  FaGift
+  FaCrown
 } from "react-icons/fa";
 import { getAllTemplates } from "../api/templateService";
+import { getSubscriptionConfig } from "../api/subscriptionService";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import useSEO from "../hooks/useSEO";
@@ -294,6 +295,26 @@ const Homepage = () => {
   const [previewDevice, setPreviewDevice] = useState("desktop");
   const [backendTemplates, setBackendTemplates] = useState([]);
 
+  // Pricing plan states
+  const [planBillingCycle, setPlanBillingCycle] = useState("MONTHLY");
+  const [subscriptionConfig, setSubscriptionConfig] = useState({ monthlyCost: 29, yearlyCost: 299 });
+
+  useEffect(() => {
+    getSubscriptionConfig()
+      .then((res) => {
+        const cfg = res.data?.data || res.data;
+        if (cfg) {
+          setSubscriptionConfig({
+            monthlyCost: cfg.monthlyCost ?? 29,
+            yearlyCost: cfg.yearlyCost ?? 299,
+          });
+        }
+      })
+      .catch(() => {
+        // Visitor isn't authenticated / config endpoint unreachable — keep default ₹29 / ₹299 pricing.
+      });
+  }, []);
+
   useEffect(() => {
     getAllTemplates()
       .then((res) => {
@@ -313,10 +334,7 @@ const Homepage = () => {
         category: bt.category || "Professional",
         desc: bt.description || "Beautiful responsive layout outline for presenting career milestones with rich aesthetics.",
         isFree: bt.isFree,
-        monthlyCost: bt.monthlyCost || bt.cost || 99,
-        yearlyCost: bt.yearlyCost || 999,
         hasBlogsFeature: bt.hasBlogsFeature,
-        hasOneMonthFree: bt.hasOneMonthFree,
         usesCount: bt.downloadsCount || (500 + idx * 140),
         previewImageUrl: bt.previewImageUrl
       }));
@@ -324,10 +342,7 @@ const Homepage = () => {
     return templatesShowcase.map((t) => ({
       ...t,
       isFree: t.badge?.includes("Free") || t.id === 1,
-      monthlyCost: 99,
-      yearlyCost: 999,
       hasBlogsFeature: [2, 3, 5, 7, 9, 11].includes(t.id),
-      hasOneMonthFree: [3, 4, 6, 8, 12].includes(t.id),
       usesCount: 400 + t.id * 110
     }));
   }, [backendTemplates]);
@@ -666,7 +681,7 @@ const Homepage = () => {
                       ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
                       : "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
                       }`}>
-                      {item.isFree !== false ? "FREE" : `₹${item.monthlyCost || 99}/mo`}
+                      {item.isFree !== false ? "FREE" : "SUBSCRIPTION"}
                     </span>
                   </div>
 
@@ -724,12 +739,12 @@ const Homepage = () => {
                           {item.hasBlogsFeature ? <FaCheckCircle className="text-violet-500" /> : <FaTimesCircle className="text-slate-300" />}
                           <span className="flex items-center gap-1"><FaBookOpen size={9} /> Blogs</span>
                         </div>
-                        <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[10px] font-bold ${item.hasOneMonthFree
-                          ? "bg-amber-50 border-amber-100 text-amber-700"
-                          : "bg-slate-50 border-slate-100 text-slate-400"
+                        <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[10px] font-bold ${item.isFree !== false
+                          ? "bg-emerald-50 border-emerald-100 text-emerald-700"
+                          : "bg-indigo-50 border-indigo-100 text-indigo-700"
                           }`}>
-                          {item.hasOneMonthFree ? <FaCheckCircle className="text-amber-500" /> : <FaTimesCircle className="text-slate-300" />}
-                          <span className="flex items-center gap-1"><FaGift size={9} /> 1 Mo Free</span>
+                          <FaCheckCircle className={item.isFree !== false ? "text-emerald-500" : "text-indigo-500"} />
+                          <span className="flex items-center gap-1"><FaCrown size={9} /> {item.isFree !== false ? "Free Access" : "Subscription"}</span>
                         </div>
                       </div>
                     </div>
@@ -826,6 +841,154 @@ const Homepage = () => {
             </div>
           </div>
         )}
+      </section>
+
+      {/* PRICING SECTION - Free vs Subscription */}
+      <section className="py-24 bg-white border-t border-slate-100 relative overflow-hidden" id="pricing">
+        <div className="absolute -top-32 -right-32 w-96 h-96 bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none"></div>
+        <div className="max-w-5xl mx-auto px-6 relative z-10">
+          <motion.div
+            className="text-center max-w-2xl mx-auto mb-14 space-y-4"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={staggerContainer}
+          >
+            <motion.span variants={fadeInUp} className="px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2">
+              <FaCrown size={12} />
+              Simple Pricing
+            </motion.span>
+            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
+              Start Free. <span className="text-emerald-500">Upgrade Anytime.</span>
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-lg text-slate-500">
+              One subscription unlocks every premium template, blogs, and portfolio messaging — no per-template pricing.
+            </motion.p>
+          </motion.div>
+
+          {/* Billing cycle toggle */}
+          <div className="flex justify-center mb-10">
+            <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200 p-1.5 rounded-2xl">
+              <button
+                onClick={() => setPlanBillingCycle("MONTHLY")}
+                className={`px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${planBillingCycle === "MONTHLY"
+                  ? "bg-slate-900 text-white shadow-md"
+                  : "text-slate-500 hover:text-slate-800"
+                  }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setPlanBillingCycle("YEARLY")}
+                className={`px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer ${planBillingCycle === "YEARLY"
+                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
+                  : "text-slate-500 hover:text-emerald-600"
+                  }`}
+              >
+                Yearly
+                <span className="px-1.5 py-0.5 text-[9px] font-black bg-emerald-500 text-white rounded-md uppercase tracking-wider">Best Value</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* FREE PLAN */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-50px" }}
+              variants={fadeInUp}
+              className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-8 flex flex-col"
+            >
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Free</span>
+              <div className="mt-3 flex items-end gap-1">
+                <span className="text-4xl font-black text-slate-900">₹0</span>
+                <span className="text-sm text-slate-400 font-bold mb-1">/forever</span>
+              </div>
+              <p className="text-xs text-slate-500 font-semibold mt-2">Get started with a live portfolio in minutes.</p>
+
+              <ul className="mt-6 space-y-3 flex-1">
+                {[
+                  "Access to free portfolio templates",
+                  "Public portfolio link & QR code",
+                  "Task & project tracker",
+                  "Contact form on your portfolio",
+                  "Referral program access",
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-2.5 text-xs font-semibold text-slate-600">
+                    <FaCheckCircle className="text-emerald-500 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+                {["Premium templates", "Personal blogs section"].map((item) => (
+                  <li key={item} className="flex items-center gap-2.5 text-xs font-semibold text-slate-350">
+                    <FaTimesCircle className="text-slate-300 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                to="/register"
+                className="mt-8 w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 text-sm font-black rounded-2xl text-center transition-all"
+              >
+                Get Started Free
+              </Link>
+            </motion.div>
+
+            {/* SUBSCRIPTION PLAN */}
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-50px" }}
+              variants={fadeInUp}
+              className="relative bg-gradient-to-br from-[#0f172a] via-[#064e3b] to-[#0f172a] rounded-3xl shadow-xl p-8 flex flex-col overflow-hidden border border-slate-800"
+            >
+              <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-emerald-500/20 blur-3xl pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-teal-500" />
+
+              <div className="relative z-10 flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Subscription</span>
+                <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2.5 py-1 bg-amber-400/20 text-amber-300 border border-amber-400/30 rounded-full">
+                  <FaCrown size={9} /> Most Popular
+                </span>
+              </div>
+
+              <div className="relative z-10 mt-3 flex items-end gap-1">
+                <span className="text-4xl font-black text-white">
+                  ₹{planBillingCycle === "YEARLY" ? subscriptionConfig.yearlyCost : subscriptionConfig.monthlyCost}
+                </span>
+                <span className="text-sm text-slate-400 font-bold mb-1">/{planBillingCycle === "YEARLY" ? "year" : "month"}</span>
+              </div>
+              <p className="relative z-10 text-xs text-slate-400 font-semibold mt-2">
+                {planBillingCycle === "YEARLY" ? "Billed once a year." : "Billed every month."} Cancel any time.
+              </p>
+
+              <ul className="relative z-10 mt-6 space-y-3 flex-1">
+                {[
+                  "Everything in Free",
+                  "Unlock every premium portfolio template",
+                  "Personal blogs section enabled",
+                  "Receive portfolio contact messages",
+                  "Counts toward referral milestone rewards",
+                  "Priority support",
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-2.5 text-xs font-semibold text-slate-200">
+                    <FaCheckCircle className="text-emerald-400 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                to="/register"
+                className="relative z-10 mt-8 w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-black rounded-2xl text-center shadow-lg shadow-emerald-500/20 transition-all"
+              >
+                Subscribe Now
+              </Link>
+            </motion.div>
+          </div>
+        </div>
       </section>
 
       {/* FEATURES SECTION - Enhanced */}

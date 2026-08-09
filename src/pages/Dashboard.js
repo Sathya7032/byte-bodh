@@ -601,7 +601,7 @@ const Dashboard = () => {
                   return (
                     <div key={p.id} className="flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-2xl hover:shadow-sm transition-shadow">
                       <div className="min-w-0 flex-1 pr-3">
-                        <h4 className="text-xs font-bold text-slate-800 truncate">{p.templateName}</h4>
+                        <h4 className="text-xs font-bold text-slate-800 truncate">{p.itemName}</h4>
                         <p className="text-[10px] text-slate-400 font-semibold mt-0.5">ID: #{p.id} • {new Date(p.date).toLocaleDateString()}</p>
                       </div>
                       <div className="flex items-center gap-2.5">

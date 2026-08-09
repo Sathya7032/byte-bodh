@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "./components/DashboardLayout";
 import { useQuill } from "react-quilljs";
 import "quill/dist/quill.snow.css";
@@ -80,6 +81,7 @@ const fmtDateTime = (d) => {
 
 /* ═══════════════════════════════════════════════════════════════ */
 export default function DashboardBlogs() {
+  const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -209,7 +211,24 @@ export default function DashboardBlogs() {
       closeAll();
       fetchBlogs();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to save blog");
+      if (err.response?.status === 402) {
+        toast.error(
+          <div>
+            <p className="font-bold text-sm">
+              {err.response?.data?.message || "An active subscription is required to publish blogs."}
+            </p>
+            <button
+              onClick={() => navigate("/subscription")}
+              className="mt-1.5 text-xs font-black underline cursor-pointer"
+            >
+              Subscribe now →
+            </button>
+          </div>,
+          { autoClose: 8000 }
+        );
+      } else {
+        toast.error(err.response?.data?.message || "Failed to save blog");
+      }
     } finally {
       setSaving(false);
     }

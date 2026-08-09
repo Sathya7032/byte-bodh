@@ -52,10 +52,7 @@ const Templates = () => {
     category: "Academic",
     description: "",
     isFree: true,
-    monthlyCost: "",
-    yearlyCost: "",
     hasBlogsFeature: false,
-    hasOneMonthFree: false,
     isActive: true
   });
 
@@ -173,10 +170,7 @@ const Templates = () => {
       category: "Academic",
       description: "",
       isFree: true,
-      monthlyCost: "",
-      yearlyCost: "",
       hasBlogsFeature: false,
-      hasOneMonthFree: false,
       isActive: true
     });
     setShowModal(true);
@@ -194,10 +188,7 @@ const Templates = () => {
       category: template.category || "Academic",
       description: template.description || "",
       isFree: template.isFree !== undefined ? template.isFree : true,
-      monthlyCost: template.monthlyCost ?? template.cost ?? "",
-      yearlyCost: template.yearlyCost ?? "",
       hasBlogsFeature: template.hasBlogsFeature || false,
-      hasOneMonthFree: template.hasOneMonthFree || false,
       isActive: template.isActive !== undefined ? template.isActive : true
     });
     setShowModal(true);
@@ -211,16 +202,6 @@ const Templates = () => {
     if (!formData.templateCode.trim()) {
       toast.error("Template code is required");
       return false;
-    }
-    if (!formData.isFree) {
-      if (!formData.monthlyCost || parseFloat(formData.monthlyCost) <= 0) {
-        toast.error("Paid templates must have a monthly cost greater than 0");
-        return false;
-      }
-      if (!formData.yearlyCost || parseFloat(formData.yearlyCost) <= 0) {
-        toast.error("Paid templates must have a yearly cost greater than 0");
-        return false;
-      }
     }
     if (!isEditMode && !imageBase64) {
       toast.error("Please upload a preview image cover");
@@ -241,10 +222,7 @@ const Templates = () => {
         category: formData.category,
         description: formData.description.trim(),
         isFree: formData.isFree,
-        monthlyCost: formData.isFree ? 0.0 : parseFloat(formData.monthlyCost) || 0.0,
-        yearlyCost: formData.isFree ? 0.0 : parseFloat(formData.yearlyCost) || 0.0,
         hasBlogsFeature: formData.hasBlogsFeature,
-        hasOneMonthFree: formData.hasOneMonthFree,
         isActive: formData.isActive,
         previewImageBase64: imageBase64 || null,
         previewImageFileName: imageFileName || null,
@@ -360,7 +338,7 @@ const Templates = () => {
               <FaDollarSign size={24} />
             </div>
             <div>
-              <p className="text-sm text-slate-500 font-medium">Paid Layouts</p>
+              <p className="text-sm text-slate-500 font-medium">Subscription-Only</p>
               <h3 className="text-2xl font-bold text-slate-800">{paidCount}</h3>
             </div>
           </div>
@@ -473,23 +451,16 @@ const Templates = () => {
                     </p>
 
                     <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                      {/* Price Tag */}
+                      {/* Access Tag */}
                       <div>
-                        <span className="text-xs text-slate-400 font-medium">Pricing</span>
+                        <span className="text-xs text-slate-400 font-medium">Access</span>
                         {template.isFree ? (
                           <p className="font-bold text-emerald-600 text-sm">Free Access</p>
                         ) : (
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-xs font-bold text-slate-700">₹{template.monthlyCost ?? template.cost ?? "—"}<span className="text-slate-400 font-semibold">/mo</span></span>
-                            <span className="text-slate-300">·</span>
-                            <span className="text-xs font-bold text-slate-700">₹{template.yearlyCost ?? "—"}<span className="text-slate-400 font-semibold">/yr</span></span>
-                          </div>
+                          <p className="font-bold text-slate-700 text-sm">Requires Subscription</p>
                         )}
                         {template.hasBlogsFeature && (
                           <span className="inline-block mt-1 text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-violet-50 text-violet-600 border border-violet-100">Blogs ✓</span>
-                        )}
-                        {template.hasOneMonthFree && (
-                          <span className="inline-block mt-1 ml-1 text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-100">1 Mo Free</span>
                         )}
                       </div>
 
@@ -641,7 +612,7 @@ const Templates = () => {
                 />
               </div>
 
-              {/* Pricing Section */}
+              {/* Access Section */}
               <div className="space-y-4">
                 {/* Free toggle */}
                 <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
@@ -658,99 +629,37 @@ const Templates = () => {
                       <div className={`block w-14 h-8 rounded-full transition-colors duration-250 ${formData.isFree ? "bg-emerald-600" : "bg-slate-300"}`}></div>
                       <div className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform duration-250 ${formData.isFree ? "transform translate-x-6" : ""}`}></div>
                     </div>
-                    <span className="ml-3 text-sm font-semibold text-slate-700">Free for all subscribers</span>
+                    <div className="ml-3">
+                      <span className="block text-sm font-semibold text-slate-700">Free for everyone</span>
+                      <span className="block text-xs text-slate-500">
+                        {formData.isFree
+                          ? "Anyone can use this template without a subscription."
+                          : "Only users with an active platform subscription can activate this template."}
+                      </span>
+                    </div>
                   </label>
                 </div>
 
-                {/* Monthly + Yearly cost (shown only when paid) */}
-                {!formData.isFree && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-                        Monthly Cost (INR) <span className="text-rose-500">*</span>
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-slate-500 text-sm">₹</span>
-                        <input
-                          type="number"
-                          name="monthlyCost"
-                          value={formData.monthlyCost}
-                          onChange={handleInputChange}
-                          placeholder="99"
-                          min="1"
-                          className="w-full pl-8 pr-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold"
-                          disabled={submitting}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-600 mb-1.5">
-                        Yearly Cost (INR) <span className="text-rose-500">*</span>
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-slate-500 text-sm">₹</span>
-                        <input
-                          type="number"
-                          name="yearlyCost"
-                          value={formData.yearlyCost}
-                          onChange={handleInputChange}
-                          placeholder="999"
-                          min="1"
-                          className="w-full pl-8 pr-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-semibold"
-                          disabled={submitting}
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 {/* Feature flags */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {/* hasBlogsFeature */}
-                  <div className="p-4 bg-violet-50 border border-violet-100 rounded-2xl">
-                    <label className="flex items-center cursor-pointer select-none gap-3">
-                      <div className="relative flex-shrink-0">
-                        <input
-                          type="checkbox"
-                          name="hasBlogsFeature"
-                          checked={formData.hasBlogsFeature}
-                          onChange={handleInputChange}
-                          className="sr-only"
-                          disabled={submitting}
-                        />
-                        <div className={`block w-12 h-7 rounded-full transition-colors duration-250 ${formData.hasBlogsFeature ? "bg-violet-600" : "bg-slate-300"}`}></div>
-                        <div className={`dot absolute left-1 top-0.5 bg-white w-6 h-6 rounded-full transition-transform duration-250 ${formData.hasBlogsFeature ? "transform translate-x-5" : ""}`}></div>
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-slate-700">Blogs Feature</p>
-                        <p className="text-xs text-slate-500">Template includes a personal blogs section</p>
-                      </div>
-                    </label>
-                  </div>
-
-                  {/* hasOneMonthFree */}
-                  <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl">
-                    <label className="flex items-center cursor-pointer select-none gap-3">
-                      <div className="relative flex-shrink-0">
-                        <input
-                          type="checkbox"
-                          name="hasOneMonthFree"
-                          checked={formData.hasOneMonthFree}
-                          onChange={handleInputChange}
-                          className="sr-only"
-                          disabled={submitting}
-                        />
-                        <div className={`block w-12 h-7 rounded-full transition-colors duration-250 ${formData.hasOneMonthFree ? "bg-amber-500" : "bg-slate-300"}`}></div>
-                        <div className={`dot absolute left-1 top-0.5 bg-white w-6 h-6 rounded-full transition-transform duration-250 ${formData.hasOneMonthFree ? "transform translate-x-5" : ""}`}></div>
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-slate-700">1 Month Free</p>
-                        <p className="text-xs text-slate-500">Offer one free month on first purchase</p>
-                      </div>
-                    </label>
-                  </div>
+                <div className="p-4 bg-violet-50 border border-violet-100 rounded-2xl">
+                  <label className="flex items-center cursor-pointer select-none gap-3">
+                    <div className="relative flex-shrink-0">
+                      <input
+                        type="checkbox"
+                        name="hasBlogsFeature"
+                        checked={formData.hasBlogsFeature}
+                        onChange={handleInputChange}
+                        className="sr-only"
+                        disabled={submitting}
+                      />
+                      <div className={`block w-12 h-7 rounded-full transition-colors duration-250 ${formData.hasBlogsFeature ? "bg-violet-600" : "bg-slate-300"}`}></div>
+                      <div className={`dot absolute left-1 top-0.5 bg-white w-6 h-6 rounded-full transition-transform duration-250 ${formData.hasBlogsFeature ? "transform translate-x-5" : ""}`}></div>
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-700">Blogs Feature</p>
+                      <p className="text-xs text-slate-500">Template includes a personal blogs section</p>
+                    </div>
+                  </label>
                 </div>
               </div>
 

@@ -1,17 +1,23 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../portfolio/components/DashboardLayout";
 import { getMyReferrals, applyReferralCode } from "../api/profileService";
+import { getActiveMilestones } from "../api/referralMilestoneService";
 import { toast } from "react-toastify";
-import { FaUsers, FaGift, FaCopy, FaCheckCircle, FaUserCheck, FaShareAlt } from "react-icons/fa";
+import { FaUsers, FaGift, FaCopy, FaCheckCircle, FaUserCheck, FaShareAlt, FaWallet, FaTrophy } from "react-icons/fa";
 
 const Referrals = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [milestones, setMilestones] = useState([]);
 
   const [referralData, setReferralData] = useState({
     referralCode: "",
     totalJoinedUsers: 0,
+    subscribedReferrals: 0,
+    walletBalance: 0,
     referredUsers: []
   });
 
@@ -20,6 +26,11 @@ const Referrals = () => {
 
   useEffect(() => {
     fetchReferralDetails();
+    getActiveMilestones()
+      .then((res) => {
+        if (res.data?.success) setMilestones(res.data.data || []);
+      })
+      .catch(() => {});
   }, []);
 
   const fetchReferralDetails = async () => {
@@ -36,6 +47,9 @@ const Referrals = () => {
       setLoading(false);
     }
   };
+
+  const formatAmount = (amount) =>
+    new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(amount || 0);
 
   const handleCopyCode = () => {
     if (!referralData.referralCode) return;
@@ -170,6 +184,60 @@ const Referrals = () => {
             </div>
           </div>
 
+          {/* SUBSCRIBED REFERRALS + WALLET */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex items-center gap-3">
+              <div className="p-3 bg-violet-50 border border-violet-100 text-violet-600 rounded-xl inline-flex items-center justify-center">
+                <FaUserCheck className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Subscribed Referrals</span>
+                <h3 className="text-2xl font-black text-slate-800 mt-1">{referralData.subscribedReferrals || 0}</h3>
+                <p className="text-[10px] text-slate-400 font-semibold">Counts toward your milestone rewards</p>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate("/wallet")}
+              className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex items-center gap-3 hover:shadow-md transition-shadow cursor-pointer text-left"
+            >
+              <div className="p-3 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl inline-flex items-center justify-center">
+                <FaWallet className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Wallet Balance</span>
+                <h3 className="text-2xl font-black text-slate-800 mt-1">{formatAmount(referralData.walletBalance)}</h3>
+                <p className="text-[10px] text-emerald-600 font-bold">View wallet &amp; withdraw →</p>
+              </div>
+            </button>
+          </div>
+
+          {/* MILESTONES */}
+          {milestones.length > 0 && (
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+              <h3 className="text-sm font-black text-slate-800 mb-5 flex items-center gap-2">
+                <FaTrophy className="text-amber-500" /> Referral Reward Milestones
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {milestones.map((m) => {
+                  const reached = (referralData.subscribedReferrals || 0) >= m.requiredReferrals;
+                  return (
+                    <div
+                      key={m.id}
+                      className={`rounded-2xl p-4 border ${reached ? "bg-emerald-50 border-emerald-100" : "bg-slate-50 border-slate-100"}`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-lg font-black text-slate-800">{m.requiredReferrals} referrals</span>
+                        {reached && <FaCheckCircle className="text-emerald-500" />}
+                      </div>
+                      <p className="text-sm font-bold text-emerald-600">{formatAmount(m.rewardAmount)}</p>
+                      {m.description && <p className="text-[10px] text-slate-400 font-semibold mt-1">{m.description}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* REFERRED FRIENDS LIST */}
           <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
             <h3 className="text-sm font-black text-slate-800 mb-5 flex items-center gap-2">
@@ -195,6 +263,7 @@ const Referrals = () => {
                       <th className="pb-3.5">Username</th>
                       <th className="pb-3.5">Email</th>
                       <th className="pb-3.5">Joined Date</th>
+                      <th className="pb-3.5">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
@@ -211,6 +280,17 @@ const Referrals = () => {
                           <td className="py-3 text-slate-500">@{u.username || "username"}</td>
                           <td className="py-3 text-slate-500">{u.email || "N/A"}</td>
                           <td className="py-3 text-slate-500">{formatDate(u.joinedDate)}</td>
+                          <td className="py-3">
+                            {u.subscribed ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase text-emerald-600 bg-emerald-50 border border-emerald-100">
+                                Subscribed
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black uppercase text-slate-400 bg-slate-50 border border-slate-100">
+                                Not Yet
+                              </span>
+                            )}
+                          </td>
                         </tr>
                       );
                     })}

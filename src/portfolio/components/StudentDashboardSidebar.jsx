@@ -14,6 +14,8 @@ import {
   Gift,
   Globe,
   BookmarkFill,
+  Wallet2,
+  Award,
 } from "react-bootstrap-icons";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -36,6 +38,8 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
     if (path === "/dashboard-blogs") return "dashboard-blogs";
     if (path === "/custom-domain") return "custom-domain";
     if (path === "/billings") return "billings";
+    if (path === "/subscription") return "subscription";
+    if (path === "/wallet") return "wallet";
     if (path === "/referrals") return "referrals";
     if (path === "/resources") return "resources";
     if (path === "/settings") return "settings";
@@ -106,6 +110,18 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
       label: "Billings",
       icon: <CreditCard size={20} />,
       path: "/billings",
+    },
+    {
+      id: "subscription",
+      label: "Subscription",
+      icon: <Award size={20} />,
+      path: "/subscription",
+    },
+    {
+      id: "wallet",
+      label: "Wallet",
+      icon: <Wallet2 size={20} />,
+      path: "/wallet",
     },
     {
       id: "referrals",

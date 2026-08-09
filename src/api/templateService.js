@@ -34,14 +34,17 @@ export const updateTemplate = (id, data) => api.put(`/api/templates/${id}`, data
 export const deleteTemplate = (id) => api.delete(`/api/templates/${id}`);
 
 // Payment APIs
-export const createPaymentOrder = (dto) => api.post("/api/payment/create-order", dto);
+// NOTE: Templates are no longer purchased individually. Access to paid templates
+// is unlocked by an active platform subscription. See src/api/subscriptionService.js
+// for create-order / verify / failure / status endpoints under /api/payment/subscription/*.
 export const createCustomDomainOrder = (dto) => api.post("/api/payment/custom-domain/create-order", dto);
 export const getCustomDomainConfig = () => api.get("/api/admin/custom-domain-config");
 export const updateCustomDomainConfig = (data) => api.put("/api/admin/custom-domain-config", data);
-export const verifyPayment = (dto) => api.post("/api/payment/verify", dto);
-export const recordPaymentFailure = (dto) => api.post("/api/payment/failure", dto);
 export const getPaymentHistory = () => api.get("/api/payment/history");
 export const getAllPayments = () => api.get("/api/payment/admin/all");
+
+// Template access/download check (free templates: open to all; paid: requires active subscription)
+export const checkTemplateAccess = (templateId) => api.post(`/api/templates/${templateId}/download`);
 
 // Stats API
 export const getUserStats = () => api.get("/api/users/me/stats");

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   PersonCircle,
   BoxArrowRight,
@@ -10,10 +11,12 @@ import {
   XLg,
   Bell,
   Trash,
-  Check2All
+  Check2All,
+  Award,
+  AwardFill
 } from "react-bootstrap-icons";
 import { getUser, logout } from "../../services/auth";
-import { 
+import {
   getMyProfile,
   getMyNotifications,
   markNotificationRead,
@@ -21,9 +24,11 @@ import {
   deleteNotification,
   deleteAllNotifications
 } from "../../api/profileService";
+import { getSubscriptionStatus } from "../../api/subscriptionService";
 import { toast } from "react-toastify";
 
 const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSidebarOpen }) => {
+  const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -33,7 +38,26 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
   const [notifDropdownOpen, setNotifDropdownOpen] = useState(false);
   const notifRef = useRef(null);
 
+  const [subscription, setSubscription] = useState(null);
+
   const user = getUser();
+
+  useEffect(() => {
+    getSubscriptionStatus()
+      .then((res) => {
+        if (res.data?.success) setSubscription(res.data.data);
+      })
+      .catch(() => {});
+  }, []);
+
+  const subscriptionIsExpired = (() => {
+    if (!subscription?.expiryDate) return false;
+    const exp = new Date(subscription.expiryDate);
+    if (isNaN(exp.getTime())) return false;
+    exp.setHours(23, 59, 59, 999);
+    return exp < new Date();
+  })();
+  const isSubscribed = !!subscription?.active && !subscriptionIsExpired;
 
   const fetchNotifications = async () => {
     try {
@@ -186,6 +210,20 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
 
           {/* RIGHT SECTION */}
           <div className="flex items-center gap-3">
+            {/* Subscription Status Badge */}
+            <button
+              onClick={() => navigate("/subscription")}
+              title={isSubscribed ? "You have an active subscription" : "Subscribe to unlock premium features"}
+              className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all active:scale-95 cursor-pointer ${
+                isSubscribed
+                  ? "bg-emerald-50 text-emerald-600 border border-emerald-100 hover:bg-emerald-100"
+                  : "bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200"
+              }`}
+            >
+              {isSubscribed ? <AwardFill size={12} /> : <Award size={12} />}
+              {isSubscribed ? (subscription?.planType === "YEARLY" ? "Yearly Pro" : "Monthly Pro") : "Free Plan"}
+            </button>
+
             {/* Mobile Search */}
             <button
               onClick={() => setSearchOpen(!searchOpen)}
@@ -345,9 +383,22 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
                           <p className="text-[10px] font-bold text-emerald-600 mt-0.5">@{username}</p>
                         )}
                         <p className="text-xs text-slate-500 truncate max-w-[170px] mt-0.5">{email}</p>
-                        <span className="inline-block mt-1.5 px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-100 text-[10px] font-bold rounded-full">
-                          {role}
-                        </span>
+                        <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                          <span className="inline-block px-2 py-0.5 bg-emerald-50 text-emerald-600 border border-emerald-100 text-[10px] font-bold rounded-full">
+                            {role}
+                          </span>
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full border ${
+                            isSubscribed
+                              ? "bg-amber-50 text-amber-600 border-amber-100"
+                              : "bg-slate-100 text-slate-500 border-slate-200"
+                          }`}>
+                            {isSubscribed ? <AwardFill size={10} /> : <Award size={10} />}
+                            {isSubscribed ? (subscription?.planType === "YEARLY" ? "Yearly Plan" : "Monthly Plan") : "Not Subscribed"}
+                          </span>
+                        </div>
+                        {isSubscribed && subscription?.expiryDate && (
+                          <p className="text-[10px] text-slate-400 font-semibold mt-1">Renews / expires {subscription.expiryDate}</p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -362,6 +413,16 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
                         <PersonCircle size={18} className="text-slate-400" />
                       </div>
                       <span className="ml-2.5 font-semibold text-xs">My Profile</span>
+                    </a>
+
+                    <a
+                      href="/subscription"
+                      className="flex items-center px-3 py-2.5 text-slate-700 hover:text-emerald-600 hover:bg-emerald-50/50 rounded-xl transition-all"
+                    >
+                      <div className="w-6 flex justify-center">
+                        {isSubscribed ? <AwardFill size={16} className="text-amber-500" /> : <Award size={16} className="text-slate-400" />}
+                      </div>
+                      <span className="ml-2.5 font-semibold text-xs">{isSubscribed ? "Manage Subscription" : "Subscribe Now"}</span>
                     </a>
 
                     <div className="my-1 border-t border-slate-100" />

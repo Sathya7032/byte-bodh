@@ -125,12 +125,10 @@ const Users = () => {
   };
 
   const getRoleBadgeColor = (role) => {
-    switch (role?.toLowerCase()) {
-      case "admin":
+    switch (role?.toUpperCase()) {
+      case "ADMIN":
         return "bg-purple-100 text-purple-800";
-      case "editor":
-        return "bg-blue-100 text-blue-800";
-      case "user":
+      case "USER":
         return "bg-green-100 text-green-800";
       default:
         return "bg-gray-100 text-gray-800";
@@ -166,7 +164,7 @@ const Users = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow p-6">
             <div className="flex items-center">
               <div className="rounded-full bg-blue-100 p-3">
@@ -187,35 +185,21 @@ const Users = () => {
               <div className="ml-4">
                 <p className="text-sm text-gray-600">Admins</p>
                 <p className="text-2xl font-bold">
-                  {users.filter(u => u.role === 'admin').length}
+                  {users.filter(u => u.role?.toUpperCase() === 'ADMIN').length}
                 </p>
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-xl shadow p-6">
             <div className="flex items-center">
               <div className="rounded-full bg-green-100 p-3">
                 <FaUserCircle className="h-6 w-6 text-green-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm text-gray-600">Editors</p>
-                <p className="text-2xl font-bold">
-                  {users.filter(u => u.role === 'editor').length}
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-xl shadow p-6">
-            <div className="flex items-center">
-              <div className="rounded-full bg-orange-100 p-3">
-                <FaEnvelope className="h-6 w-6 text-orange-600" />
-              </div>
-              <div className="ml-4">
                 <p className="text-sm text-gray-600">Regular Users</p>
                 <p className="text-2xl font-bold">
-                  {users.filter(u => u.role === 'user').length}
+                  {users.filter(u => u.role?.toUpperCase() === 'USER').length}
                 </p>
               </div>
             </div>

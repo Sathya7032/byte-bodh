@@ -52,7 +52,7 @@ const AdminPayments = () => {
         (p) =>
           p.userFullName?.toLowerCase().includes(term) ||
           p.userEmail?.toLowerCase().includes(term) ||
-          p.templateName?.toLowerCase().includes(term) ||
+          p.itemName?.toLowerCase().includes(term) ||
           p.razorpayOrderId?.toLowerCase().includes(term) ||
           p.razorpayPaymentId?.toLowerCase().includes(term)
       );
@@ -274,7 +274,7 @@ const AdminPayments = () => {
                   {[
                     { key: "id", label: "ID" },
                     { key: "userFullName", label: "User" },
-                    { key: "templateName", label: "Template" },
+                    { key: "itemName", label: "Item" },
                     { key: "amount", label: "Amount" },
                     { key: "status", label: "Status" },
                     { key: "createdAt", label: "Date" },
@@ -307,7 +307,10 @@ const AdminPayments = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-sm text-gray-900">{p.templateName}</span>
+                        <span className="text-sm text-gray-900">{p.itemName}</span>
+                        {p.planType && (
+                          <span className="block text-[10px] text-gray-400 font-semibold mt-0.5 uppercase">{p.planType}</span>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         ₹{p.amount?.toLocaleString()}

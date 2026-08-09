@@ -25,8 +25,9 @@ api.interceptors.response.use(
   (error) => handleUnauthorizedError(error, api)
 );
 
-// Blog API methods
+// User APIs
 export const getUsers = () => api.get("/api/users");
 export const getUserById = (id) => api.get(`/api/users/${id}`);
 export const getUserByProfile = (id) => api.get(`/api/users/${id}`);
-export const deleteUser = () => api.get(`/api/users/check-availability`);
+export const deleteUser = (id) => api.delete(`/api/users/${id}`);
+export const checkUserAvailability = (params) => api.get("/api/users/check-availability", { params });

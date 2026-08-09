@@ -1,41 +1,39 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
   FaCheckCircle,
   FaTimesCircle,
   FaFolder,
   FaDownload,
-  FaShoppingBag,
   FaRocket,
   FaSpinner,
   FaPalette,
   FaEye,
   FaExclamationTriangle,
   FaBookOpen,
-  FaGift
+  FaLock,
+  FaCrown
 } from "react-icons/fa";
 import DashboardLayout from "./components/DashboardLayout";
-import { getUser } from "../services/auth";
 import {
   getAllTemplates,
   getUserTemplates,
   activateTemplate,
-  createPaymentOrder,
-  verifyPayment,
-  recordPaymentFailure
 } from "../api/templateService";
+import { getSubscriptionStatus } from "../api/subscriptionService";
 import { getMyProfile } from "../api/profileService";
 
 const PortfolioTemplates = () => {
+  const navigate = useNavigate();
   const [templates, setTemplates] = useState([]);
   const [userTemplates, setUserTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [processingId, setProcessingId] = useState(null);
-  const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [billingCycle, setBillingCycle] = useState("MONTHLY");
+  const [subscription, setSubscription] = useState({ active: false });
 
   // Fallback mock images if previewImageUrl is empty
   const mockImageMap = {
@@ -46,30 +44,16 @@ const PortfolioTemplates = () => {
     18: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80"  // Emerald Edge Glass
   };
 
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      if (window.Razorpay) {
-        resolve(true);
-        return;
-      }
-      const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
-
   const fetchData = async () => {
     try {
       setLoading(true);
       setError("");
-      const [allRes, userRes, profileRes] = await Promise.all([
+      const [allRes, userRes, profileRes, subRes] = await Promise.all([
         getAllTemplates(),
         getUserTemplates(),
-        getMyProfile().catch(() => ({ data: null }))
+        getMyProfile().catch(() => ({ data: null })),
+        getSubscriptionStatus().catch(() => ({ data: null })),
       ]);
-      console.log("user templates ", userRes)
 
       if (allRes.data?.success) {
         setTemplates(allRes.data.data || []);
@@ -86,6 +70,10 @@ const PortfolioTemplates = () => {
       if (profileRes?.data) {
         setProfile(profileRes.data);
       }
+
+      if (subRes?.data?.success) {
+        setSubscription(subRes.data.data || { active: false });
+      }
     } catch (err) {
       console.error(err);
       setError("Failed to fetch templates. Please check if server is active.");
@@ -96,7 +84,6 @@ const PortfolioTemplates = () => {
   };
 
   useEffect(() => {
-    setUser(getUser());
     fetchData();
   }, []);
 
@@ -112,105 +99,16 @@ const PortfolioTemplates = () => {
       }
     } catch (err) {
       console.error(err);
-      toast.error("Error activating template. Please try again.");
+      const msg = err.response?.data?.message;
+      if (err.response?.status === 402 || (msg && msg.toLowerCase().includes("subscription"))) {
+        toast.error(msg || "An active subscription is required to use this template.");
+        navigate("/subscription");
+      } else {
+        toast.error(msg || "Error activating template. Please try again.");
+      }
     } finally {
       setProcessingId(null);
     }
-  };
-
-  const handlePurchase = async (template) => {
-    try {
-      setProcessingId(template.id);
-
-      // 1. Create payment order on server
-      const orderRes = await createPaymentOrder({
-        templateId: template.id,
-        planType: billingCycle
-      });
-      if (!orderRes.data?.success) {
-        throw new Error(orderRes.data?.message || "Order creation failed on backend");
-      }
-
-      const orderData = orderRes.data.data;
-
-      // 2. Load Razorpay script
-      const scriptLoaded = await loadRazorpayScript();
-      if (!scriptLoaded) {
-        toast.error("Razorpay SDK failed to load. Please check your internet connection.");
-        setProcessingId(null);
-        return;
-      }
-
-
-      // 3. Configure Checkout Options
-      const options = {
-        key: orderData.key,
-        amount: orderData.amount,
-        currency: orderData.currency || "INR",
-        name: "ByteBodh",
-        description: `Unlock Template: ${template.templateName}`,
-        order_id: orderData.orderId || orderData.id,
-        handler: async function (response) {
-          try {
-            setProcessingId(template.id);
-            const verifyRes = await verifyPayment({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              templateId: template.id
-            });
-
-            if (verifyRes.data?.success) {
-              toast.success("Payment verified! Template unlocked successfully!");
-              fetchData();
-            } else {
-              toast.error(verifyRes.data?.message || "Payment verification failed.");
-            }
-          } catch (verifyErr) {
-            console.error("Verification error:", verifyErr);
-            toast.error(verifyErr.response?.data?.message || "Failed to verify transaction");
-          } finally {
-            setProcessingId(null);
-          }
-        },
-        prefill: {
-          name: user?.fullName || "",
-          email: user?.email || "",
-        },
-        theme: {
-          color: "#10B981",
-        },
-        modal: {
-          ondismiss: async function () {
-            toast.warning("Payment cancelled by user.");
-            // Record failure locally
-            try {
-              await recordPaymentFailure({
-                razorpay_order_id: orderData.orderId || orderData.id,
-                error_code: "PAYMENT_CANCELLED",
-                error_description: "Payment cancelled by the user",
-                templateId: template.id
-              });
-            } catch (failErr) {
-              console.error("Failed recording failure:", failErr);
-            }
-            setProcessingId(null);
-          }
-        }
-      };
-
-      const paymentObject = new window.Razorpay(options);
-      paymentObject.open();
-    } catch (err) {
-      console.error(err);
-      toast.error(err.message || "Failed to start payment checkout");
-      setProcessingId(null);
-    }
-  };
-
-  const handleFreeActivation = async (template) => {
-    // Free templates are immediately activated on activateTemplate in backend
-    await handleActivate(template.id);
   };
 
   const checkIsExpired = (expiryDate) => {
@@ -220,6 +118,15 @@ const PortfolioTemplates = () => {
     exp.setHours(23, 59, 59, 999);
     return exp < new Date();
   };
+
+  const subscriptionIsExpired = (() => {
+    if (!subscription.expiryDate) return false;
+    const exp = new Date(subscription.expiryDate);
+    if (isNaN(exp.getTime())) return false;
+    exp.setHours(23, 59, 59, 999);
+    return exp < new Date();
+  })();
+  const hasActiveSubscription = subscription.active && !subscriptionIsExpired;
 
   const categories = ["All", ...new Set(templates.map((t) => t.category).filter(Boolean))];
 
@@ -251,7 +158,7 @@ const PortfolioTemplates = () => {
       )}
 
       {/* Header */}
-      <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="mb-2 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-2">
             <FaPalette className="text-emerald-600" /> Portfolio Templates
@@ -262,46 +169,43 @@ const PortfolioTemplates = () => {
         </div>
       </div>
 
-      {/* Categories & Billing Cycle layout */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        {/* Categories filter tabs */}
-        <div className="flex flex-wrap gap-2 bg-gray-50 p-2 rounded-2xl border border-gray-200/50 max-w-2xl text-left">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-5 py-2 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer ${selectedCategory === cat
-                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
-                  : "text-gray-500 hover:text-gray-800 hover:bg-white"
-                }`}
-            >
-              {cat}
-            </button>
-          ))}
+      {/* Subscription status banner */}
+      {!loading && !hasActiveSubscription && (
+        <div className="p-5 bg-gradient-to-r from-slate-900 via-[#064e3b] to-slate-900 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-left">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center flex-shrink-0">
+              <FaCrown className="text-white" />
+            </div>
+            <div>
+              <h3 className="text-white font-black text-sm">Unlock all premium templates</h3>
+              <p className="text-slate-400 text-xs font-semibold mt-0.5">
+                Subscribe once to activate any paid template, plus blogs and portfolio messaging.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => navigate("/subscription")}
+            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black transition-all shadow-md shadow-emerald-600/20 flex items-center gap-2 cursor-pointer whitespace-nowrap"
+          >
+            <FaCrown /> Subscribe Now
+          </button>
         </div>
+      )}
 
-        {/* Plan Billing Cycle Toggle */}
-        <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200 p-1.5 rounded-2xl self-start md:self-auto">
+      {/* Categories filter tabs */}
+      <div className="flex flex-wrap gap-2 bg-gray-50 p-2 rounded-2xl border border-gray-200/50 max-w-2xl text-left">
+        {categories.map((cat) => (
           <button
-            onClick={() => setBillingCycle("MONTHLY")}
-            className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all duration-300 cursor-pointer ${billingCycle === "MONTHLY"
-                ? "bg-slate-900 text-white shadow-md"
-                : "text-slate-500 hover:text-slate-800"
-              }`}
-          >
-            Monthly
-          </button>
-          <button
-            onClick={() => setBillingCycle("YEARLY")}
-            className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${billingCycle === "YEARLY"
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            className={`px-5 py-2 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer ${selectedCategory === cat
                 ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
-                : "text-slate-500 hover:text-emerald-600"
+                : "text-gray-500 hover:text-gray-800 hover:bg-white"
               }`}
           >
-            Yearly Plan
-            <span className="px-1.5 py-0.5 text-[9px] font-black bg-emerald-500 text-white rounded-md uppercase tracking-wider animate-pulse">Save 10%</span>
+            {cat}
           </button>
-        </div>
+        ))}
       </div>
 
       {/* Loading */}
@@ -342,10 +246,11 @@ const PortfolioTemplates = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredTemplates.map((template) => {
             const userTemplate = userTemplates.find((ut) => ut.templateId === template.id);
-            const isPurchased = !!userTemplate;
-            const isExpired = isPurchased ? checkIsExpired(userTemplate.expiryDate) : false;
+            const isOwned = !!userTemplate;
+            const isExpired = isOwned ? checkIsExpired(userTemplate.expiryDate) : false;
             const isActive = (userTemplate?.active || false) && !isExpired;
             const previewUrl = template.previewImageUrl || mockImageMap[template.id] || mockImageMap[1];
+            const isLocked = !template.isFree && !hasActiveSubscription;
 
             return (
               <div
@@ -372,44 +277,24 @@ const PortfolioTemplates = () => {
 
                     {/* Price/Status Tag */}
                     <div className="absolute top-4 right-4">
-                      {isPurchased ? (
-                        <span
-                          className={`px-3.5 py-1.5 rounded-full text-xs font-black tracking-wide shadow-md flex items-center gap-1.5 ${
-                            isExpired
-                              ? "bg-rose-500 text-white shadow-rose-500/20"
-                              : isActive
-                              ? "bg-emerald-500 text-white shadow-emerald-500/20"
-                              : "bg-emerald-600 text-white shadow-emerald-600/20"
-                          }`}
-                        >
-                          {isExpired ? (
-                            <><FaExclamationTriangle /> EXPIRED</>
-                          ) : isActive ? (
-                            <><FaCheckCircle /> ACTIVE</>
-                          ) : (
-                            <><FaCheckCircle /> OWNED</>
-                          )}
+                      {template.isFree ? (
+                        <span className="px-3.5 py-1.5 rounded-full text-xs font-black tracking-wide shadow-md bg-white border border-gray-100 text-emerald-600">
+                          FREE
+                        </span>
+                      ) : isLocked ? (
+                        <span className="px-3.5 py-1.5 rounded-full text-xs font-black tracking-wide shadow-md bg-slate-900 text-white flex items-center gap-1.5">
+                          <FaLock size={10} /> SUBSCRIPTION
+                        </span>
+                      ) : isActive ? (
+                        <span className="px-3.5 py-1.5 rounded-full text-xs font-black tracking-wide shadow-md bg-emerald-500 text-white flex items-center gap-1.5">
+                          <FaCheckCircle /> ACTIVE
                         </span>
                       ) : (
-                        <span className="px-3.5 py-1.5 rounded-full text-xs font-black tracking-wide shadow-md bg-white border border-gray-100 text-emerald-600 shadow-slate-950/5">
-                          {template.isFree
-                            ? "FREE"
-                            : billingCycle === "YEARLY"
-                              ? `₹${template.yearlyCost ?? template.monthlyCost ?? 0}/yr`
-                              : `₹${template.monthlyCost ?? template.cost ?? 0}/mo`
-                          }
+                        <span className="px-3.5 py-1.5 rounded-full text-xs font-black tracking-wide shadow-md bg-emerald-600 text-white flex items-center gap-1.5">
+                          <FaCheckCircle /> UNLOCKED
                         </span>
                       )}
                     </div>
-
-                    {/* 1 Month Free ribbon */}
-                    {template.hasOneMonthFree && !isPurchased && (
-                      <div className="absolute top-4 left-4">
-                        <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-amber-400 text-white shadow-md shadow-amber-400/30">
-                          <FaGift size={9} /> 1 Month Free
-                        </span>
-                      </div>
-                    )}
                   </div>
 
                   {/* Body Content */}
@@ -433,8 +318,7 @@ const PortfolioTemplates = () => {
                     </p>
 
                     {/* Feature checklist — always visible */}
-                    <div className="mt-4 grid grid-cols-2 gap-2">
-                      {/* Blogs feature */}
+                    <div className="mt-4 grid grid-cols-1 gap-2">
                       <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-[10px] font-black uppercase tracking-wider ${
                         template.hasBlogsFeature
                           ? "bg-violet-50 border-violet-100 text-violet-700"
@@ -447,22 +331,6 @@ const PortfolioTemplates = () => {
                         )}
                         <span className="flex items-center gap-1">
                           <FaBookOpen size={9} /> Blogs
-                        </span>
-                      </div>
-
-                      {/* 1 Month Free */}
-                      <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-[10px] font-black uppercase tracking-wider ${
-                        template.hasOneMonthFree
-                          ? "bg-amber-50 border-amber-100 text-amber-700"
-                          : "bg-slate-50 border-slate-100 text-slate-400"
-                      }`}>
-                        {template.hasOneMonthFree ? (
-                          <FaCheckCircle size={12} className="text-amber-500 flex-shrink-0" />
-                        ) : (
-                          <FaTimesCircle size={12} className="text-slate-300 flex-shrink-0" />
-                        )}
-                        <span className="flex items-center gap-1">
-                          <FaGift size={9} /> 1 Mo Free
                         </span>
                       </div>
                     </div>
@@ -479,84 +347,41 @@ const PortfolioTemplates = () => {
 
                 {/* Footer Buttons */}
                 <div className="p-6 pt-0 text-left border-t border-gray-50 mt-4">
-                  {isPurchased ? (
-                    isExpired ? (
-                      <button
-                        disabled={processingId === template.id}
-                        onClick={() =>
-                          template.isFree ? handleFreeActivation(template) : handlePurchase(template)
-                        }
-                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-2xl text-xs font-bold transition-all shadow-md shadow-emerald-600/15 hover:shadow-lg hover:shadow-emerald-600/30 flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        {processingId === template.id ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            Processing...
-                          </>
-                        ) : template.isFree ? (
-                          <>
-                            <FaRocket /> Get Template (Free)
-                          </>
-                        ) : (
-                          <>
-                            <FaShoppingBag /> Buy Again ({billingCycle === "YEARLY"
-                              ? `₹${template.yearlyCost ?? template.monthlyCost ?? 0}/yr`
-                              : `₹${template.monthlyCost ?? template.cost ?? 0}/mo`
-                            })
-                          </>
-                        )}
-                      </button>
-                    ) : (
-                      <button
-                        disabled={isActive || processingId === template.id}
-                        onClick={() => handleActivate(template.id)}
-                        className={`w-full py-3 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${isActive
-                            ? "bg-slate-100 text-slate-400 cursor-default"
-                            : "bg-slate-900 hover:bg-slate-800 text-white shadow-md hover:shadow-lg"
-                          }`}
-                      >
-                        {processingId === template.id ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-                            Activating...
-                          </>
-                        ) : isActive ? (
-                          "Currently Active Theme"
-                        ) : (
-                          <>
-                            <FaRocket /> Activate Layout
-                          </>
-                        )}
-                      </button>
-                    )
+                  {isLocked ? (
+                    <button
+                      onClick={() => navigate("/subscription")}
+                      className="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-2xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <FaLock size={11} /> Subscribe to Unlock
+                    </button>
                   ) : (
                     <button
-                      disabled={processingId === template.id}
-                      onClick={() =>
-                        template.isFree ? handleFreeActivation(template) : handlePurchase(template)
-                      }
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-2xl text-xs font-bold transition-all shadow-md shadow-emerald-600/15 hover:shadow-lg hover:shadow-emerald-600/30 flex items-center justify-center gap-2 cursor-pointer"
+                      disabled={isActive || processingId === template.id}
+                      onClick={() => handleActivate(template.id)}
+                      className={`w-full py-3 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${isActive
+                          ? "bg-slate-100 text-slate-400 cursor-default"
+                          : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/15 hover:shadow-lg hover:shadow-emerald-600/30"
+                        }`}
                     >
                       {processingId === template.id ? (
                         <>
                           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          Processing...
+                          {isExpired ? "Reactivating..." : "Activating..."}
                         </>
-                      ) : template.isFree ? (
-                        <>
-                          <FaRocket /> Get Template (Free)
-                        </>
+                      ) : isActive ? (
+                        "Currently Active Theme"
                       ) : (
                         <>
-                          <FaShoppingBag />
-                          {template.hasOneMonthFree ? "Start Free Month — " : "Purchase Template — "}
-                          {billingCycle === "YEARLY"
-                            ? `₹${template.yearlyCost ?? template.monthlyCost ?? 0}/yr`
-                            : `₹${template.monthlyCost ?? template.cost ?? 0}/mo`
-                          }
+                          <FaRocket /> {template.isFree ? "Get Template (Free)" : isExpired ? "Reactivate Layout" : "Activate Layout"}
                         </>
                       )}
                     </button>
+                  )}
+
+                  {isExpired && isOwned && (
+                    <p className="text-[10px] text-rose-500 font-bold text-center mt-2 flex items-center justify-center gap-1">
+                      <FaExclamationTriangle /> This template's access period has expired.
+                    </p>
                   )}
                 </div>
               </div>

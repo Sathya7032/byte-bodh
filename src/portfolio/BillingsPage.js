@@ -1,26 +1,36 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "./components/DashboardLayout";
 import { getPaymentHistory } from "../api/templateService";
-import { 
-  FaCreditCard, 
-  FaReceipt, 
-  FaSearch, 
-  FaSpinner, 
-  FaCheckCircle, 
-  FaTimesCircle, 
-  FaHourglassHalf, 
-  FaFileInvoiceDollar
+import { getSubscriptionStatus } from "../api/subscriptionService";
+import {
+  FaCreditCard,
+  FaReceipt,
+  FaSearch,
+  FaSpinner,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaHourglassHalf,
+  FaFileInvoiceDollar,
+  FaCrown
 } from "react-icons/fa";
 
 const BillingsPage = () => {
+  const navigate = useNavigate();
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [subscription, setSubscription] = useState(null);
 
   useEffect(() => {
     fetchPaymentHistory();
+    getSubscriptionStatus()
+      .then((res) => {
+        if (res.data?.success) setSubscription(res.data.data);
+      })
+      .catch(() => {});
   }, []);
 
   const fetchPaymentHistory = async () => {
@@ -91,7 +101,7 @@ const BillingsPage = () => {
   // Filter payments
   const filteredPayments = payments.filter((item) => {
     const matchesSearch =
-      item.templateName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.itemName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.id?.toString().includes(searchTerm) ||
       item.status?.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -134,14 +144,40 @@ const BillingsPage = () => {
             </div>
           </div>
           
-          <button
-            onClick={fetchPaymentHistory}
-            disabled={loading}
-            className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-white text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer self-start sm:self-center"
-          >
-            Refresh History
-          </button>
+          <div className="flex items-center gap-2 self-start sm:self-center">
+            <button
+              onClick={() => navigate("/subscription")}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-xl text-white text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer"
+            >
+              <FaCrown /> Manage Subscription
+            </button>
+            <button
+              onClick={fetchPaymentHistory}
+              disabled={loading}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-white text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer"
+            >
+              Refresh History
+            </button>
+          </div>
         </div>
+
+        {subscription && (
+          <div className="relative z-10 mt-6 pt-6 border-t border-white/10 flex items-center gap-3 text-xs font-bold">
+            <span
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${
+                subscription.active ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30" : "bg-rose-500/15 text-rose-300 border border-rose-500/30"
+              }`}
+            >
+              {subscription.active ? <FaCheckCircle /> : <FaTimesCircle />}
+              {subscription.active ? `${subscription.planType === "YEARLY" ? "Yearly" : "Monthly"} plan active` : "No active subscription"}
+            </span>
+            {subscription.expiryDate && (
+              <span className="text-slate-400">
+                {subscription.active ? "Renews / expires" : "Expired"} on {subscription.expiryDate}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Summary Cards */}
@@ -259,7 +295,7 @@ const BillingsPage = () => {
               <thead>
                 <tr className="bg-slate-50/75 border-b border-slate-100 text-slate-500 font-bold text-xs uppercase tracking-wider">
                   <th className="px-6 py-4">Transaction ID</th>
-                  <th className="px-6 py-4">Product Name</th>
+                  <th className="px-6 py-4">Item</th>
                   <th className="px-6 py-4">Date & Time</th>
                   <th className="px-6 py-4 text-right">Amount</th>
                   <th className="px-6 py-4 text-center">Status</th>
@@ -269,7 +305,7 @@ const BillingsPage = () => {
                 {filteredPayments.map((p) => (
                   <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4 font-mono text-slate-500">#{p.id}</td>
-                    <td className="px-6 py-4 font-bold text-slate-900">{p.templateName}</td>
+                    <td className="px-6 py-4 font-bold text-slate-900">{p.itemName}</td>
                     <td className="px-6 py-4 text-slate-500">{formatDate(p.date)}</td>
                     <td className="px-6 py-4 text-right font-bold text-slate-900">
                       {formatAmount(p.amount)}
