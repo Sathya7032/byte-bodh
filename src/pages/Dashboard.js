@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import DashboardLayout from "../portfolio/components/DashboardLayout";
 import { getUser, getAccessToken } from "../services/auth";
 import { dashboardStats, getMyProfile, getContactMessages, getTasks, getMyReferrals } from "../api/profileService";
+import { getActiveMilestones } from "../api/referralMilestoneService";
 import { getPaymentHistory, getUserTemplates, getAllTemplates } from "../api/templateService";
 import { getPortfolioUrl } from "../config/api";
 import QRCode from "react-qr-code";
@@ -17,8 +18,14 @@ import {
   FaEnvelopeOpen,
   FaExternalLinkAlt,
   FaGlobe,
-  FaUsers,
-  FaGift
+
+  FaGift,
+  FaTrophy,
+  FaCheckCircle,
+  FaLock,
+  FaChevronRight,
+  FaShareAlt,
+  FaWallet
 } from "react-icons/fa";
 
 const quotes = [
@@ -65,8 +72,11 @@ const Dashboard = () => {
     totalTemplatesOwned: 0,
     activeTemplateName: "None",
     referralCount: 0,
-    referralCode: ""
+    referralCode: "",
+    subscribedReferrals: 0,
+    walletBalance: 0
   });
+  const [milestones, setMilestones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentQuote, setCurrentQuote] = useState(0);
   const [copied, setCopied] = useState(false);
@@ -98,8 +108,18 @@ const Dashboard = () => {
 
   const fetchDashboardStats = async () => {
     try {
-      // Fetch stats, profile, messages, payments, tasks, referrals and templates in parallel
-      const [statsRes, profileRes, messagesRes, paymentsRes, tasksRes, referralsRes, userTemplatesRes, allTemplatesRes] = await Promise.all([
+      // Fetch stats, profile, messages, payments, tasks, referrals, templates and milestones in parallel
+      const [
+        statsRes,
+        profileRes,
+        messagesRes,
+        paymentsRes,
+        tasksRes,
+        referralsRes,
+        userTemplatesRes,
+        allTemplatesRes,
+        milestonesRes
+      ] = await Promise.all([
         dashboardStats().catch(err => ({ data: { success: false } })),
         getMyProfile().catch(err => ({ data: { success: false } })),
         getContactMessages().catch(err => ({ data: { success: false } })),
@@ -107,7 +127,8 @@ const Dashboard = () => {
         getTasks().catch(err => ({ data: { success: false } })),
         getMyReferrals().catch(err => ({ data: { success: false } })),
         getUserTemplates().catch(err => ({ data: { success: false } })),
-        getAllTemplates().catch(err => ({ data: { success: false } }))
+        getAllTemplates().catch(err => ({ data: { success: false } })),
+        getActiveMilestones().catch(err => ({ data: { success: false } }))
       ]);
 
       // Calculate tasks count and progress
@@ -122,9 +143,20 @@ const Dashboard = () => {
       // Extract referral information
       let refCode = "";
       let refCount = 0;
+      let subRefCount = 0;
+      let walletBal = 0;
       if (referralsRes.data?.success && referralsRes.data.data) {
         refCode = referralsRes.data.data.referralCode || "";
         refCount = referralsRes.data.data.totalJoinedUsers || 0;
+        subRefCount = referralsRes.data.data.subscribedReferrals || 0;
+        walletBal = referralsRes.data.data.walletBalance || 0;
+      }
+
+      if (milestonesRes.data?.success && Array.isArray(milestonesRes.data.data)) {
+        const sortedMilestones = [...milestonesRes.data.data].sort(
+          (a, b) => a.requiredReferrals - b.requiredReferrals
+        );
+        setMilestones(sortedMilestones);
       }
 
       // Extract active template name and owned count from user templates + all templates
@@ -152,6 +184,8 @@ const Dashboard = () => {
           completedTasks: completedTasksCount,
           referralCode: refCode,
           referralCount: refCount,
+          subscribedReferrals: subRefCount,
+          walletBalance: walletBal,
           activeTemplateName,
           totalTemplatesOwned
         });
@@ -162,6 +196,8 @@ const Dashboard = () => {
           completedTasks: completedTasksCount,
           referralCode: refCode,
           referralCount: refCount,
+          subscribedReferrals: subRefCount,
+          walletBalance: walletBal,
           activeTemplateName,
           totalTemplatesOwned
         }));
@@ -199,6 +235,24 @@ const Dashboard = () => {
     toast.success("Referral code copied!");
     setTimeout(() => setCopiedReferral(false), 2000);
   };
+
+  const handleShareReferral = (code) => {
+    if (!code) return;
+    const shareText = `Hey! Join ByteBodh using my referral code: ${code} and build your premium AI portfolio instantly!`;
+    if (navigator.share) {
+      navigator.share({
+        title: "Join ByteBodh Folio Builder",
+        text: shareText,
+        url: window.location.origin
+      }).catch(err => console.log(err));
+    } else {
+      navigator.clipboard.writeText(shareText);
+      toast.success("Invitation message copied to clipboard!");
+    }
+  };
+
+  const formatAmount = (amount) =>
+    new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(amount || 0);
 
   const handleNextQuote = () => {
     setCurrentQuote((prev) => (prev + 1) % quotes.length);
@@ -488,46 +542,234 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* REFERRALS CARD */}
-      <div className="group relative bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-xl hover:border-emerald-200 transition-all duration-300 overflow-hidden shadow-sm flex flex-col justify-between md:flex-row md:items-center gap-6 text-left">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/20 to-teal-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        <div className="relative z-10 flex-1">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl inline-flex items-center justify-center">
-              <FaUsers className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Referral Stats</span>
-              <div className="flex items-baseline gap-2 mt-1">
-                <h3 className="text-3xl font-black text-slate-800">{stats.referralCount || 0}</h3>
-                <span className="text-xs text-slate-500 font-semibold">referred user(s)</span>
+      {/* REFERRALS & MILESTONES HUB */}
+      {(() => {
+        const nextMilestone = milestones.find(
+          (m) => m.requiredReferrals > (stats.subscribedReferrals || 0)
+        );
+        return (
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col space-y-6 text-left relative overflow-hidden">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 bg-gradient-to-br from-amber-400 via-amber-500 to-emerald-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20 shrink-0">
+                  <FaTrophy className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-black text-slate-800 tracking-tight">Referral Milestones & Rewards</h2>
+                    <span className="text-[10px] font-extrabold uppercase bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-0.5 rounded-full">
+                      Earn Cash
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 font-semibold mt-0.5">
+                    Earn wallet cash rewards when your referred friends subscribe to ByteBodh.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5 self-start sm:self-auto">
+                <Link
+                  to="/wallet"
+                  className="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 text-emerald-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                >
+                  <FaWallet className="text-emerald-600" />
+                  <span>Wallet: {formatAmount(stats.walletBalance)}</span>
+                </Link>
+                <Link
+                  to="/referrals"
+                  className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+                >
+                  <span>View All Referrals</span>
+                  <FaChevronRight size={10} />
+                </Link>
               </div>
             </div>
-          </div>
-          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2 text-xs font-semibold text-slate-500">
-            <FaGift className="text-emerald-500 text-xs animate-bounce" />
-            <span>Share your code to invite your friends!</span>
-          </div>
-        </div>
 
-        <div className="relative z-10 flex flex-col gap-2 min-w-[200px]">
-          <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Your Referral Code</span>
-          <div className="bg-slate-50 border border-slate-200/80 rounded-xl px-3.5 py-2 flex items-center justify-between gap-3 shadow-inner">
-            <span className="font-mono text-sm font-extrabold text-emerald-600 tracking-wider">
-              {stats.referralCode || "N/A"}
-            </span>
-            {stats.referralCode && (
-              <button
-                onClick={() => handleCopyReferral(stats.referralCode)}
-                className="p-1.5 hover:bg-slate-200/80 text-slate-500 hover:text-emerald-600 rounded-lg transition-colors cursor-pointer"
-                title="Copy referral code"
-              >
-                <FaCopy size={12} className={copiedReferral ? "text-emerald-500 scale-110" : "transition-transform active:scale-90"} />
-              </button>
+            {/* Quick Stats Grid & Share Code Bar */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Subscribed Referrals */}
+              <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-4 flex items-center justify-between">
+                <div>
+                  <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                    Subscribed Referrals
+                  </span>
+                  <div className="flex items-baseline gap-2 mt-1">
+                    <h3 className="text-2xl font-black text-slate-800">{stats.subscribedReferrals || 0}</h3>
+                    <span className="text-xs text-slate-500 font-semibold">qualifying</span>
+                  </div>
+                  <p className="text-[10px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                    <FaCheckCircle size={10} /> Counts toward milestones
+                  </p>
+                </div>
+              </div>
+
+              {/* Total Referred Friends */}
+              <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-4 flex items-center justify-between">
+                <div>
+                  <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                    Total Friends Joined
+                  </span>
+                  <div className="flex items-baseline gap-2 mt-1">
+                    <h3 className="text-2xl font-black text-slate-800">{stats.referralCount || 0}</h3>
+                    <span className="text-xs text-slate-500 font-semibold">user(s)</span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 font-semibold mt-1">
+                    Registered using your referral code
+                  </p>
+                </div>
+              </div>
+
+              {/* Share Referral Code Box */}
+              <div className="bg-gradient-to-br from-slate-900 via-[#064e3b] to-slate-900 border border-slate-800 text-white rounded-2xl p-4 flex flex-col justify-between shadow-md">
+                <span className="block text-[10px] text-emerald-400 font-bold uppercase tracking-wider">
+                  Your Referral Code
+                </span>
+                <div className="flex items-center justify-between gap-2 mt-2">
+                  <span className="font-mono text-lg font-black text-emerald-300 tracking-wider">
+                    {stats.referralCode || "N/A"}
+                  </span>
+                  {stats.referralCode && (
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => handleCopyReferral(stats.referralCode)}
+                        className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all cursor-pointer"
+                        title="Copy Referral Code"
+                      >
+                        <FaCopy size={13} className={copiedReferral ? "text-emerald-400 scale-110" : ""} />
+                      </button>
+                      <button
+                        onClick={() => handleShareReferral(stats.referralCode)}
+                        className="p-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition-all cursor-pointer shadow-sm"
+                        title="Share Code"
+                      >
+                        <FaShareAlt size={13} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Milestone Progress Bar & Cards */}
+            {milestones.length > 0 && (
+              <div className="space-y-4 pt-2">
+                {/* Progress summary banner */}
+                <div className="bg-amber-50/60 border border-amber-200/60 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="space-y-1">
+                    <span className="text-xs font-black text-amber-900 flex items-center gap-1.5">
+                      <FaGift className="text-amber-600" />
+                      {nextMilestone
+                        ? `Next Reward: ${formatAmount(nextMilestone.rewardAmount)} at ${nextMilestone.requiredReferrals} referrals`
+                        : "🎉 All referral milestones achieved!"}
+                    </span>
+                    <p className="text-[11px] text-amber-700 font-semibold">
+                      {nextMilestone
+                        ? `${nextMilestone.requiredReferrals - (stats.subscribedReferrals || 0)} more subscribed referral(s) needed to claim reward.`
+                        : "Congratulations! You have completed all active milestone levels."}
+                    </p>
+                  </div>
+
+                  {nextMilestone && (
+                    <div className="w-full sm:w-48 bg-amber-100/80 rounded-full h-3.5 overflow-hidden border border-amber-200/80 p-0.5 shrink-0">
+                      <div
+                        className="bg-gradient-to-r from-amber-500 to-emerald-500 h-full rounded-full transition-all duration-700"
+                        style={{
+                          width: `${Math.min(
+                            100,
+                            Math.max(
+                              8,
+                              Math.round(((stats.subscribedReferrals || 0) / nextMilestone.requiredReferrals) * 100)
+                            )
+                          )}%`
+                        }}
+                      ></div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Milestones Cards Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {milestones.map((m) => {
+                    const reached = (stats.subscribedReferrals || 0) >= m.requiredReferrals;
+                    const isNext = nextMilestone && nextMilestone.id === m.id;
+
+                    return (
+                      <div
+                        key={m.id}
+                        className={`relative rounded-2xl p-4 border transition-all duration-300 flex flex-col justify-between ${reached
+                            ? "bg-gradient-to-br from-emerald-50 to-teal-50/50 border-emerald-200 shadow-sm"
+                            : isNext
+                              ? "bg-white border-amber-300 ring-2 ring-amber-400/30 shadow-md"
+                              : "bg-slate-50/60 border-slate-200/80 opacity-75 hover:opacity-100"
+                          }`}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`w-7 h-7 rounded-xl flex items-center justify-center text-xs font-black ${reached
+                                    ? "bg-emerald-500 text-white shadow-sm shadow-emerald-500/30"
+                                    : isNext
+                                      ? "bg-amber-500 text-white shadow-sm shadow-amber-500/30"
+                                      : "bg-slate-200 text-slate-500"
+                                  }`}
+                              >
+                                {m.requiredReferrals}
+                              </span>
+                              <span className="text-xs font-black text-slate-800">
+                                {m.requiredReferrals} Referrals
+                              </span>
+                            </div>
+
+                            {reached ? (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase text-emerald-700 bg-emerald-100/80 border border-emerald-200 px-2 py-0.5 rounded-full">
+                                <FaCheckCircle className="text-emerald-600" /> Unlocked
+                              </span>
+                            ) : isNext ? (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase text-amber-700 bg-amber-100/80 border border-amber-200 px-2 py-0.5 rounded-full animate-pulse">
+                                Current Goal
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
+                                <FaLock size={9} /> Locked
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="mt-3">
+                            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider block">
+                              Reward Cash
+                            </span>
+                            <p className="text-xl font-black text-emerald-600 tracking-tight mt-0.5">
+                              {formatAmount(m.rewardAmount)}
+                            </p>
+                          </div>
+
+                          {m.description && (
+                            <p className="text-[11px] text-slate-500 font-medium mt-2 leading-snug">
+                              {m.description}
+                            </p>
+                          )}
+                        </div>
+
+                        {!reached && (
+                          <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between text-[10px]">
+                            <span className="text-slate-400 font-semibold">Progress</span>
+                            <span className="font-extrabold text-slate-700">
+                              {stats.subscribedReferrals || 0} / {m.requiredReferrals} Subscribed
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             )}
           </div>
-        </div>
-      </div>
+        );
+      })()}
 
       {/* MIDDLE GRID: QR CODE HUB & RECENT BILLINGS */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 text-left">
