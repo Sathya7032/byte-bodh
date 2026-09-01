@@ -51,6 +51,7 @@ import {
 } from "react-icons/si";
 import { TbBrandNextjs } from "react-icons/tb";
 import { getPublicProfileByUsername, createContactMessage } from "../api/profileService";
+import PageNotFound from "../pages/PageNotFound";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -406,25 +407,12 @@ const Portfolio = ({ profile: propProfile }) => {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <div className="text-center max-w-md mx-4">
-          <div className="w-24 h-24 bg-gradient-to-r from-red-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="text-4xl text-red-600 font-bold">404</span>
-          </div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-3">
-            Portfolio Not Found
-          </h1>
-          <p className="text-gray-600 mb-6">
-            The portfolio for @{username} doesn't exist or isn't publicly available.
-          </p>
-          <a
-            href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 font-medium"
-          >
-            ← Return Home
-          </a>
-        </div>
-      </div>
+      <PageNotFound
+        statusCode="404"
+        title="Portfolio Not Found"
+        message={`The portfolio for @${username} doesn't exist or isn't publicly available.`}
+        showHeaderFooter={true}
+      />
     );
   }
 

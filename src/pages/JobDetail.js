@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaCalendarAlt, FaBriefcase, FaArrowLeft, FaSpinner } from "react-icons/fa";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import PageNotFound from "./PageNotFound";
 import { getJobNotificationById } from "../api/jobNotifications";
 import useSEO from "../hooks/useSEO";
 
@@ -88,25 +89,14 @@ function JobDetail() {
 
   if (error || !job) {
     return (
-      <div className="min-h-screen bg-white text-slate-800 font-sans antialiased overflow-x-hidden">
-        <Header />
-        <div className="min-h-screen flex flex-col items-center justify-center max-w-2xl mx-auto px-6 text-center space-y-6">
-          <h3 className="text-3xl font-black text-slate-900 tracking-tight">
-            Job Details Not Found
-          </h3>
-          <p className="text-slate-500 font-medium">
-            {error || "The requested job opening could not be found."}
-          </p>
-          <button
-            onClick={() => navigate("/jobs")}
-            className="inline-flex items-center gap-2 px-6 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/20 hover:shadow-xl transition-all"
-          >
-            <FaArrowLeft />
-            Back to Jobs
-          </button>
-        </div>
-        <Footer />
-      </div>
+      <PageNotFound
+        statusCode="404"
+        title="Job Notification Not Found"
+        message={error || "The requested job opening could not be found or has expired."}
+        showHeaderFooter={true}
+        actionText="Back to Jobs"
+        actionLink="/jobs"
+      />
     );
   }
 

@@ -424,7 +424,7 @@ const TemplateSeven = ({ profile }) => {
     setIsSubmitting(true);
     try {
       await createContactMessage({
-        receiverUsername: profile.username || profile.fullName,
+        id: profile?.user?.id,
         name: formData.name,
         email: formData.email,
         message: formData.message,

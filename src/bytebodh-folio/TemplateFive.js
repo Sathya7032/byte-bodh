@@ -136,8 +136,7 @@ const TemplateFive = ({ profile }) => {
         id: profile?.user?.id,
         name: formData.name,
         email: formData.email,
-        message: formData.message,
-        recipientUsername: username
+        message: formData.message
       };
 
       const response = await createContactMessage(contactData);

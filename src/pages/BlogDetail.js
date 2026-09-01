@@ -13,6 +13,7 @@ import {
 } from "react-icons/fa";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
+import PageNotFound from "./PageNotFound";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import API_BASE_URL from "../config/api";
@@ -106,25 +107,14 @@ function BlogDetail() {
 
   if (error || !blog) {
     return (
-      <div className="min-h-screen bg-white text-slate-800 font-sans antialiased overflow-x-hidden">
-        <Header />
-        <div className="min-h-screen flex flex-col items-center justify-center max-w-2xl mx-auto px-6 text-center space-y-6">
-          <h3 className="text-3xl font-black text-slate-900 tracking-tight">
-            Blog Post Not Found
-          </h3>
-          <p className="text-slate-500 font-medium">
-            {error || "The requested blog post could not be found."}
-          </p>
-          <Link
-            to="/blogs"
-            className="inline-flex items-center gap-2 px-6 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/20 hover:shadow-xl transition-all"
-          >
-            <FaArrowLeft />
-            Back to Blogs
-          </Link>
-        </div>
-        <Footer />
-      </div>
+      <PageNotFound
+        statusCode="404"
+        title="Blog Post Not Found"
+        message={error || "The requested blog post could not be found or has been removed."}
+        showHeaderFooter={true}
+        actionText="Back to Blogs"
+        actionLink="/blogs"
+      />
     );
   }
 

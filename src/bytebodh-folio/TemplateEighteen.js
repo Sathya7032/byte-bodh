@@ -50,13 +50,6 @@ const TemplateEighteen = ({ profile }) => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Extract recipient identifier
-  const username =
-    profile?.user?.username ||
-    profile?.username ||
-    profile?.fullName?.toLowerCase().replace(/\s+/g, "") ||
-    "user";
-
   // Toggle Theme
   const toggleTheme = () => setIsDarkMode((prev) => !prev);
 
@@ -116,13 +109,12 @@ const TemplateEighteen = ({ profile }) => {
     setIsSubmitting(true);
 
     try {
+      const subjectLine = formData.subject.trim() || `Portfolio Contact from ${formData.name}`;
       const payload = {
-        recipientUsername: username,
-        receiverId: profile?.user?.id || profile?.userId,
+        id: profile?.user?.id || profile?.userId,
         name: formData.name.trim(),
         email: formData.email.trim(),
-        subject: formData.subject.trim() || `Portfolio Contact from ${formData.name}`,
-        message: formData.message.trim()
+        message: `Subject: ${subjectLine}\n\n${formData.message.trim()}`
       };
 
       const response = await createContactMessage(payload);

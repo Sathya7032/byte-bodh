@@ -19,6 +19,7 @@ import TemplateSixteen from "./TemplateSixteen";
 import TemplateSeventeen from "./TemplateSeventeen";
 import TemplateEighteen from "./TemplateEighteen";
 import { getPublicProfileByUsername } from "../api/profileService";
+import PageNotFound from "../pages/PageNotFound";
 
 function getUsernameFromDomain() {
   const hostname = window.location.hostname;
@@ -1389,25 +1390,32 @@ function PublicPortfolioPage({ isPreview }) {
 
   if (loading) {
     return (
-      <h2 style={{ textAlign: "center", marginTop: "100px" }}>
-        Loading portfolio...
-      </h2>
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white font-sans">
+        <div className="relative flex items-center justify-center">
+          <div className="w-16 h-16 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
+          <div className="absolute w-8 h-8 bg-emerald-500/10 rounded-full animate-pulse"></div>
+        </div>
+        <p className="mt-6 text-slate-400 font-semibold text-sm tracking-wide">
+          Loading portfolio...
+        </p>
+      </div>
     );
   }
 
-  if (error) {
+  if (error || !profile) {
+    const is404 = !error || error.includes("404") || error.toLowerCase().includes("not found") || error.includes("Failed to load");
     return (
-      <h2 style={{ textAlign: "center", marginTop: "100px" }}>
-        {error}
-      </h2>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <h2 style={{ textAlign: "center", marginTop: "100px" }}>
-        Profile not found
-      </h2>
+      <PageNotFound
+        statusCode="404"
+        title={is404 ? "Portfolio Not Found" : "Unable to Load Portfolio"}
+        message={
+          is404
+            ? "The portfolio you are looking for doesn't exist, is private, or the handle is incorrect."
+            : "We encountered an issue retrieving this profile. Please verify the URL or try again later."
+        }
+        errorDetails={error || "Profile data unavailable"}
+        showHeaderFooter={true}
+      />
     );
   }
 

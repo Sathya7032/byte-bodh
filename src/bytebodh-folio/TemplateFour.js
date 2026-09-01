@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useParams } from "react-router-dom";
 import {
   Home,
   Briefcase,
@@ -24,24 +23,6 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const TemplateFour = ({ profile }) => {
-  const { username: routeUsername } = useParams();
-
-  // Extract username dynamically
-  const getUsernameFromDomain = () => {
-    const hostname = window.location.hostname;
-    if (hostname.endsWith(".localhost")) {
-      const subdomain = hostname.replace(".localhost", "");
-      return subdomain && subdomain !== "www" ? subdomain : null;
-    }
-    if (hostname.endsWith(".bytebodh.in")) {
-      const subdomain = hostname.replace(".bytebodh.in", "");
-      return subdomain && subdomain !== "www" ? subdomain : null;
-    }
-    return null;
-  };
-
-  const username = profile.user?.username || routeUsername || getUsernameFromDomain() || "user";
-
   const [activeSection, setActiveSection] = useState("hero");
   const [formData, setFormData] = useState({
     name: "",
@@ -135,8 +116,7 @@ const TemplateFour = ({ profile }) => {
         id: profile?.user?.id,
         name: formData.name,
         email: formData.email,
-        message: formData.message,
-        recipientUsername: username
+        message: formData.message
       };
 
       const response = await createContactMessage(contactData);
