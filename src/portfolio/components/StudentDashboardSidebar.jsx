@@ -1,49 +1,54 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   HouseDoor,
   FileEarmarkPerson,
-  Download,
-  Envelope,
-  CalendarCheck,
-  QuestionCircle,
-  XLg,
   Collection,
+  Envelope,
   QrCode,
-  CreditCard,
   Gear,
-  Gift,
-  Globe,
-  BookmarkFill,
-  Wallet2,
   Award,
+  Link45deg,
+  Instagram,
+  Palette,
+  XLg,
+  QuestionCircle,
 } from "react-bootstrap-icons";
 import { useNavigate, useLocation } from "react-router-dom";
+import { getUser } from "../../services/auth";
+import { getSubscriptionStatus } from "../../api/subscriptionService";
 
 const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isSubscribed, setIsSubscribed] = useState(() => {
+    const u = getUser();
+    return Boolean(u?.hasActiveSubscription);
+  });
+
+  useEffect(() => {
+    getSubscriptionStatus()
+      .then((res) => {
+        const data = res.data?.data || res.data;
+        if (data?.active || data?.status === "ACTIVE") {
+          setIsSubscribed(true);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Get active item from current path
   const getActiveItem = () => {
     const path = location.pathname;
     if (path === "/dashboard" || path === "/") return "dashboard";
     if (path === "/profile") return "portfolio";
+    if (path === "/linktree") return "linktree";
+    if (path === "/linktree-templates") return "linktree-templates";
     if (path === "/portfolio-templates") return "portfolio-templates";
-    if (path === "/resume-builder") return "resume-templates";
+    if (path === "/instagram-automation") return "instagram-automation";
     if (path === "/contacts") return "contacts";
-    if (path === "/profile-views") return "profile-views";
     if (path === "/qr-code") return "qr-code";
-    if (path === "/tasks") return "tasks";
-    if (path === "/dashboard-jobs") return "dashboard-jobs";
-    if (path === "/dashboard-blogs") return "dashboard-blogs";
-    if (path === "/custom-domain") return "custom-domain";
-    if (path === "/billings") return "billings";
     if (path === "/subscription") return "subscription";
-    if (path === "/wallet") return "wallet";
-    if (path === "/referrals") return "referrals";
-    if (path === "/resources") return "resources";
     if (path === "/settings") return "settings";
-    if (path === "/help") return "help";
     return "";
   };
 
@@ -58,15 +63,23 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
     },
     {
       id: "portfolio",
-      label: "My Portfolio",
+      label: "Portfolio Details",
       icon: <FileEarmarkPerson size={20} />,
       path: "/profile",
     },
     {
-      id: "resume-templates",
-      label: "Resume Templates",
-      icon: <Download size={20} />,
-      path: "/resume-builder",
+      id: "linktree",
+      label: "Linktree (Bio Links)",
+      icon: <Link45deg size={21} />,
+      path: "/linktree",
+      badge: "LIVE",
+    },
+    {
+      id: "linktree-templates",
+      label: "Linktree Templates",
+      icon: <Palette size={19} />,
+      path: "/linktree-templates",
+      badge: "NEW",
     },
     {
       id: "portfolio-templates",
@@ -75,59 +88,30 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
       path: "/portfolio-templates",
     },
     {
+      id: "instagram-automation",
+      label: "Instagram Automation",
+      icon: <Instagram size={19} />,
+      path: "/instagram-automation",
+    },
+    {
       id: "contacts",
-      label: "Contacts",
+      label: "Inquiries & Messages",
       icon: <Envelope size={20} />,
       path: "/contacts",
     },
-
-    {
-      id: "tasks",
-      label: "Tasks & Projects",
-      icon: <CalendarCheck size={20} />,
-      path: "/tasks",
-    },
-    {
-      id: "dashboard-blogs",
-      label: "My Blogs",
-      icon: <BookmarkFill size={20} />,
-      path: "/dashboard-blogs",
-    },
-    {
-      id: "custom-domain",
-      label: "Custom Domain",
-      icon: <Globe size={20} />,
-      path: "/custom-domain",
-    },
     {
       id: "qr-code",
-      label: "Portfolio QR",
+      label: "Portfolio & QR",
       icon: <QrCode size={20} />,
       path: "/qr-code",
     },
     {
-      id: "billings",
-      label: "Billings",
-      icon: <CreditCard size={20} />,
-      path: "/billings",
-    },
-    {
       id: "subscription",
-      label: "Subscription",
+      label: isSubscribed ? "Pro Subscription" : "Subscription & Plans",
       icon: <Award size={20} />,
       path: "/subscription",
-    },
-    {
-      id: "wallet",
-      label: "Wallet",
-      icon: <Wallet2 size={20} />,
-      path: "/wallet",
-    },
-    {
-      id: "referrals",
-      label: "Referrals",
-      icon: <Gift size={20} />,
-      path: "/referrals",
+      badge: isSubscribed ? "PRO" : null,
+      isProBadge: isSubscribed,
     },
     {
       id: "settings",
@@ -198,8 +182,12 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
 
             {isOpen && item.badge && (
               <span
-                className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                  activeItem === item.id ? "bg-white/20 text-white" : "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                  item.isProBadge
+                    ? "bg-amber-400 text-slate-950 shadow-xs"
+                    : activeItem === item.id
+                    ? "bg-white/20 text-white"
+                    : "bg-emerald-50 text-emerald-600 border border-emerald-100"
                 }`}
               >
                 {item.badge}

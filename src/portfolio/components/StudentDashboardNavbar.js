@@ -25,6 +25,7 @@ import {
   deleteAllNotifications
 } from "../../api/profileService";
 import { getSubscriptionStatus } from "../../api/subscriptionService";
+import { resolveImageUrl } from "../../api/portfolioApiService";
 import { toast } from "react-toastify";
 
 const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSidebarOpen }) => {
@@ -77,8 +78,6 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 45000);
-    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -133,6 +132,7 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
     }
   };
   const [username, setUsername] = useState(user?.username || "");
+  const [userAvatar, setUserAvatar] = useState(user?.avatarUrl || user?.pictureUrl || "");
 
   const fullName = user?.fullName || "User";
   const displayName = (user?.fullName && user?.fullName !== "User") ? user.fullName : (user?.name || "");
@@ -140,31 +140,52 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
   const role = user?.role || "Student";
 
   useEffect(() => {
-    // If username isn't cached in localStorage, fetch it from profile
-    if (!username) {
-      getMyProfile()
-        .then((res) => {
-          if (res.data?.success && res.data?.data?.user?.username) {
-            const newUsername = res.data.data.user.username;
-            setUsername(newUsername);
-            
-            // Sync with local storage
+    getMyProfile()
+      .then((res) => {
+        const u = res.data?.data?.user || res.data?.data || res.data?.user || res.data;
+        if (u) {
+          if (u.username && !username) {
+            setUsername(u.username);
             try {
               const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-              storedUser.username = newUsername;
+              storedUser.username = u.username;
               localStorage.setItem("user", JSON.stringify(storedUser));
             } catch (e) {
-              console.error("Error saving username to localStorage:", e);
+              console.error("Error saving user to localStorage:", e);
             }
           }
-        })
-        .catch((err) => console.error("Error fetching username in navbar:", err));
-    }
-  }, [username]);
+          const av = u.avatarUrl || u.pictureUrl;
+          if (av) {
+            setUserAvatar(av);
+            try {
+              const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+              storedUser.avatarUrl = av;
+              localStorage.setItem("user", JSON.stringify(storedUser));
+            } catch (e) {}
+          }
+        }
+      })
+      .catch((err) => console.error("Error fetching username in navbar:", err));
 
-  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-    fullName
-  )}&background=10b981&color=fff&bold=true&size=128`;
+    const handleUserUpdate = () => {
+      try {
+        const u = JSON.parse(localStorage.getItem("user") || "{}");
+        if (u.avatarUrl !== undefined || u.pictureUrl !== undefined) {
+          setUserAvatar(u.avatarUrl || u.pictureUrl || "");
+        }
+        if (u.username) {
+          setUsername(u.username);
+        }
+      } catch (e) {}
+    };
+
+    window.addEventListener("userUpdated", handleUserUpdate);
+    window.addEventListener("storage", handleUserUpdate);
+    return () => {
+      window.removeEventListener("userUpdated", handleUserUpdate);
+      window.removeEventListener("storage", handleUserUpdate);
+    };
+  }, [username]);
 
   const handleSidebarToggle = () => {
     onToggleSidebar?.();
@@ -341,12 +362,25 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
                 }}
                 className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-slate-100 transition-all active:scale-95"
               >
-                <div className="relative">
-                  <img
-                    src={avatarUrl}
-                    alt="Profile"
-                    className="w-9 h-9 rounded-full border-2 border-white shadow-sm"
-                  />
+                <div className="relative flex-shrink-0">
+                  {userAvatar ? (
+                    <img
+                      src={resolveImageUrl(userAvatar)}
+                      alt="Profile"
+                      referrerPolicy="no-referrer"
+                      className="w-9 h-9 rounded-full border-2 border-white shadow-sm object-cover"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                        if (e.target.nextSibling) e.target.nextSibling.style.display = "flex";
+                      }}
+                    />
+                  ) : null}
+                  <div
+                    style={{ display: userAvatar ? "none" : "flex" }}
+                    className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold items-center justify-center text-xs shadow-sm border-2 border-white"
+                  >
+                    {(displayName || fullName || "U").charAt(0).toUpperCase()}
+                  </div>
                   <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full" />
                 </div>
 
@@ -372,11 +406,26 @@ const SimpleNavbar = ({ onToggleSidebar, isDarkMode = false, onToggleTheme, isSi
                   {/* Header */}
                   <div className="px-4 py-4 bg-gradient-to-br from-emerald-500/5 to-teal-600/5 border-b border-slate-100">
                     <div className="flex items-center gap-3">
-                      <img
-                        src={avatarUrl}
-                        alt="Profile"
-                        className="w-12 h-12 rounded-full border-2 border-white shadow-sm"
-                      />
+                      <div className="relative flex-shrink-0">
+                        {userAvatar ? (
+                          <img
+                            src={resolveImageUrl(userAvatar)}
+                            alt="Profile"
+                            referrerPolicy="no-referrer"
+                            className="w-12 h-12 rounded-full border-2 border-white shadow-sm object-cover"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                              if (e.target.nextSibling) e.target.nextSibling.style.display = "flex";
+                            }}
+                          />
+                        ) : null}
+                        <div
+                          style={{ display: userAvatar ? "none" : "flex" }}
+                          className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold items-center justify-center text-base shadow-sm border-2 border-white"
+                        >
+                          {(displayName || fullName || "U").charAt(0).toUpperCase()}
+                        </div>
+                      </div>
                       <div>
                         <h3 className="font-bold text-slate-800 text-sm leading-tight">{fullName}</h3>
                         {username && (

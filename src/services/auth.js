@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_ENDPOINTS } from "../config/api";
+import API_BASE_URL, { API_ENDPOINTS } from "../config/api";
 
 /* =========================
    AXIOS INSTANCE
@@ -110,30 +110,37 @@ export const saveAuthData = (authData) => {
   const path = typeof window !== "undefined" ? window.location.pathname : "";
   const isAdmin = path.startsWith("/admin") || path === "/categories" || path.startsWith("/categories/") || path.startsWith("/admin-");
 
-  if (isAdmin || authData.role === "ADMIN") {
+  const userData = authData.user || authData;
+
+  if (isAdmin || authData.role === "ADMIN" || userData.role === "ADMIN") {
     if (authData.accessToken) localStorage.setItem("adminAccessToken", authData.accessToken);
     if (authData.refreshToken) localStorage.setItem("adminRefreshToken", authData.refreshToken);
-    if (authData.fullName || authData.email) {
+    if (userData.fullName || userData.email) {
       const existingAdmin = localStorage.getItem("admin") ? JSON.parse(localStorage.getItem("admin")) : {};
       localStorage.setItem("admin", JSON.stringify({
         ...existingAdmin,
-        fullName: authData.fullName || existingAdmin.fullName,
-        email: authData.email || existingAdmin.email,
-        role: authData.role || existingAdmin.role,
+        id: userData.id || existingAdmin.id,
+        fullName: userData.fullName || existingAdmin.fullName,
+        email: userData.email || existingAdmin.email,
+        role: userData.role || existingAdmin.role,
       }));
     }
   }
 
   if (authData.accessToken) localStorage.setItem("accessToken", authData.accessToken);
   if (authData.refreshToken) localStorage.setItem("refreshToken", authData.refreshToken);
-  if (authData.fullName || authData.email || authData.role) {
+
+  if (userData.fullName || userData.email || userData.username || userData.id) {
     const existingUser = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {};
     localStorage.setItem("user", JSON.stringify({
       ...existingUser,
-      fullName: authData.fullName || existingUser.fullName,
-      email: authData.email || existingUser.email,
-      role: authData.role || existingUser.role,
-      username: authData.username || (authData.user && authData.user.username) || existingUser.username || "",
+      id: userData.id || existingUser.id,
+      fullName: userData.fullName || existingUser.fullName,
+      email: userData.email || existingUser.email,
+      role: userData.role || existingUser.role || "USER",
+      username: userData.username || existingUser.username || (userData.email ? userData.email.split("@")[0] : ""),
+      avatarUrl: userData.avatarUrl || existingUser.avatarUrl || "",
+      headline: userData.headline || existingUser.headline || "",
     }));
   }
 };
@@ -245,7 +252,62 @@ export const loginUser = async (loginData) => {
 };
 
 /* =========================
-   GOOGLE LOGIN (REDIRECT)
+   GOOGLE LOGIN (OAUTH TOKEN EXCHANGE)
+========================= */
+export const loginWithGoogleApi = async (idToken) => {
+  try {
+    const res = await axios.post(API_ENDPOINTS.AUTH_GOOGLE, {
+      idToken,
+      deviceName: navigator.userAgent.includes("Mac") ? "Chrome / Mac" : "Web Browser",
+      deviceOs: navigator.platform || "Web",
+    });
+    if (res.data && res.data.accessToken) {
+      saveAuthData({
+        accessToken: res.data.accessToken,
+        refreshToken: res.data.refreshToken,
+        ...(res.data.user || {}),
+      });
+      return { success: true, data: res.data };
+    }
+    return { success: false, message: "Invalid response from server" };
+  } catch (err) {
+    return {
+      success: false,
+      message: err.response?.data?.message || err.message || "Google sign-in failed",
+    };
+  }
+};
+
+/* =========================
+   APPLE LOGIN (OAUTH TOKEN EXCHANGE)
+========================= */
+export const loginWithAppleApi = async (identityToken, fullName) => {
+  try {
+    const res = await axios.post(API_ENDPOINTS.AUTH_APPLE, {
+      identityToken,
+      fullName: fullName || "Apple User",
+      deviceName: "Apple Device (Web)",
+      deviceOs: "macOS / iOS",
+    });
+    if (res.data && res.data.accessToken) {
+      saveAuthData({
+        accessToken: res.data.accessToken,
+        refreshToken: res.data.refreshToken,
+        ...(res.data.user || {}),
+      });
+      return { success: true, data: res.data };
+    }
+    return { success: false, message: "Invalid response from server" };
+  } catch (err) {
+    return {
+      success: false,
+      message: err.response?.data?.message || err.message || "Apple sign-in failed",
+    };
+  }
+};
+
+/* =========================
+   GOOGLE LOGIN (REDIRECT FALLBACK)
 ========================= */
 export const googleLogin = () => {
   // Clear any existing auth data before starting Google OAuth
@@ -344,26 +406,25 @@ export const adminLogout = () => {
 
 export const adminLogin = async (loginData) => {
   try {
-    const res = await axios.post(
-      `${API_ENDPOINTS.ADMIN_AUTH}/login`,
-      loginData
-    );
+    const res = await axios
+      .post(`${API_BASE_URL}/api/v1/admin/auth/signin`, loginData)
+      .catch(() => axios.post(`${API_ENDPOINTS.ADMIN_AUTH}/login`, loginData));
 
-    const authData = res.data;
+    const authData = res.data?.data || res.data;
 
     if (authData?.accessToken) {
-
       localStorage.setItem("adminAccessToken", authData.accessToken);
-      localStorage.setItem("adminRefreshToken", authData.refreshToken);
+      if (authData.refreshToken) {
+        localStorage.setItem("adminRefreshToken", authData.refreshToken);
+      }
 
-      localStorage.setItem(
-        "admin",
-        JSON.stringify({
-          fullName: authData.fullName,
-          email: authData.email,
-          role: authData.role,
-        })
-      );
+      const adminProfile = authData.admin || {
+        fullName: authData.fullName,
+        email: authData.email,
+        role: authData.role || authData.adminRole || "ADMIN",
+      };
+
+      localStorage.setItem("admin", JSON.stringify(adminProfile));
 
       return {
         success: true,
@@ -401,11 +462,18 @@ const isAdminRoute = (path) => {
 
 export const getAccessToken = () => {
   const path = window.location.pathname;
+  let token = null;
   if (isAdminRoute(path)) {
     const adminToken = localStorage.getItem("adminAccessToken");
-    if (adminToken) return adminToken;
+    if (adminToken) token = adminToken;
   }
-  return localStorage.getItem("accessToken") || localStorage.getItem("adminAccessToken");
+  if (!token) {
+    token = localStorage.getItem("accessToken") || localStorage.getItem("adminAccessToken");
+  }
+  if (token) {
+    console.log("%c[ByteBodh JWT Access Token]:", "color:#10b981;font-weight:bold;", token);
+  }
+  return token;
 };
 
 export const getRefreshToken = () => {

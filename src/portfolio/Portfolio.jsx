@@ -66,12 +66,16 @@ const Portfolio = ({ profile: propProfile }) => {
     // For local development (e.g., username.localhost)
     if (hostname.endsWith(".localhost")) {
       const subdomain = hostname.replace(".localhost", "");
-      return subdomain && subdomain !== "www" ? subdomain : null;
+      return subdomain && !["www", "app", "admin", "api"].includes(subdomain) ? subdomain : null;
     }
-    // For production (e.g., username.bytebodh.in)
-    if (hostname.endsWith(".bytebodh.in")) {
-      const subdomain = hostname.replace(".bytebodh.in", "");
-      return subdomain && subdomain !== "www" ? subdomain : null;
+    // For production or any domain (e.g., username.domain.com, username.bytebodh.in)
+    const parts = hostname.split(".");
+    if (parts.length >= 3) {
+      const sub = parts[0].toLowerCase();
+      const reserved = ["www", "app", "admin", "api", "backend", "mail", "ftp", "staging", "dev", "qr"];
+      if (!reserved.includes(sub)) {
+        return sub;
+      }
     }
     return null;
   };
@@ -648,19 +652,26 @@ const ShareModal = () => (
           <div className="flex justify-between items-center h-16">
             {/* Logo/Name */}
             <div className="portfolio-topbar-logo flex items-center gap-3">
-              {profile.user?.pictureUrl ? (
+              {(profile.pictureUrl || profile.avatarUrl || profile.user?.pictureUrl || profile.user?.avatarUrl) ? (
                 <img
-                  src={profile.pictureUrl}
+                  src={profile.pictureUrl || profile.avatarUrl || profile.user?.pictureUrl || profile.user?.avatarUrl}
                   alt={profile.fullName || "User"}
-                  className="w-10 h-10 rounded-full border-2 border-white shadow-sm"
+                  referrerPolicy="no-referrer"
+                  className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = "flex";
+                  }}
                 />
-              ) : (
-                <div className="w-10 h-10 rounded-full" style={{ background: colors.primary.gradient }}>
-                  <span className="portfolio-topbar-logo-name text-lg font-bold text-white flex items-center justify-center h-full">
-                    {getInitials(profile.fullName)}
-                  </span>
-                </div>
-              )}
+              ) : null}
+              <div
+                style={{ display: (profile.pictureUrl || profile.avatarUrl || profile.user?.pictureUrl || profile.user?.avatarUrl) ? "none" : "flex", background: colors.primary.gradient }}
+                className="w-10 h-10 rounded-full items-center justify-center"
+              >
+                <span className="portfolio-topbar-logo-name text-lg font-bold text-white flex items-center justify-center h-full">
+                  {getInitials(profile.fullName)}
+                </span>
+              </div>
               <div>
                 <h1 className="portfolio-topbar-logo-name text-xl font-bold text-gray-800">{profile.fullName || "User"}</h1>
                 <p className="portfolio-topbar-logo-username text-xs text-gray-500">@{profile.user?.username || username}</p>
@@ -783,20 +794,26 @@ const ShareModal = () => (
               <div className="absolute -inset-1 rounded-full opacity-20 group-hover:opacity-40 transition duration-500" 
                    style={{ background: colors.primary.gradient, filter: 'blur(10px)' }}></div>
               <div className="relative">
-                {profile.pictureUrl ? (
+                {(profile.pictureUrl || profile.avatarUrl || profile.user?.pictureUrl || profile.user?.avatarUrl) ? (
                   <img
-                    src={profile.pictureUrl}
+                    src={profile.pictureUrl || profile.avatarUrl || profile.user?.pictureUrl || profile.user?.avatarUrl}
                     alt={profile.fullName || "User"}
-                    className="portfolio-hero-image w-64 h-64 rounded-full border-8 border-white shadow-2xl"
+                    referrerPolicy="no-referrer"
+                    className="portfolio-hero-image w-64 h-64 rounded-full border-8 border-white shadow-2xl object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                      if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = "flex";
+                    }}
                   />
-                ) : (
-                  <div className="portfolio-hero-image w-64 h-64 rounded-full border-8 border-white shadow-2xl flex items-center justify-center"
-                       style={{ background: colors.primary.gradient }}>
-                    <span className="text-7xl font-bold text-white">
-                      {getInitials(profile.fullName)}
-                    </span>
-                  </div>
-                )}
+                ) : null}
+                <div
+                  style={{ display: (profile.pictureUrl || profile.avatarUrl || profile.user?.pictureUrl || profile.user?.avatarUrl) ? "none" : "flex", background: colors.primary.gradient }}
+                  className="portfolio-hero-image w-64 h-64 rounded-full border-8 border-white shadow-2xl items-center justify-center"
+                >
+                  <span className="text-7xl font-bold text-white">
+                    {getInitials(profile.fullName)}
+                  </span>
+                </div>
               </div>
               {/* Share button on image hover */}
               <motion.button
@@ -993,8 +1010,17 @@ const ShareModal = () => (
                     {/* Project Header */}
                     <div className="portfolio-project-header h-48 relative overflow-hidden flex items-center justify-center p-4"
                          style={{ background: colors.primary.gradient }}>
-                      <div className="absolute inset-0 bg-black/10"></div>
-                      <h3 className="portfolio-project-title text-2xl font-bold text-white text-center relative z-10 px-4 py-6 bg-black/20 backdrop-blur-sm rounded-xl w-full">
+                      {project.imageUrl && (
+                        <img
+                          src={project.imageUrl}
+                          alt={project.title}
+                          referrerPolicy="no-referrer"
+                          className="absolute inset-0 w-full h-full object-cover"
+                          onError={(e) => { e.currentTarget.style.display = "none"; }}
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-black/30"></div>
+                      <h3 className="portfolio-project-title text-xl font-bold text-white text-center relative z-10 px-4 py-3 bg-black/40 backdrop-blur-sm rounded-xl w-full">
                         {project.title || "Project Title"}
                       </h3>
                       <div className="absolute top-4 right-4">

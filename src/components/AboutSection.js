@@ -15,7 +15,7 @@ function AboutSection() {
             Empowering Tech Learners & IT Students
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Your all-in-one platform to learn IT technologies, get job alerts, and build a standout portfolio
+            Your all-in-one platform to build standout portfolios, dynamic Linktree bio links, and generate leads
           </p>
         </div>
 
@@ -40,11 +40,11 @@ function AboutSection() {
             </h3>
 
             <p className="text-lg text-gray-600 leading-relaxed">
-              At <strong className="text-blue-600">ByteBodh</strong>, we've built a mobile app designed specifically for IT students and tech enthusiasts. Whether you're learning Java from scratch, exploring Android development, or preparing for your first tech job, Byte Bodh is the companion you need on your journey.
+              At <strong className="text-blue-600">ByteBodh</strong>, we've built a mobile app designed specifically for IT students and tech enthusiasts. Whether you're learning Java from scratch, exploring Android development, or preparing for your next tech milestone, Byte Bodh is the companion you need on your journey.
             </p>
 
             <p className="text-lg text-gray-600 leading-relaxed">
-              Stay ahead with real-time job notifications, create a professional online portfolio to showcase your skills, and download your resume directly — all within one app. No distractions, just focused learning and career growth for the next generation of developers.
+              Launch your personal portfolio website on your custom subdomain, build high-converting Linktree bio pages with 6 modular themes, and automate Instagram DM lead capture — all within one platform. No distractions, just modern personal branding.
             </p>
 
             {/* Feature Highlights */}
@@ -61,11 +61,11 @@ function AboutSection() {
 
               <div className="flex items-start space-x-3">
                 <div className="bg-indigo-100 p-3 rounded-lg">
-                  <FaBriefcase className="text-indigo-600 text-xl" />
+                  <FaLaptopCode className="text-indigo-600 text-xl" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-800">Job Notifications</h4>
-                  <p className="text-sm text-gray-600">Latest IT openings</p>
+                  <h4 className="font-semibold text-gray-800">Linktree Bio</h4>
+                  <p className="text-sm text-gray-600">6 Modular Themes</p>
                 </div>
               </div>
 

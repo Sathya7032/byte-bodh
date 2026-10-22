@@ -24,6 +24,19 @@ const TemplateOne = ({ profile }) => {
       
       {/* Resume Card Container */}
       <div className="max-w-4xl w-full bg-white shadow-xl rounded-none p-8 md:p-16 border border-slate-200/60 relative overflow-hidden">
+
+        {/* Profile Cover Banner */}
+        {profile.bannerUrl && (
+          <div className="relative w-full h-32 md:h-44 -mt-8 -mx-8 md:-mt-16 md:-mx-16 mb-8 overflow-hidden border-b border-slate-200">
+            <img
+              src={profile.bannerUrl}
+              alt="Cover Banner"
+              className="w-full h-full object-cover"
+              onError={(e) => { e.currentTarget.style.display = "none"; }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+          </div>
+        )}
         
         {/* Diagonal Watermark Background */}
         <div className="absolute inset-0 pointer-events-none select-none flex items-center justify-center overflow-hidden opacity-[0.02] z-0">

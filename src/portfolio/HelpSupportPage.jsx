@@ -45,7 +45,7 @@ const HelpSupportPage = () => {
       id: 3,
       category: 'portfolio',
       question: 'How do I set up my online portfolio?',
-      answer: 'After creating an account, go to "My Portfolio", choose a template, add your personal information, projects, skills, and social links. Your portfolio will be accessible at bytebodh.in/yourusername'
+      answer: 'After creating an account, go to "My Portfolio", choose a template, add your personal information, projects, skills, and social links. Your portfolio will be accessible at yourusername.bytebodh.in'
     },
     {
       id: 4,

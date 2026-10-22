@@ -379,7 +379,7 @@ function BlogDetail() {
                   
                   <h4 className="text-lg font-black mb-2">Newsletter</h4>
                   <p className="text-xs text-slate-300 font-medium leading-relaxed mb-5">
-                    Stay updated with the latest digital transformation stories, guides, and job notices.
+                    Stay updated with the latest digital portfolio templates, tutorials, and career branding insights.
                   </p>
                   {subscribed ? (
                     <div className="bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 p-4 rounded-xl text-center text-xs font-bold animate-pulse">

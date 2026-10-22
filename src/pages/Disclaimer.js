@@ -5,9 +5,9 @@ import useSEO from "../hooks/useSEO";
 
 function Disclaimer() {
   useSEO({
-    title: "Disclaimer | ByteBodh - AI Portfolio & Career Hub",
-    description: "Read the legal disclaimer for ByteBodh. Learn about our terms of information liability, external links, job aggregation, and developer tool usage.",
-    keywords: "disclaimer, bytebodh disclaimer, legal disclaimer, job board terms, portfolio builder terms"
+    title: "Disclaimer | ByteBodh - Portfolio & Linktree Platform",
+    description: "Read the legal disclaimer for ByteBodh. Learn about our terms of information liability, external links, user-generated portfolio content, and platform usage.",
+    keywords: "disclaimer, bytebodh disclaimer, legal disclaimer, portfolio builder terms, linktree terms"
   });
 
   return (
@@ -46,15 +46,15 @@ function Disclaimer() {
 
             <section>
               <h2 className="text-xl font-black text-slate-900 mb-4 border-b border-slate-100 pb-2">
-                2. Job Notifications & Employment Disclaimer
+                2. Portfolio Content & User-Generated Links Disclaimer
               </h2>
               <p className="text-slate-500 font-medium text-sm leading-relaxed mb-3">
-                ByteBodh acts as an information aggregator that lists and summarizes job openings, placement notifications, and career drives. Please note the following regarding our job notification features:
+                ByteBodh provides online portfolio hosting, Linktree bio link management, and Instagram automation utilities. Please note the following regarding user-published profiles and links:
               </p>
               <ul className="list-disc pl-6 text-slate-500 text-sm font-medium space-y-2 mb-4">
-                <li>We are <span className="font-bold text-slate-700">not a recruitment agency</span>, hiring firm, or representative of any employers listed on our Site.</li>
-                <li>We do not guarantee the validity, accuracy, or active status of any job post listed. Users must verify details directly with the official employer or recruitment page before applying.</li>
-                <li>ByteBodh <span className="font-bold text-slate-700">never charges candidates money</span> for job applications, screening, or interview placement support. We strongly advise users to never pay money to any entity claiming to represent recruiters.</li>
+                <li>Users maintain sole responsibility for all content, text, links, project repositories, resumes, and media uploaded or linked from their ByteBodh public profiles.</li>
+                <li>ByteBodh does not verify or endorse third-party external links configured on Linktree pages or portfolio showcases. Users must exercise their own discretion when navigating to external destinations.</li>
+                <li>Users utilizing Instagram Comment-to-DM automation agree to abide by Meta's Platform Terms and avoid spamming, misleading claims, or unsolicited bulk messaging.</li>
               </ul>
             </section>
 

@@ -20,7 +20,7 @@ function Footer() {
             <span className="text-xl font-black text-white">ByteBodh</span>
           </Link>
           <p className="text-xs leading-relaxed max-w-sm">
-            ByteBodh is an AI-powered portfolio website builder designed to help fresh graduates and software engineers deploy hiring-ready personal websites.
+            ByteBodh is your all-in-one personal branding platform — build custom portfolio websites, launch dynamic Linktree bio pages, and automate Instagram DM leads.
           </p>
           <div className="flex gap-4">
             {[
@@ -47,8 +47,9 @@ function Footer() {
         <div>
           <h5 className="font-extrabold text-white text-xs uppercase tracking-widest mb-4">Product</h5>
           <ul className="space-y-3 text-xs">
-            <li><Link to="/#templates-section" className="hover:text-white transition-colors">Templates</Link></li>
-            <li><Link to="/#features-section" className="hover:text-white transition-colors">Core Features</Link></li>
+            <li><Link to="/#templates-section" className="hover:text-white transition-colors">Portfolio Templates</Link></li>
+            <li><Link to="/#instagram-automation" className="hover:text-white transition-colors">Instagram Auto-DM</Link></li>
+            <li><Link to="/#pricing" className="hover:text-white transition-colors">Pricing & Plans</Link></li>
             <li><Link to="/#faq" className="hover:text-white transition-colors">FAQs</Link></li>
           </ul>
         </div>

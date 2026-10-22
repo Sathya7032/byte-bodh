@@ -26,12 +26,24 @@ api.interceptors.response.use(
 );
 
 // Template APIs
-export const getAllTemplates = () => api.get("/api/templates");
-export const getTemplateById = (id) => api.get(`/api/templates/${id}`);
-export const activateTemplate = (id) => api.post(`/api/templates/${id}/activate`);
-export const createTemplate = (data) => api.post("/api/templates", data);
-export const updateTemplate = (id, data) => api.put(`/api/templates/${id}`, data);
-export const deleteTemplate = (id) => api.delete(`/api/templates/${id}`);
+export const getAllTemplates = () =>
+  api.get("/api/v1/templates").catch(() => api.get("/api/templates"));
+export const getTemplateById = (id) =>
+  api.get(`/api/v1/templates/${id}`).catch(() => api.get(`/api/templates/${id}`));
+export const activateTemplate = (id) =>
+  api.post(`/api/v1/templates/${id}/activate`).catch(() => api.post(`/api/templates/${id}/activate`));
+export const deactivateTemplate = (id) =>
+  api.post(`/api/v1/templates/deactivate`).catch(() => api.post(`/api/v1/templates/${id}/deactivate`));
+export const getMyActiveTemplate = () =>
+  api.get("/api/v1/templates/my-template").catch(() => api.get("/api/templates/my-template"));
+export const seedAllWebsiteTemplates = () =>
+  api.post("/api/v1/admin/templates/seed-all").catch(() => api.post("/api/v1/templates/seed-all"));
+export const createTemplate = (data) =>
+  api.post("/api/v1/templates", data).catch(() => api.post("/api/templates", data));
+export const updateTemplate = (id, data) =>
+  api.put(`/api/v1/templates/${id}`, data).catch(() => api.put(`/api/templates/${id}`, data));
+export const deleteTemplate = (id) =>
+  api.delete(`/api/v1/templates/${id}`).catch(() => api.delete(`/api/templates/${id}`));
 
 // Payment APIs
 // NOTE: Templates are no longer purchased individually. Access to paid templates
@@ -41,14 +53,6 @@ export const createCustomDomainOrder = (dto) => api.post("/api/payment/custom-do
 export const getCustomDomainConfig = () => api.get("/api/admin/custom-domain-config");
 export const updateCustomDomainConfig = (data) => api.put("/api/admin/custom-domain-config", data);
 export const getPaymentHistory = () => api.get("/api/payment/history");
-export const getAllPayments = () => api.get("/api/payment/admin/all");
-
-// Template access/download check (free templates: open to all; paid: requires active subscription)
-export const checkTemplateAccess = (templateId) => api.post(`/api/templates/${templateId}/download`);
-
-// Stats API
-export const getUserStats = () => api.get("/api/users/me/stats");
-
-// User Templates API
-export const getUserTemplates = () => api.get("/api/users/me/templates");
-export const getAllUserTemplates = () => api.get("/api/templates/admin/user-templates");
+// Stats & User Templates API
+export const getUserStats = () => api.get("/api/users/me/stats").catch(() => ({ data: {} }));
+export const getUserTemplates = () => api.get("/api/users/me/templates").catch(() => ({ data: [] }));

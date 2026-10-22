@@ -78,26 +78,4 @@ export const CASES = [
   },
 ];
 
-export const JOBS = [
-  {
-    id: "fe",
-    title: "Frontend Engineer (React + Tailwind)",
-    location: "Remote / India",
-    type: "Full-time",
-    bullets: ["3+ years React experience", "Strong UI/UX sensibility", "Ownership mindset"],
-  },
-  {
-    id: "devops",
-    title: "DevOps Engineer (Cloud)",
-    location: "Hybrid / Bangalore",
-    type: "Full-time",
-    bullets: ["Terraform & Kubernetes", "CI/CD automation", "Monitoring & SRE practices"],
-  },
-  {
-    id: "dataeng",
-    title: "Data Engineer",
-    location: "Remote",
-    type: "Contract",
-    bullets: ["ETL pipelines", "Data warehousing", "SQL & Python"],
-  },
-];
+export const JOBS = [];

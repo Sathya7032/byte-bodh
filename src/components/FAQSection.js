@@ -11,15 +11,15 @@ function FAQSection() {
   const faqs = [
     {
       question: "What is Byte Bodh?",
-      answer: "Byte Bodh is a mobile app designed for IT students and tech learners. It provides tutorials on Java and other IT technologies, real-time job notifications, an online portfolio builder, and useful tools like a QR code generator and code editor — all in one place."
+      answer: "Byte Bodh is an all-in-one personal branding platform. It provides a portfolio website builder, Linktree bio link engine with 6 modular themes, Instagram Comment-to-DM lead automation, and dynamic QR analytics."
     },
     {
       question: "What IT technologies does Byte Bodh cover?",
-      answer: "Byte Bodh covers a wide range of IT technologies including Java, Android development, web technologies, data structures, algorithms, and more. Content is structured for beginners to advanced learners so you can grow at your own pace."
+      answer: "Byte Bodh covers a wide range of developer templates including Hacker Terminal, VS Code IDE Studio, Ivory Elite, Academic Minimalist, and more."
     },
     {
-      question: "How do job notifications work?",
-      answer: "Byte Bodh aggregates the latest IT job openings and internships and sends notifications directly to you. You can browse job listings, check eligibility, and apply — all without leaving the app."
+      question: "How does Linktree & Instagram Automation work?",
+      answer: "You can create dynamic link-in-bio pages at bytebodh.in/yourname with scheduled links and custom themes. Connect your Instagram Professional account to automatically send direct messages whenever users comment specific keywords on your reels or posts."
     },
     {
       question: "Can I build an online portfolio with Byte Bodh?",
@@ -35,11 +35,11 @@ function FAQSection() {
     },
     {
       question: "What tools are available on the Byte Bodh website?",
-      answer: "The Byte Bodh website offers several free tools including an Online Code Editor to practice programming in multiple languages, a QR Code Generator, an Image Compressor, and a Portfolio/Resume Builder to help you get job-ready."
+      answer: "The Byte Bodh website offers an all-in-one portfolio website builder, 6 modular Linktree bio templates, Instagram Comment-to-DM automation, and dynamic QR Code generation to help you stand out to recruiters and clients."
     },
     {
       question: "How do I create an account?",
-      answer: "You can register for free on the Byte Bodh website or directly in the app. Sign up with your email or use Google Sign-In for a quick start. Once registered, you'll have access to your portfolio, job alerts, and all features."
+      answer: "You can register for free on the Byte Bodh website. Sign up with your email or use Google Sign-In for a quick start. Once registered, you'll have access to your portfolio, Linktree bio, and automation features."
     }
   ];
 
@@ -56,7 +56,7 @@ function FAQSection() {
             Get Answers to <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-indigo-600">Common Questions</span>
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Find quick answers to the most common questions about the Byte Bodh app, IT learning, job notifications, and portfolio features. Can't find what you're looking for? Contact us directly.
+            Find quick answers to the most common questions about Byte Bodh, portfolio templates, Linktree pages, and automation features. Can't find what you're looking for? Contact us directly.
           </p>
         </div>
 
@@ -95,7 +95,7 @@ function FAQSection() {
           <div className="text-center">
             <h3 className="text-2xl font-bold text-gray-800 mb-3">Still have questions?</h3>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              We're here to help you with any questions about the Byte Bodh app, learning resources, job notifications, or your portfolio.
+              We're here to help you with any questions about Byte Bodh, portfolio features, Linktree pages, or Instagram automation.
             </p>
             <button className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-3 px-8 rounded-full hover:shadow-lg transition-all duration-300 hover:scale-105 transform">
               Contact Us Now

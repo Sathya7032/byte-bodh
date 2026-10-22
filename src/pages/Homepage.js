@@ -7,11 +7,9 @@ import {
   FaDesktop,
   FaTabletAlt,
   FaRocket,
-  FaFilePdf,
   FaStar,
   FaChevronDown,
   FaChevronUp,
-  FaBolt,
   FaGooglePlay,
   FaShieldAlt,
   FaUsers,
@@ -31,7 +29,10 @@ import {
   FaTimes,
   FaEye,
   FaBookOpen,
-  FaCrown
+  FaCrown,
+  FaInstagram,
+  FaComments,
+  FaBolt
 } from "react-icons/fa";
 import { getAllTemplates } from "../api/templateService";
 import { getSubscriptionConfig } from "../api/subscriptionService";
@@ -283,7 +284,7 @@ const Homepage = () => {
   useSEO({
     title: "ByteBodh | AI Portfolio Builder & Career Hub for Developers & Students",
     description: "Create a professional online portfolio website in 2 minutes. Choose from premium CLI terminal, IDE, and academic templates. Compile CVs to PDF and track views.",
-    keywords: "portfolio builder, resume maker, online portfolio maker, developer portfolio templates, terminal portfolio builder, academic cv template, ATS-friendly resume builder, tech job notifications, bytebodh, dynamic portfolio, portfolio builder for developers, free resume maker, best developer portfolio examples, VS Code portfolio template, interactive resume, fresher resume builder, career portfolio maker, software engineer portfolio, build online portfolio free, CV maker online, student resume template, professional portfolio website builder, free online compiler, image compressor, qr code generator tracking"
+    keywords: "portfolio builder, resume maker, online portfolio maker, developer portfolio templates, terminal portfolio builder, academic cv template, ATS-friendly resume builder, bytebodh, linktree builder, instagram automation, dynamic portfolio, portfolio builder for developers, free resume maker, best developer portfolio examples, VS Code portfolio template, interactive resume, fresher resume builder, career portfolio maker, software engineer portfolio, build online portfolio free, CV maker online, student resume template, professional portfolio website builder, qr code generator tracking"
   });
 
   const [faqOpen, setFaqOpen] = useState(null);
@@ -559,7 +560,7 @@ const Homepage = () => {
               {
                 step: 3,
                 title: "Publish Instantly",
-                desc: "Deploy your live portfolio URL (e.g. bytebodh.in/yourname) in seconds. Instantly ready to share.",
+                desc: "Deploy your personalized live subdomain portfolio (e.g. yourname.bytebodh.in) in seconds. Instantly ready to share.",
                 img: howItWorks3,
                 icon: <FaCloudUploadAlt />
               }
@@ -991,73 +992,263 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* FEATURES SECTION - Enhanced */}
-      <section className="py-24 bg-white border-t border-slate-100 relative">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+      {/* INSTAGRAM COMMENT-TO-DM AUTOMATION SECTION */}
+      <section className="py-24 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white border-t border-slate-800 relative overflow-hidden" id="instagram-automation">
+        {/* Glow Effects */}
+        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-pink-500/15 rounded-full blur-[140px] pointer-events-none"></div>
+        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-emerald-500/15 rounded-full blur-[140px] pointer-events-none"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[160px] pointer-events-none"></div>
 
-        <motion.div
-          className="max-w-7xl mx-auto px-6"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          variants={staggerContainer}
-        >
-          <motion.div variants={fadeInUp} className="text-center max-w-3xl mx-auto mb-20 space-y-4">
-            <span className="px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2">
-              <FaBolt size={12} />
-              Core Capabilities
-            </span>
-            <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
-              Everything You Need to <span className="text-emerald-500">Stand Out</span>
-            </h2>
-            <p className="text-lg text-slate-500">
-              ByteBodh packs all the modern features required to launch your brand and make recruiter connections.
-            </p>
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          {/* Header */}
+          <motion.div
+            className="text-center max-w-3xl mx-auto mb-16 space-y-4"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={staggerContainer}
+          >
+            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-emerald-500/10 border border-pink-500/20 text-pink-400 text-xs font-black uppercase tracking-wider">
+              <FaInstagram className="text-pink-400 text-sm" />
+              <span>Instagram Comment-to-DM Engine</span>
+              <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[9px] font-black tracking-normal">PRO</span>
+            </motion.div>
+            
+            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
+              Turn Instagram Comments into <br className="hidden sm:inline" />
+              <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
+                Instant DMs & Direct Traffic
+              </span>
+            </motion.h2>
+            
+            <motion.p variants={fadeInUp} className="text-base md:text-lg text-slate-400 font-medium leading-relaxed max-w-2xl mx-auto">
+              Stop losing leads who never click your bio link. When followers comment a trigger word on your Reels or Posts, ByteBodh automatically sends them your portfolio link, Linktree, or resources directly in their DMs — in under 3 seconds.
+            </motion.p>
           </motion.div>
 
-          <motion.div variants={fadeInUp} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                title: "AI Portfolio Generator",
-                desc: "Generate professional bios, summaries, project details, and optimized profile headers instantly with built-in AI assistant prompts.",
-                icon: <FaBolt className="text-emerald-500 text-xl" />,
-                gradient: "from-emerald-50 to-teal-50"
-              },
-              {
-                title: "Responsive Design",
-                desc: "Your portfolio automatically adjusts to render perfectly across smartphones, tablets, and desktop resolutions.",
-                icon: <FaMobileAlt className="text-emerald-500 text-xl" />,
-                gradient: "from-blue-50 to-cyan-50"
-              },
-              {
-                title: "Resume Integration",
-                desc: "Compile your web portfolio details back into perfectly structured offline PDF resumes in a single click.",
-                icon: <FaFilePdf className="text-emerald-500 text-xl" />,
-                gradient: "from-red-50 to-rose-50"
-              },
-              {
-                title: "One-Click Publishing",
-                desc: "Forget manual server files, hosting config, or deployment hooks. Enter details, select design, and go live instantly.",
-                icon: <FaRocket className="text-emerald-500 text-xl" />,
-                gradient: "from-purple-50 to-violet-50"
-              }
-            ].map((feature, idx) => (
-              <div
-                key={idx}
-                className="bg-white border border-slate-200/60 p-8 rounded-3xl shadow-sm hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-300 hover:-translate-y-2 relative group overflow-hidden"
-              >
-                <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
-                <div className="relative z-10">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 group-hover:shadow-md transition-all duration-300">
-                    {feature.icon}
+          {/* 2-Column Showcase */}
+          <div className="grid lg:grid-cols-12 gap-12 items-center">
+            {/* Left: Interactive Visual Simulation */}
+            <motion.div
+              className="lg:col-span-6 flex flex-col items-center justify-center space-y-6"
+              initial={{ opacity: 0, x: -40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              viewport={{ once: true, margin: "-50px" }}
+            >
+              {/* Card 1: The Reel Comment Trigger */}
+              <div className="w-full max-w-md bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-2xl relative backdrop-blur-xl">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-800/80 mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-yellow-500 via-pink-500 to-purple-600 p-0.5">
+                      <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center font-bold text-xs text-white">
+                        BB
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-white text-xs">your_instagram</span>
+                        <span className="w-1 h-1 rounded-full bg-slate-600"></span>
+                        <span className="text-[10px] text-pink-400 font-bold">Reel Post</span>
+                      </div>
+                      <span className="text-[10px] text-slate-500 block">Tech Creator • 12.4k views</span>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-2">{feature.title}</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed">{feature.desc}</p>
+                  <span className="px-2 py-0.5 bg-pink-500/10 text-pink-400 border border-pink-500/20 text-[9px] font-bold rounded-full">
+                    Trigger Active
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-300 leading-relaxed mb-4">
+                  "Want my exact portfolio layout and developer templates? Comment <span className="bg-pink-500/20 border border-pink-500/30 text-pink-300 font-black px-1.5 py-0.5 rounded text-[11px]">PORTFOLIO</span> below and I'll DM you the link instantly! 👇"
+                </p>
+
+                {/* Simulated Incoming Comments */}
+                <div className="space-y-2 pt-2 border-t border-slate-800/60">
+                  <div className="flex items-center justify-between bg-slate-950/70 border border-slate-800/60 rounded-xl px-3 py-2 text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-[10px] font-bold text-white">
+                        P
+                      </div>
+                      <span className="text-slate-400 text-[11px] font-semibold">@priya_dev</span>
+                      <span className="text-pink-400 font-black text-[11px]">PORTFOLIO 🔥</span>
+                    </div>
+                    <span className="text-[9px] text-emerald-400 font-bold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      DM Triggered
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between bg-slate-950/70 border border-slate-800/60 rounded-xl px-3 py-2 text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center text-[10px] font-bold text-white">
+                        R
+                      </div>
+                      <span className="text-slate-400 text-[11px] font-semibold">@rohan_builds</span>
+                      <span className="text-pink-400 font-black text-[11px]">portfolio please 🙌</span>
+                    </div>
+                    <span className="text-[9px] text-emerald-400 font-bold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      DM Triggered
+                    </span>
+                  </div>
                 </div>
               </div>
-            ))}
-          </motion.div>
-        </motion.div>
+
+              {/* Connecting Flow Arrow */}
+              <div className="flex items-center gap-3 text-xs text-slate-400 font-bold">
+                <div className="w-12 h-px bg-gradient-to-r from-pink-500 to-emerald-400"></div>
+                <span className="px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-emerald-400 text-[10px] uppercase tracking-wider flex items-center gap-1.5 shadow-md">
+                  <FaBolt className="text-amber-400 text-[11px]" />
+                  Automated dispatch under 2 seconds
+                </span>
+                <div className="w-12 h-px bg-gradient-to-r from-emerald-400 to-pink-500"></div>
+              </div>
+
+              {/* Card 2: The Automated DM Received by Follower */}
+              <div className="w-full max-w-md bg-gradient-to-br from-slate-900 to-slate-950 border border-emerald-500/30 rounded-2xl p-5 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-[10px] font-bold text-white">
+                      BB
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold text-white block">Instagram Direct</span>
+                      <span className="text-[9px] text-emerald-400 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Active Now
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] text-slate-500 font-semibold">Just now</span>
+                </div>
+
+                <div className="bg-slate-800/80 border border-slate-700/70 rounded-2xl p-3.5 space-y-2.5">
+                  <p className="text-xs text-slate-200 leading-relaxed">
+                    Hey! 👋 Thanks for commenting on my post. Here is your direct link to my portfolio website & bio links:
+                  </p>
+                  
+                  <div className="bg-slate-950/80 border border-emerald-500/30 rounded-xl p-2.5 flex items-center justify-between">
+                    <div className="truncate pr-2">
+                      <span className="text-[10px] text-slate-400 block font-semibold">Live Portfolio Website</span>
+                      <span className="text-xs font-black text-emerald-400 truncate block">https://username.bytebodh.in</span>
+                    </div>
+                    <a
+                      href="/templates"
+                      className="px-2.5 py-1 bg-emerald-500 text-white rounded-lg text-[10px] font-black whitespace-nowrap hover:bg-emerald-400 transition-colors"
+                    >
+                      Visit ↗
+                    </a>
+                  </div>
+
+                  <div className="bg-slate-950/80 border border-purple-500/30 rounded-xl p-2.5 flex items-center justify-between">
+                    <div className="truncate pr-2">
+                      <span className="text-[10px] text-slate-400 block font-semibold">Linktree Bio Profile</span>
+                      <span className="text-xs font-black text-purple-400 truncate block">https://bytebodh.in/username</span>
+                    </div>
+                    <a
+                      href="/register"
+                      className="px-2.5 py-1 bg-purple-600 text-white rounded-lg text-[10px] font-black whitespace-nowrap hover:bg-purple-500 transition-colors"
+                    >
+                      Open ↗
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between mt-3 text-[10px] text-slate-500 font-semibold">
+                  <span>Automated via ByteBodh Engine</span>
+                  <span className="text-emerald-400 font-bold flex items-center gap-1">
+                    <FaCheckCircle className="text-emerald-400 text-xs" /> Delivered Instantly
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Right: Feature Highlights & CTA */}
+            <motion.div
+              className="lg:col-span-6 space-y-8 text-left"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-50px" }}
+              variants={staggerContainer}
+            >
+              <motion.div variants={fadeInUp} className="space-y-4">
+                <span className="text-emerald-400 text-xs font-black uppercase tracking-wider">
+                  Automate While You Sleep
+                </span>
+                <h3 className="text-2xl md:text-4xl font-black text-white tracking-tight leading-tight">
+                  Never Tell Anyone to <br />
+                  <span className="text-pink-400">"Check the Link in Bio"</span> Again
+                </h3>
+                <p className="text-slate-400 text-sm md:text-base leading-relaxed">
+                  Only 2% of Instagram viewers actually visit a creator's profile to open their bio link. With ByteBodh Comment-to-DM automation, over 40% of viewers receive your personal portfolio or Linktree link straight into their DMs the moment they comment.
+                </p>
+              </motion.div>
+
+              {/* 4 Feature Cards */}
+              <motion.div variants={fadeInUp} className="grid sm:grid-cols-2 gap-4">
+                {[
+                  {
+                    title: "Trigger Word Engine",
+                    desc: "Set custom trigger words like PORTFOLIO, CODE, RESUME, or SEND. Works across reels, posts, or carousel media.",
+                    icon: <FaComments className="text-pink-400 text-lg" />,
+                    bg: "bg-pink-500/10 border-pink-500/20"
+                  },
+                  {
+                    title: "< 3s Instant Delivery",
+                    desc: "Dispatches personalized DMs via high-performance webhooks powered by official Meta Graph API.",
+                    icon: <FaBolt className="text-amber-400 text-lg" />,
+                    bg: "bg-amber-500/10 border-amber-500/20"
+                  },
+                  {
+                    title: "Recruiter & Lead Capture",
+                    desc: "Capture direct leads from Instagram comments and seamlessly route them to your portfolio or Linktree.",
+                    icon: <FaChartLine className="text-emerald-400 text-lg" />,
+                    bg: "bg-emerald-500/10 border-emerald-500/20"
+                  },
+                  {
+                    title: "100% Meta Verified & Safe",
+                    desc: "Uses official Instagram OAuth credentials. Fully compliant with Instagram platform terms — zero risk to your account.",
+                    icon: <FaShieldAlt className="text-purple-400 text-lg" />,
+                    bg: "bg-purple-500/10 border-purple-500/20"
+                  }
+                ].map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all group"
+                  >
+                    <div className={`w-10 h-10 rounded-xl ${item.bg} border flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                      {item.icon}
+                    </div>
+                    <h4 className="font-bold text-white text-sm mb-1">{item.title}</h4>
+                    <p className="text-[11px] text-slate-400 leading-relaxed font-medium">{item.desc}</p>
+                  </div>
+                ))}
+              </motion.div>
+
+              {/* CTA Buttons */}
+              <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center gap-4 pt-2">
+                <Link
+                  to="/register"
+                  className="w-full sm:w-auto text-center px-8 py-4 bg-gradient-to-r from-pink-500 via-purple-600 to-emerald-500 hover:from-pink-600 hover:via-purple-700 hover:to-emerald-600 text-white font-extrabold rounded-2xl shadow-xl shadow-pink-500/20 hover:shadow-2xl hover:shadow-pink-500/30 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2"
+                >
+                  <FaInstagram className="text-lg" />
+                  Try Instagram Auto-DM
+                  <FaArrowRight size={12} />
+                </Link>
+
+                <a
+                  href="#pricing"
+                  className="w-full sm:w-auto text-center px-6 py-4 bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-slate-600 text-slate-300 font-bold rounded-2xl transition-all text-sm flex items-center justify-center gap-2"
+                >
+                  <FaCrown className="text-amber-400 text-xs" />
+                  Included in Pro Plan
+                </a>
+              </motion.div>
+            </motion.div>
+          </div>
+        </div>
       </section>
 
       {/* STUDENTS SECTION - Enhanced */}
@@ -1361,7 +1552,7 @@ const Homepage = () => {
                       <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-600 to-emerald-400 flex items-center justify-center font-bold text-[10px] shadow-lg">BB</div>
                       <div>
                         <h4 className="font-bold text-white text-[10px]">Your Portfolio</h4>
-                        <p className="text-[8px] text-emerald-400">bytebodh.in/username</p>
+                        <p className="text-[8px] text-emerald-400">username.bytebodh.in</p>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-1.5 text-[8px] pt-1">
@@ -1435,8 +1626,8 @@ const Homepage = () => {
                 a: "No coding is required whatsoever. ByteBodh's profile builder offers intuitive forms where you input your education, certifications, and project links. We construct the pages and handle database configurations automatically."
               },
               {
-                q: "Can I use my own domain?",
-                a: "Currently, custom domains are not supported. All portfolios are instantly published directly under the official ByteBodh domain (e.g., bytebodh.in/yourname), providing you with a clean, fast, and unified link to share."
+                q: "What does my public portfolio link look like?",
+                a: "All portfolios are instantly published directly under your personalized subdomain in the username.domain.com format (e.g., yourname.bytebodh.in), providing you with a clean, branded, and high-impact link to share on resumes and LinkedIn."
               },
               {
                 q: "Can I edit later?",

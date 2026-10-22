@@ -1,99 +1,103 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import DashboardLayout from "../DashboardLayout";
-import {
-  getAllTemplates,
-  createTemplate,
-  updateTemplate,
-  deleteTemplate
-} from "../../api/templateService";
-import { getUsers } from "../../api/users";
-import { getUser } from "../../services/auth";
+import { adminTemplateApi } from "../../api/adminApiService";
+import { CLOUDFLARE_R2_PUBLIC_URL } from "../../config/api";
 import { toast } from "react-toastify";
 import {
-  FaEdit,
-  FaTrash,
-  FaEye,
-  FaPlus,
-  FaLayerGroup,
-  FaInfoCircle,
-  FaUpload,
-  FaCheck,
-  FaTimes,
-  FaSpinner,
-  FaDollarSign,
-  FaTag,
-  FaSearch
-} from "react-icons/fa";
+  Edit3,
+  Trash2,
+  Plus,
+  Layers,
+  Upload,
+  Check,
+  X,
+  Search,
+  CheckCircle2,
+  ExternalLink,
+  Shield,
+  Loader2,
+  Tag,
+  Sparkles,
+  Eye
+} from "lucide-react";
+import { TemplatePreviewModal, TemplateCardThumbnail } from "../../bytebodh-folio/TemplateRenderer";
+
+const CATEGORIES = [
+  { value: "ALL", label: "All Categories" },
+  { value: "DEVELOPER", label: "Developer & Tech" },
+  { value: "DESIGNER", label: "Designer & UI/UX" },
+  { value: "CREATOR", label: "Content Creator" },
+  { value: "PHOTOGRAPHER", label: "Photographer" },
+  { value: "MUSICIAN", label: "Musician & Audio" },
+  { value: "BUSINESS", label: "Business & Executive" },
+  { value: "MINIMAL", label: "Minimalist & Clean" },
+  { value: "OTHER", label: "Other / General" },
+];
 
 const Templates = () => {
   const [templates, setTemplates] = useState([]);
   const [filteredTemplates, setFilteredTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("ALL");
+  const [previewingTemplate, setPreviewingTemplate] = useState(null);
 
-  // Admin user identification
-  const [creatorId, setCreatorId] = useState(null);
-
-  // Form states
+  // Form modal states
   const [showModal, setShowModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [togglingId, setTogglingId] = useState(null);
 
-  // Image handling states
+  // Image handling
+  const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
-  const [imageFileName, setImageFileName] = useState("");
-  const [imageBase64, setImageBase64] = useState("");
 
   const [formData, setFormData] = useState({
-    templateName: "",
+    name: "",
     templateCode: "",
-    category: "Academic",
+    category: "DEVELOPER",
     description: "",
-    isFree: true,
-    hasBlogsFeature: false,
-    isActive: true
+    isPremium: false,
+    isActive: true,
+    isFeatured: false,
+    isNew: false,
+    demoUrl: "",
+    defaultThemeColor: "#10b981",
+    previewImageUrl: ""
   });
 
   // Delete modal state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [syncingTemplates, setSyncingTemplates] = useState(false);
 
-  // Fallback mock images if previewImageUrl is empty
-  const mockImageMap = {
-    1: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=600&q=80", // Resume/Minimal
-    2: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&w=600&q=80", // Monospace/Monochrome
-    3: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=600&q=80", // Creative/Gallery
-    4: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80"  // Executive
-  };
-
-  const fetchCreatorId = async () => {
+  const handleSyncWebsiteTemplates = async () => {
     try {
-      const loggedIn = getUser();
-      if (!loggedIn || !loggedIn.email) return;
-
-      const res = await getUsers();
-      const userList = res.data || [];
-      const adminUser = userList.find(u => u.email === loggedIn.email);
-      if (adminUser) {
-        setCreatorId(adminUser.id);
-      }
+      setSyncingTemplates(true);
+      const res = await adminTemplateApi.seedAll();
+      toast.success(res.data?.message || "All 18 website portfolio templates synced successfully!");
+      fetchTemplates();
     } catch (error) {
-      console.error("Failed to find logged-in user ID:", error);
+      console.error("Sync error:", error);
+      toast.error(error.response?.data?.message || "Failed to sync website templates.");
+    } finally {
+      setSyncingTemplates(false);
     }
   };
 
   const fetchTemplates = async () => {
     try {
       setLoading(true);
-      const res = await getAllTemplates();
+      const res = await adminTemplateApi.getAll();
       const data = res.data?.data || res.data || [];
       setTemplates(data);
       setFilteredTemplates(data);
     } catch (error) {
       console.error("Failed to fetch templates:", error);
-      toast.error("Failed to load templates database.");
+      toast.error("Failed to load templates from server.");
     } finally {
       setLoading(false);
     }
@@ -101,26 +105,26 @@ const Templates = () => {
 
   useEffect(() => {
     fetchTemplates();
-    fetchCreatorId();
   }, []);
 
-  // Filter templates list based on search and category
+  // Filter templates list
   useEffect(() => {
     let result = [...templates];
 
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       result = result.filter(
-        t =>
-          t.templateName?.toLowerCase().includes(term) ||
+        (t) =>
+          (t.name || t.templateName)?.toLowerCase().includes(term) ||
           t.templateCode?.toLowerCase().includes(term) ||
+          t.description?.toLowerCase().includes(term) ||
           t.category?.toLowerCase().includes(term)
       );
     }
 
-    if (selectedCategory !== "all") {
+    if (selectedCategory !== "ALL") {
       result = result.filter(
-        t => t.category?.toLowerCase() === selectedCategory.toLowerCase()
+        (t) => (t.category || "").toUpperCase() === selectedCategory.toUpperCase()
       );
     }
 
@@ -129,49 +133,42 @@ const Templates = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
-  const handleImageUpload = (e) => {
+  const handleImageFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size should be less than 5MB");
+      toast.error("Image file size must be less than 5MB");
       return;
     }
 
-    setImageFileName(file.name);
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      // FileReader results look like: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD..."
-      // We extract the pure base64 code string to send to backend converter
-      const base64String = reader.result.split(",")[1];
-      setImageBase64(base64String);
-      setImagePreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
   };
 
   const openCreateModal = () => {
     setIsEditMode(false);
     setEditingId(null);
+    setImageFile(null);
     setImagePreview("");
-    setImageFileName("");
-    setImageBase64("");
     setFormData({
-      templateName: "",
+      name: "",
       templateCode: "",
-      category: "Academic",
+      category: "DEVELOPER",
       description: "",
-      isFree: true,
-      hasBlogsFeature: false,
-      isActive: true
+      isPremium: false,
+      isActive: true,
+      isFeatured: false,
+      isNew: true,
+      demoUrl: "",
+      defaultThemeColor: "#10b981",
+      previewImageUrl: ""
     });
     setShowModal(true);
   };
@@ -179,32 +176,49 @@ const Templates = () => {
   const openEditModal = (template) => {
     setIsEditMode(true);
     setEditingId(template.id);
+    setImageFile(null);
     setImagePreview(template.previewImageUrl || "");
-    setImageFileName("");
-    setImageBase64("");
     setFormData({
-      templateName: template.templateName || "",
+      name: template.name || template.templateName || "",
       templateCode: template.templateCode || "",
-      category: template.category || "Academic",
+      category: template.category || "DEVELOPER",
       description: template.description || "",
-      isFree: template.isFree !== undefined ? template.isFree : true,
-      hasBlogsFeature: template.hasBlogsFeature || false,
-      isActive: template.isActive !== undefined ? template.isActive : true
+      isPremium: template.isPremium !== undefined ? template.isPremium : !template.isFree,
+      isActive: template.isActive !== undefined ? template.isActive : true,
+      isFeatured: template.isFeatured || false,
+      isNew: template.isNew || false,
+      demoUrl: template.demoUrl || "",
+      defaultThemeColor: template.defaultThemeColor || "#10b981",
+      previewImageUrl: template.previewImageUrl || ""
     });
     setShowModal(true);
   };
 
+  const handleToggleActive = async (template) => {
+    try {
+      setTogglingId(template.id);
+      await adminTemplateApi.toggle(template.id);
+      toast.success(
+        `Template "${template.name || template.templateCode}" is now ${template.isActive ? "Unpublished" : "Published"}!`
+      );
+      setTemplates((prev) =>
+        prev.map((t) => (t.id === template.id ? { ...t, isActive: !t.isActive } : t))
+      );
+    } catch (error) {
+      console.error("Toggle error:", error);
+      toast.error(error.response?.data?.message || "Failed to toggle template status.");
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
   const validateForm = () => {
-    if (!formData.templateName.trim()) {
+    if (!formData.name.trim()) {
       toast.error("Template name is required");
       return false;
     }
     if (!formData.templateCode.trim()) {
-      toast.error("Template code is required");
-      return false;
-    }
-    if (!isEditMode && !imageBase64) {
-      toast.error("Please upload a preview image cover");
+      toast.error("Template code is required (e.g. BENTO_DEV, MINIMAL_LIGHT)");
       return false;
     }
     return true;
@@ -216,55 +230,42 @@ const Templates = () => {
 
     setSubmitting(true);
     try {
-      const payload = {
-        templateName: formData.templateName.trim(),
-        templateCode: formData.templateCode.trim(),
-        category: formData.category,
-        description: formData.description.trim(),
-        isFree: formData.isFree,
-        hasBlogsFeature: formData.hasBlogsFeature,
-        isActive: formData.isActive,
-        previewImageBase64: imageBase64 || null,
-        previewImageFileName: imageFileName || null,
-        createdBy: creatorId || 1
-      };
+      const data = new FormData();
+      data.append("name", formData.name.trim());
+      data.append("templateCode", formData.templateCode.trim().toUpperCase());
+      data.append("category", formData.category);
+      data.append("description", formData.description.trim());
+      data.append("isPremium", formData.isPremium);
+      data.append("isActive", formData.isActive);
+      data.append("isFeatured", formData.isFeatured);
+      data.append("isNew", formData.isNew);
+      data.append("demoUrl", formData.demoUrl.trim());
+      data.append("defaultThemeColor", formData.defaultThemeColor);
+
+      if (imageFile) {
+        data.append("previewImage", imageFile);
+      } else if (formData.previewImageUrl) {
+        data.append("previewImageUrl", formData.previewImageUrl.trim());
+      }
 
       if (isEditMode) {
-        console.log("[Templates] UPDATE → PUT /api/templates/" + editingId);
-        console.log("[Templates] Payload:", JSON.stringify(payload, null, 2));
-        await updateTemplate(editingId, payload);
-        toast.success("Template updated successfully!");
+        await adminTemplateApi.update(editingId, data);
+        toast.success("Template layout updated successfully!");
       } else {
-        console.log("[Templates] CREATE → POST /api/templates");
-        console.log("[Templates] Payload:", JSON.stringify(payload, null, 2));
-        await createTemplate(payload);
-        toast.success("Template created successfully!");
+        await adminTemplateApi.create(data);
+        toast.success("New template published successfully!");
       }
 
       setShowModal(false);
       fetchTemplates();
     } catch (error) {
-      const status = error.response?.status;
-      const serverMsg = error.response?.data?.message || error.response?.data?.error || null;
-      const networkMsg = error.message;
-      console.error("[Templates] Save error:", {
-        status,
-        serverMsg,
-        networkMsg,
-        url: error.config?.url,
-        method: error.config?.method,
-        responseData: error.response?.data
-      });
-      toast.error(
-        serverMsg
-          ? `Server error ${status}: ${serverMsg}`
-          : networkMsg || "Failed to save template. Please try again."
-      );
+      console.error("Save error:", error);
+      const msg = error.response?.data?.message || error.message || "Failed to save template.";
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
   };
-
 
   const confirmDelete = (template) => {
     setTemplateToDelete(template);
@@ -273,109 +274,158 @@ const Templates = () => {
 
   const handleDelete = async () => {
     if (!templateToDelete) return;
+    setDeleting(true);
     try {
-      await deleteTemplate(templateToDelete.id);
+      await adminTemplateApi.delete(templateToDelete.id);
       toast.success("Template deleted successfully!");
-      fetchTemplates();
-    } catch (error) {
-      console.error("Delete template error:", error);
-      const msg = error.response?.data?.message || "Failed to delete template.";
-      toast.error(msg);
-    } finally {
+      setTemplates((prev) => prev.filter((t) => t.id !== templateToDelete.id));
       setShowDeleteModal(false);
       setTemplateToDelete(null);
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error(error.response?.data?.message || "Failed to delete template.");
+    } finally {
+      setDeleting(false);
     }
   };
 
   // Stats calculation
   const totalCount = templates.length;
-  const freeCount = templates.filter(t => t.isFree).length;
-  const paidCount = templates.filter(t => !t.isFree).length;
-  const activeCount = templates.filter(t => t.isActive).length;
-
-  const categoriesList = ["all", ...new Set(templates.map(t => t.category).filter(Boolean))];
+  const activeCount = templates.filter((t) => t.isActive).length;
+  const premiumCount = templates.filter((t) => t.isPremium).length;
+  const freeCount = templates.filter((t) => !t.isPremium).length;
 
   return (
-    <DashboardLayout pageTitle="Templates">
-      <div className="p-6 max-w-7xl mx-auto font-sans">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
-          <div>
-            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Portfolio Templates</h1>
-            <p className="text-slate-600 mt-1">Add, update, and manage portfolio layouts available to users.</p>
-          </div>
-          <button
-            onClick={openCreateModal}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transform active:scale-95 transition-all duration-150"
+    <DashboardLayout pageTitle="Portfolio Templates">
+      <div className="space-y-6 text-left">
+        
+        {/* Top Tabs Switcher */}
+        <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl w-fit">
+          <Link
+            to="/admin-templates"
+            className="px-4 py-2 rounded-lg text-xs font-black bg-white text-emerald-700 shadow-xs border border-slate-200/80 flex items-center gap-1.5"
           >
-            <FaPlus className="text-sm" />
-            Add Template
-          </button>
+            <Layers size={13} className="text-emerald-500" />
+            <span>Portfolio Website Templates</span>
+          </Link>
+          <Link
+            to="/admin-linktree-templates"
+            className="px-4 py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5"
+          >
+            <Sparkles size={13} className="text-slate-400" />
+            <span>Linktree Bio Templates</span>
+          </Link>
+        </div>
+        
+        {/* Header Section */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/60 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200/70 mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+              Layout Studio
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              Portfolio Templates Catalog
+            </h1>
+            <p className="text-sm text-slate-500 mt-1">
+              Create, configure, and release interactive portfolio layouts for platform users.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 self-start md:self-auto">
+            <button
+              onClick={handleSyncWebsiteTemplates}
+              disabled={syncingTemplates}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-sm text-xs transition-all active:scale-95 cursor-pointer disabled:opacity-60"
+              title="Add all 18 website portfolio templates with descriptions, categories, and subscription settings"
+            >
+              {syncingTemplates ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />
+                  <span>Syncing 18 Layouts...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 text-emerald-400" />
+                  <span>Sync Website Templates (18)</span>
+                </>
+              )}
+            </button>
+            <button
+              onClick={openCreateModal}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold rounded-xl shadow-md shadow-emerald-500/20 text-xs transition-all active:scale-95 cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Template</span>
+            </button>
+          </div>
         </div>
 
         {/* Stats Summary Panel */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center">
-            <div className="rounded-2xl bg-blue-50 p-4 mr-4 text-blue-600">
-              <FaLayerGroup size={24} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm flex items-center">
+            <div className="rounded-xl bg-emerald-50 p-3 mr-4 text-emerald-600">
+              <Layers className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-sm text-slate-500 font-medium">Total Templates</p>
-              <h3 className="text-2xl font-bold text-slate-800">{totalCount}</h3>
+              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Templates</p>
+              <h3 className="text-2xl font-black text-slate-900">{totalCount}</h3>
             </div>
           </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center">
-            <div className="rounded-2xl bg-emerald-50 p-4 mr-4 text-emerald-600">
-              <FaTag size={24} />
+
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm flex items-center">
+            <div className="rounded-xl bg-teal-50 p-3 mr-4 text-teal-600">
+              <CheckCircle2 className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-sm text-slate-500 font-medium">Free Layouts</p>
-              <h3 className="text-2xl font-bold text-slate-800">{freeCount}</h3>
+              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Active in Store</p>
+              <h3 className="text-2xl font-black text-slate-900">{activeCount}</h3>
             </div>
           </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center">
-            <div className="rounded-2xl bg-amber-50 p-4 mr-4 text-amber-600">
-              <FaDollarSign size={24} />
+
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm flex items-center">
+            <div className="rounded-xl bg-amber-50 p-3 mr-4 text-amber-600">
+              <Shield className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-sm text-slate-500 font-medium">Subscription-Only</p>
-              <h3 className="text-2xl font-bold text-slate-800">{paidCount}</h3>
+              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Pro Subscription</p>
+              <h3 className="text-2xl font-black text-slate-900">{premiumCount}</h3>
             </div>
           </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex items-center">
-            <div className="rounded-2xl bg-indigo-50 p-4 mr-4 text-indigo-600">
-              <FaCheck size={24} />
+
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm flex items-center">
+            <div className="rounded-xl bg-slate-100 p-3 mr-4 text-slate-600">
+              <Tag className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
-              <p className="text-sm text-slate-500 font-medium">Active Templates</p>
-              <h3 className="text-2xl font-bold text-slate-800">{activeCount}</h3>
+              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Free Access</p>
+              <h3 className="text-2xl font-black text-slate-900">{freeCount}</h3>
             </div>
           </div>
         </div>
 
         {/* Filter and Search Panel */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-5">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="relative w-full md:max-w-md">
-              <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" />
+              <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search templates by name, code, or category..."
-                className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all duration-200 text-slate-800"
+                placeholder="Search templates by title, code, or description..."
+                className="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 border border-slate-200/60 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-400 font-medium"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <div className="flex items-center gap-2 w-full md:w-auto">
-              <span className="text-slate-500 font-medium text-sm whitespace-nowrap">Filter by Category:</span>
+              <span className="text-xs text-slate-400 font-bold uppercase tracking-wider whitespace-nowrap">Category:</span>
               <select
-                className="border border-slate-200 rounded-xl px-4 py-2.5 bg-slate-50 text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer font-semibold text-sm w-full md:w-auto"
+                className="border border-slate-200/60 rounded-xl px-3.5 py-2 bg-slate-50 text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs font-semibold w-full md:w-auto cursor-pointer"
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
               >
-                {categoriesList.map(cat => (
-                  <option key={cat} value={cat}>
-                    {cat === "all" ? "All Categories" : cat}
+                {CATEGORIES.map((cat) => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.label}
                   </option>
                 ))}
               </select>
@@ -383,102 +433,140 @@ const Templates = () => {
           </div>
         </div>
 
-        {/* Templates Grid List */}
+        {/* Templates Grid */}
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-slate-100 shadow-sm">
-            <FaSpinner className="animate-spin text-4xl text-blue-600 mb-4" />
-            <p className="text-slate-600 font-semibold">Loading templates...</p>
+          <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-slate-200/60 shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-md shadow-emerald-500/10 mb-4 animate-spin">
+              <Loader2 className="w-6 h-6" />
+            </div>
+            <p className="text-slate-600 font-semibold text-sm">Loading template catalog...</p>
           </div>
         ) : filteredTemplates.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl border border-slate-100 shadow-sm">
-            <FaLayerGroup size={48} className="mx-auto text-slate-300 mb-4" />
-            <h3 className="text-lg font-bold text-slate-800">No templates found</h3>
-            <p className="text-slate-500 mt-1">Try adjusting your filters or add a new template layout.</p>
+          <div className="text-center py-20 bg-white rounded-2xl border border-slate-200/60 shadow-sm">
+            <Layers className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+            <h3 className="text-base font-bold text-slate-800">No templates found</h3>
+            <p className="text-xs text-slate-400 mt-1">
+              Adjust your search keywords or click "Add Template" to release a new layout.
+            </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredTemplates.map(template => {
-              const imageSrc = template.previewImageUrl || mockImageMap[template.id] || "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=600&q=80";
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredTemplates.map((template) => {
+              const name = template.name || template.templateName || "Untitled Template";
+              const isPremium = template.isPremium !== undefined ? template.isPremium : !template.isFree;
+
               return (
                 <div
                   key={template.id}
-                  className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col group hover:shadow-md hover:border-slate-200 transition-all duration-300 transform hover:-translate-y-1"
+                  className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col hover:shadow-md hover:border-emerald-300 transition-all group"
                 >
-                  {/* Card Cover Preview */}
-                  <div className="relative aspect-video w-full overflow-hidden bg-slate-100">
-                    <img
-                      src={imageSrc}
-                      alt={template.templateName}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  {/* Live Component Preview Header (Same like website) */}
+                  <div
+                    onClick={() => setPreviewingTemplate(template)}
+                    className="relative aspect-[16/10] w-full overflow-hidden bg-slate-950 cursor-pointer group/img"
+                  >
+                    <TemplateCardThumbnail
+                      templateId={template}
+                      title={name}
                     />
-                    <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
+
+                    {/* Hover Overlay with Live Component Preview */}
+                    <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
+                      <span className="px-3.5 py-1.5 bg-white text-slate-900 rounded-xl text-xs font-bold shadow-lg flex items-center gap-1.5">
+                        <Eye className="w-3.5 h-3.5 text-emerald-600" /> Preview Component
+                      </span>
+                    </div>
+                    
+                    {/* Live Demo Link overlay */}
+                    {template.demoUrl && (
                       <a
-                        href={`/templates/preview/${template.id}`}
+                        href={template.demoUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-3 bg-white/90 text-slate-800 hover:bg-white rounded-full shadow-lg transition-all"
-                        title="Live Preview"
+                        onClick={(e) => e.stopPropagation()}
+                        className="absolute bottom-3 right-3 p-2 bg-white/90 text-slate-800 hover:text-emerald-600 hover:bg-white rounded-xl shadow backdrop-blur-sm transition-all z-20"
+                        title="Live Demo"
                       >
-                        <FaEye size={18} />
+                        <ExternalLink className="w-4 h-4" />
                       </a>
-                    </div>
+                    )}
+
                     {/* Category Tag */}
-                    <span className="absolute top-4 left-4 bg-slate-900/80 text-white text-xs font-semibold px-2.5 py-1 rounded-lg backdrop-blur-sm">
-                      {template.category}
+                    <span className="absolute top-3 left-3 bg-slate-900/80 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-lg backdrop-blur-sm uppercase tracking-wider z-20">
+                      {template.category || "GENERAL"}
                     </span>
-                    {/* Status Badge */}
+
+                    {/* Pro / Free Tag */}
                     <span
-                      className={`absolute top-4 right-4 text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm border backdrop-blur-sm ${template.isActive
-                        ? "bg-emerald-500/20 text-emerald-500 border-emerald-500/30"
-                        : "bg-rose-500/20 text-rose-500 border-rose-500/30"
-                        }`}
+                      className={`absolute top-3 right-3 text-[10px] font-black px-2.5 py-1 rounded-lg backdrop-blur-sm uppercase tracking-wider z-20 ${
+                        isPremium
+                          ? "bg-amber-500 text-white shadow-sm"
+                          : "bg-emerald-600 text-white shadow-sm"
+                      }`}
                     >
-                      {template.isActive ? "Active" : "Inactive"}
+                      {isPremium ? "PRO ONLY" : "FREE"}
                     </span>
                   </div>
 
-                  {/* Card Info */}
-                  <div className="p-6 flex-1 flex flex-col">
-                    <div className="flex justify-between items-start mb-2 gap-2">
-                      <h3 className="text-lg font-bold text-slate-800 truncate">{template.templateName}</h3>
-                      <span className="text-xs bg-slate-100 text-slate-600 font-mono px-2 py-0.5 rounded border border-slate-200 uppercase font-semibold">
-                        {template.templateCode}
-                      </span>
-                    </div>
-
-                    <p className="text-slate-500 text-sm line-clamp-3 mb-6 flex-1">
-                      {template.description || "No description provided for this template layout."}
-                    </p>
-
-                    <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                      {/* Access Tag */}
-                      <div>
-                        <span className="text-xs text-slate-400 font-medium">Access</span>
-                        {template.isFree ? (
-                          <p className="font-bold text-emerald-600 text-sm">Free Access</p>
-                        ) : (
-                          <p className="font-bold text-slate-700 text-sm">Requires Subscription</p>
-                        )}
-                        {template.hasBlogsFeature && (
-                          <span className="inline-block mt-1 text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-violet-50 text-violet-600 border border-violet-100">Blogs ✓</span>
-                        )}
+                  {/* Card Content */}
+                  <div className="p-5 flex-1 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <h3 className="font-bold text-slate-900 text-base line-clamp-1">{name}</h3>
+                        <span className="font-mono text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold uppercase">
+                          {template.templateCode}
+                        </span>
                       </div>
 
+                      <p className="text-slate-500 text-xs line-clamp-2 mb-4">
+                        {template.description || "No layout description provided."}
+                      </p>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                      {/* Active Toggle Button */}
+                      <button
+                        onClick={() => handleToggleActive(template)}
+                        disabled={togglingId === template.id}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          template.isActive
+                            ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200/70"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200/60"
+                        }`}
+                        title="Click to toggle publish status"
+                      >
+                        {togglingId === template.id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : template.isActive ? (
+                          <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        ) : (
+                          <X className="w-3.5 h-3.5 text-slate-400" />
+                        )}
+                        <span>{template.isActive ? "Published" : "Hidden"}</span>
+                      </button>
+
                       {/* Action Buttons */}
-                      <div className="flex gap-2">
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setPreviewingTemplate(template)}
+                          className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-colors cursor-pointer"
+                          title="Live Preview Template Component"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
                         <button
                           onClick={() => openEditModal(template)}
-                          className="p-2 bg-slate-50 hover:bg-blue-50 text-slate-600 hover:text-blue-600 rounded-xl border border-slate-200 hover:border-blue-200 transition-all"
+                          className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-colors cursor-pointer"
                           title="Edit Template"
                         >
-                          <FaEdit size={16} />
+                          <Edit3 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => confirmDelete(template)}
-                          className="p-2 bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-600 rounded-xl border border-slate-200 hover:border-rose-200 transition-all"
+                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
                           title="Delete Template"
                         >
-                          <FaTrash size={16} />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
@@ -488,43 +576,46 @@ const Templates = () => {
             })}
           </div>
         )}
+
       </div>
 
-      {/* Save Modal (Create / Edit) */}
+      {/* Create / Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-all duration-300">
-          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-slate-100 transform scale-100 transition-transform">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-slate-200/60 text-left">
             {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-2xl">
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 rounded-t-2xl">
               <div>
-                <h3 className="text-lg font-bold text-slate-800">
-                  {isEditMode ? "Modify Template Layout" : "Create Portfolio Layout"}
+                <h3 className="font-black text-slate-800 text-lg">
+                  {isEditMode ? "Modify Template Layout" : "Publish New Portfolio Layout"}
                 </h3>
-                <p className="text-xs text-slate-500">Provide details for the custom resume/portfolio layout structure.</p>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Configure template codes, preview image mockups, and subscription access.
+                </p>
               </div>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-2 hover:bg-slate-200/60 rounded-full text-slate-400 hover:text-slate-600 transition-colors"
+                className="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
               >
-                <FaTimes size={18} />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Modal Form */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {/* Template Name */}
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Name */}
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                    Template Name <span className="text-rose-500">*</span>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Template Display Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
-                    name="templateName"
-                    value={formData.templateName}
+                    name="name"
+                    value={formData.name}
                     onChange={handleInputChange}
-                    placeholder="e.g. Creative Scholar"
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
+                    placeholder="e.g. Modern Bento Grid Pro"
+                    className="w-full px-3.5 py-2 text-sm border border-slate-200/60 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-medium"
                     disabled={submitting}
                     required
                   />
@@ -532,22 +623,16 @@ const Templates = () => {
 
                 {/* Template Code */}
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
-                    Template Code <span className="text-rose-500">*</span>
-                    <span
-                      className="text-slate-400 cursor-help"
-                      title="Unique identifier linked to code file renderer (e.g. t1, t2, t3, t4)."
-                    >
-                      <FaInfoCircle size={13} />
-                    </span>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Template Code <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     name="templateCode"
                     value={formData.templateCode}
                     onChange={handleInputChange}
-                    placeholder="e.g. t5"
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 font-mono"
+                    placeholder="e.g. BENTO_DEV"
+                    className="w-full px-3.5 py-2 text-sm border border-slate-200/60 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-mono uppercase"
                     disabled={submitting}
                     required
                   />
@@ -555,139 +640,157 @@ const Templates = () => {
 
                 {/* Category */}
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                    Category <span className="text-rose-500">*</span>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Target Profession / Category <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="category"
                     value={formData.category}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer font-medium"
+                    className="w-full px-3.5 py-2 text-sm border border-slate-200/60 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer font-medium"
                     disabled={submitting}
                     required
                   >
-                    <option value="Fresher">Fresher</option>
-                    <option value="Professional">Professional</option>
-                    <option value="Hacker">Hacker</option>
-                    <option value="Creative">Creative</option>
-                    <option value="Executive">Executive</option>
+                    {CATEGORIES.filter((c) => c.value !== "ALL").map((c) => (
+                      <option key={c.value} value={c.value}>
+                        {c.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
-                {/* Status Toggle */}
-                <div className="flex items-center h-full sm:pt-6">
-                  <label className="flex items-center cursor-pointer select-none">
-                    <div className="relative">
-                      <input
-                        type="checkbox"
-                        name="isActive"
-                        checked={formData.isActive}
-                        onChange={handleInputChange}
-                        className="sr-only"
-                        disabled={submitting}
-                      />
-                      <div className={`block w-14 h-8 rounded-full transition-colors duration-250 ${formData.isActive ? "bg-blue-600" : "bg-slate-300"}`}></div>
-                      <div className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform duration-250 ${formData.isActive ? "transform translate-x-6" : ""}`}></div>
-                    </div>
-                    <span className="ml-3 text-sm font-semibold text-slate-700">
-                      Enable Layout Status (Active)
-                    </span>
+                {/* Accent Color */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Theme Accent Color
                   </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      name="defaultThemeColor"
+                      value={formData.defaultThemeColor}
+                      onChange={handleInputChange}
+                      className="w-9 h-9 p-0.5 border border-slate-200/60 rounded-xl cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      name="defaultThemeColor"
+                      value={formData.defaultThemeColor}
+                      onChange={handleInputChange}
+                      className="flex-1 px-3.5 py-2 text-sm border border-slate-200/60 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-mono"
+                    />
+                  </div>
                 </div>
+              </div>
+
+              {/* Demo URL */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Live Interactive Demo URL
+                </label>
+                <input
+                  type="url"
+                  name="demoUrl"
+                  value={formData.demoUrl}
+                  onChange={handleInputChange}
+                  placeholder="https://bytebodh.in/demo/bento"
+                  className="w-full px-3.5 py-2 text-sm border border-slate-200/60 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  disabled={submitting}
+                />
               </div>
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                  Template Description
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Description & Aesthetic Highlights
                 </label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
                   rows="3"
-                  placeholder="Summarize the core layout structure and style guidelines..."
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 text-slate-800"
+                  placeholder="Describe the card layout, animations, and target audience..."
+                  className="w-full px-3.5 py-2.5 text-sm border border-slate-200/60 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
                   disabled={submitting}
                 />
               </div>
 
-              {/* Access Section */}
-              <div className="space-y-4">
-                {/* Free toggle */}
-                <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
-                  <label className="flex items-center cursor-pointer select-none">
-                    <div className="relative">
-                      <input
-                        type="checkbox"
-                        name="isFree"
-                        checked={formData.isFree}
-                        onChange={handleInputChange}
-                        className="sr-only"
-                        disabled={submitting}
-                      />
-                      <div className={`block w-14 h-8 rounded-full transition-colors duration-250 ${formData.isFree ? "bg-emerald-600" : "bg-slate-300"}`}></div>
-                      <div className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform duration-250 ${formData.isFree ? "transform translate-x-6" : ""}`}></div>
-                    </div>
-                    <div className="ml-3">
-                      <span className="block text-sm font-semibold text-slate-700">Free for everyone</span>
-                      <span className="block text-xs text-slate-500">
-                        {formData.isFree
-                          ? "Anyone can use this template without a subscription."
-                          : "Only users with an active platform subscription can activate this template."}
-                      </span>
-                    </div>
+              {/* Access & Publish Switches */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                {/* Pro Access Toggle */}
+                <div className="p-3.5 rounded-xl border border-slate-200/60 bg-slate-50/50 flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-bold text-slate-800">Pro Subscription Only</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      {formData.isPremium
+                        ? "Requires active subscription"
+                        : "Open to free tier users"}
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="isPremium"
+                      checked={formData.isPremium}
+                      onChange={handleInputChange}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
                   </label>
                 </div>
 
-                {/* Feature flags */}
-                <div className="p-4 bg-violet-50 border border-violet-100 rounded-2xl">
-                  <label className="flex items-center cursor-pointer select-none gap-3">
-                    <div className="relative flex-shrink-0">
-                      <input
-                        type="checkbox"
-                        name="hasBlogsFeature"
-                        checked={formData.hasBlogsFeature}
-                        onChange={handleInputChange}
-                        className="sr-only"
-                        disabled={submitting}
-                      />
-                      <div className={`block w-12 h-7 rounded-full transition-colors duration-250 ${formData.hasBlogsFeature ? "bg-violet-600" : "bg-slate-300"}`}></div>
-                      <div className={`dot absolute left-1 top-0.5 bg-white w-6 h-6 rounded-full transition-transform duration-250 ${formData.hasBlogsFeature ? "transform translate-x-5" : ""}`}></div>
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-slate-700">Blogs Feature</p>
-                      <p className="text-xs text-slate-500">Template includes a personal blogs section</p>
-                    </div>
+                {/* Published Status Toggle */}
+                <div className="p-3.5 rounded-xl border border-slate-200/60 bg-slate-50/50 flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-bold text-slate-800">Publish in Catalog</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      {formData.isActive ? "Visible in template store" : "Hidden from users"}
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="isActive"
+                      checked={formData.isActive}
+                      onChange={handleInputChange}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
                   </label>
                 </div>
               </div>
 
-              {/* Image Upload Preview */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
-                  Preview Image Cover
+              {/* Preview Mockup Image Upload */}
+              <div className="pt-1">
+                <label className="block text-xs font-bold text-slate-700 mb-2">
+                  Preview Image Mockup
                 </label>
-                <div className="flex flex-col sm:flex-row gap-6 items-center">
+                <div className="flex flex-col sm:flex-row gap-4 items-center">
                   {imagePreview && (
-                    <div className="relative w-40 aspect-video rounded-xl overflow-hidden border-2 border-slate-200 bg-slate-50 shadow-sm flex-shrink-0 group">
-                      <img src={imagePreview} alt="Local Preview" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-all">
-                        Selected Image
-                      </div>
+                    <div className="relative w-36 aspect-video rounded-xl overflow-hidden border border-slate-200 bg-slate-50 flex-shrink-0">
+                      <img
+                        src={
+                          imagePreview.startsWith("http") || imagePreview.startsWith("data:")
+                            ? imagePreview
+                            : `${CLOUDFLARE_R2_PUBLIC_URL}/${imagePreview.replace(/^\//, "")}`
+                        }
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                      />
                     </div>
                   )}
                   <div className="flex-1 w-full">
-                    <label className={`w-full flex flex-col items-center justify-center px-4 py-6 border-2 border-dashed border-slate-200 hover:border-slate-300 rounded-2xl cursor-pointer bg-slate-50 hover:bg-slate-100/50 transition-colors ${submitting ? "pointer-events-none opacity-50" : ""}`}>
-                      <FaUpload className="text-slate-400 mb-2" size={20} />
-                      <span className="text-sm text-slate-600 font-semibold">
-                        {imageFileName ? imageFileName : "Select a new image"}
+                    <label className="w-full flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-200/80 hover:border-emerald-400 rounded-xl cursor-pointer bg-slate-50 hover:bg-emerald-50/30 transition-colors">
+                      <Upload className="w-5 h-5 text-slate-400 mb-1" />
+                      <span className="text-xs font-bold text-slate-700">
+                        {imageFile ? imageFile.name : "Choose mockup image (PNG, JPG, WebP)"}
                       </span>
-                      <span className="text-xs text-slate-400 mt-1">Recommended: 16:9 ratio, Max 5MB</span>
+                      <span className="text-[10px] text-slate-400 mt-0.5">Max size 5MB (16:9 recommended)</span>
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={handleImageUpload}
+                        onChange={handleImageFileChange}
                         className="hidden"
                         disabled={submitting}
                       />
@@ -696,29 +799,23 @@ const Templates = () => {
                 </div>
               </div>
 
-              {/* Modal Footer / Actions */}
-              <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
+              {/* Actions */}
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
                   disabled={submitting}
-                  className="px-5 py-2.5 border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 font-semibold transition-all disabled:opacity-50"
+                  className="px-4 py-2 border border-slate-200/60 text-slate-700 font-bold rounded-xl text-xs hover:bg-slate-50 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold shadow-md flex items-center gap-2 transition-all disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold rounded-xl text-xs shadow-md shadow-emerald-500/20 cursor-pointer disabled:opacity-50"
                 >
-                  {submitting ? (
-                    <>
-                      <FaSpinner className="animate-spin" />
-                      <span>Saving...</span>
-                    </>
-                  ) : (
-                    <span>Save Layout</span>
-                  )}
+                  {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                  <span>{isEditMode ? "Save Changes" : "Create Template"}</span>
                 </button>
               </div>
             </form>
@@ -728,43 +825,50 @@ const Templates = () => {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && templateToDelete && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-100">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="h-12 w-12 rounded-full bg-rose-50 flex items-center justify-center text-rose-600 flex-shrink-0">
-                <FaTrash size={20} />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-800">Delete Layout</h3>
-                <p className="text-xs text-slate-500">This action is irreversible</p>
-              </div>
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-200/60 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-4">
+              <Trash2 className="w-6 h-6" />
             </div>
-
-            <p className="text-slate-600 text-sm mb-6 leading-relaxed">
-              Are you sure you want to delete template <strong className="text-slate-800">{templateToDelete.templateName}</strong>?
-              This will remove the template layout from catalog and prevent users from selecting or purchasing it.
+            <h3 className="text-lg font-black text-slate-900">Delete Template?</h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Are you sure you want to permanently delete{" "}
+              <span className="font-bold text-slate-700">
+                "{templateToDelete.name || templateToDelete.templateCode}"
+              </span>
+              ? This action cannot be undone and purges any Cloudflare mockup images.
             </p>
-
-            <div className="flex justify-end gap-3">
+            <div className="mt-6 flex items-center justify-center gap-3">
               <button
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setTemplateToDelete(null);
-                }}
-                className="px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleting}
+                className="px-4 py-2 border border-slate-200/60 text-slate-700 font-bold rounded-xl text-xs hover:bg-slate-50 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-semibold shadow-md transition-colors"
+                disabled={deleting}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs shadow-sm cursor-pointer"
               >
-                Delete Layout
+                {deleting && <Loader2 className="w-4 h-4 animate-spin" />}
+                <span>Delete Template</span>
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Interactive Component Preview Modal */}
+      {previewingTemplate && (
+        <TemplatePreviewModal
+          isOpen={Boolean(previewingTemplate)}
+          onClose={() => setPreviewingTemplate(null)}
+          template={previewingTemplate}
+          isAdmin={true}
+        />
+      )}
+
     </DashboardLayout>
   );
 };

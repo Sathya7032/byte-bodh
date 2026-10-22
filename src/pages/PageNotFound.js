@@ -92,7 +92,7 @@ const PageNotFound = ({
               { label: "Home", to: "/" },
               { label: "Templates", to: "/templates" },
               { label: "Blogs", to: "/blogs" },
-              { label: "Jobs", to: "/jobs" },
+              { label: "Linktree", to: "/linktree" },
               { label: "Contact Us", to: "/contact" }
             ].map((link) => (
               <Link

@@ -37,7 +37,7 @@ function AppShowcase() {
       name: "Javify",
       tagline: "Master Java & Build Real Projects",
       description:
-        "Javify is designed for anyone who wants to master Java from basics to advanced — including OOP, DSA, Spring Boot, and real industry-level project patterns. Perfect for beginners, students, and job-seekers.",
+        "Javify is designed for anyone who wants to master Java from basics to advanced — including OOP, DSA, Spring Boot, and real industry-level project patterns. Perfect for beginners, students, and aspiring software engineers.",
       downloads: "1,000+",
       rating: "4.9",
       reviews: "1.1K+ reviews",

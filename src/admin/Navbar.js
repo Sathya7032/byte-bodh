@@ -1,225 +1,162 @@
-// components/Navbar.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Bell, 
-  Search, 
   Menu,
   ChevronDown,
   LogOut,
+  Shield,
+  ExternalLink,
+  Laptop
 } from 'lucide-react';
-import { toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
 import { getAdmin, adminLogout } from "../services/auth";
+import { CLOUDFLARE_R2_PUBLIC_URL } from "../config/api";
 
-const Navbar = ({ 
-  toggleSidebar, 
-  pageTitle = "Dashboard",
-  onSearch
-}) => {
-  
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showNotifications, setShowNotifications] = useState(false);
+const Navbar = ({ toggleSidebar, pageTitle = "Dashboard" }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(3);
   const [user, setUser] = useState({
-    name: "Admin User",
-    email: "admin@bytebodh.com",
-    role: "Administrator"
+    name: "Administrator",
+    email: "admin@bytebodh.in",
+    role: "Super Admin"
   });
+  const menuRef = useRef(null);
 
-  // Load user data from auth service
   useEffect(() => {
-    const loadUserData = () => {
-      try {
-        const userData = getAdmin();
-        if (userData) {
-          setUser({
-            name: userData.fullName || "Admin User",
-            email: userData.email || "admin@bytebodh.com",
-            role: userData.role === 'ADMIN' ? "Administrator" : userData.role || "Admin"
-          });
-        }
-      } catch (error) {
-        console.error("Error loading user data:", error);
-        // Fallback to default user data
-      }
-    };
-
-    loadUserData();
+    const userData = getAdmin();
+    if (userData) {
+      setUser({
+        name: userData.fullName || "Administrator",
+        email: userData.email || "admin@bytebodh.in",
+        role: userData.role === 'SUPER_ADMIN' ? "Super Admin" : "Administrator",
+        avatarUrl: userData.avatarUrl || null
+      });
+    }
   }, []);
 
-  const handleSearch = (e) => {
-    const value = e.target.value;
-    setSearchQuery(value);
-    if (onSearch) {
-      onSearch(value);
-    }
-  };
-
-  const markAllAsRead = () => {
-    setUnreadCount(0);
-    setShowNotifications(false);
-    toast.success("All notifications marked as read");
-  };
-
-  const handleLogout = () => {
-    // Show confirmation toast
-    toast.info("Logging out...", {
-      position: "top-center",
-      autoClose: 1000,
-    });
-
-    // Add a small delay before actual logout
-    setTimeout(() => {
-      adminLogout(); // This will clear auth data and redirect to /admin-login
-    }, 1500);
-  };
-
-  
-
   useEffect(() => {
-    // Close dropdowns when clicking outside
     const handleClickOutside = (event) => {
-      if (showNotifications && !event.target.closest('.notifications-dropdown')) {
-        setShowNotifications(false);
-      }
-      if (showUserMenu && !event.target.closest('.user-menu-dropdown')) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
         setShowUserMenu(false);
       }
     };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [showNotifications, showUserMenu]);
+  const handleLogout = () => {
+    if (window.confirm("Are you sure you want to sign out from the admin console?")) {
+      adminLogout();
+    }
+  };
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
-      <div className="px-4 sm:px-6 lg:px-8 py-4">
+    <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-30">
+      <div className="px-4 sm:px-6 lg:px-8 py-3.5">
         <div className="flex items-center justify-between">
-          {/* Left Section */}
-          <div className="flex items-center space-x-4">
-            {/* Mobile Menu Button */}
+          
+          {/* Left: Menu Toggle & Title */}
+          <div className="flex items-center space-x-3">
             <button
               onClick={toggleSidebar}
-              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              aria-label="Toggle menu"
+              className="p-2 rounded-xl text-slate-500 hover:text-emerald-600 hover:bg-slate-100 transition-colors"
+              title="Toggle sidebar"
             >
-              <Menu size={24} className="text-gray-600" />
+              <Menu size={20} />
             </button>
-
-            {/* Page Title */}
             <div>
-              <h1 className="text-xl font-bold text-gray-800">{pageTitle}</h1>
-              <p className="text-sm text-gray-600 hidden sm:block">
-                Welcome back, {user.name}
-              </p>
+              <h2 className="text-base font-black text-slate-800 tracking-tight leading-tight">
+                {pageTitle}
+              </h2>
             </div>
           </div>
 
-          {/* Right Section */}
-          <div className="flex items-center space-x-4 lg:space-x-6">
-            {/* Search Bar */}
-            <div className="hidden md:block relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={handleSearch}
-                placeholder="Search dashboard..."
-                className="pl-10 pr-4 py-2 w-64 lg:w-80 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-              />
+          {/* Right: Quick Links & Admin Profile */}
+          <div className="flex items-center space-x-3">
+            {/* View Live Website Link */}
+            <Link
+              to="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-emerald-600 hover:bg-slate-100/70 border border-slate-200/60 transition-colors"
+            >
+              <span>View Site</span>
+              <ExternalLink size={13} />
+            </Link>
+
+            {/* Admin Badge */}
+            <div className="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/70">
+              <Shield size={12} className="text-emerald-600" />
+              <span>Admin Mode</span>
             </div>
 
-            {/* Notifications (Optional - kept for reference) */}
-            <div className="relative notifications-dropdown">
-              <button
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative"
-                aria-label="Notifications"
-              >
-                <Bell className="h-5 w-5 text-gray-600" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
-
-              {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
-                  <div className="p-4 border-b flex justify-between items-center">
-                    <h3 className="font-semibold text-gray-800">Notifications</h3>
-                    <button
-                      onClick={markAllAsRead}
-                      className="text-sm text-blue-600 hover:text-blue-800"
-                    >
-                      Mark all as read
-                    </button>
-                  </div>
-                  <div className="max-h-80 overflow-y-auto">
-                    {/* Notification items would go here */}
-                    <div className="p-4 hover:bg-gray-50">
-                      <p className="text-sm text-gray-800">System update completed successfully</p>
-                      <p className="text-xs text-gray-500 mt-1">5 minutes ago</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* User Menu */}
-            <div className="relative user-menu-dropdown">
+            {/* Profile Dropdown */}
+            <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center space-x-3 p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                className="flex items-center space-x-2.5 p-1.5 rounded-xl hover:bg-slate-100/70 transition-colors"
               >
-                <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                  {user.name.charAt(0)}
+                <div className="relative w-8 h-8 rounded-xl overflow-hidden bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold text-xs shadow-sm flex-shrink-0">
+                  {user.avatarUrl ? (
+                    <img
+                      src={
+                        user.avatarUrl.startsWith('http')
+                          ? user.avatarUrl
+                          : `${CLOUDFLARE_R2_PUBLIC_URL}/${user.avatarUrl.replace(/^\//, '')}`
+                      }
+                      alt={user.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                  ) : null}
+                  <span>{user.name.charAt(0).toUpperCase()}</span>
                 </div>
-                <div className="hidden lg:block text-left">
-                  <p className="text-sm font-medium text-gray-800">{user.name}</p>
-                  <p className="text-xs text-gray-500">{user.role}</p>
+                <div className="hidden sm:block text-left">
+                  <p className="text-xs font-bold text-slate-800 leading-tight">
+                    {user.name}
+                  </p>
+                  <p className="text-[10px] text-slate-400 font-medium leading-none">
+                    {user.role}
+                  </p>
                 </div>
-                <ChevronDown size={18} className="text-gray-500 hidden lg:block" />
+                <ChevronDown size={14} className="text-slate-400 hidden sm:block" />
               </button>
 
+              {/* Dropdown Menu */}
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
-                  <div className="p-4 border-b">
-                    <p className="font-medium text-gray-800">{user.name}</p>
-                    <p className="text-sm text-gray-500 truncate">{user.email}</p>
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200/60 py-2 z-50 text-left">
+                  <div className="px-4 py-2.5 border-b border-slate-100">
+                    <p className="text-xs font-bold text-slate-800 truncate">{user.name}</p>
+                    <p className="text-[11px] text-slate-400 truncate mt-0.5">{user.email}</p>
+                    <span className="inline-block mt-1.5 px-2 py-0.5 rounded-md text-[9px] font-extrabold uppercase bg-emerald-50 text-emerald-700 border border-emerald-100">
+                      {user.role}
+                    </span>
                   </div>
-                  
-                  <div className="border-t py-2">
+
+                  <div className="py-1">
+                    <Link
+                      to="/dashboard"
+                      className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-emerald-600 hover:bg-emerald-50/50 transition-colors"
+                      onClick={() => setShowUserMenu(false)}
+                    >
+                      <Laptop size={14} className="text-slate-400" />
+                      <span>User Dashboard</span>
+                    </Link>
+                  </div>
+
+                  <div className="border-t border-slate-100 pt-1">
                     <button
                       onClick={handleLogout}
-                      className="flex items-center space-x-3 w-full px-4 py-2 text-red-600 hover:bg-red-50 transition-colors text-left"
+                      className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors text-left"
                     >
-                      <LogOut size={18} />
-                      <span>Logout</span>
+                      <LogOut size={14} />
+                      <span>Sign Out</span>
                     </button>
                   </div>
                 </div>
               )}
             </div>
-          </div>
-        </div>
 
-        {/* Mobile Search */}
-        <div className="md:hidden mt-4">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={handleSearch}
-              placeholder="Search..."
-              className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            />
           </div>
+
         </div>
       </div>
     </header>

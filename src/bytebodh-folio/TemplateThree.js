@@ -337,10 +337,22 @@ const TemplateThree = ({ profile }) => {
         {/* LEFT PROFILE SIDEBAR (Sticky on Desktop) */}
         <aside className="lg:w-[360px] shrink-0">
           <div
-            className={`lg:sticky lg:top-8 p-7 rounded-3xl border backdrop-blur-xl shadow-[0_10px_30px_rgba(37,99,235,0.08)] space-y-7 transition-all duration-300 ${
+            className={`lg:sticky lg:top-8 p-7 rounded-3xl border backdrop-blur-xl shadow-[0_10px_30px_rgba(37,99,235,0.08)] space-y-7 transition-all duration-300 overflow-hidden ${
               isDarkMode ? "bg-[#1C2541]/70 border-slate-800" : "bg-[#F9FAFB] border-[#E5E7EB]"
             }`}
           >
+            {/* Sidebar Banner */}
+            {profile?.bannerUrl && (
+              <div className="relative w-full h-28 -mt-7 -mx-7 mb-4 overflow-hidden rounded-t-3xl border-b border-[#E5E7EB] dark:border-slate-800">
+                <img
+                  src={profile.bannerUrl}
+                  alt="Cover Banner"
+                  className="w-full h-full object-cover"
+                  onError={(e) => { e.currentTarget.style.display = "none"; }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+              </div>
+            )}
             {/* Header Controls inside Sidebar */}
             <div className="hidden lg:flex items-center justify-between pb-4 border-b border-[#E5E7EB]/80 dark:border-slate-800">
               <div className="flex items-center gap-2">

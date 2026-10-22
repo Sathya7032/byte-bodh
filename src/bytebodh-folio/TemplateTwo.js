@@ -382,6 +382,18 @@ const TemplateTwo = ({ profile }) => {
       <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-24 space-y-28">
         {/* HERO SECTION */}
         <section id="hero" className="pt-6 lg:pt-12 scroll-mt-28">
+          {/* Cover Banner */}
+          {profile?.bannerUrl && (
+            <div className="relative w-full h-44 sm:h-64 rounded-3xl overflow-hidden mb-10 shadow-lg border border-slate-200/60">
+              <img
+                src={profile.bannerUrl}
+                alt="Profile Cover Banner"
+                className="w-full h-full object-cover"
+                onError={(e) => { e.currentTarget.style.display = "none"; }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+            </div>
+          )}
           <div className="grid lg:grid-cols-12 gap-12 items-center">
             {/* Left Column: Recruiter Briefing */}
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">

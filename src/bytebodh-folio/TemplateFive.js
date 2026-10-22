@@ -44,11 +44,15 @@ const TemplateFive = ({ profile }) => {
     const hostname = window.location.hostname;
     if (hostname.endsWith(".localhost")) {
       const subdomain = hostname.replace(".localhost", "");
-      return subdomain && subdomain !== "www" ? subdomain : null;
+      return subdomain && !["www", "app", "admin", "api"].includes(subdomain) ? subdomain : null;
     }
-    if (hostname.endsWith(".bytebodh.in")) {
-      const subdomain = hostname.replace(".bytebodh.in", "");
-      return subdomain && subdomain !== "www" ? subdomain : null;
+    const parts = hostname.split(".");
+    if (parts.length >= 3) {
+      const sub = parts[0].toLowerCase();
+      const reserved = ["www", "app", "admin", "api", "backend", "mail", "ftp", "staging", "dev", "qr"];
+      if (!reserved.includes(sub)) {
+        return sub;
+      }
     }
     return null;
   };

@@ -1,40 +1,56 @@
 import React, { useEffect, useState, useCallback } from "react";
 import DashboardLayout from "../DashboardLayout";
-import { getAllPayments } from "../../api/templateService";
+import { adminSubscriptionApi } from "../../api/adminApiService";
+import { CLOUDFLARE_R2_PUBLIC_URL } from "../../config/api";
 import {
-  FaSearch,
-  FaFilter,
-  FaSort,
-  FaSortUp,
-  FaSortDown,
-  FaCreditCard,
-  FaCheckCircle,
-  FaTimesCircle,
-  FaClock
-} from "react-icons/fa";
+  Search,
+  CreditCard,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  RefreshCw,
+  Copy,
+  Check,
+  TrendingUp,
+  ShieldAlert,
+  Loader2,
+  Sparkles
+} from "lucide-react";
+import { toast } from "react-toastify";
 
 const AdminPayments = () => {
   const [payments, setPayments] = useState([]);
   const [filteredPayments, setFilteredPayments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
-  const [sortConfig, setSortConfig] = useState({ key: "createdAt", direction: "desc" });
+  const [selectedCycle, setSelectedCycle] = useState("all");
+  const [copiedId, setCopiedId] = useState(null);
+
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
+  // Cancellation Modal
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancellingSub, setCancellingSub] = useState(null);
+  const [cancelReason, setCancelReason] = useState("");
+  const [submittingCancel, setSubmittingCancel] = useState(false);
+
   const fetchPayments = async () => {
     try {
-      setLoading(true);
-      const res = await getAllPayments();
+      setRefreshing(true);
+      const res = await adminSubscriptionApi.getAll();
       const data = res.data?.data || res.data || [];
       setPayments(data);
       setFilteredPayments(data);
     } catch (error) {
-      console.error("Failed to fetch payments", error);
-      alert("Failed to load payments. Please try again.");
+      console.error("Failed to fetch subscription payments:", error);
+      toast.error("Failed to load transactions and subscription records.");
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -42,311 +58,407 @@ const AdminPayments = () => {
     fetchPayments();
   }, []);
 
-  const filterAndSortPayments = useCallback(() => {
+  const filterPayments = useCallback(() => {
     let result = [...payments];
 
-    // Apply search filter
+    // Search term
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       result = result.filter(
         (p) =>
-          p.userFullName?.toLowerCase().includes(term) ||
-          p.userEmail?.toLowerCase().includes(term) ||
-          p.itemName?.toLowerCase().includes(term) ||
+          p.id?.toLowerCase().includes(term) ||
+          p.planName?.toLowerCase().includes(term) ||
+          p.planCode?.toLowerCase().includes(term) ||
           p.razorpayOrderId?.toLowerCase().includes(term) ||
           p.razorpayPaymentId?.toLowerCase().includes(term)
       );
     }
 
-    // Apply status filter
+    // Status filter
     if (selectedStatus !== "all") {
-      result = result.filter((p) => p.status?.toLowerCase() === selectedStatus.toLowerCase());
+      result = result.filter((p) => {
+        if (selectedStatus === "ACTIVE") return p.isCurrentlyActive || p.status === "ACTIVE";
+        if (selectedStatus === "CANCELLED") return p.status === "CANCELLED";
+        if (selectedStatus === "EXPIRED") return p.status === "EXPIRED" || (!p.isCurrentlyActive && p.status !== "CANCELLED");
+        if (selectedStatus === "MANUAL_GRANT") return p.razorpayPaymentId === "ADMIN_MANUAL_GRANT";
+        return true;
+      });
     }
 
-    // Apply sorting
-    result.sort((a, b) => {
-      let aValue = a[sortConfig.key];
-      let bValue = b[sortConfig.key];
+    // Billing Cycle filter
+    if (selectedCycle !== "all") {
+      result = result.filter(
+        (p) => p.billingCycle?.toUpperCase() === selectedCycle.toUpperCase()
+      );
+    }
 
-      // Handle null dates
-      if (sortConfig.key === "createdAt" || sortConfig.key === "completedAt") {
-        aValue = aValue ? new Date(aValue).getTime() : 0;
-        bValue = bValue ? new Date(bValue).getTime() : 0;
-      }
-
-      if (aValue == null) aValue = "";
-      if (bValue == null) bValue = "";
-      
-      if (aValue < bValue) {
-        return sortConfig.direction === "asc" ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return sortConfig.direction === "asc" ? 1 : -1;
-      }
-      return 0;
-    });
+    // Sort newest first
+    result.sort((a, b) => new Date(b.createdAt || b.startDate || 0) - new Date(a.createdAt || a.startDate || 0));
 
     setFilteredPayments(result);
     setCurrentPage(1);
-  }, [payments, searchTerm, selectedStatus, sortConfig]);
+  }, [payments, searchTerm, selectedStatus, selectedCycle]);
 
   useEffect(() => {
-    filterAndSortPayments();
-  }, [filterAndSortPayments]);
+    filterPayments();
+  }, [filterPayments]);
 
-  const handleSort = (key) => {
-    setSortConfig((prev) => ({
-      key,
-      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
-    }));
+  const handleCopy = (text, id) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    toast.info("Copied reference to clipboard!", { autoClose: 1500 });
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const getSortIcon = (key) => {
-    if (sortConfig.key !== key) return <FaSort className="ml-1 h-3 w-3" />;
-    return sortConfig.direction === "asc" ? (
-      <FaSortUp className="ml-1 h-3 w-3" />
-    ) : (
-      <FaSortDown className="ml-1 h-3 w-3" />
-    );
+  const openCancelModal = (subscription) => {
+    setCancellingSub(subscription);
+    setCancelReason("Administrative cancellation");
+    setShowCancelModal(true);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!cancellingSub) return;
+    setSubmittingCancel(true);
+    try {
+      await adminSubscriptionApi.cancel(cancellingSub.id, cancelReason);
+      toast.success("Subscription cancelled successfully.");
+      setShowCancelModal(false);
+      setCancellingSub(null);
+      fetchPayments();
+    } catch (error) {
+      console.error("Cancel subscription error:", error);
+      toast.error(error.response?.data?.message || "Failed to cancel subscription.");
+    } finally {
+      setSubmittingCancel(false);
+    }
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleString("en-US", {
+    if (!dateString) return "—";
+    return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
     });
   };
 
-  // Pagination calculations
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(amount || 0);
+  };
+
+  // Stats
+  const totalRevenue = payments.reduce(
+    (sum, p) => sum + (p.amountPaid ? Number(p.amountPaid) : 0),
+    0
+  );
+  const activeCount = payments.filter((p) => p.isCurrentlyActive || p.status === "ACTIVE").length;
+  const manualCount = payments.filter((p) => p.razorpayPaymentId === "ADMIN_MANUAL_GRANT").length;
+
+  // Pagination
   const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentPayments = filteredPayments.slice(indexOfFirstItem, indexOfLastItem);
 
-  const getStatusBadge = (status) => {
-    const s = status?.toUpperCase();
-    if (s === "SUCCESS" || s === "COMPLETED") {
+  const getStatusBadge = (p) => {
+    if (p.razorpayPaymentId === "ADMIN_MANUAL_GRANT") {
       return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-          <FaCheckCircle className="mr-1" /> {status}
-        </span>
-      );
-    } else if (s === "FAILED") {
-      return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-          <FaTimesCircle className="mr-1" /> {status}
-        </span>
-      );
-    } else {
-      return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-          <FaClock className="mr-1" /> {status}
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">
+          <Sparkles className="w-3 h-3 text-purple-600" /> Manual Grant
         </span>
       );
     }
+    if (p.isCurrentlyActive || p.status === "ACTIVE") {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/70">
+          <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Active
+        </span>
+      );
+    }
+    if (p.status === "CANCELLED") {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200">
+          <XCircle className="w-3 h-3 text-red-600" /> Cancelled
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200/60">
+        <Clock className="w-3 h-3 text-slate-500" /> {p.status || "Expired"}
+      </span>
+    );
   };
-
-  const uniqueStatuses = ["all", ...new Set(payments.map(p => p.status?.toLowerCase()).filter(Boolean))];
-
-  const totalRevenue = payments
-    .filter(p => p.status?.toUpperCase() === "SUCCESS" || p.status?.toUpperCase() === "COMPLETED")
-    .reduce((sum, p) => sum + (p.amount || 0), 0);
 
   if (loading) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <DashboardLayout pageTitle="Payments & Invoices">
+        <div className="flex flex-col items-center justify-center min-h-[400px]">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-md shadow-emerald-500/10 mb-4 animate-spin">
+            <RefreshCw className="w-6 h-6" />
+          </div>
+          <p className="text-slate-600 font-semibold text-sm">Loading transaction records...</p>
         </div>
       </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout pageTitle="Payments">
-      <div className="p-6">
+    <DashboardLayout pageTitle="Payments & Invoices">
+      <div className="space-y-6 text-left">
+        
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Payments</h1>
-          <p className="text-gray-600 mt-2">Manage and view all user transactions</p>
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/60 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200/70 mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+              Payment Audit Center
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              Subscription Payments & Invoices
+            </h1>
+            <p className="text-sm text-slate-500 mt-1">
+              Audit Razorpay orders, transaction signatures, Pro subscriptions, and revenue logs.
+            </p>
+          </div>
+
+          <button
+            onClick={fetchPayments}
+            disabled={refreshing}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold rounded-xl shadow-md shadow-emerald-500/20 text-xs transition-all active:scale-95 cursor-pointer self-start md:self-auto"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
+            <span>{refreshing ? "Refreshing..." : "Refresh Records"}</span>
+          </button>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow p-6 border-l-4 border-blue-500">
-            <div className="flex items-center">
-              <div className="rounded-full bg-blue-100 p-3">
-                <FaCreditCard className="h-6 w-6 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-gray-600">Total Transactions</p>
-                <p className="text-2xl font-bold">{payments.length}</p>
-              </div>
+        {/* Stats Summary Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm flex items-center">
+            <div className="rounded-xl bg-emerald-50 p-3 mr-4 text-emerald-600">
+              <CreditCard className="w-5 h-5" />
             </div>
-          </div>
-          
-          <div className="bg-white rounded-xl shadow p-6 border-l-4 border-green-500">
-            <div className="flex items-center">
-              <div className="rounded-full bg-green-100 p-3">
-                <span className="text-green-600 font-bold text-xl">₹</span>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-gray-600">Total Revenue</p>
-                <p className="text-2xl font-bold">₹{totalRevenue.toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-xl shadow p-6 border-l-4 border-green-400">
-            <div className="flex items-center">
-              <div className="rounded-full bg-green-100 p-3">
-                <FaCheckCircle className="h-6 w-6 text-green-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-gray-600">Successful</p>
-                <p className="text-2xl font-bold">
-                  {payments.filter(p => p.status?.toUpperCase() === "SUCCESS" || p.status?.toUpperCase() === "COMPLETED").length}
-                </p>
-              </div>
+            <div>
+              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Orders</p>
+              <h3 className="text-2xl font-black text-slate-900">{payments.length}</h3>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow p-6 border-l-4 border-red-500">
-            <div className="flex items-center">
-              <div className="rounded-full bg-red-100 p-3">
-                <FaTimesCircle className="h-6 w-6 text-red-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-gray-600">Failed</p>
-                <p className="text-2xl font-bold">
-                  {payments.filter(p => p.status?.toUpperCase() === "FAILED").length}
-                </p>
-              </div>
+          <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-5 text-white shadow-lg shadow-emerald-500/20 flex items-center">
+            <div className="rounded-xl bg-white/20 p-3 mr-4 text-white">
+              <TrendingUp className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-xs text-emerald-100 font-semibold uppercase tracking-wider">Platform Revenue</p>
+              <h3 className="text-2xl font-black text-white">{formatCurrency(totalRevenue)}</h3>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm flex items-center">
+            <div className="rounded-xl bg-teal-50 p-3 mr-4 text-teal-600">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Active Pro</p>
+              <h3 className="text-2xl font-black text-slate-900">{activeCount}</h3>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm flex items-center">
+            <div className="rounded-xl bg-purple-50 p-3 mr-4 text-purple-600">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Admin Grants</p>
+              <h3 className="text-2xl font-black text-slate-900">{manualCount}</h3>
             </div>
           </div>
         </div>
 
         {/* Filters and Search */}
-        <div className="bg-white rounded-xl shadow p-6 mb-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search by user, email, template, or order ID..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-5">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="relative w-full md:max-w-md">
+              <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search by order ID, payment ID, or plan..."
+                className="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 border border-slate-200/60 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-400 font-medium"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="flex items-center">
-                <FaFilter className="h-5 w-5 text-gray-400 mr-2" />
+
+            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Status:</span>
                 <select
-                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="border border-slate-200/60 rounded-xl px-3 py-2 bg-slate-50 text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs font-semibold cursor-pointer"
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value)}
                 >
-                  {uniqueStatuses.map(status => (
-                    <option key={status} value={status}>
-                      {status === "all" ? "All Statuses" : status.toUpperCase()}
-                    </option>
-                  ))}
+                  <option value="all">All Statuses</option>
+                  <option value="ACTIVE">Active</option>
+                  <option value="CANCELLED">Cancelled</option>
+                  <option value="EXPIRED">Expired</option>
+                  <option value="MANUAL_GRANT">Manual Grants</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Cycle:</span>
+                <select
+                  className="border border-slate-200/60 rounded-xl px-3 py-2 bg-slate-50 text-slate-700 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-xs font-semibold cursor-pointer"
+                  value={selectedCycle}
+                  onChange={(e) => setSelectedCycle(e.target.value)}
+                >
+                  <option value="all">All Cycles</option>
+                  <option value="MONTHLY">Monthly</option>
+                  <option value="YEARLY">Yearly</option>
                 </select>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Table */}
-        <div className="bg-white rounded-xl shadow overflow-hidden">
+        {/* Transactions Table */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
+            <table className="w-full text-left">
+              <thead className="bg-slate-50/70 border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-wider">
                 <tr>
-                  {[
-                    { key: "id", label: "ID" },
-                    { key: "userFullName", label: "User" },
-                    { key: "itemName", label: "Item" },
-                    { key: "amount", label: "Amount" },
-                    { key: "status", label: "Status" },
-                    { key: "createdAt", label: "Date" },
-                    { key: "razorpayOrderId", label: "Transaction ID" },
-                  ].map((column) => (
-                    <th
-                      key={column.key}
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                      onClick={() => handleSort(column.key)}
-                    >
-                      <div className="flex items-center">
-                        {column.label}
-                        {getSortIcon(column.key)}
-                      </div>
-                    </th>
-                  ))}
+                  <th className="px-6 py-4">User</th>
+                  <th className="px-6 py-4">Plan & Tier</th>
+                  <th className="px-6 py-4">Billing</th>
+                  <th className="px-6 py-4">Amount Paid</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4">Active Period</th>
+                  <th className="px-6 py-4">Razorpay References</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-slate-100 text-xs">
                 {currentPayments.length > 0 ? (
-                  currentPayments.map((p) => (
-                    <tr key={p.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        #{p.id}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium text-gray-900">{p.userFullName}</span>
-                          <span className="text-xs text-gray-500">{p.userEmail}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-sm text-gray-900">{p.itemName}</span>
-                        {p.planType && (
-                          <span className="block text-[10px] text-gray-400 font-semibold mt-0.5 uppercase">{p.planType}</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        ₹{p.amount?.toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {getStatusBadge(p.status)}
-                        {p.failureReason && (
-                          <div className="text-[10px] text-red-500 mt-1 max-w-[120px] truncate" title={p.failureReason}>
-                            {p.failureReason}
+                  currentPayments.map((p) => {
+                    const isActive = p.isCurrentlyActive || p.status === "ACTIVE";
+                    return (
+                      <tr key={p.id} className="hover:bg-slate-50/60 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2.5">
+                            <div className="relative flex-shrink-0 w-8 h-8 rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+                              {p.userAvatarUrl ? (
+                                <img
+                                  src={
+                                    p.userAvatarUrl.startsWith('http')
+                                      ? p.userAvatarUrl
+                                      : `${CLOUDFLARE_R2_PUBLIC_URL}/${p.userAvatarUrl.replace(/^\//, '')}`
+                                  }
+                                  alt={p.userFullName || "User"}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
+                                  }}
+                                />
+                              ) : null}
+                              <div
+                                style={{ display: p.userAvatarUrl ? 'none' : 'flex' }}
+                                className="w-full h-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-bold items-center justify-center text-[11px]"
+                              >
+                                {(p.userFullName || p.userEmail || 'U').charAt(0).toUpperCase()}
+                              </div>
+                            </div>
+                            <div className="min-w-0">
+                              <div className="font-bold text-slate-900 truncate text-xs">{p.userFullName || "User"}</div>
+                              <div className="text-[10px] text-slate-400 truncate font-mono">{p.userEmail}</div>
+                            </div>
                           </div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {formatDate(p.completedAt || p.createdAt)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono text-xs">
-                        {p.razorpayPaymentId ? (
-                          <div className="flex flex-col">
-                            <span>P: {p.razorpayPaymentId}</span>
-                            <span className="text-[10px] text-gray-400">O: {p.razorpayOrderId}</span>
-                          </div>
-                        ) : (
-                          p.razorpayOrderId || "N/A"
-                        )}
-                      </td>
-                    </tr>
-                  ))
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="font-bold text-slate-900">{p.planName || "Pro Plan"}</div>
+                          <div className="font-mono text-[10px] text-slate-400 uppercase">{p.planCode}</div>
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="inline-block px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 uppercase">
+                            {p.billingCycle || "MONTHLY"}
+                          </span>
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap font-black text-slate-900 text-sm">
+                          {formatCurrency(p.amountPaid)}
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {getStatusBadge(p)}
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500">
+                          <div className="font-medium text-slate-700">{formatDate(p.startDate || p.createdAt)} to {formatDate(p.endDate)}</div>
+                          {p.remainingDays != null && (
+                            <span className="text-[10px] text-slate-400 font-semibold">
+                              ({p.remainingDays} days remaining)
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="px-6 py-4 text-xs font-mono">
+                          {p.razorpayPaymentId === "ADMIN_MANUAL_GRANT" ? (
+                            <span className="text-purple-600 font-bold text-[11px]">ADMIN_MANUAL_GRANT</span>
+                          ) : (
+                            <div className="space-y-1">
+                              {p.razorpayPaymentId && (
+                                <div className="flex items-center gap-1.5 text-slate-700">
+                                  <span>Pay: {p.razorpayPaymentId}</span>
+                                  <button
+                                    onClick={() => handleCopy(p.razorpayPaymentId, p.id + "-p")}
+                                    className="p-1 hover:text-emerald-600 text-slate-400 cursor-pointer"
+                                    title="Copy Payment ID"
+                                  >
+                                    {copiedId === p.id + "-p" ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                                  </button>
+                                </div>
+                              )}
+                              {p.razorpayOrderId && (
+                                <div className="flex items-center gap-1.5 text-slate-400 text-[10px]">
+                                  <span>Ord: {p.razorpayOrderId}</span>
+                                  <button
+                                    onClick={() => handleCopy(p.razorpayOrderId, p.id + "-o")}
+                                    className="p-0.5 hover:text-emerald-600 text-slate-400 cursor-pointer"
+                                    title="Copy Order ID"
+                                  >
+                                    {copiedId === p.id + "-o" ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </td>
+
+                        <td className="px-6 py-4 text-right whitespace-nowrap">
+                          {isActive && (
+                            <button
+                              onClick={() => openCancelModal(p)}
+                              className="px-3 py-1.5 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 border border-red-200 transition-colors cursor-pointer"
+                            >
+                              Cancel
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
-                    <td colSpan="7" className="px-6 py-12 text-center">
-                      <FaCreditCard className="mx-auto h-12 w-12 text-gray-400" />
-                      <h3 className="mt-2 text-sm font-medium text-gray-900">No payments found</h3>
-                      <p className="mt-1 text-sm text-gray-500">
-                        {searchTerm || selectedStatus !== "all"
-                          ? "Try adjusting your search or filter"
-                          : "No payments in the system"}
+                    <td colSpan="8" className="px-6 py-16 text-center">
+                      <CreditCard className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                      <h3 className="text-base font-bold text-slate-800">No payment transactions found</h3>
+                      <p className="text-xs text-slate-400 mt-1">
+                        Try adjusting your search criteria or filter selections.
                       </p>
                     </td>
                   </tr>
@@ -357,39 +469,29 @@ const AdminPayments = () => {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-              <div className="text-sm text-gray-700">
-                Showing <span className="font-medium">{indexOfFirstItem + 1}</span> to{" "}
-                <span className="font-medium">
+            <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+              <div>
+                Showing <span className="font-bold text-slate-700">{indexOfFirstItem + 1}</span> to{" "}
+                <span className="font-bold text-slate-700">
                   {Math.min(indexOfLastItem, filteredPayments.length)}
                 </span>{" "}
-                of <span className="font-medium">{filteredPayments.length}</span> entries
+                of <span className="font-bold text-slate-700">{filteredPayments.length}</span> records
               </div>
-              <div className="flex space-x-2">
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                   disabled={currentPage === 1}
-                  className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 flex items-center"
+                  className="px-3 py-1.5 border border-slate-200/60 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 font-bold cursor-pointer"
                 >
                   Previous
                 </button>
-                {[...Array(totalPages)].map((_, i) => (
-                  <button
-                    key={i + 1}
-                    onClick={() => setCurrentPage(i + 1)}
-                    className={`px-3 py-1 border rounded text-sm ${
-                      currentPage === i + 1
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : "border-gray-300 hover:bg-gray-50"
-                    }`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
+                <span className="font-bold text-slate-700">
+                  Page {currentPage} of {totalPages}
+                </span>
                 <button
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
                   disabled={currentPage === totalPages}
-                  className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 flex items-center"
+                  className="px-3 py-1.5 border border-slate-200/60 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 font-bold cursor-pointer"
                 >
                   Next
                 </button>
@@ -397,7 +499,61 @@ const AdminPayments = () => {
             </div>
           )}
         </div>
+
       </div>
+
+      {/* Cancellation Modal */}
+      {showCancelModal && cancellingSub && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 border border-slate-200/60">
+            <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-4">
+              <ShieldAlert className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-black text-slate-900 text-center">
+              Terminate User Subscription?
+            </h3>
+            <p className="text-xs text-slate-500 mt-1 text-center">
+              This will revoke active Pro features for plan{" "}
+              <span className="font-bold text-slate-700">
+                "{cancellingSub.planName || cancellingSub.planCode}"
+              </span>
+              .
+            </p>
+
+            <div className="mt-4">
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Reason for Cancellation
+              </label>
+              <textarea
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                rows="3"
+                className="w-full px-3 py-2 text-xs border border-slate-200/60 rounded-xl outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+                placeholder="e.g. User requested termination or refund issued"
+              />
+            </div>
+
+            <div className="mt-6 flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowCancelModal(false)}
+                disabled={submittingCancel}
+                className="px-4 py-2 border border-slate-200/60 text-slate-700 font-bold rounded-xl text-xs hover:bg-slate-50 cursor-pointer"
+              >
+                Keep Active
+              </button>
+              <button
+                onClick={handleConfirmCancel}
+                disabled={submittingCancel}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs shadow-sm cursor-pointer"
+              >
+                {submittingCancel && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                <span>Confirm Termination</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </DashboardLayout>
   );
 };

@@ -40,26 +40,36 @@ function PrivacyPolicy() {
               
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-base font-bold text-slate-800 mb-2">Personal Information</h3>
-                  <p className="text-slate-500 font-medium text-sm leading-relaxed mb-3">We may collect personal information that you voluntarily provide to us:</p>
+                  <h3 className="text-base font-bold text-slate-800 mb-2">Personal & Profile Information</h3>
+                  <p className="text-slate-500 font-medium text-sm leading-relaxed mb-3">We collect information that you voluntarily provide to us when creating an account or publishing your public profile:</p>
                   <ul className="list-disc pl-6 text-slate-500 text-sm font-medium space-y-2">
-                    <li>Name and contact information (email address, phone number)</li>
-                    <li>Account credentials (username, password)</li>
-                    <li>Payment information for service purchases</li>
-                    <li>Communication preferences</li>
-                    <li>Business information for service requests</li>
+                    <li>Name and contact details (email address, phone number, location)</li>
+                    <li>Account credentials and authentication tokens (Google OAuth, JWT tokens)</li>
+                    <li>Portfolio credentials (work experience, education history, skills, project repositories, certificates)</li>
+                    <li>Linktree links, titles, thumbnails, display order, and sensitive content flags</li>
+                    <li>Subscription and transaction details (billing cycles, payment confirmation IDs)</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-base font-bold text-slate-800 mb-2">Instagram Integration & Automation Data</h3>
+                  <p className="text-slate-500 font-medium text-sm leading-relaxed mb-3">When you connect your Instagram Professional or Creator account via Meta OAuth, we receive and store:</p>
+                  <ul className="list-disc pl-6 text-slate-500 text-sm font-medium space-y-2">
+                    <li>Instagram User ID, Username, and profile picture</li>
+                    <li>Encrypted Page Access Tokens granted for automated direct messaging</li>
+                    <li>Automation rule settings (target keywords, reply message text, target posts/reels)</li>
+                    <li>Real-time comment webhook event data (commenter handle, comment body, media ID, timestamp) used solely to evaluate trigger words and execute direct message dispatches</li>
+                    <li>Delivery and engagement logs (dispatched count, error codes, click metrics)</li>
                   </ul>
                 </div>
                 
                 <div>
                   <h3 className="text-base font-bold text-slate-800 mb-2">Automatically Collected Information</h3>
-                  <p className="text-slate-500 font-medium text-sm leading-relaxed mb-3">When you access our website, we automatically collect:</p>
+                  <p className="text-slate-500 font-medium text-sm leading-relaxed mb-3">When you or visitors access your portfolio website or Linktree bio page:</p>
                   <ul className="list-disc pl-6 text-slate-500 text-sm font-medium space-y-2">
-                    <li>IP address and browser type</li>
-                    <li>Device information and operating system</li>
-                    <li>Pages visited and time spent on site</li>
-                    <li>Referring website and search terms</li>
-                    <li>Clickstream data and browsing patterns</li>
+                    <li>IP address, country/region, and device browser type</li>
+                    <li>Portfolio page visits and Linktree button click counts</li>
+                    <li>Referring URLs and timestamps</li>
                   </ul>
                 </div>
               </div>
@@ -75,10 +85,20 @@ function PrivacyPolicy() {
                 <div>
                   <h3 className="text-base font-bold text-slate-800 mb-2">Service Provision</h3>
                   <ul className="list-disc pl-6 text-slate-500 text-sm font-medium space-y-2">
-                    <li>Create and manage your account</li>
-                    <li>Process transactions and deliver services</li>
+                    <li>Create, host, and manage your portfolio website and Linktree bio hub</li>
+                    <li>Process transactions, billing cycles, and activate Pro subscriptions</li>
                     <li>Provide customer support and respond to inquiries</li>
-                    <li>Send service-related communications</li>
+                    <li>Send service-related notifications and account updates</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-base font-bold text-slate-800 mb-2">Instagram Lead Automation Operations</h3>
+                  <ul className="list-disc pl-6 text-slate-500 text-sm font-medium space-y-2">
+                    <li>Process incoming comment webhooks delivered by Meta to identify configured trigger words</li>
+                    <li>Dispatch automated direct messages with your portfolio or Linktree link to commenting users</li>
+                    <li>Display delivery metrics, click counts, and rule performance in your dashboard</li>
+                    <li>We do <strong className="text-slate-700">NOT</strong> read private inbox conversations, scrape unrelated comments, or sell your follower information to any third parties</li>
                   </ul>
                 </div>
 
@@ -215,6 +235,20 @@ function PrivacyPolicy() {
                     <li>Adjusting notification settings in your account</li>
                     <li>Contacting us directly to update your preferences</li>
                   </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-base font-bold text-slate-800 mb-2">Instagram Account Disconnection & Data Deletion</h3>
+                  <p className="text-slate-500 font-medium text-sm leading-relaxed mb-3">
+                    You have total control over your connected Instagram profile. You may disconnect your Instagram integration at any time by:
+                  </p>
+                  <ul className="list-disc pl-6 text-slate-500 text-sm font-medium space-y-2 mb-3">
+                    <li>Clicking <strong>Disconnect Account</strong> under your ByteBodh Settings or Instagram Automation page</li>
+                    <li>Removing ByteBodh's access in your Meta / Instagram account settings under <em>Settings & Privacy &gt; Website Permissions &gt; Apps and Websites</em></li>
+                  </ul>
+                  <p className="text-slate-500 font-medium text-xs leading-relaxed">
+                    Upon disconnection, your Instagram access tokens are immediately and irreversibly deleted from our database, and all automation webhooks are paused. To request complete deletion of your ByteBodh user account and all historical analytics, email us at <a href="mailto:info@bytebodh.in" className="text-emerald-600 font-bold hover:underline">info@bytebodh.in</a>.
+                  </p>
                 </div>
 
                 <div>

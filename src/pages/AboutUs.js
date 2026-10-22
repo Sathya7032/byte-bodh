@@ -1,5 +1,5 @@
 import React from "react";
-import { FaLightbulb, FaToolbox, FaGraduationCap, FaRocket, FaUsers, FaCode, FaQrcode, FaUserTie, FaChartLine, FaEnvelope, FaBriefcase } from "react-icons/fa";
+import { FaLightbulb, FaToolbox, FaGraduationCap, FaRocket, FaUsers, FaCode, FaQrcode, FaUserTie, FaChartLine, FaEnvelope, FaInstagram } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -143,8 +143,8 @@ function AboutUs() {
                     <span>1-Click PDF Resumes and Placement Packs</span>
                   </li>
                   <li className="flex items-center text-slate-600 text-sm font-semibold">
-                    <FaBriefcase className="mr-3 text-emerald-500" />
-                    <span>Tech Job Feeds & Placement Openings</span>
+                    <FaInstagram className="mr-3 text-emerald-500" />
+                    <span>Instagram Comment-to-DM Lead Automation</span>
                   </li>
                   <li className="flex items-center text-slate-600 text-sm font-semibold">
                     <FaEnvelope className="mr-3 text-emerald-500" />

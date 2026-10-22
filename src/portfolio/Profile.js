@@ -1,2684 +1,2315 @@
-import React, { useEffect, useState } from "react";
-import DashboardLayout from "../portfolio/components/DashboardLayout";
+import React, { useEffect, useState, useCallback, useRef } from "react";
+import DashboardLayout from "./components/DashboardLayout";
 import {
-  getMyProfile,
-  createProfile,
-  updateProfile,
-  addProject,
-  deleteProject,
-  addCertification,
-  deleteCertification,
-} from "../api/profileService";
-import { getPortfolioUrl } from "../config/api";
+  projectsApi,
+  skillsApi,
+  educationApi,
+  certificationsApi,
+  achievementsApi,
+  linksApi,
+  userApi,
+  resolveImageUrl,
+} from "../api/portfolioApiService";
+import { getMyProfile, updateProfile } from "../api/profileService";
+import { getPortfolioUrl, getLinktreeUrl } from "../config/api";
+import { getAccessToken } from "../services/auth";
 import { toast } from "react-toastify";
 import {
   FaUser,
-  FaBriefcase,
   FaGraduationCap,
-  FaHistory,
   FaProjectDiagram,
   FaTools,
+  FaCertificate,
+  FaTrophy,
   FaLink,
-  FaSave,
+  FaPlus,
   FaTrash,
   FaEdit,
-  FaPlus,
-  FaTimes,
-  FaCheck,
-  FaGlobe,
-  FaLinkedin,
-  FaGithub,
   FaExternalLinkAlt,
+  FaGlobe,
+  FaCopy,
+  FaGithub,
+  FaLinkedin,
+  FaTwitter,
+  FaInstagram,
+  FaYoutube,
+  FaSave,
+  FaTimes,
+  FaCalendarAlt,
+  FaAward,
   FaCamera,
-  FaUserCircle,
-  FaCertificate,
-  FaMobileAlt,
-  FaSync,
   FaCloudUploadAlt,
-  FaQuestionCircle
+  FaImage,
+  FaMapMarkerAlt,
+  FaEnvelope,
+  FaPhone,
+  FaStar,
+  FaEye,
+  FaMousePointer,
+  FaMoon,
+  FaCheck,
+  FaCheckCircle,
 } from "react-icons/fa";
 import { SiLeetcode } from "react-icons/si";
-import { motion } from "framer-motion";
 
-const Profile = () => {
-  const [profile, setProfile] = useState({
-    fullName: "",
-    mobileNumber: "",
-    username: "",
-    email: "",
-    headline: "",
-    summary: "",
-    isFresher: false,
-    skills: [],
-    education: [],
-    experience: [],
-    projects: [],
-    socialMediaLinks: [],
-    certifications: [],
-    pictureUrl: "",
-    metaTitle: "",
-    metaDescription: "",
-    metaKeywords: ""
-  });
+// Backend Enums
+const PROFESSION_CATEGORIES = [
+  { value: "SOFTWARE_ENGINEER", label: "Software Engineer / Developer" },
+  { value: "PRODUCT_DESIGNER", label: "Product Designer / UI/UX" },
+  { value: "GRAPHIC_DESIGNER", label: "Graphic Designer / Artist" },
+  { value: "CONTENT_CREATOR", label: "Content Creator / Influencer" },
+  { value: "PHOTOGRAPHER", label: "Photographer" },
+  { value: "VIDEOGRAPHER", label: "Filmmaker / Videographer" },
+  { value: "WRITER_AUTHOR", label: "Writer / Author / Journalist" },
+  { value: "ENTREPRENEUR", label: "Entrepreneur / Founder" },
+  { value: "MARKETER", label: "Digital Marketer / Growth" },
+  { value: "CONSULTANT", label: "Consultant / Advisor" },
+  { value: "MUSICIAN_ARTIST", label: "Musician / Audio Artist" },
+  { value: "STUDENT", label: "Student / Learner" },
+  { value: "OTHER", label: "Other Profession" },
+];
+
+const SKILL_PROFICIENCIES = [
+  { value: "BEGINNER", label: "Beginner (Fundamentals)" },
+  { value: "INTERMEDIATE", label: "Intermediate (Hands-on)" },
+  { value: "ADVANCED", label: "Advanced (High Competence)" },
+  { value: "EXPERT", label: "Expert (Mastery / Production)" },
+];
+
+const SOCIAL_PLATFORMS = [
+  { value: "GITHUB", label: "GitHub", icon: <FaGithub /> },
+  { value: "LINKEDIN", label: "LinkedIn", icon: <FaLinkedin /> },
+  { value: "TWITTER_X", label: "X / Twitter", icon: <FaTwitter /> },
+  { value: "INSTAGRAM", label: "Instagram", icon: <FaInstagram /> },
+  { value: "YOUTUBE", label: "YouTube", icon: <FaYoutube /> },
+  { value: "LEETCODE", label: "LeetCode", icon: <SiLeetcode /> },
+  { value: "WEBSITE", label: "Portfolio / Website", icon: <FaGlobe /> },
+  { value: "CUSTOM", label: "Custom Link", icon: <FaLink /> },
+];
+
+const ACCENT_COLORS = [
+  { label: "Emerald", hex: "#10B981" },
+  { label: "Indigo", hex: "#6366F1" },
+  { label: "Sky Blue", hex: "#0EA5E9" },
+  { label: "Rose Pink", hex: "#F43F5E" },
+  { label: "Amber Gold", hex: "#F59E0B" },
+  { label: "Violet Purple", hex: "#8B5CF6" },
+  { label: "Slate Dark", hex: "#0F172A" },
+];
+
+export default function Profile() {
+  const [activeCategory, setActiveCategory] = useState("identity"); // identity | projects | skills | education | certifications | achievements | social
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [newSkill, setNewSkill] = useState("");
-  const [editingSection, setEditingSection] = useState(null);
-  const [tempItem, setTempItem] = useState({});
-  const [activeTab, setActiveTab] = useState("personal");
-  const [previewUrl, setPreviewUrl] = useState("");
-  const [profileImage, setProfileImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState("");
-  const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
-  const [previewKey, setPreviewKey] = useState(0);
+  const [savingIdentity, setSavingIdentity] = useState(false);
 
-  const [projectImageFile, setProjectImageFile] = useState(null);
-  const [projectImagePreview, setProjectImagePreview] = useState("");
-  const [certImageFile, setCertImageFile] = useState(null);
-  const [certImagePreview, setCertImagePreview] = useState("");
-
-  const [confirmModal, setConfirmModal] = useState({
-    isOpen: false,
-    title: "",
-    message: "",
-    onConfirm: null,
-    onDiscard: null
+  // User Identity State (User Entity)
+  const [userProfile, setUserProfile] = useState({
+    id: "",
+    email: "",
+    username: "",
+    fullName: "",
+    headline: "",
+    bio: "",
+    professionCategory: "SOFTWARE_ENGINEER",
+    customProfessionTitle: "",
+    avatarUrl: "",
+    bannerUrl: "",
+    location: "",
+    contactEmail: "",
+    phoneNumber: "",
+    themeAccentColor: "#10B981",
+    isDarkModeEnabled: false,
+    isProfilePublic: true,
+    isOnboardingCompleted: false,
+    totalProfileViews: 0,
+    totalLinkClicks: 0,
+    activeTemplateId: "",
+    activeTemplateCode: "BENTO_GRID_PRO",
+    hasActiveSubscription: false,
+    authProvider: "EMAIL",
+    selectedTemplate: "CLASSIC_LINKS",
   });
 
-  const promptSaveOrDiscard = ({ title, message, onSave, onDiscard }) => {
-    setConfirmModal({
-      isOpen: true,
-      title: title || "Save or Discard Changes?",
-      message: message || "Would you like to save your changes or discard them?",
-      onConfirm: onSave ? () => {
-        onSave();
-        setConfirmModal(prev => ({ ...prev, isOpen: false }));
-      } : null,
-      onDiscard: () => {
-        if (onDiscard) {
-          onDiscard();
-        } else {
-          setEditingSection(null);
-          setTempItem({});
-          setProjectImageFile(null);
-          setProjectImagePreview("");
-          setCertImageFile(null);
-          setCertImagePreview("");
-        }
-        setConfirmModal(prev => ({ ...prev, isOpen: false }));
-      }
-    });
-  };
+  // Dedicated file states for avatar & banner
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState("");
+  const [bannerFile, setBannerFile] = useState(null);
+  const [bannerPreview, setBannerPreview] = useState("");
 
+  const avatarInputRef = useRef(null);
+  const bannerInputRef = useRef(null);
 
-  const defaultEducation = {
-    degree: "",
-    fieldOfStudy: "",
-    institution: "",
-    startYear: new Date().getFullYear(),
-    endYear: new Date().getFullYear(),
-    cgpa: ""
-  };
+  // Entity Lists State
+  const [projects, setProjects] = useState([]);
+  const [skills, setSkills] = useState([]);
+  const [education, setEducation] = useState([]);
+  const [certifications, setCertifications] = useState([]);
+  const [achievements, setAchievements] = useState([]);
+  const [userLinks, setUserLinks] = useState([]);
 
-  const defaultExperience = {
-    jobTitle: "",
-    company: "",
-    location: "",
-    startMonth: new Date().getMonth() + 1,
-    startYear: new Date().getFullYear(),
-    endMonth: "",
-    endYear: "",
-    currentlyWorking: false,
-    description: ""
-  };
+  // Modal State for adding/editing entity items
+  const [modalType, setModalType] = useState(null); // 'project' | 'skill' | 'education' | 'cert' | 'achievement' | 'link'
+  const [editingItem, setEditingItem] = useState(null);
+  const [formData, setFormData] = useState({});
+  const [modalImageFile, setModalImageFile] = useState(null);
+  const [modalImagePreview, setModalImagePreview] = useState("");
+  const [savingItem, setSavingItem] = useState(false);
+  const modalFileInputRef = useRef(null);
 
-  const defaultProject = {
-    title: "",
-    techStack: "",
-    projectUrl: "",
-    description: ""
-  };
-
-  const defaultSocialLink = {
-    platform: "LINKEDIN",
-    profileUrl: ""
-  };
-
-  const defaultCertification = {
-    name: "",
-    startDate: "",
-    endDate: "",
-    description: ""
-  };
-
-  const tabs = [
-    { id: "personal", label: "Personal", icon: <FaUser className="w-4 h-4" /> },
-    { id: "professional", label: "Professional", icon: <FaBriefcase className="w-4 h-4" /> },
-    { id: "education", label: "Education", icon: <FaGraduationCap className="w-4 h-4" /> },
-    { id: "experience", label: "Experience", icon: <FaHistory className="w-4 h-4" /> },
-    { id: "projects", label: "Projects", icon: <FaProjectDiagram className="w-4 h-4" /> },
-    { id: "skills", label: "Skills", icon: <FaTools className="w-4 h-4" /> },
-    { id: "social", label: "Social", icon: <FaLink className="w-4 h-4" /> },
-    { id: "certifications", label: "Certifications", icon: <FaCertificate className="w-4 h-4" /> }
-  ];
-
-  const socialPlatforms = [
-    { value: "LINKEDIN", label: "LinkedIn", icon: <FaLinkedin />, color: "text-blue-700" },
-    { value: "GITHUB", label: "GitHub", icon: <FaGithub />, color: "text-gray-900" },
-    { value: "LEETCODE", label: "LeetCode", icon: <SiLeetcode />, color: "text-orange-500" },
-    { value: "PORTFOLIO", label: "Portfolio", icon: <FaGlobe />, color: "text-green-600" }
-  ];
-
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  useEffect(() => {
-    if (profile.username) {
-      const url = getPortfolioUrl(profile.username);
-      setPreviewUrl(url);
-    }
-  }, [profile.username]);
-
-  const fetchProfile = async () => {
+  // Load all user details and category entities
+  const loadAllData = useCallback(async () => {
     try {
-      const response = await getMyProfile();
-      const rawData = response.data || {};
-      const data = rawData.data || rawData;
-      console.log("User data", data)
+      setLoading(true);
 
-      setProfile({
-        fullName: data.fullName || "",
-        mobileNumber: data.mobileNumber || "",
-        username: data.user?.username || "",
-        email: data.email || "",
-        headline: data.headline || "",
-        summary: data.summary || "",
-        isFresher: data.isFresher !== undefined ? data.isFresher : false,
-        skills: data.skills || [],
-        education: data.education || [],
-        experience: data.experience || [],
-        projects: data.projects || [],
-        socialMediaLinks: data.socialMediaLinks || [],
-        certifications: data.certifications || [],
-        pictureUrl: data.pictureUrl || "",
-        metaTitle: data.metaTitle || data.seoDetails?.metaTitle || data.seo_details?.metaTitle || "",
-        metaDescription: data.metaDescription || data.seoDetails?.metaDescription || data.seo_details?.metaDescription || "",
-        metaKeywords: data.metaKeywords || data.seoDetails?.metaKeywords || data.seo_details?.metaKeywords || ""
+      const [
+        userRes,
+        legacyProfileRes,
+        projectsRes,
+        skillsRes,
+        eduRes,
+        certsRes,
+        achRes,
+        linksRes,
+      ] = await Promise.allSettled([
+        userApi.getProfile().catch(() => ({ data: null })),
+        getMyProfile().catch(() => ({ data: null })),
+        projectsApi.getAll(),
+        skillsApi.getAll(),
+        educationApi.getAll(),
+        certificationsApi.getAll(),
+        achievementsApi.getAll(),
+        linksApi.getAll(),
+      ]);
+
+      // Unpack user identity
+      const userData =
+        userRes.status === "fulfilled" && userRes.value?.data
+          ? userRes.value.data.data || userRes.value.data
+          : legacyProfileRes.status === "fulfilled" && legacyProfileRes.value?.data
+          ? legacyProfileRes.value.data.data || legacyProfileRes.value.data
+          : {};
+
+      setUserProfile({
+        id: userData.id || userData.user?.id || "",
+        email: userData.email || userData.user?.email || "",
+        username: userData.username || userData.user?.username || "",
+        fullName: userData.fullName || userData.user?.fullName || "",
+        headline: userData.headline || userData.user?.headline || "",
+        bio: userData.bio || userData.summary || "",
+        professionCategory: userData.professionCategory || "SOFTWARE_ENGINEER",
+        customProfessionTitle: userData.customProfessionTitle || "",
+        avatarUrl: userData.avatarUrl || userData.pictureUrl || userData.user?.avatarUrl || userData.user?.pictureUrl || "",
+        bannerUrl: userData.bannerUrl || userData.user?.bannerUrl || "",
+        location: userData.location || "",
+        contactEmail: userData.contactEmail || userData.email || "",
+        phoneNumber: userData.phoneNumber || userData.mobileNumber || "",
+        themeAccentColor: userData.themeAccentColor || "#10B981",
+        isDarkModeEnabled: Boolean(userData.isDarkModeEnabled),
+        isProfilePublic: userData.isProfilePublic !== false,
+        isOnboardingCompleted: Boolean(userData.isOnboardingCompleted),
+        totalProfileViews: userData.totalProfileViews ?? 0,
+        totalLinkClicks: userData.totalLinkClicks ?? 0,
+        activeTemplateId: userData.activeTemplateId || "",
+        activeTemplateCode: userData.activeTemplateCode || "BENTO_GRID_PRO",
+        hasActiveSubscription: Boolean(userData.hasActiveSubscription),
+        authProvider: userData.authProvider || "EMAIL",
+        selectedTemplate: userData.selectedTemplate || "CLASSIC_LINKS",
       });
 
-      if (data.pictureUrl) {
-        setImagePreview(data.pictureUrl);
+      if (userData.avatarUrl || userData.pictureUrl) {
+        setAvatarPreview(userData.avatarUrl || userData.pictureUrl);
+      }
+      if (userData.bannerUrl) {
+        setBannerPreview(userData.bannerUrl);
       }
 
-      if (data.id) {
-        setProfile(prev => ({ ...prev, id: data.id }));
+      // Unpack Projects
+      if (projectsRes.status === "fulfilled" && Array.isArray(projectsRes.value?.data)) {
+        setProjects(projectsRes.value.data);
+      } else if (Array.isArray(userData.projects)) {
+        setProjects(userData.projects);
+      }
+
+      // Unpack Skills
+      if (skillsRes.status === "fulfilled" && Array.isArray(skillsRes.value?.data)) {
+        setSkills(skillsRes.value.data);
+      } else if (Array.isArray(userData.skills)) {
+        setSkills(
+          userData.skills.map((s, idx) =>
+            typeof s === "string"
+              ? { id: idx, name: s, category: "General", proficiencyLevel: "INTERMEDIATE" }
+              : s
+          )
+        );
+      }
+
+      // Unpack Education
+      if (eduRes.status === "fulfilled" && Array.isArray(eduRes.value?.data)) {
+        setEducation(eduRes.value.data);
+      } else if (Array.isArray(userData.education)) {
+        setEducation(userData.education);
+      }
+
+      // Unpack Certifications
+      if (certsRes.status === "fulfilled" && Array.isArray(certsRes.value?.data)) {
+        setCertifications(certsRes.value.data);
+      } else if (Array.isArray(userData.certifications)) {
+        setCertifications(userData.certifications);
+      }
+
+      // Unpack Achievements
+      if (achRes.status === "fulfilled" && Array.isArray(achRes.value?.data)) {
+        setAchievements(achRes.value.data);
+      }
+
+      // Unpack Social Links
+      if (linksRes.status === "fulfilled" && Array.isArray(linksRes.value?.data)) {
+        setUserLinks(linksRes.value.data);
+      } else if (Array.isArray(userData.socialMediaLinks)) {
+        setUserLinks(userData.socialMediaLinks);
       }
     } catch (err) {
-      console.log(err);
-      setError("Profile not created yet. Please fill in your details below.");
+      console.error("Error loading profile categories:", err);
+      toast.error("Failed to load details. Using local defaults.");
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    const token = getAccessToken();
+    console.log("%c[ByteBodh Profile] Active JWT Token:", "color:#10b981;font-weight:bold;", token);
+    loadAllData();
+  }, [loadAllData]);
+
+  const publicPortfolioUrl = getPortfolioUrl(userProfile.username || "portfolio");
+  const publicLinktreeUrl = getLinktreeUrl(userProfile.username || "portfolio");
+  const [copiedPortfolioUrl, setCopiedPortfolioUrl] = useState(false);
+  const [copiedLinktreeUrl, setCopiedLinktreeUrl] = useState(false);
+
+  const handleCopyPortfolioUrl = () => {
+    if (!publicPortfolioUrl) return;
+    navigator.clipboard.writeText(publicPortfolioUrl);
+    setCopiedPortfolioUrl(true);
+    toast.success("Portfolio URL copied to clipboard!");
+    setTimeout(() => setCopiedPortfolioUrl(false), 2000);
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Check file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("Image size should be less than 5MB");
+  const handleCopyLinktreeUrl = () => {
+    if (!publicLinktreeUrl) return;
+    navigator.clipboard.writeText(publicLinktreeUrl);
+    setCopiedLinktreeUrl(true);
+    toast.success("Linktree URL copied to clipboard!");
+    setTimeout(() => setCopiedLinktreeUrl(false), 2000);
+  };
+
+  // Client-side image compression to prevent HTTP 413 & CORS rejection
+  const compressImageFile = (file, maxWidth = 800, maxHeight = 800, quality = 0.85) => {
+    return new Promise((resolve) => {
+      if (!file || !file.type.startsWith("image/") || file.type === "image/svg+xml" || file.type === "image/gif") {
+        resolve(file);
         return;
       }
 
-      // Check file type
-      if (!file.type.match('image/jpeg|image/jpg|image/png|image/gif')) {
-        toast.error("Only JPG, PNG, and GIF images are allowed");
-        return;
-      }
-
-      setProfileImage(file);
-
-      // Create preview
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
       reader.readAsDataURL(file);
-    }
-  };
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
 
-  const handleProjectImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("Image size should be less than 5MB");
-        return;
-      }
-      setProjectImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProjectImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleCertImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("Image size should be less than 5MB");
-        return;
-      }
-      setCertImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCertImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-
-    const payload = {
-      fullName: profile.fullName || "",
-      mobileNumber: profile.mobileNumber || "",
-      email: profile.email || "",
-      headline: profile.headline || "",
-      summary: profile.summary || "",
-      isFresher: profile.isFresher,
-      skills: profile.skills || [],
-      education: profile.education || [],
-      experience: profile.experience || [],
-      projects: profile.projects || [],
-      socialMediaLinks: profile.socialMediaLinks || [],
-      certifications: profile.certifications || [],
-      metaTitle: profile.metaTitle || "",
-      metaDescription: profile.metaDescription || "",
-      metaKeywords: profile.metaKeywords || "",
-      seoDetails: {
-        metaTitle: profile.metaTitle || "",
-        metaDescription: profile.metaDescription || "",
-        metaKeywords: profile.metaKeywords || ""
-      }
-    };
-
-    const formData = new FormData();
-
-    // 1) Append JSON Blob under "profile"
-    formData.append(
-      "profile",
-      new Blob([JSON.stringify(payload)], { type: "application/json" })
-    );
-
-    // 2) Append individual top-level fields for form-data handlers
-    formData.append("fullName", profile.fullName || "");
-    formData.append("mobileNumber", profile.mobileNumber || "");
-    formData.append("email", profile.email || "");
-    formData.append("headline", profile.headline || "");
-    formData.append("summary", profile.summary || "");
-    formData.append("isFresher", profile.isFresher ? "true" : "false");
-    formData.append("metaTitle", profile.metaTitle || "");
-    formData.append("metaDescription", profile.metaDescription || "");
-    formData.append("metaKeywords", profile.metaKeywords || "");
-
-    if (profileImage) {
-      formData.append("profileImage", profileImage);
-    }
-
-    try {
-      let res;
-      if (profile.id) {
-        try {
-          res = await updateProfile(formData);
-        } catch (updateErr) {
-          if (updateErr.response && (updateErr.response.status === 404 || updateErr.response.status === 405)) {
-            res = await createProfile(formData);
-          } else {
-            throw updateErr;
+          if (width > maxWidth || height > maxHeight) {
+            if (width / height > maxWidth / maxHeight) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            } else {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
           }
-        }
-      } else {
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (!blob || blob.size >= file.size) {
+                resolve(file);
+              } else {
+                const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), {
+                  type: "image/jpeg",
+                  lastModified: Date.now(),
+                });
+                resolve(compressedFile);
+              }
+            },
+            "image/jpeg",
+            quality
+          );
+        };
+        img.onerror = () => resolve(file);
+      };
+      reader.onerror = () => resolve(file);
+    });
+  };
+
+  // Avatar file selection with auto compression
+  const handleAvatarSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file (PNG, JPG, WebP)");
+      return;
+    }
+
+    try {
+      const compressed = await compressImageFile(file, 600, 600, 0.85);
+      setAvatarFile(compressed);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result);
+      };
+      reader.readAsDataURL(compressed);
+    } catch {
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Banner file selection with auto compression
+  const handleBannerSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    try {
+      const compressed = await compressImageFile(file, 1600, 600, 0.82);
+      setBannerFile(compressed);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBannerPreview(reader.result);
+      };
+      reader.readAsDataURL(compressed);
+    } catch {
+      setBannerFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBannerPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Modal item image selection with auto compression
+  const handleModalImageSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file");
+      return;
+    }
+
+    try {
+      const compressed = await compressImageFile(file, 900, 900, 0.85);
+      setModalImageFile(compressed);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setModalImagePreview(reader.result);
+      };
+      reader.readAsDataURL(compressed);
+    } catch {
+      setModalImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setModalImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Save Identity Details (User Entity) with Avatar & Banner
+  const handleSaveIdentity = async (e) => {
+    e.preventDefault();
+    setSavingIdentity(true);
+    try {
+      // Build FormData to support avatar and banner multipart uploads
+      const payload = new FormData();
+      if (avatarFile) {
+        payload.append("avatar", avatarFile);
+        payload.append("profileImage", avatarFile);
+        payload.append("image", avatarFile);
+      }
+      if (bannerFile) {
+        payload.append("banner", bannerFile);
+        payload.append("bannerImage", bannerFile);
+      }
+
+      payload.append("fullName", userProfile.fullName || "");
+      payload.append("headline", userProfile.headline || "");
+      payload.append("bio", userProfile.bio || "");
+      payload.append("summary", userProfile.bio || "");
+      payload.append("professionCategory", userProfile.professionCategory || "SOFTWARE_ENGINEER");
+      payload.append("customProfessionTitle", userProfile.customProfessionTitle || "");
+      payload.append("location", userProfile.location || "");
+      payload.append("contactEmail", userProfile.contactEmail || "");
+      payload.append("phoneNumber", userProfile.phoneNumber || "");
+      payload.append("themeAccentColor", userProfile.themeAccentColor || "#10B981");
+      payload.append("isProfilePublic", String(userProfile.isProfilePublic));
+
+      if (!avatarFile) {
+        payload.append("avatarUrl", userProfile.avatarUrl ? userProfile.avatarUrl.trim() : "REMOVE");
+      }
+      if (!bannerFile) {
+        payload.append("bannerUrl", userProfile.bannerUrl ? userProfile.bannerUrl.trim() : "REMOVE");
+      }
+
+      const res = await updateProfile(payload);
+      const updatedUser = res?.data?.data || res?.data;
+      if (updatedUser) {
+        const newAvatar = updatedUser.avatarUrl !== undefined ? updatedUser.avatarUrl : null;
+        const newBanner = updatedUser.bannerUrl !== undefined ? updatedUser.bannerUrl : null;
+        setUserProfile((prev) => ({
+          ...prev,
+          ...updatedUser,
+          avatarUrl: newAvatar || "",
+          bannerUrl: newBanner || "",
+        }));
+        setAvatarPreview(newAvatar || "");
+        setBannerPreview(newBanner || "");
+        setAvatarFile(null);
+        setBannerFile(null);
+        if (avatarInputRef.current) avatarInputRef.current.value = "";
+        if (bannerInputRef.current) bannerInputRef.current.value = "";
+
+        // Update stored user in localStorage for instant navbar avatar update
         try {
-          res = await createProfile(formData);
-        } catch (createErr) {
-          if (createErr.response && (createErr.response.status === 409 || createErr.response.status === 405 || createErr.response.status === 400)) {
-            res = await updateProfile(formData);
-          } else {
-            throw createErr;
+          const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+          storedUser.avatarUrl = newAvatar || "";
+          storedUser.bannerUrl = newBanner || "";
+          localStorage.setItem("user", JSON.stringify(storedUser));
+          window.dispatchEvent(new CustomEvent("userUpdated", { detail: updatedUser }));
+        } catch (e) {}
+      }
+      toast.success("Profile & Identity details updated successfully!");
+    } catch (err) {
+      console.error("Failed to save identity:", err);
+      toast.error("Failed to update identity. Saved locally.");
+    } finally {
+      setSavingIdentity(false);
+    }
+  };
+
+  // Open Modal to Add/Edit Entity Item
+  const openModal = (type, item = null) => {
+    setModalType(type);
+    setEditingItem(item);
+    setModalImageFile(null);
+
+    const initialPreview =
+      item?.imageUrl ||
+      item?.iconUrl ||
+      item?.institutionLogoUrl ||
+      item?.certificateImageUrl ||
+      item?.badgeImageUrl ||
+      "";
+    setModalImagePreview(initialPreview);
+
+    if (type === "project") {
+      setFormData(
+        item || {
+          title: "",
+          category: "Web Development",
+          shortDescription: "",
+          description: "",
+          technologies: "",
+          projectUrl: "",
+          githubUrl: "",
+          startDate: "",
+          endDate: "",
+          isOngoing: false,
+          isFeatured: true,
+          imageUrl: "",
+        }
+      );
+    } else if (type === "skill") {
+      setFormData(
+        item || {
+          name: "",
+          category: "Frontend",
+          proficiencyLevel: "INTERMEDIATE",
+          yearsOfExperience: 1.0,
+          isFeatured: true,
+          iconUrl: "",
+        }
+      );
+    } else if (type === "education") {
+      setFormData(
+        item || {
+          institution: "",
+          degree: "",
+          fieldOfStudy: "",
+          grade: "",
+          startDate: "",
+          endDate: "",
+          isCurrent: false,
+          activities: "",
+          description: "",
+          institutionLogoUrl: "",
+        }
+      );
+    } else if (type === "cert") {
+      setFormData(
+        item || {
+          name: "",
+          issuingOrganization: "",
+          issueDate: "",
+          expirationDate: "",
+          doesNotExpire: false,
+          credentialId: "",
+          credentialUrl: "",
+          certificateImageUrl: "",
+        }
+      );
+    } else if (type === "achievement") {
+      setFormData(
+        item || {
+          title: "",
+          issuer: "",
+          issueDate: "",
+          description: "",
+          referenceUrl: "",
+          isFeatured: true,
+          badgeImageUrl: "",
+        }
+      );
+    } else if (type === "link") {
+      setFormData(
+        item || {
+          title: "",
+          url: "",
+          platform: "GITHUB",
+          isActive: true,
+          isFeatured: false,
+          iconUrl: "",
+        }
+      );
+    }
+  };
+
+  const closeModal = () => {
+    setModalType(null);
+    setEditingItem(null);
+    setFormData({});
+    setModalImageFile(null);
+    setModalImagePreview("");
+  };
+
+  // Submit Modal Form (Create or Update Category Entity) with Image Upload
+  const handleSaveModalItem = async (e) => {
+    e.preventDefault();
+    setSavingItem(true);
+    try {
+      // Build FormData payload when a new image file is chosen, otherwise send JSON
+      let submissionPayload = formData;
+      if (modalImageFile) {
+        const multipart = new FormData();
+        multipart.append("image", modalImageFile);
+        Object.keys(formData).forEach((key) => {
+          if (formData[key] !== null && formData[key] !== undefined && key !== "image") {
+            multipart.append(key, formData[key]);
           }
-        }
+        });
+        submissionPayload = multipart;
       }
 
-      toast.success("Profile saved successfully");
-      const rawData = res.data || {};
-      const data = rawData.data || rawData;
-
-      setProfile((prev) => ({
-        ...prev,
-        ...data,
-        id: data.id || prev.id,
-        metaTitle: data.metaTitle || data.seoDetails?.metaTitle || data.seo_details?.metaTitle || prev.metaTitle || "",
-        metaDescription: data.metaDescription || data.seoDetails?.metaDescription || data.seo_details?.metaDescription || prev.metaDescription || "",
-        metaKeywords: data.metaKeywords || data.seoDetails?.metaKeywords || data.seo_details?.metaKeywords || prev.metaKeywords || ""
-      }));
-
-      if (data.pictureUrl) {
-        setImagePreview(data.pictureUrl);
-        setProfileImage(null);
-      }
-    } catch (err) {
-      toast.error("Failed to save profile");
-      console.error(err);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-
-  const handleAddSkill = () => {
-    if (newSkill.trim() && !profile.skills.includes(newSkill.trim())) {
-      setProfile({
-        ...profile,
-        skills: [...profile.skills, newSkill.trim()]
-      });
-      setNewSkill("");
-    }
-  };
-
-  const handleRemoveSkill = (index) => {
-    const updatedSkills = profile.skills.filter((_, i) => i !== index);
-    setProfile({ ...profile, skills: updatedSkills });
-  };
-
-  const handleAddCertification = () => {
-    setEditingSection("certification");
-    setTempItem(defaultCertification);
-    setCertImageFile(null);
-    setCertImagePreview("");
-  };
-
-  const handleSaveCertification = async () => {
-    if (!tempItem.name) {
-      toast.error("Certification name is required");
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const formData = new FormData();
-      const certPayload = {
-        name: tempItem.name,
-        startDate: tempItem.startDate,
-        endDate: tempItem.endDate,
-        description: tempItem.description
-      };
-
-      formData.append(
-        "certification",
-        new Blob([JSON.stringify(certPayload)], { type: "application/json" })
-      );
-      if (certImageFile) {
-        formData.append("image", certImageFile);
-      }
-
-      const res = await addCertification(formData);
-      const data = res.data || {};
-      const returnedCerts = data.certifications || data.data?.certifications || [];
-      setProfile(prev => ({
-        ...prev,
-        certifications: returnedCerts.length > 0 ? returnedCerts : [...prev.certifications, certPayload]
-      }));
-      setEditingSection(null);
-      setTempItem({});
-      setCertImageFile(null);
-      setCertImagePreview("");
-      toast.success("Certification added successfully");
-    } catch (err) {
-      console.error("Error saving certification:", err);
-      toast.error(err.response?.data?.message || "Failed to add certification");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleEditCertification = (index) => {
-    setEditingSection(`certification-${index}`);
-    const cert = profile.certifications[index] || {};
-    setTempItem({
-      ...cert,
-      name: cert.name || "",
-      startDate: cert.startDate || "",
-      endDate: cert.endDate || "",
-      description: cert.description || ""
-    });
-    setCertImageFile(null);
-    setCertImagePreview(cert.imageUrl || "");
-  };
-
-  const handleUpdateCertification = async (index) => {
-    if (!tempItem.name) {
-      toast.error("Certification name is required");
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const oldCert = profile.certifications[index];
-      if (oldCert.id) {
-        await deleteCertification(oldCert.id);
-      }
-
-      const formData = new FormData();
-      const certPayload = {
-        name: tempItem.name,
-        startDate: tempItem.startDate,
-        endDate: tempItem.endDate,
-        description: tempItem.description
-      };
-
-      if (tempItem.imageUrl && !certImageFile) {
-        certPayload.imageUrl = tempItem.imageUrl;
-      }
-
-      formData.append(
-        "certification",
-        new Blob([JSON.stringify(certPayload)], { type: "application/json" })
-      );
-
-      if (certImageFile) {
-        formData.append("image", certImageFile);
-      }
-
-      const res = await addCertification(formData);
-      const data = res.data || {};
-      const returnedCerts = data.certifications || data.data?.certifications || [];
-      setProfile(prev => {
-        let newCerts;
-        if (returnedCerts.length > 0) {
-          newCerts = returnedCerts;
+      if (modalType === "project") {
+        if (editingItem?.id) {
+          const res = await projectsApi.update(editingItem.id, submissionPayload);
+          const updated = res.data?.data || res.data || { ...formData, imageUrl: modalImagePreview };
+          setProjects((prev) => prev.map((p) => (p.id === editingItem.id ? { ...p, ...updated } : p)));
+          toast.success("Project updated!");
         } else {
-          newCerts = [...prev.certifications];
-          newCerts[index] = certPayload;
+          const res = await projectsApi.create(submissionPayload);
+          const created = res.data?.data || res.data || { ...formData, imageUrl: modalImagePreview, id: Date.now() };
+          setProjects((prev) => [created, ...prev]);
+          toast.success("Project added successfully!");
         }
-        return {
-          ...prev,
-          certifications: newCerts
-        };
-      });
-      setEditingSection(null);
-      setTempItem({});
-      setCertImageFile(null);
-      setCertImagePreview("");
-      toast.success("Certification updated successfully");
-    } catch (err) {
-      console.error("Error updating certification:", err);
-      toast.error(err.response?.data?.message || "Failed to update certification");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleRemoveCertification = async (index) => {
-    if (window.confirm("Are you sure you want to delete this certification?")) {
-      const cert = profile.certifications[index];
-      if (cert.id) {
-        setSaving(true);
-        try {
-          const res = await deleteCertification(cert.id);
-          const data = res.data || {};
-          setProfile(prev => ({
-            ...prev,
-            certifications: data.certifications || data.data?.certifications || []
-          }));
-          toast.success("Certification removed successfully");
-        } catch (err) {
-          console.error("Error deleting certification:", err);
-          toast.error("Failed to delete certification");
-        } finally {
-          setSaving(false);
-        }
-      } else {
-        const updatedCertifications = profile.certifications.filter((_, i) => i !== index);
-        setProfile({ ...profile, certifications: updatedCertifications });
-        toast.success("Certification removed successfully");
-      }
-    }
-  };
-
-
-  const handleAddEducation = () => {
-    setEditingSection("education");
-    setTempItem(defaultEducation);
-  };
-
-  const handleSaveEducation = () => {
-    if (!tempItem.degree || !tempItem.institution) {
-      toast.error("Degree and Institution are required");
-      return;
-    }
-
-    const updatedEducation = [...profile.education, tempItem];
-    setProfile({ ...profile, education: updatedEducation });
-    setEditingSection(null);
-    setTempItem({});
-    toast.success("Education added successfully");
-  };
-
-  const handleEditEducation = (index) => {
-    setEditingSection(`education-${index}`);
-    setTempItem(profile.education[index]);
-  };
-
-  const handleUpdateEducation = (index) => {
-    const updatedEducation = [...profile.education];
-    updatedEducation[index] = tempItem;
-    setProfile({ ...profile, education: updatedEducation });
-    setEditingSection(null);
-    setTempItem({});
-    toast.success("Education updated successfully");
-  };
-
-  const handleRemoveEducation = (index) => {
-    if (window.confirm("Are you sure you want to delete this education entry?")) {
-      const updatedEducation = profile.education.filter((_, i) => i !== index);
-      setProfile({ ...profile, education: updatedEducation });
-      toast.success("Education removed successfully");
-    }
-  };
-
-  const handleAddExperience = () => {
-    setEditingSection("experience");
-    setTempItem(defaultExperience);
-  };
-
-  const handleSaveExperience = () => {
-    if (!tempItem.jobTitle || !tempItem.company) {
-      toast.error("Job title and company are required");
-      return;
-    }
-
-    const updatedExperience = [...profile.experience, tempItem];
-    setProfile({ ...profile, experience: updatedExperience });
-    setEditingSection(null);
-    setTempItem({});
-    toast.success("Experience added successfully");
-  };
-
-  const handleEditExperience = (index) => {
-    setEditingSection(`experience-${index}`);
-    setTempItem(profile.experience[index]);
-  };
-
-  const handleUpdateExperience = (index) => {
-    const updatedExperience = [...profile.experience];
-    updatedExperience[index] = tempItem;
-    setProfile({ ...profile, experience: updatedExperience });
-    setEditingSection(null);
-    setTempItem({});
-    toast.success("Experience updated successfully");
-  };
-
-  const handleRemoveExperience = (index) => {
-    if (window.confirm("Are you sure you want to delete this experience entry?")) {
-      const updatedExperience = profile.experience.filter((_, i) => i !== index);
-      setProfile({ ...profile, experience: updatedExperience });
-      toast.success("Experience removed successfully");
-    }
-  };
-
-  const handleAddProject = () => {
-    setEditingSection("project");
-    setTempItem(defaultProject);
-    setProjectImageFile(null);
-    setProjectImagePreview("");
-  };
-
-  const handleSaveProject = async () => {
-    if (!tempItem.title) {
-      toast.error("Project title is required");
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const formData = new FormData();
-      const projectPayload = {
-        title: tempItem.title,
-        techStack: tempItem.techStack,
-        projectUrl: tempItem.projectUrl,
-        description: tempItem.description
-      };
-
-      formData.append(
-        "project",
-        new Blob([JSON.stringify(projectPayload)], { type: "application/json" })
-      );
-      if (projectImageFile) {
-        formData.append("image", projectImageFile);
-      }
-
-      const res = await addProject(formData);
-      const data = res.data || {};
-      const returnedProjects = data.projects || data.data?.projects || [];
-
-      setProfile(prev => ({
-        ...prev,
-        projects: returnedProjects.length > 0 ? returnedProjects : [...prev.projects, projectPayload]
-      }));
-      setEditingSection(null);
-      setTempItem({});
-      setProjectImageFile(null);
-      setProjectImagePreview("");
-      toast.success("Project added successfully");
-    } catch (err) {
-      console.error("Error saving project:", err);
-      toast.error(err.response?.data?.message || "Failed to add project");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleEditProject = (index) => {
-    setEditingSection(`project-${index}`);
-    const proj = profile.projects[index] || {};
-    setTempItem({
-      ...proj,
-      title: proj.title || "",
-      techStack: proj.techStack || "",
-      projectUrl: proj.projectUrl || "",
-      description: proj.description || ""
-    });
-    setProjectImageFile(null);
-    setProjectImagePreview(proj.imageUrl || "");
-  };
-
-  const handleUpdateProject = async (index) => {
-    if (!tempItem.title) {
-      toast.error("Project title is required");
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const oldProject = profile.projects[index];
-      if (oldProject.id) {
-        await deleteProject(oldProject.id);
-      }
-
-      const formData = new FormData();
-      const projectPayload = {
-        title: tempItem.title,
-        techStack: tempItem.techStack,
-        projectUrl: tempItem.projectUrl,
-        description: tempItem.description
-      };
-
-      if (tempItem.imageUrl && !projectImageFile) {
-        projectPayload.imageUrl = tempItem.imageUrl;
-      }
-
-      formData.append(
-        "project",
-        new Blob([JSON.stringify(projectPayload)], { type: "application/json" })
-      );
-
-      if (projectImageFile) {
-        formData.append("image", projectImageFile);
-      }
-
-      const res = await addProject(formData);
-      const data = res.data || {};
-      const returnedProjects = data.projects || data.data?.projects || [];
-
-      setProfile(prev => {
-        let newProjects;
-        if (returnedProjects.length > 0) {
-          newProjects = returnedProjects;
+      } else if (modalType === "skill") {
+        if (editingItem?.id) {
+          const res = await skillsApi.update(editingItem.id, submissionPayload);
+          const updated = res.data?.data || res.data || { ...formData, iconUrl: modalImagePreview };
+          setSkills((prev) => prev.map((s) => (s.id === editingItem.id ? { ...s, ...updated } : s)));
+          toast.success("Skill updated!");
         } else {
-          newProjects = [...prev.projects];
-          newProjects[index] = projectPayload;
+          const res = await skillsApi.create(submissionPayload);
+          const created = res.data?.data || res.data || { ...formData, iconUrl: modalImagePreview, id: Date.now() };
+          setSkills((prev) => [created, ...prev]);
+          toast.success("Skill added successfully!");
         }
-        return {
-          ...prev,
-          projects: newProjects
-        };
-      });
-      setEditingSection(null);
-      setTempItem({});
-      setProjectImageFile(null);
-      setProjectImagePreview("");
-      toast.success("Project updated successfully");
-    } catch (err) {
-      console.error("Error updating project:", err);
-      toast.error(err.response?.data?.message || "Failed to update project");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleRemoveProject = async (index) => {
-    if (window.confirm("Are you sure you want to delete this project?")) {
-      const project = profile.projects[index];
-      if (project.id) {
-        setSaving(true);
-        try {
-          const res = await deleteProject(project.id);
-          const data = res.data || {};
-          setProfile(prev => ({
-            ...prev,
-            projects: data.projects || data.data?.projects || []
-          }));
-          toast.success("Project removed successfully");
-        } catch (err) {
-          console.error("Error deleting project:", err);
-          toast.error("Failed to delete project");
-        } finally {
-          setSaving(false);
+      } else if (modalType === "education") {
+        if (editingItem?.id) {
+          const res = await educationApi.update(editingItem.id, submissionPayload);
+          const updated = res.data?.data || res.data || { ...formData, institutionLogoUrl: modalImagePreview };
+          setEducation((prev) => prev.map((e) => (e.id === editingItem.id ? { ...e, ...updated } : e)));
+          toast.success("Education record updated!");
+        } else {
+          const res = await educationApi.create(submissionPayload);
+          const created = res.data?.data || res.data || { ...formData, institutionLogoUrl: modalImagePreview, id: Date.now() };
+          setEducation((prev) => [created, ...prev]);
+          toast.success("Education record added!");
         }
-      } else {
-        const updatedProjects = profile.projects.filter((_, i) => i !== index);
-        setProfile({ ...profile, projects: updatedProjects });
-        toast.success("Project removed successfully");
+      } else if (modalType === "cert") {
+        if (editingItem?.id) {
+          const res = await certificationsApi.update(editingItem.id, submissionPayload);
+          const updated = res.data?.data || res.data || { ...formData, certificateImageUrl: modalImagePreview };
+          setCertifications((prev) => prev.map((c) => (c.id === editingItem.id ? { ...c, ...updated } : c)));
+          toast.success("Certification updated!");
+        } else {
+          const res = await certificationsApi.create(submissionPayload);
+          const created = res.data?.data || res.data || { ...formData, certificateImageUrl: modalImagePreview, id: Date.now() };
+          setCertifications((prev) => [created, ...prev]);
+          toast.success("Certification added!");
+        }
+      } else if (modalType === "achievement") {
+        if (editingItem?.id) {
+          const res = await achievementsApi.update(editingItem.id, submissionPayload);
+          const updated = res.data?.data || res.data || { ...formData, badgeImageUrl: modalImagePreview };
+          setAchievements((prev) => prev.map((a) => (a.id === editingItem.id ? { ...a, ...updated } : a)));
+          toast.success("Achievement updated!");
+        } else {
+          const res = await achievementsApi.create(submissionPayload);
+          const created = res.data?.data || res.data || { ...formData, badgeImageUrl: modalImagePreview, id: Date.now() };
+          setAchievements((prev) => [created, ...prev]);
+          toast.success("Achievement added!");
+        }
+      } else if (modalType === "link") {
+        if (editingItem?.id) {
+          const res = await linksApi.update(editingItem.id, submissionPayload);
+          const updated = res.data?.data || res.data || { ...formData, iconUrl: modalImagePreview };
+          setUserLinks((prev) => prev.map((l) => (l.id === editingItem.id ? { ...l, ...updated } : l)));
+          toast.success("Social badge updated!");
+        } else {
+          const res = await linksApi.create(submissionPayload);
+          const created = res.data?.data || res.data || { ...formData, iconUrl: modalImagePreview, id: Date.now() };
+          setUserLinks((prev) => [created, ...prev]);
+          toast.success("Social badge added!");
+        }
       }
+      closeModal();
+    } catch (err) {
+      console.error("Save error:", err);
+      toast.error(err.response?.data?.message || "Failed to save details. Please check the fields.");
+    } finally {
+      setSavingItem(false);
     }
   };
 
-
-  const handleAddSocialLink = () => {
-    setEditingSection("social");
-    setTempItem(defaultSocialLink);
-  };
-
-  const handleSaveSocialLink = () => {
-    if (!tempItem.profileUrl) {
-      toast.error("Profile URL is required");
-      return;
-    }
-
-    const updatedSocialLinks = [...profile.socialMediaLinks, tempItem];
-    setProfile({ ...profile, socialMediaLinks: updatedSocialLinks });
-    setEditingSection(null);
-    setTempItem({});
-    toast.success("Social link added successfully");
-  };
-
-  const handleEditSocialLink = (index) => {
-    setEditingSection(`social-${index}`);
-    setTempItem(profile.socialMediaLinks[index]);
-  };
-
-  const handleUpdateSocialLink = (index) => {
-    const updatedSocialLinks = [...profile.socialMediaLinks];
-    updatedSocialLinks[index] = tempItem;
-    setProfile({ ...profile, socialMediaLinks: updatedSocialLinks });
-    setEditingSection(null);
-    setTempItem({});
-    toast.success("Social link updated successfully");
-  };
-
-  const handleRemoveSocialLink = (index) => {
-    if (window.confirm("Are you sure you want to delete this social link?")) {
-      const updatedSocialLinks = profile.socialMediaLinks.filter((_, i) => i !== index);
-      setProfile({ ...profile, socialMediaLinks: updatedSocialLinks });
-      toast.success("Social link removed successfully");
+  // Delete an Entity Item
+  const handleDeleteItem = async (type, id) => {
+    if (!window.confirm("Are you sure you want to delete this item?")) return;
+    try {
+      if (type === "project") {
+        await projectsApi.delete(id);
+        setProjects((prev) => prev.filter((p) => p.id !== id));
+      } else if (type === "skill") {
+        await skillsApi.delete(id);
+        setSkills((prev) => prev.filter((s) => s.id !== id));
+      } else if (type === "education") {
+        await educationApi.delete(id);
+        setEducation((prev) => prev.filter((e) => e.id !== id));
+      } else if (type === "cert") {
+        await certificationsApi.delete(id);
+        setCertifications((prev) => prev.filter((c) => c.id !== id));
+      } else if (type === "achievement") {
+        await achievementsApi.delete(id);
+        setAchievements((prev) => prev.filter((a) => a.id !== id));
+      } else if (type === "link") {
+        await linksApi.delete(id);
+        setUserLinks((prev) => prev.filter((l) => l.id !== id));
+      }
+      toast.success("Item deleted successfully.");
+    } catch (err) {
+      console.error("Delete error:", err);
+      toast.error("Failed to delete item.");
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case "personal":
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-6"
-          >
-            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl">
-                  <FaUser className="w-5 h-5" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-black text-slate-800 tracking-tight">Personal Information</h2>
-                  <p className="text-[11px] text-slate-400 font-semibold mt-0.5">Basic details that describe your identity</p>
-                </div>
-              </div>
-
-              {/* Profile Image Upload Section */}
-              <div className="flex flex-col items-center mb-8 bg-white/40 border border-slate-200/50 rounded-2xl p-6 max-w-sm mx-auto">
-                <div className="relative group">
-                  <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-md relative">
-                    {imagePreview ? (
-                      <img
-                        src={imagePreview}
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-indigo-50 to-slate-100 flex items-center justify-center">
-                        <FaUserCircle className="w-16 h-16 text-slate-300" />
-                      </div>
-                    )}
-                  </div>
-                  <label
-                    htmlFor="profileImage"
-                    className="absolute bottom-1 right-1 bg-emerald-600 hover:bg-emerald-700 text-white p-2.5 rounded-full cursor-pointer hover:shadow-lg transition-all active:scale-90"
-                  >
-                    <FaCamera className="w-4 h-4" />
-                    <input
-                      type="file"
-                      id="profileImage"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleImageChange}
-                    />
-                  </label>
-                </div>
-                <p className="text-[10px] text-slate-400 font-semibold mt-3 text-center">
-                  PNG, JPG or GIF • Max size 5MB
-                </p>
-                {profileImage && (
-                  <p className="text-[10px] text-emerald-600 font-bold mt-1 text-center bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md">
-                    Selected: {profileImage.name}
-                  </p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold text-slate-600">
-                    Full Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                    value={profile.fullName}
-                    onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
-                    placeholder="Enter your full name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold text-slate-600">Mobile Number</label>
-                  <input
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                    value={profile.mobileNumber}
-                    onChange={(e) => setProfile({ ...profile, mobileNumber: e.target.value })}
-                    placeholder="Enter your mobile number"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold text-slate-600">
-                    Email <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                    type="email"
-                    value={profile.email}
-                    onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                    placeholder="Enter your email address"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold text-slate-600">Username</label>
-                  <input
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-400"
-                    value={profile.username}
-                    readOnly
-                    placeholder="Your portfolio URL identifier"
-                  />
-                  <p className="text-[10px] text-slate-400 font-semibold mt-0.5">This uniquely identifies your public portfolio link</p>
-                </div>
-              </div>
-
-              {/* SEO DETAILS SECTION */}
-              <div className="mt-8 pt-6 border-t border-slate-200/60 text-left">
-                <h3 className="text-sm font-bold text-slate-800 mb-4">Portfolio SEO & Meta Fields</h3>
-                <div className="grid grid-cols-1 gap-5">
-                  <div className="space-y-2">
-                    <label className="block text-xs font-bold text-slate-600">Meta Title</label>
-                    <input
-                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-emerald-600 text-xs font-semibold placeholder-slate-450"
-                      value={profile.metaTitle || ""}
-                      onChange={(e) => setProfile({ ...profile, metaTitle: e.target.value })}
-                      placeholder="e.g., Satya's Portfolio | Java & Spring Boot Developer"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="block text-xs font-bold text-slate-600">Meta Description</label>
-                    <textarea
-                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400 resize-none"
-                      value={profile.metaDescription || ""}
-                      onChange={(e) => setProfile({ ...profile, metaDescription: e.target.value })}
-                      placeholder="Enter a description for search engine results..."
-                      rows={3}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="block text-xs font-bold text-slate-600">Meta Keywords</label>
-                    <input
-                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-emerald-600 text-xs font-semibold placeholder-slate-450"
-                      value={profile.metaKeywords || ""}
-                      onChange={(e) => setProfile({ ...profile, metaKeywords: e.target.value })}
-                      placeholder="e.g., portfolio, java, software engineer, spring boot"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        );
-
-      case "professional":
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-6"
-          >
-            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl">
-                  <FaBriefcase className="w-5 h-5" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-black text-slate-800 tracking-tight">Professional Information</h2>
-                  <p className="text-[11px] text-slate-400 font-semibold mt-0.5">Describe your professional headline and background</p>
-                </div>
-              </div>
-
-              <div className="space-y-5">
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold text-slate-600">
-                    Headline <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                    value={profile.headline}
-                    onChange={(e) => setProfile({ ...profile, headline: e.target.value })}
-                    placeholder="e.g., Java Backend Developer | Spring Boot | Fresher"
-                  />
-                  <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Appears below your name on your portfolio</p>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold text-slate-600">
-                    Professional Summary <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400 resize-none"
-                    value={profile.summary}
-                    onChange={(e) => setProfile({ ...profile, summary: e.target.value })}
-                    rows={6}
-                    placeholder="Brief summary about your professional background, skills, and career goals..."
-                  />
-                  <p className="text-[10px] text-slate-400 font-semibold mt-0.5">A compelling summary can attract more opportunities</p>
-                </div>
-
-                <div className="flex items-center p-4 bg-white rounded-2xl border border-slate-200/60">
-                  <input
-                    type="checkbox"
-                    id="isFresher"
-                    checked={profile.isFresher}
-                    onChange={(e) => setProfile({ ...profile, isFresher: e.target.checked })}
-                    className="w-4.5 h-4.5 text-emerald-600 border-slate-300 rounded focus:ring-[#6C63FF]/20"
-                  />
-                  <label htmlFor="isFresher" className="ml-3 text-xs font-bold text-slate-600">
-                    I am currently a fresher / looking for entry-level positions
-                  </label>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        );
-
-      case "education":
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-6"
-          >
-            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl shrink-0">
-                    <FaGraduationCap className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-black text-slate-800 tracking-tight">Education</h2>
-                    <p className="text-[11px] text-slate-400 font-semibold mt-0.5">Your academic background and qualifications</p>
-                  </div>
-                </div>
-                <button
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
-                  onClick={handleAddEducation}
-                  disabled={editingSection}
-                >
-                  <FaPlus className="w-3.5 h-3.5" />
-                  Add Education
-                </button>
-              </div>
-
-              {profile.education.length === 0 && !editingSection && (
-                <div className="text-center py-12 border-2 border-dashed border-green-200 rounded-xl bg-white/50">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FaGraduationCap className="w-8 h-8 text-green-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-700 mb-2">No education added yet</h3>
-                  <p className="text-gray-600">Add your educational qualifications to showcase your academic background.</p>
-                </div>
-              )}
-
-              <div className="space-y-4">
-                {profile.education.map((edu, index) => (
-                  <div key={index} className="bg-white rounded-xl border border-slate-200/80 p-4 sm:p-5 hover:shadow-md transition-shadow">
-                    {editingSection === `education-${index}` ? (
-                      <div className="space-y-6">
-                        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                          <FaEdit className="w-4 h-4 text-blue-600" />
-                          Edit Education
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {[
-                            { label: "Degree *", value: "degree", type: "text", placeholder: "Bachelor of Technology" },
-                            { label: "Field of Study", value: "fieldOfStudy", type: "text", placeholder: "Computer Science" },
-                            { label: "Institution *", value: "institution", type: "text", placeholder: "ABC University" },
-                            { label: "Start Year", value: "startYear", type: "number", placeholder: "2020" },
-                            { label: "End Year", value: "endYear", type: "number", placeholder: "2024" },
-                            { label: "CGPA/Percentage", value: "cgpa", type: "text", placeholder: "8.5" }
-                          ].map((field) => (
-                            <div key={field.value} className="space-y-2 text-left">
-                              <label className="block text-xs font-bold text-slate-600">{field.label}</label>
-                              <input
-                                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                                type={field.type}
-                                value={tempItem[field.value] || ""}
-                                onChange={(e) => setTempItem({ ...tempItem, [field.value]: field.type === 'number' ? parseInt(e.target.value) : e.target.value })}
-                                placeholder={field.placeholder}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                          <button
-                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                            onClick={() => promptSaveOrDiscard({ title: "Update Education?", message: "Do you want to save changes to this education entry?", onSave: () => handleUpdateEducation(index) })}
-                          >
-                            <FaCheck className="w-3.5 h-3.5" />
-                            Save Changes
-                          </button>
-                          <button
-                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                            onClick={() => promptSaveOrDiscard({ title: "Discard Edits?", message: "Are you sure you want to discard your unsaved education edits?", onDiscard: () => { setEditingSection(null); setTempItem({}); } })}
-                          >
-                            <FaTimes className="w-3.5 h-3.5" />
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-                        <div className="space-y-1">
-                          <h4 className="text-lg font-bold text-slate-800 tracking-tight">{edu.degree}</h4>
-                          <p className="text-xs font-semibold text-slate-500">{edu.institution}</p>
-                          <div className="flex flex-wrap gap-2 pt-2">
-                            {edu.fieldOfStudy && (
-                              <span className="px-2.5 py-1 bg-[#6C63FF]/5 text-emerald-600 text-[10px] font-bold rounded-lg border border-[#6C63FF]/10">
-                                {edu.fieldOfStudy}
-                              </span>
-                            )}
-                            <span className="px-2.5 py-1 bg-slate-50 text-slate-600 text-[10px] font-bold rounded-lg border border-slate-100">
-                              {edu.startYear} - {edu.endYear}
-                            </span>
-                            {edu.cgpa && (
-                              <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-lg border border-emerald-100">
-                                CGPA: {edu.cgpa}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex gap-2 self-end sm:self-start shrink-0">
-                          <button
-                            className="p-2 text-emerald-600 hover:bg-[#6C63FF]/5 rounded-lg transition-colors cursor-pointer"
-                            onClick={() => handleEditEducation(index)}
-                            disabled={editingSection}
-                            title="Edit"
-                          >
-                            <FaEdit className="w-4 h-4" />
-                          </button>
-                          <button
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                            onClick={() => handleRemoveEducation(index)}
-                            disabled={editingSection}
-                            title="Delete"
-                          >
-                            <FaTrash className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {editingSection === "education" && (
-                <div className="mt-6 bg-white rounded-xl sm:rounded-2xl border-2 border-dashed border-[#6C63FF]/30 p-4 sm:p-6">
-                  <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2 text-left">
-                    <FaPlus className="w-4 h-4 text-emerald-600" />
-                    Add New Education
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[
-                      { label: "Degree *", value: "degree", type: "text", placeholder: "Bachelor of Technology" },
-                      { label: "Field of Study", value: "fieldOfStudy", type: "text", placeholder: "Computer Science" },
-                      { label: "Institution *", value: "institution", type: "text", placeholder: "ABC University" },
-                      { label: "Start Year", value: "startYear", type: "number", placeholder: "2020" },
-                      { label: "End Year", value: "endYear", type: "number", placeholder: "2024" },
-                      { label: "CGPA/Percentage", value: "cgpa", type: "text", placeholder: "8.5" }
-                    ].map((field) => (
-                      <div key={field.value} className="space-y-2 text-left">
-                        <label className="block text-xs font-bold text-slate-600">{field.label}</label>
-                        <input
-                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                          type={field.type}
-                          value={tempItem[field.value] || ""}
-                          onChange={(e) => setTempItem({ ...tempItem, [field.value]: field.type === 'number' ? parseInt(e.target.value) : e.target.value })}
-                          placeholder={field.placeholder}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-3 mt-6">
-                    <button
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                      onClick={() => promptSaveOrDiscard({ title: "Save Education Entry?", message: "Do you want to save this education entry to your profile?", onSave: handleSaveEducation })}
-                    >
-                      <FaCheck className="w-3.5 h-3.5" />
-                      Save Education
-                    </button>
-                    <button
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                      onClick={() => promptSaveOrDiscard({ title: "Discard New Education?", message: "Are you sure you want to discard this new education entry?", onDiscard: () => { setEditingSection(null); setTempItem({}); } })}
-                    >
-                      <FaTimes className="w-3.5 h-3.5" />
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        );
-
-      case "experience":
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-6"
-          >
-            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl shrink-0">
-                    <FaHistory className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-black text-slate-800 tracking-tight">Work Experience</h2>
-                    <p className="text-[11px] text-slate-400 font-semibold mt-0.5">Your professional work and employment history</p>
-                  </div>
-                </div>
-                <button
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
-                  onClick={handleAddExperience}
-                  disabled={editingSection}
-                >
-                  <FaPlus className="w-3.5 h-3.5" />
-                  Add Experience
-                </button>
-              </div>
-
-              {profile.experience.length === 0 && !editingSection && (
-                <div className="text-center py-12 border-2 border-dashed border-orange-200 rounded-xl bg-white/50">
-                  <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FaBriefcase className="w-8 h-8 text-orange-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-700 mb-2">No experience added yet</h3>
-                  <p className="text-gray-600">Add your professional work experience to showcase your career journey.</p>
-                </div>
-              )}
-
-              <div className="space-y-4">
-                {profile.experience.map((exp, index) => (
-                  <div key={index} className="bg-white rounded-xl border border-slate-200/80 p-4 sm:p-5 hover:shadow-md transition-shadow">
-                    {editingSection === `experience-${index}` ? (
-                      <div className="space-y-6">
-                        <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                          <FaEdit className="w-4 h-4 text-emerald-600" />
-                          Edit Experience
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {[
-                            { label: "Job Title *", value: "jobTitle", type: "text", placeholder: "Backend Developer" },
-                            { label: "Company *", value: "company", type: "text", placeholder: "Tech Solutions Inc." },
-                            { label: "Location", value: "location", type: "text", placeholder: "Remote, Bangalore" },
-                            { label: "Start Month", value: "startMonth", type: "number", placeholder: "1" },
-                            { label: "Start Year", value: "startYear", type: "number", placeholder: "2022" },
-                            { label: "End Month", value: "endMonth", type: "number", placeholder: "12" },
-                            { label: "End Year", value: "endYear", type: "number", placeholder: "2023" }
-                          ].map((field) => (
-                            <div key={field.value} className="space-y-2 text-left">
-                              <label className="block text-xs font-bold text-slate-600">{field.label}</label>
-                              <input
-                                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                                type={field.type}
-                                value={tempItem[field.value] || ""}
-                                onChange={(e) => setTempItem({ ...tempItem, [field.value]: field.type === 'number' ? parseInt(e.target.value) : e.target.value })}
-                                placeholder={field.placeholder}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                        <div className="flex items-center text-left">
-                          <input
-                            type="checkbox"
-                            id="currentlyWorking"
-                            checked={tempItem.currentlyWorking}
-                            onChange={(e) => setTempItem({ ...tempItem, currentlyWorking: e.target.checked })}
-                            className="w-4.5 h-4.5 text-emerald-600 border-slate-300 rounded focus:ring-[#6C63FF]/20"
-                          />
-                          <label htmlFor="currentlyWorking" className="ml-2.5 text-xs font-bold text-slate-600">
-                            I currently work here
-                          </label>
-                        </div>
-                        <div className="space-y-2 text-left">
-                          <label className="block text-xs font-bold text-slate-600">Description</label>
-                          <textarea
-                            className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                            value={tempItem.description}
-                            onChange={(e) => setTempItem({ ...tempItem, description: e.target.value })}
-                            placeholder="Describe your responsibilities and achievements..."
-                            rows={4}
-                          />
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                          <button
-                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                            onClick={() => promptSaveOrDiscard({ title: "Update Work Experience?", message: "Do you want to save changes to this work experience entry?", onSave: () => handleUpdateExperience(index) })}
-                          >
-                            <FaCheck className="w-3.5 h-3.5" />
-                            Save Changes
-                          </button>
-                          <button
-                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                            onClick={() => promptSaveOrDiscard({ title: "Discard Edits?", message: "Are you sure you want to discard your unsaved work experience edits?", onDiscard: () => { setEditingSection(null); setTempItem({}); } })}
-                          >
-                            <FaTimes className="w-3.5 h-3.5" />
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-                        <div className="space-y-1">
-                          <h4 className="text-lg font-bold text-slate-800 tracking-tight">{exp.jobTitle}</h4>
-                          <p className="text-xs font-semibold text-slate-500">{exp.company} • {exp.location}</p>
-                          <div className="flex flex-wrap gap-2 pt-2">
-                            <span className="px-2.5 py-1 bg-[#6C63FF]/5 text-emerald-600 text-[10px] font-bold rounded-lg border border-[#6C63FF]/10">
-                              {exp.startMonth}/{exp.startYear} - {exp.currentlyWorking ? 'Present' : `${exp.endMonth}/${exp.endYear}`}
-                            </span>
-                            {exp.currentlyWorking && (
-                              <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-lg border border-emerald-100">
-                                Current
-                              </span>
-                            )}
-                          </div>
-                          {exp.description && (
-                            <p className="mt-3 text-xs font-medium text-slate-600 leading-relaxed bg-slate-50/50 p-3 rounded-xl border border-slate-100">{exp.description}</p>
-                          )}
-                        </div>
-                        <div className="flex gap-2 self-end sm:self-start shrink-0">
-                          <button
-                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
-                            onClick={() => handleEditExperience(index)}
-                            disabled={editingSection}
-                            title="Edit"
-                          >
-                            <FaEdit className="w-4 h-4" />
-                          </button>
-                          <button
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                            onClick={() => handleRemoveExperience(index)}
-                            disabled={editingSection}
-                            title="Delete"
-                          >
-                            <FaTrash className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {editingSection === "experience" && (
-                <div className="mt-6 bg-white rounded-xl sm:rounded-2xl border-2 border-dashed border-[#6C63FF]/30 p-4 sm:p-6">
-                  <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <FaPlus className="w-4 h-4 text-emerald-600" />
-                    Add New Experience
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[
-                      { label: "Job Title *", value: "jobTitle", type: "text", placeholder: "Backend Developer" },
-                      { label: "Company *", value: "company", type: "text", placeholder: "Tech Solutions Inc." },
-                      { label: "Location", value: "location", type: "text", placeholder: "Remote, Bangalore" },
-                      { label: "Start Month", value: "startMonth", type: "number", placeholder: "1" },
-                      { label: "Start Year", value: "startYear", type: "number", placeholder: "2022" }
-                    ].map((field) => (
-                      <div key={field.value} className="space-y-2 text-left">
-                        <label className="block text-xs font-bold text-slate-600">{field.label}</label>
-                        <input
-                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                          type={field.type}
-                          value={tempItem[field.value] || ""}
-                          onChange={(e) => setTempItem({ ...tempItem, [field.value]: field.type === 'number' ? parseInt(e.target.value) : e.target.value })}
-                          placeholder={field.placeholder}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex items-center mt-4 text-left">
-                    <input
-                      type="checkbox"
-                      id="newCurrentlyWorking"
-                      checked={tempItem.currentlyWorking}
-                      onChange={(e) => setTempItem({ ...tempItem, currentlyWorking: e.target.checked })}
-                      className="w-4.5 h-4.5 text-emerald-600 border-slate-300 rounded focus:ring-[#6C63FF]/20"
-                    />
-                    <label htmlFor="newCurrentlyWorking" className="ml-2.5 text-xs font-bold text-slate-600">
-                      I currently work here
-                    </label>
-                  </div>
-                  {!tempItem.currentlyWorking && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-left">
-                      <div className="space-y-2">
-                        <label className="block text-xs font-bold text-slate-600">End Month</label>
-                        <input
-                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                          type="number"
-                          value={tempItem.endMonth || ""}
-                          onChange={(e) => setTempItem({ ...tempItem, endMonth: parseInt(e.target.value) })}
-                          placeholder="12"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="block text-xs font-bold text-slate-600">End Year</label>
-                        <input
-                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                          type="number"
-                          value={tempItem.endYear || ""}
-                          onChange={(e) => setTempItem({ ...tempItem, endYear: parseInt(e.target.value) })}
-                          placeholder="2023"
-                        />
-                      </div>
-                    </div>
-                  )}
-                  <div className="space-y-2 mt-4 text-left">
-                    <label className="block text-xs font-bold text-slate-600">Description</label>
-                    <textarea
-                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                      value={tempItem.description}
-                      onChange={(e) => setTempItem({ ...tempItem, description: e.target.value })}
-                      placeholder="Describe your responsibilities and achievements..."
-                      rows={4}
-                    />
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-3 mt-6">
-                    <button
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                      onClick={() => promptSaveOrDiscard({ title: "Save Work Experience?", message: "Do you want to save this work experience entry to your profile?", onSave: handleSaveExperience })}
-                    >
-                      <FaCheck className="w-3.5 h-3.5" />
-                      Save Experience
-                    </button>
-                    <button
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                      onClick={() => promptSaveOrDiscard({ title: "Discard New Experience?", message: "Are you sure you want to discard this new work experience entry?", onDiscard: () => { setEditingSection(null); setTempItem({}); } })}
-                    >
-                      <FaTimes className="w-3.5 h-3.5" />
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        );
-
-      case "projects":
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-6"
-          >
-            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl shrink-0">
-                    <FaProjectDiagram className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-black text-slate-800 tracking-tight">Projects</h2>
-                    <p className="text-[11px] text-slate-400 font-semibold mt-0.5">Showcase your technical and creative projects</p>
-                  </div>
-                </div>
-                <button
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
-                  onClick={handleAddProject}
-                  disabled={editingSection}
-                >
-                  <FaPlus className="w-3.5 h-3.5" />
-                  Add Project
-                </button>
-              </div>
-
-              {profile.projects.length === 0 && !editingSection && (
-                <div className="text-center py-12 border-2 border-dashed border-purple-200 rounded-xl bg-white/50">
-                  <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FaProjectDiagram className="w-8 h-8 text-purple-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-700 mb-2">No projects added yet</h3>
-                  <p className="text-gray-600">Add your technical projects to showcase your skills and experience.</p>
-                </div>
-              )}
-
-              <div className="grid md:grid-cols-2 gap-4">
-                {profile.projects.map((project, index) => (
-                  <div key={index} className="bg-white rounded-xl border border-slate-200/80 p-4 sm:p-5 hover:shadow-md transition-shadow">
-                    {editingSection === `project-${index}` ? (
-                      <div className="space-y-6">
-                        <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                          <FaEdit className="w-4 h-4 text-emerald-600" />
-                          Edit Project
-                        </h3>
-                        <div className="space-y-4 text-left">
-                          {/* Image Upload for Project */}
-                          <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-2">Project Image / Logo</label>
-                            <div className="flex items-center gap-4 bg-slate-50/80 p-3 rounded-2xl border border-slate-200/80">
-                              <div className="relative group shrink-0">
-                                {projectImagePreview ? (
-                                  <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-emerald-200 shadow-sm">
-                                    <img src={projectImagePreview} alt="Preview" className="w-full h-full object-cover" />
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setProjectImageFile(null);
-                                        setProjectImagePreview("");
-                                        setTempItem({ ...tempItem, imageUrl: "" });
-                                      }}
-                                      className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                                      title="Remove image"
-                                    >
-                                      <FaTimes className="w-2.5 h-2.5" />
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <div className="w-16 h-16 rounded-xl bg-emerald-50 border border-dashed border-emerald-300 flex items-center justify-center text-emerald-600">
-                                    <FaCloudUploadAlt className="w-6 h-6" />
-                                  </div>
-                                )}
-                              </div>
-                              
-                              <div className="flex-1">
-                                <label className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm hover:shadow transition-all cursor-pointer">
-                                  <FaCamera className="w-3.5 h-3.5" />
-                                  <span>{projectImagePreview ? "Change Image" : "Upload Image"}</span>
-                                  <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleProjectImageChange}
-                                    className="hidden"
-                                  />
-                                </label>
-                                <p className="text-[10px] text-slate-400 font-semibold mt-1.5">PNG, JPG or GIF up to 5MB</p>
-                              </div>
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-xs font-bold text-slate-600 mb-2">Project Title *</label>
-                            <input
-                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                              value={tempItem.title}
-                              onChange={(e) => setTempItem({ ...tempItem, title: e.target.value })}
-                              placeholder="e.g., Student Management System"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-bold text-slate-600 mb-2">Tech Stack</label>
-                            <input
-                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                              value={tempItem.techStack}
-                              onChange={(e) => setTempItem({ ...tempItem, techStack: e.target.value })}
-                              placeholder="e.g., Java, Spring Boot, MySQL"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-bold text-slate-600 mb-2">Project URL</label>
-                            <input
-                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                              value={tempItem.projectUrl}
-                              onChange={(e) => setTempItem({ ...tempItem, projectUrl: e.target.value })}
-                              placeholder="https://github.com/username/project"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-bold text-slate-600 mb-2">Description</label>
-                            <textarea
-                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                              value={tempItem.description}
-                              onChange={(e) => setTempItem({ ...tempItem, description: e.target.value })}
-                              placeholder="Describe your project..."
-                              rows={3}
-                            />
-                          </div>
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                          <button
-                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                            onClick={() => promptSaveOrDiscard({ title: "Update Project?", message: "Do you want to save changes to this project?", onSave: () => handleUpdateProject(index) })}
-                          >
-                            <FaCheck className="w-3.5 h-3.5" />
-                            Save Changes
-                          </button>
-                          <button
-                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                            onClick={() => promptSaveOrDiscard({ title: "Discard Project Edits?", message: "Are you sure you want to discard your unsaved project edits?", onDiscard: () => { setEditingSection(null); setTempItem({}); setProjectImageFile(null); setProjectImagePreview(""); } })}
-                          >
-                            <FaTimes className="w-3.5 h-3.5" />
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-                        <div className="space-y-1 flex-grow">
-                          <div className="flex items-center gap-3">
-                            {project.imageUrl && (
-                              <img src={project.imageUrl} alt="Project banner" className="w-12 h-12 object-cover rounded-lg border border-slate-200 shrink-0" />
-                            )}
-                            <div>
-                              <h4 className="text-lg font-bold text-slate-800 tracking-tight">{project.title}</h4>
-                              {project.techStack && (
-                                <div className="flex flex-wrap gap-1.5 pt-1">
-                                  {project.techStack.split(',').map((tech, i) => (
-                                    <span key={i} className="px-2 py-0.5 bg-[#6C63FF]/5 text-emerald-600 text-[10px] font-bold rounded-md border border-[#6C63FF]/10">
-                                      {tech.trim()}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          {project.description && (
-                            <p className="mt-3 text-xs font-medium text-slate-600 leading-relaxed bg-slate-50/50 p-3 rounded-xl border border-slate-100">{project.description}</p>
-                          )}
-                          {project.projectUrl && (
-                            <div className="pt-2">
-                              <a
-                                href={project.projectUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-[#5b52e6] hover:underline"
-                              >
-                                <FaExternalLinkAlt className="w-2.5 h-2.5" />
-                                View Project
-                              </a>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex gap-2 self-end sm:self-start shrink-0">
-                          <button
-                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
-                            onClick={() => handleEditProject(index)}
-                            disabled={editingSection}
-                            title="Edit"
-                          >
-                            <FaEdit className="w-4 h-4" />
-                          </button>
-                          <button
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                            onClick={() => handleRemoveProject(index)}
-                            disabled={editingSection}
-                            title="Delete"
-                          >
-                            <FaTrash className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {editingSection === "project" && (
-                <div className="mt-6 bg-white rounded-xl sm:rounded-2xl border-2 border-dashed border-[#6C63FF]/30 p-4 sm:p-6">
-                  <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <FaPlus className="w-4 h-4 text-emerald-600" />
-                    Add New Project
-                  </h3>
-                  <div className="space-y-4 text-left">
-                    {/* Image Upload for Project */}
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-2">Project Image / Logo</label>
-                      <div className="flex items-center gap-4 bg-slate-50/80 p-3 rounded-2xl border border-slate-200/80">
-                        <div className="relative group shrink-0">
-                          {projectImagePreview ? (
-                            <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-emerald-200 shadow-sm">
-                              <img src={projectImagePreview} alt="Preview" className="w-full h-full object-cover" />
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setProjectImageFile(null);
-                                  setProjectImagePreview("");
-                                }}
-                                className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                                title="Remove image"
-                              >
-                                <FaTimes className="w-2.5 h-2.5" />
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="w-16 h-16 rounded-xl bg-emerald-50 border border-dashed border-emerald-300 flex items-center justify-center text-emerald-600">
-                              <FaCloudUploadAlt className="w-6 h-6" />
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="flex-1">
-                          <label className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm hover:shadow transition-all cursor-pointer">
-                            <FaCamera className="w-3.5 h-3.5" />
-                            <span>{projectImagePreview ? "Change Image" : "Upload Image"}</span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleProjectImageChange}
-                              className="hidden"
-                            />
-                          </label>
-                          <p className="text-[10px] text-slate-400 font-semibold mt-1.5">PNG, JPG or GIF up to 5MB</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-2">Project Title *</label>
-                      <input
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                        value={tempItem.title}
-                        onChange={(e) => setTempItem({ ...tempItem, title: e.target.value })}
-                        placeholder="e.g., Student Management System"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-2">Tech Stack</label>
-                      <input
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                        value={tempItem.techStack}
-                        onChange={(e) => setTempItem({ ...tempItem, techStack: e.target.value })}
-                        placeholder="e.g., Java, Spring Boot, MySQL"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-2">Project URL</label>
-                      <input
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                        value={tempItem.projectUrl}
-                        onChange={(e) => setTempItem({ ...tempItem, projectUrl: e.target.value })}
-                        placeholder="https://github.com/username/project"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-2">Description</label>
-                      <textarea
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                        value={tempItem.description}
-                        onChange={(e) => setTempItem({ ...tempItem, description: e.target.value })}
-                        placeholder="Describe your project..."
-                        rows={3}
-                      />
-                    </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-3 mt-6">
-                    <button
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                      onClick={() => promptSaveOrDiscard({ title: "Save Project?", message: "Do you want to save this project to your profile?", onSave: handleSaveProject })}
-                    >
-                      <FaCheck className="w-3.5 h-3.5" />
-                      Save Project
-                    </button>
-                    <button
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                      onClick={() => promptSaveOrDiscard({ title: "Discard New Project?", message: "Are you sure you want to discard this new project?", onDiscard: () => { setEditingSection(null); setTempItem({}); setProjectImageFile(null); setProjectImagePreview(""); } })}
-                    >
-                      <FaTimes className="w-3.5 h-3.5" />
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        );
-
-      case "skills":
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-6"
-          >
-            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl">
-                  <FaTools className="w-5 h-5" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-black text-slate-800 tracking-tight">Skills</h2>
-                  <p className="text-[11px] text-slate-400 font-semibold mt-0.5">Your technical, design, and professional skills</p>
-                </div>
-              </div>
-
-              <div className="mb-8">
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <input
-                    className="flex-grow px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                    value={newSkill}
-                    onChange={(e) => setNewSkill(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleAddSkill()}
-                    placeholder="Type a skill and press Enter to add"
-                    disabled={editingSection}
-                  />
-                  <button
-                    className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                    onClick={handleAddSkill}
-                    disabled={editingSection || !newSkill.trim()}
-                  >
-                    Add Skill
-                  </button>
-                </div>
-                <p className="text-sm text-gray-500 mt-2">Press Enter or click "Add Skill" to add multiple skills</p>
-              </div>
-
-              {profile.skills.length === 0 ? (
-                <div className="text-center py-12 border-2 border-dashed border-blue-200 rounded-xl bg-white/50">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FaTools className="w-8 h-8 text-blue-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-700 mb-2">No skills added yet</h3>
-                  <p className="text-gray-600">Add your technical skills to showcase your expertise to recruiters.</p>
-                </div>
-              ) : (
-                <div className="flex flex-wrap gap-3">
-                  {profile.skills.map((skill, index) => (
-                    <div key={index} className="group relative">
-                      <div className="flex items-center gap-2 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 px-4 py-2.5 rounded-xl hover:shadow-md transition-all">
-                        <span className="font-medium">{skill}</span>
-                        <button
-                          className="text-blue-600 hover:text-blue-800 text-lg font-bold transition-colors"
-                          onClick={() => handleRemoveSkill(index)}
-                          disabled={editingSection}
-                          title="Remove skill"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </motion.div>
-        );
-
-      case "social":
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-6"
-          >
-            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl shrink-0">
-                    <FaLink className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-black text-slate-800 tracking-tight">Social Media Links</h2>
-                    <p className="text-[11px] text-slate-400 font-semibold mt-0.5">Your professional online coordinates</p>
-                  </div>
-                </div>
-                <button
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
-                  onClick={handleAddSocialLink}
-                  disabled={editingSection}
-                >
-                  <FaPlus className="w-3.5 h-3.5" />
-                  Add Link
-                </button>
-              </div>
-
-              {profile.socialMediaLinks.length === 0 && !editingSection && (
-                <div className="text-center py-12 border-2 border-dashed border-indigo-200 rounded-xl bg-white/50">
-                  <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FaLink className="w-8 h-8 text-indigo-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-700 mb-2">No social links added yet</h3>
-                  <p className="text-gray-600">Add your professional profiles to help recruiters connect with you.</p>
-                </div>
-              )}
-
-              <div className="grid md:grid-cols-2 gap-4">
-                {profile.socialMediaLinks.map((link, index) => (
-                  <div key={index} className="bg-white rounded-xl border border-slate-200/80 p-4 sm:p-5 hover:shadow-md transition-shadow">
-                    {editingSection === `social-${index}` ? (
-                      <div className="space-y-6">
-                        <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                          <FaEdit className="w-4 h-4 text-emerald-600" />
-                          Edit Social Link
-                        </h3>
-                        <div className="space-y-4 text-left">
-                          <div>
-                            <label className="block text-xs font-bold text-slate-600 mb-2">Platform</label>
-                            <select
-                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-bold text-slate-800"
-                              value={tempItem.platform}
-                              onChange={(e) => setTempItem({ ...tempItem, platform: e.target.value })}
-                            >
-                              {socialPlatforms.map((platform) => (
-                                <option key={platform.value} value={platform.value}>
-                                  {platform.label}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-xs font-bold text-slate-600 mb-2">Profile URL *</label>
-                            <input
-                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                              value={tempItem.profileUrl}
-                              onChange={(e) => setTempItem({ ...tempItem, profileUrl: e.target.value })}
-                              placeholder="https://linkedin.com/in/username"
-                            />
-                          </div>
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                          <button
-                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                            onClick={() => promptSaveOrDiscard({ title: "Update Social Link?", message: "Do you want to save changes to this social media link?", onSave: () => handleUpdateSocialLink(index) })}
-                          >
-                            <FaCheck className="w-3.5 h-3.5" />
-                            Save Changes
-                          </button>
-                          <button
-                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                            onClick={() => promptSaveOrDiscard({ title: "Discard Social Link Edits?", message: "Are you sure you want to discard your unsaved social link edits?", onDiscard: () => { setEditingSection(null); setTempItem({}); } })}
-                          >
-                            <FaTimes className="w-3.5 h-3.5" />
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-                        <div className="flex items-start gap-3">
-                          <div className={`p-2.5 rounded-xl bg-slate-50 border border-slate-100 shrink-0 ${socialPlatforms.find(p => p.value === link.platform)?.color || 'text-slate-600'}`}>
-                            {socialPlatforms.find(p => p.value === link.platform)?.icon || <FaGlobe className="w-4 h-4" />}
-                          </div>
-                          <div className="space-y-0.5 text-left">
-                            <h4 className="text-xs font-bold text-slate-800">
-                              {socialPlatforms.find(p => p.value === link.platform)?.label || link.platform}
-                            </h4>
-                            <a
-                              href={link.profileUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-emerald-600 hover:text-[#5b52e6] hover:underline text-xs font-semibold break-all"
-                            >
-                              {link.profileUrl}
-                            </a>
-                          </div>
-                        </div>
-                        <div className="flex gap-2 self-end sm:self-start shrink-0">
-                          <button
-                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
-                            onClick={() => handleEditSocialLink(index)}
-                            disabled={editingSection}
-                            title="Edit"
-                          >
-                            <FaEdit className="w-4 h-4" />
-                          </button>
-                          <button
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                            onClick={() => handleRemoveSocialLink(index)}
-                            disabled={editingSection}
-                            title="Delete"
-                          >
-                            <FaTrash className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {editingSection === "social" && (
-                <div className="mt-6 bg-white rounded-xl sm:rounded-2xl border-2 border-dashed border-[#6C63FF]/30 p-4 sm:p-6">
-                  <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <FaPlus className="w-4 h-4 text-emerald-600" />
-                    Add New Social Link
-                  </h3>
-                  <div className="space-y-4 text-left">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-2">Platform</label>
-                      <select
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-bold text-slate-800"
-                        value={tempItem.platform}
-                        onChange={(e) => setTempItem({ ...tempItem, platform: e.target.value })}
-                      >
-                        {socialPlatforms.map((platform) => (
-                          <option key={platform.value} value={platform.value}>
-                            {platform.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-2">Profile URL *</label>
-                      <input
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                        value={tempItem.profileUrl}
-                        onChange={(e) => setTempItem({ ...tempItem, profileUrl: e.target.value })}
-                        placeholder="https://linkedin.com/in/username"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-3 mt-6">
-                    <button
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                      onClick={() => promptSaveOrDiscard({ title: "Save Social Link?", message: "Do you want to save this social media link to your profile?", onSave: handleSaveSocialLink })}
-                    >
-                      <FaCheck className="w-3.5 h-3.5" />
-                      Save Link
-                    </button>
-                    <button
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                      onClick={() => promptSaveOrDiscard({ title: "Discard New Social Link?", message: "Are you sure you want to discard this new social link?", onDiscard: () => { setEditingSection(null); setTempItem({}); } })}
-                    >
-                      <FaTimes className="w-3.5 h-3.5" />
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        );
-
-      case "certifications":
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-6"
-          >
-            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-slate-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl shrink-0">
-                    <FaCertificate className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-black text-slate-800 tracking-tight">Certifications</h2>
-                    <p className="text-[11px] text-slate-400 font-semibold mt-0.5">Your professional licenses, certifications, and courses</p>
-                  </div>
-                </div>
-                <button
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
-                  onClick={handleAddCertification}
-                  disabled={editingSection}
-                >
-                  <FaPlus className="w-3.5 h-3.5" />
-                  Add Certification
-                </button>
-              </div>
-
-              {profile.certifications.length === 0 && !editingSection && (
-                <div className="text-center py-12 border-2 border-dashed border-teal-200 rounded-xl bg-white/50">
-                  <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FaCertificate className="w-8 h-8 text-teal-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-700 mb-2">No certifications added yet</h3>
-                  <p className="text-gray-600">Add your professional certifications to showcase your skills and knowledge.</p>
-                </div>
-              )}
-
-              <div className="space-y-4">
-                {profile.certifications.map((cert, index) => (
-                  <div key={index} className="bg-white rounded-xl border border-slate-200/80 p-4 sm:p-5 hover:shadow-md transition-shadow">
-                    {editingSection === `certification-${index}` ? (
-                      <div className="space-y-6">
-                        <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                          <FaEdit className="w-4 h-4 text-emerald-600" />
-                          Edit Certification
-                        </h3>
-                        <div className="space-y-4 text-left">
-                          {/* Image Upload for Certification */}
-                          <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-2">Certification Badge / Certificate Image</label>
-                            <div className="flex items-center gap-4 bg-slate-50/80 p-3 rounded-2xl border border-slate-200/80">
-                              <div className="relative group shrink-0">
-                                {certImagePreview ? (
-                                  <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-emerald-200 shadow-sm">
-                                    <img src={certImagePreview} alt="Preview" className="w-full h-full object-cover" />
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setCertImageFile(null);
-                                        setCertImagePreview("");
-                                        setTempItem({ ...tempItem, imageUrl: "" });
-                                      }}
-                                      className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                                      title="Remove image"
-                                    >
-                                      <FaTimes className="w-2.5 h-2.5" />
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <div className="w-16 h-16 rounded-xl bg-emerald-50 border border-dashed border-emerald-300 flex items-center justify-center text-emerald-600">
-                                    <FaCloudUploadAlt className="w-6 h-6" />
-                                  </div>
-                                )}
-                              </div>
-                              
-                              <div className="flex-1">
-                                <label className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm hover:shadow transition-all cursor-pointer">
-                                  <FaCamera className="w-3.5 h-3.5" />
-                                  <span>{certImagePreview ? "Change Image" : "Upload Image"}</span>
-                                  <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleCertImageChange}
-                                    className="hidden"
-                                  />
-                                </label>
-                                <p className="text-[10px] text-slate-400 font-semibold mt-1.5">PNG, JPG or GIF up to 5MB</p>
-                              </div>
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-xs font-bold text-slate-600 mb-2">
-                              Certification Name <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                              value={tempItem.name}
-                              onChange={(e) => setTempItem({ ...tempItem, name: e.target.value })}
-                              placeholder="e.g., AWS Certified Solutions Architect"
-                            />
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-xs font-bold text-slate-600 mb-2">Start Date</label>
-                              <input
-                                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-450"
-                                type="date"
-                                value={tempItem.startDate || ""}
-                                onChange={(e) => setTempItem({ ...tempItem, startDate: e.target.value })}
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-bold text-slate-600 mb-2">End Date</label>
-                              <input
-                                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-450"
-                                type="date"
-                                value={tempItem.endDate || ""}
-                                onChange={(e) => setTempItem({ ...tempItem, endDate: e.target.value })}
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-xs font-bold text-slate-600 mb-2">Description</label>
-                            <textarea
-                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                              value={tempItem.description || ""}
-                              onChange={(e) => setTempItem({ ...tempItem, description: e.target.value })}
-                              placeholder="What does this certification cover? What skills did you learn?"
-                              rows={3}
-                            />
-                          </div>
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                          <button
-                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                            onClick={() => promptSaveOrDiscard({ title: "Update Certification?", message: "Do you want to save changes to this certification record?", onSave: () => handleUpdateCertification(index) })}
-                          >
-                            <FaCheck className="w-3.5 h-3.5" />
-                            Save Changes
-                          </button>
-                          <button
-                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                            onClick={() => promptSaveOrDiscard({ title: "Discard Certification Edits?", message: "Are you sure you want to discard your unsaved certification edits?", onDiscard: () => { setEditingSection(null); setTempItem({}); setCertImageFile(null); setCertImagePreview(""); } })}
-                          >
-                            <FaTimes className="w-3.5 h-3.5" />
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-                        <div className="space-y-1 text-left flex-grow">
-                          <div className="flex items-center gap-3">
-                            {cert.imageUrl && (
-                              <img src={cert.imageUrl} alt="Cert logo" className="w-12 h-12 object-cover rounded-lg border border-slate-200 shrink-0" />
-                            )}
-                            <div>
-                              <h4 className="text-lg font-bold text-slate-800 tracking-tight">{cert.name}</h4>
-                              <div className="flex flex-wrap gap-2 pt-1">
-                                {cert.startDate && (
-                                  <span className="px-2.5 py-1 bg-slate-50 text-slate-600 text-[10px] font-bold rounded-lg border border-slate-100">
-                                    Started: {formatDate(cert.startDate)}
-                                  </span>
-                                )}
-                                {cert.endDate && (
-                                  <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-lg border border-emerald-100">
-                                    Completed: {formatDate(cert.endDate)}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          {cert.description && (
-                            <p className="mt-3 text-xs font-medium text-slate-600 leading-relaxed bg-slate-50/50 p-3 rounded-xl border border-slate-100">{cert.description}</p>
-                          )}
-                        </div>
-                        <div className="flex gap-2 self-end sm:self-start shrink-0">
-                          <button
-                            className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
-                            onClick={() => handleEditCertification(index)}
-                            disabled={editingSection}
-                            title="Edit"
-                          >
-                            <FaEdit className="w-4 h-4" />
-                          </button>
-                          <button
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                            onClick={() => handleRemoveCertification(index)}
-                            disabled={editingSection}
-                            title="Delete"
-                          >
-                            <FaTrash className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {editingSection === "certification" && (
-                <div className="mt-6 bg-white rounded-xl sm:rounded-2xl border-2 border-dashed border-[#6C63FF]/30 p-4 sm:p-6">
-                  <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <FaPlus className="w-4 h-4 text-emerald-600" />
-                    Add New Certification
-                  </h3>
-                  <div className="space-y-4 text-left">
-                    {/* Image Upload for Certification */}
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-2">Certification Badge / Certificate Image</label>
-                      <div className="flex items-center gap-4 bg-slate-50/80 p-3 rounded-2xl border border-slate-200/80">
-                        <div className="relative group shrink-0">
-                          {certImagePreview ? (
-                            <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-emerald-200 shadow-sm">
-                              <img src={certImagePreview} alt="Preview" className="w-full h-full object-cover" />
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setCertImageFile(null);
-                                  setCertImagePreview("");
-                                }}
-                                className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                                title="Remove image"
-                              >
-                                <FaTimes className="w-2.5 h-2.5" />
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="w-16 h-16 rounded-xl bg-emerald-50 border border-dashed border-emerald-300 flex items-center justify-center text-emerald-600">
-                              <FaCloudUploadAlt className="w-6 h-6" />
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="flex-1">
-                          <label className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm hover:shadow transition-all cursor-pointer">
-                            <FaCamera className="w-3.5 h-3.5" />
-                            <span>{certImagePreview ? "Change Image" : "Upload Image"}</span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleCertImageChange}
-                              className="hidden"
-                            />
-                          </label>
-                          <p className="text-[10px] text-slate-400 font-semibold mt-1.5">PNG, JPG or GIF up to 5MB</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-2">
-                        Certification Name <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                        value={tempItem.name}
-                        onChange={(e) => setTempItem({ ...tempItem, name: e.target.value })}
-                        placeholder="e.g., AWS Certified Solutions Architect"
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-600 mb-2">Start Date</label>
-                        <input
-                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-450"
-                          type="date"
-                          value={tempItem.startDate || ""}
-                          onChange={(e) => setTempItem({ ...tempItem, startDate: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-600 mb-2">End Date</label>
-                        <input
-                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-450"
-                          type="date"
-                          value={tempItem.endDate || ""}
-                          onChange={(e) => setTempItem({ ...tempItem, endDate: e.target.value })}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-2">Description</label>
-                      <textarea
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 transition-all text-xs font-semibold text-slate-800 placeholder-slate-400"
-                        value={tempItem.description || ""}
-                        onChange={(e) => setTempItem({ ...tempItem, description: e.target.value })}
-                        placeholder="What does this certification cover? What skills did you learn?"
-                        rows={3}
-                      />
-                    </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row gap-3 mt-6">
-                    <button
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/10 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                      onClick={() => promptSaveOrDiscard({ title: "Save Certification Record?", message: "Do you want to save this certification record to your profile?", onSave: handleSaveCertification })}
-                    >
-                      <FaCheck className="w-3.5 h-3.5" />
-                      Save Certification
-                    </button>
-                    <button
-                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer w-full sm:w-auto"
-                      onClick={() => promptSaveOrDiscard({ title: "Discard New Certification?", message: "Are you sure you want to discard this new certification record?", onDiscard: () => { setEditingSection(null); setTempItem({}); setCertImageFile(null); setCertImagePreview(""); } })}
-                    >
-                      <FaTimes className="w-3.5 h-3.5" />
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        );
-
-      default:
-        return null;
-    }
-  };
-
-  const handleTabClick = (tabId) => {
-    if (editingSection && activeTab !== tabId) {
-      promptSaveOrDiscard({
-        title: "Unsaved Section Edits",
-        message: "You have an active editing session in progress. Would you like to discard your unsaved changes to switch tabs?",
-        onDiscard: () => {
-          setEditingSection(null);
-          setTempItem({});
-          setProjectImageFile(null);
-          setProjectImagePreview("");
-          setCertImageFile(null);
-          setCertImagePreview("");
-          setActiveTab(tabId);
-        }
-      });
-      return;
-    }
-    setActiveTab(tabId);
-  };
+  const categories = [
+    { id: "identity", label: "Profile & Identity", icon: <FaUser />, count: null },
+    { id: "projects", label: "Projects", icon: <FaProjectDiagram />, count: projects.length },
+    { id: "skills", label: "Skills", icon: <FaTools />, count: skills.length },
+    { id: "education", label: "Education", icon: <FaGraduationCap />, count: education.length },
+    { id: "certifications", label: "Certifications", icon: <FaCertificate />, count: certifications.length },
+    { id: "achievements", label: "Achievements", icon: <FaTrophy />, count: achievements.length },
+    { id: "social", label: "Social Badges", icon: <FaLink />, count: userLinks.length },
+  ];
 
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex flex-col items-center justify-center min-h-[400px]">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="mt-4 text-gray-600">Loading profile...</p>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
       </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout containerClassName="w-full space-y-8 flex flex-col bg-transparent animate-fadeIn text-left">
-      <div className="mb-8">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-black text-slate-800 tracking-tight">My Profile</h1>
-            <p className="text-slate-500 text-xs font-semibold mt-1">Manage your digital resume & portfolio content parameters</p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            {previewUrl && (
-              <>
-                <button
-                  className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/15 hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                  onClick={() => setMobilePreviewOpen(true)}
+    <DashboardLayout containerClassName="w-full space-y-6 flex flex-col bg-transparent animate-fadeIn text-left">
+      {/* Top Banner & Live Link Bar */}
+      <div className="rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800 bg-slate-900">
+        {bannerPreview && (
+          <img
+            src={bannerPreview.startsWith("data:") ? bannerPreview : resolveImageUrl(bannerPreview)}
+            alt="Banner Cover"
+            referrerPolicy="no-referrer"
+            onError={(e) => { e.currentTarget.style.display = "none"; }}
+            className="absolute inset-0 w-full h-full object-cover object-center opacity-30 pointer-events-none"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-900/80 to-slate-950/90 pointer-events-none"></div>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="relative group cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
+              <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-white/20 shadow-lg shadow-emerald-500/20">
+                {avatarPreview ? (
+                  <img
+                    src={avatarPreview.startsWith("data:") ? avatarPreview : resolveImageUrl(avatarPreview)}
+                    alt={userProfile.fullName || "User"}
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                      if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = "flex";
+                    }}
+                    className="w-full h-full object-cover"
+                  />
+                ) : null}
+                <div
+                  style={{ display: avatarPreview ? "none" : "flex" }}
+                  className="w-full h-full bg-gradient-to-tr from-emerald-500 to-teal-600 text-white font-black text-2xl items-center justify-center"
                 >
-                  <FaMobileAlt className="w-3.5 h-3.5" />
-                  Mobile Preview
-                </button>
-                <button
-                  className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                  onClick={() => window.open(previewUrl, '_blank')}
-                >
-                  <FaGlobe className="w-3.5 h-3.5" />
-                  Web Preview
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {error && !profile.id && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-6 p-4 bg-indigo-50 border border-indigo-100 rounded-xl"
-        >
-          <strong className="text-emerald-600">Note:</strong> <span className="text-indigo-800 ml-1 font-medium">{error}</span>
-        </motion.div>
-      )}
-
-      {!loading && profile.id && !(
-        profile.fullName &&
-        profile.headline &&
-        profile.summary &&
-        profile.skills?.length > 0 &&
-        profile.education?.length > 0 &&
-        (profile.isFresher || profile.experience?.length > 0)
-      ) && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-3"
-          >
-            <div className="p-2 bg-amber-100 rounded-full text-amber-600">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                  {(userProfile.fullName || "User").charAt(0).toUpperCase()}
+                </div>
+              </div>
+              <div className="absolute inset-0 bg-black/40 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                <FaCamera className="text-white text-sm" />
+              </div>
             </div>
             <div>
-              <h3 className="text-amber-800 font-bold text-sm">Your profile is incomplete!</h3>
-              <p className="text-amber-700 text-xs mt-0.5">Please add your full name, headline, summary, education, skills, and experience (if applicable) to complete your portfolio.</p>
-            </div>
-          </motion.div>
-        )}
-
-
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
-        <div className="border-b border-slate-100 bg-slate-50/50">
-          <div
-            className="flex overflow-x-auto px-4 gap-1 py-1.5 scrollbar-none"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
-            {tabs.map((tab, index) => (
-              <button
-                key={tab.id}
-                onClick={() => handleTabClick(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3.5 font-bold text-xs rounded-xl whitespace-nowrap transition-all relative ${activeTab === tab.id
-                    ? 'text-emerald-600'
-                    : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/60'
-                  }`}
-              >
-                <span>{tab.icon}</span>
-                <span>{tab.label}</span>
-                {activeTab === tab.id && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#6C63FF]"
-                  />
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-2xl font-black tracking-tight">{userProfile.fullName || "Your Portfolio"}</h1>
+                {userProfile.hasActiveSubscription && (
+                  <span className="text-[10px] font-black text-amber-300 bg-amber-400/20 px-2.5 py-0.5 rounded-full border border-amber-400/40 flex items-center gap-1 shadow-xs">
+                    <FaStar size={9} /> PRO MEMBER
+                  </span>
                 )}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="p-4 sm:p-6">
-          {renderTabContent()}
-
-          {editingSection && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl"
-            >
-              <p className="text-amber-800 text-xs flex items-center gap-2">
-                <span className="font-bold">Editing in progress:</span>
-                Please save or cancel before switching tabs.
+                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                  LIVE PORTFOLIO
+                </span>
+                {userProfile.activeTemplateCode && (
+                  <span className="text-[10px] font-bold text-teal-300 bg-teal-500/15 px-2 py-0.5 rounded-full border border-teal-500/30">
+                    {userProfile.activeTemplateCode}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-300 font-medium mt-1">
+                {userProfile.username ? `@${userProfile.username} • ` : ""}
+                {userProfile.customProfessionTitle || userProfile.headline || "Configure your portfolio media & details"}
               </p>
-            </motion.div>
-          )}
-
-          <div className="mt-8 pt-6 border-t border-slate-200/80">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <div className="text-center md:text-left">
-                <p className="text-xs text-slate-500 font-bold">
-                  YOUR PORTFOLIO LINK: <span className="font-extrabold text-emerald-600 hover:underline cursor-pointer" onClick={() => window.open(previewUrl, '_blank')}>{previewUrl}</span>
-                </p>
-                <p className="text-[11px] text-slate-400 font-semibold mt-1">
-                  Share this live URL with recruiters, employers, and clients.
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                <button
-                  className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/20 hover:shadow-lg hover:shadow-[#6C63FF]/30 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer w-full sm:w-auto"
-                  onClick={handleSave}
-                  disabled={editingSection || saving}
-                >
-                  {saving ? (
-                    <>
-                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Saving...
-                    </>
-                  ) : profile.id ? (
-                    <>
-                      <FaSave className="w-3.5 h-3.5" />
-                      Update Profile
-                    </>
-                  ) : (
-                    <>
-                      <FaPlus className="w-3.5 h-3.5" />
-                      Create Profile
-                    </>
-                  )}
-                </button>
-                {previewUrl && (
-                  <>
-                    <button
-                      className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-[#6C63FF]/15 hover:shadow-lg transition-all active:scale-95 cursor-pointer animate-pulse w-full sm:w-auto"
-                      onClick={() => setMobilePreviewOpen(true)}
-                    >
-                      <FaMobileAlt className="w-3.5 h-3.5" />
-                      Mobile Preview
-                    </button>
-                    <button
-                      className="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer w-full sm:w-auto"
-                      onClick={() => window.open(previewUrl, '_blank')}
-                    >
-                      <FaGlobe className="w-3.5 h-3.5" />
-                      Web Preview
-                    </button>
-                  </>
+              <div className="flex flex-wrap items-center gap-3 mt-2 text-[11px] text-slate-300 font-medium">
+                {userProfile.location && (
+                  <span className="flex items-center gap-1"><FaMapMarkerAlt size={10} className="text-emerald-400" /> {userProfile.location}</span>
                 )}
+                <span className="flex items-center gap-1"><FaEye size={10} className="text-teal-400" /> {userProfile.totalProfileViews || 0} views</span>
+                <span className="flex items-center gap-1"><FaMousePointer size={10} className="text-sky-400" /> {userProfile.totalLinkClicks || 0} clicks</span>
               </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            {/* Portfolio URL */}
+            <div className="flex items-center gap-2 bg-white/10 border border-white/15 rounded-2xl p-1.5 pl-3">
+              <span className="text-[10px] uppercase font-black tracking-wider text-emerald-400 shrink-0">Folio:</span>
+              <span className="text-xs font-semibold text-slate-200 truncate max-w-[140px] sm:max-w-[180px]">{publicPortfolioUrl}</span>
+              <button
+                onClick={handleCopyPortfolioUrl}
+                className="px-2.5 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition cursor-pointer shrink-0"
+                title="Copy Portfolio URL"
+              >
+                {copiedPortfolioUrl ? <FaCheck size={11} /> : <FaCopy size={11} />}
+              </button>
+              <a
+                href={publicPortfolioUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shrink-0"
+              >
+                <FaExternalLinkAlt size={10} /> View
+              </a>
+            </div>
+
+            {/* Linktree URL */}
+            <div className="flex items-center gap-2 bg-white/10 border border-white/15 rounded-2xl p-1.5 pl-3">
+              <span className="text-[10px] uppercase font-black tracking-wider text-teal-400 shrink-0">Bio:</span>
+              <span className="text-xs font-semibold text-slate-200 truncate max-w-[140px] sm:max-w-[180px]">{publicLinktreeUrl}</span>
+              <button
+                onClick={handleCopyLinktreeUrl}
+                className="px-2.5 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition cursor-pointer shrink-0"
+                title="Copy Linktree URL"
+              >
+                {copiedLinktreeUrl ? <FaCheck size={11} /> : <FaCopy size={11} />}
+              </button>
+              <a
+                href={publicLinktreeUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="px-3 py-1.5 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shrink-0"
+              >
+                <FaExternalLinkAlt size={10} /> View
+              </a>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ===== CUSTOM SAVE / DISCARD CONFIRMATION MODAL ===== */}
-      {confirmModal.isOpen && (
-        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 10 }}
-            className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm sm:max-w-md w-full shadow-2xl border border-slate-100 text-center relative"
-          >
-            <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-100">
-              <FaQuestionCircle className="w-7 h-7" />
-            </div>
-            
-            <h3 className="text-xl font-black text-slate-800 tracking-tight mb-2">
-              {confirmModal.title}
-            </h3>
-            <p className="text-xs font-semibold text-slate-500 mb-6 leading-relaxed">
-              {confirmModal.message}
-            </p>
+      {/* Category Selection Tabs */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-200 no-scrollbar">
+        {categories.map((cat) => {
+          const isActive = activeCategory === cat.id;
+          return (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                isActive
+                  ? "bg-slate-900 text-white shadow-md shadow-slate-900/10"
+                  : "bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-slate-200/80"
+              }`}
+            >
+              <span className={isActive ? "text-emerald-400" : "text-slate-400"}>{cat.icon}</span>
+              <span>{cat.label}</span>
+              {cat.count !== null && (
+                <span
+                  className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                    isActive ? "bg-emerald-500 text-slate-950" : "bg-slate-100 text-slate-600"
+                  }`}
+                >
+                  {cat.count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
 
-            <div className="flex flex-col sm:flex-row gap-2.5 justify-center">
-              {confirmModal.onConfirm && (
+      {/* CATEGORY 1: USER IDENTITY & PERSONAL INFO (WITH AVATAR & BANNER UPLOAD) */}
+      {activeCategory === "identity" && (
+        <form onSubmit={handleSaveIdentity} className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm space-y-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 tracking-tight">Personal & Professional Identity</h2>
+                {userProfile.hasActiveSubscription && (
+                  <span className="text-[10px] font-black text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
+                    <FaStar size={9} className="text-amber-500" /> PRO MEMBER
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-400 font-medium mt-0.5">
+                Manage your public portfolio appearance, bio, media assets, and verified contact details
+              </p>
+            </div>
+            <button
+              type="submit"
+              disabled={savingIdentity}
+              className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shrink-0"
+            >
+              <FaSave size={13} /> {savingIdentity ? "Saving Updates..." : "Save Identity Details"}
+            </button>
+          </div>
+
+          {/* ===== LIVE IDENTITY SHOWCASE CARD ===== */}
+          <div className="rounded-3xl border border-slate-200 overflow-hidden shadow-sm bg-slate-900 text-white relative">
+            {/* Cover Banner with smooth fallback */}
+            <div className="relative h-44 sm:h-52 w-full bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 overflow-hidden">
+              {bannerPreview ? (
+                <img
+                  src={bannerPreview.startsWith("data:") ? bannerPreview : resolveImageUrl(bannerPreview)}
+                  alt="Cover Banner"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => { e.currentTarget.style.display = "none"; }}
+                  className="w-full h-full object-cover object-center"
+                />
+              ) : null}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+
+              {/* Status Pills inside banner */}
+              <div className="absolute top-3 right-3 flex items-center gap-2">
+                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur-md border ${
+                  userProfile.isProfilePublic
+                    ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                    : "bg-slate-800/80 text-slate-300 border-slate-700"
+                }`}>
+                  {userProfile.isProfilePublic ? "● Public Portfolio" : "○ Private"}
+                </span>
+                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur-md bg-slate-800/80 text-slate-300 border border-slate-700">
+                  {userProfile.authProvider === "GOOGLE" ? "Google Verified" : "Email Account"}
+                </span>
+              </div>
+            </div>
+
+            {/* Profile Info Overlay */}
+            <div className="p-6 relative -mt-16 sm:-mt-20 z-10 flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4">
+                {/* Avatar with ring */}
+                <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl border-4 border-slate-900 bg-slate-800 shadow-xl overflow-hidden shrink-0">
+                  {avatarPreview ? (
+                    <img
+                      src={avatarPreview.startsWith("data:") ? avatarPreview : resolveImageUrl(avatarPreview)}
+                      alt={userProfile.fullName || "Avatar"}
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                        if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = "flex";
+                      }}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : null}
+                  <div
+                    style={{ display: avatarPreview ? "none" : "flex" }}
+                    className="w-full h-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-black text-3xl sm:text-4xl items-center justify-center"
+                  >
+                    {(userProfile.fullName || "U").charAt(0).toUpperCase()}
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-xl sm:text-2xl font-black tracking-tight">{userProfile.fullName || "Your Full Name"}</h3>
+                    <span className="text-xs text-slate-400 font-mono">@{userProfile.username || "username"}</span>
+                  </div>
+                  <p className="text-xs text-emerald-400 font-bold">
+                    {userProfile.customProfessionTitle || userProfile.headline || "Professional Headline"}
+                  </p>
+                  <p className="text-[11px] text-slate-300 max-w-xl line-clamp-2 mt-0.5">
+                    {userProfile.bio || "No biography provided yet. Add your story below."}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-3 pt-1 text-[11px] text-slate-400">
+                    {userProfile.location && (
+                      <span className="flex items-center gap-1"><FaMapMarkerAlt size={10} className="text-emerald-400" /> {userProfile.location}</span>
+                    )}
+                    {userProfile.contactEmail && (
+                      <span className="flex items-center gap-1"><FaEnvelope size={10} className="text-teal-400" /> {userProfile.contactEmail}</span>
+                    )}
+                    {userProfile.phoneNumber && (
+                      <span className="flex items-center gap-1"><FaPhone size={10} className="text-sky-400" /> {userProfile.phoneNumber}</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Badges & Metrics */}
+              <div className="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-2 shrink-0 pt-2 sm:pt-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black uppercase text-teal-300 bg-teal-500/15 border border-teal-500/30 px-2.5 py-0.5 rounded-full">
+                    {userProfile.activeTemplateCode || "BENTO_GRID_PRO"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-[11px] font-bold text-slate-300">
+                  <span className="bg-white/10 px-2.5 py-1 rounded-xl flex items-center gap-1">
+                    <FaEye size={10} className="text-teal-400" /> {userProfile.totalProfileViews || 0} views
+                  </span>
+                  <span className="bg-white/10 px-2.5 py-1 rounded-xl flex items-center gap-1">
+                    <FaMousePointer size={10} className="text-emerald-400" /> {userProfile.totalLinkClicks || 0} clicks
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ===== VISUAL MEDIA MANAGEMENT (BANNER & AVATAR) ===== */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Header Banner Card */}
+            <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50/60 flex flex-col justify-between space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <FaImage className="text-emerald-600" /> Cover Banner Image
+                  </label>
+                  <span className="text-[10px] bg-slate-200 text-slate-600 font-bold px-2 py-0.5 rounded-full">
+                    Recommended: 1200 x 400
+                  </span>
+                </div>
+
+                <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-slate-200 h-32 flex items-center justify-center">
+                  {bannerPreview ? (
+                    <img
+                      src={bannerPreview.startsWith("data:") ? bannerPreview : resolveImageUrl(bannerPreview)}
+                      alt="Banner Preview"
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                        if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = "flex";
+                      }}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : null}
+                  <div
+                    style={{ display: bannerPreview ? "none" : "flex" }}
+                    className="w-full h-full text-center text-slate-400 flex flex-col items-center justify-center"
+                  >
+                    <FaImage size={24} className="mx-auto mb-1 opacity-40" />
+                    <span className="text-[11px] font-medium">No banner chosen</span>
+                  </div>
+                  <input
+                    type="file"
+                    ref={bannerInputRef}
+                    onChange={handleBannerSelect}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                </div>
+
+                {/* Direct Banner URL Input */}
+                <div className="mt-3 space-y-1">
+                  <label className="text-[11px] font-bold text-slate-500">Or Paste Direct Banner URL (Cloudflare / CDN):</label>
+                  <input
+                    type="url"
+                    value={userProfile.bannerUrl || ""}
+                    onChange={(e) => {
+                      setUserProfile({ ...userProfile, bannerUrl: e.target.value });
+                      setBannerPreview(e.target.value);
+                    }}
+                    placeholder="https://cdn.bytebodh.in/banners/cover.jpg"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-emerald-500 bg-white"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-2 border-t border-slate-200">
                 <button
                   type="button"
-                  className="flex-1 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-1.5"
-                  onClick={confirmModal.onConfirm}
+                  onClick={() => bannerInputRef.current?.click()}
+                  className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
                 >
-                  <FaCheck className="w-3.5 h-3.5" />
-                  Save Changes
+                  <FaCloudUploadAlt /> Upload File
                 </button>
-              )}
-              {confirmModal.onDiscard && (
+                {bannerPreview && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBannerFile(null);
+                      setBannerPreview("");
+                      setUserProfile({ ...userProfile, bannerUrl: "" });
+                    }}
+                    className="px-3 py-1.5 text-rose-600 hover:bg-rose-50 rounded-xl text-xs font-bold transition cursor-pointer"
+                  >
+                    Remove Banner
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Profile Avatar Card */}
+            <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50/60 flex flex-col justify-between space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <FaUser className="text-emerald-600" /> Profile Picture / Avatar
+                  </label>
+                  <span className="text-[10px] bg-slate-200 text-slate-600 font-bold px-2 py-0.5 rounded-full">
+                    Square 400 x 400
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div
+                    onClick={() => avatarInputRef.current?.click()}
+                    className="relative w-20 h-20 rounded-2xl border-2 border-white shadow-md overflow-hidden cursor-pointer group shrink-0"
+                  >
+                    {avatarPreview ? (
+                      <img
+                        src={avatarPreview.startsWith("data:") ? avatarPreview : resolveImageUrl(avatarPreview)}
+                        alt="Avatar Preview"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                          if (e.currentTarget.nextSibling) e.currentTarget.nextSibling.style.display = "flex";
+                        }}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : null}
+                    <div
+                      style={{ display: avatarPreview ? "none" : "flex" }}
+                      className="w-full h-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-black text-2xl items-center justify-center"
+                    >
+                      {(userProfile.fullName || "U").charAt(0).toUpperCase()}
+                    </div>
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                      <FaCamera size={14} className="text-white" />
+                    </div>
+                  </div>
+                  <input
+                    type="file"
+                    ref={avatarInputRef}
+                    onChange={handleAvatarSelect}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                  <div className="flex-1 space-y-1">
+                    <label className="text-[11px] font-bold text-slate-500">Or Paste Direct Avatar URL (Google / Cloudflare):</label>
+                    <input
+                      type="url"
+                      value={userProfile.avatarUrl || ""}
+                      onChange={(e) => {
+                        setUserProfile({ ...userProfile, avatarUrl: e.target.value });
+                        setAvatarPreview(e.target.value);
+                      }}
+                      placeholder="https://lh3.googleusercontent.com/..."
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-emerald-500 bg-white"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-2 border-t border-slate-200">
                 <button
                   type="button"
-                  className="flex-1 px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold rounded-xl transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-1.5"
-                  onClick={confirmModal.onDiscard}
+                  onClick={() => avatarInputRef.current?.click()}
+                  className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs"
                 >
-                  <FaTrash className="w-3.5 h-3.5" />
-                  Discard
+                  <FaCloudUploadAlt /> Upload File
                 </button>
-              )}
-              <button
-                type="button"
-                className="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl transition-all cursor-pointer active:scale-95"
-                onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                {avatarPreview && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAvatarFile(null);
+                      setAvatarPreview("");
+                      setUserProfile({ ...userProfile, avatarUrl: "" });
+                    }}
+                    className="px-3 py-1.5 text-rose-600 hover:bg-rose-50 rounded-xl text-xs font-bold transition cursor-pointer"
+                  >
+                    Remove Photo
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* ===== FORM FIELDS: IDENTITY & DETAILS ===== */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Full Display Name */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Full Display Name *</label>
+              <input
+                type="text"
+                value={userProfile.fullName}
+                onChange={(e) => setUserProfile({ ...userProfile, fullName: e.target.value })}
+                placeholder="e.g. Rahul Sharma"
+                required
+                className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15"
+              />
+            </div>
+
+            {/* Headline */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Headline / Tagline</label>
+              <input
+                type="text"
+                value={userProfile.headline}
+                onChange={(e) => setUserProfile({ ...userProfile, headline: e.target.value })}
+                placeholder="e.g. Senior Full Stack Engineer building scalable systems"
+                className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15"
+              />
+            </div>
+
+            {/* Primary Account Email (Read-Only) */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+                <span>Account Login Email</span>
+                <span className="text-[10px] text-emerald-600 font-bold lowercase flex items-center gap-1">
+                  <FaCheckCircle size={10} /> Verified
+                </span>
+              </label>
+              <input
+                type="email"
+                value={userProfile.email}
+                readOnly
+                disabled
+                className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-semibold bg-slate-50 text-slate-500 cursor-not-allowed"
+              />
+            </div>
+
+            {/* Public Contact Email */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Public Contact Email</label>
+              <input
+                type="email"
+                value={userProfile.contactEmail}
+                onChange={(e) => setUserProfile({ ...userProfile, contactEmail: e.target.value })}
+                placeholder="e.g. contact@rahul.dev"
+                className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15"
+              />
+            </div>
+
+            {/* Profession Category Dropdown */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Profession Category</label>
+              <select
+                value={userProfile.professionCategory}
+                onChange={(e) => setUserProfile({ ...userProfile, professionCategory: e.target.value })}
+                className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15 bg-white"
               >
-                Cancel
+                {PROFESSION_CATEGORIES.map((cat) => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Custom Profession Title */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Custom Niche Title</label>
+              <input
+                type="text"
+                value={userProfile.customProfessionTitle}
+                onChange={(e) => setUserProfile({ ...userProfile, customProfessionTitle: e.target.value })}
+                placeholder="e.g. Full-Stack iOS Engineer or Cloud Architect"
+                className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15"
+              />
+            </div>
+
+            {/* Location */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Location / City</label>
+              <input
+                type="text"
+                value={userProfile.location}
+                onChange={(e) => setUserProfile({ ...userProfile, location: e.target.value })}
+                placeholder="e.g. Bengaluru, India or San Francisco, CA"
+                className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15"
+              />
+            </div>
+
+            {/* Phone Number */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Phone / WhatsApp</label>
+              <input
+                type="text"
+                value={userProfile.phoneNumber}
+                onChange={(e) => setUserProfile({ ...userProfile, phoneNumber: e.target.value })}
+                placeholder="e.g. +91 9876543210"
+                className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15"
+              />
+            </div>
+
+            {/* Accent Color Palette */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">Theme Accent Color</label>
+              <div className="flex items-center gap-2.5 pt-1">
+                {ACCENT_COLORS.map((col) => (
+                  <button
+                    key={col.hex}
+                    type="button"
+                    onClick={() => setUserProfile({ ...userProfile, themeAccentColor: col.hex })}
+                    className={`w-7 h-7 rounded-full transition-transform cursor-pointer border-2 ${
+                      userProfile.themeAccentColor === col.hex ? "scale-125 border-slate-900 shadow-md" : "border-white"
+                    }`}
+                    style={{ backgroundColor: col.hex }}
+                    title={col.label}
+                  />
+                ))}
+                <input
+                  type="color"
+                  value={userProfile.themeAccentColor}
+                  onChange={(e) => setUserProfile({ ...userProfile, themeAccentColor: e.target.value })}
+                  className="w-8 h-8 rounded-full border border-slate-200 cursor-pointer p-0.5 bg-transparent ml-2"
+                />
+              </div>
+            </div>
+
+            {/* Visibility & Dark Mode Toggles */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">Display & Preferences</label>
+              <div className="flex flex-wrap items-center gap-4 pt-1">
+                <label className="flex items-center gap-2 cursor-pointer bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition">
+                  <input
+                    type="checkbox"
+                    checked={userProfile.isProfilePublic}
+                    onChange={(e) => setUserProfile({ ...userProfile, isProfilePublic: e.target.checked })}
+                    className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
+                  />
+                  <span>Public Portfolio</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition">
+                  <input
+                    type="checkbox"
+                    checked={userProfile.isDarkModeEnabled}
+                    onChange={(e) => setUserProfile({ ...userProfile, isDarkModeEnabled: e.target.checked })}
+                    className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
+                  />
+                  <span className="flex items-center gap-1"><FaMoon size={11} /> Dark Mode</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Bio / Summary */}
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">About Me & Biography</label>
+            <textarea
+              rows={4}
+              value={userProfile.bio}
+              onChange={(e) => setUserProfile({ ...userProfile, bio: e.target.value })}
+              placeholder="Write a concise overview of your background, experience, and passions..."
+              className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/15"
+            ></textarea>
+          </div>
+
+          <div className="flex justify-end pt-4 border-t border-slate-100">
+            <button
+              type="submit"
+              disabled={savingIdentity}
+              className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-md shadow-emerald-600/20 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            >
+              <FaSave size={13} /> {savingIdentity ? "Saving..." : "Save Identity Details"}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* CATEGORY 2: PROJECTS (WITH PROJECT COVER IMAGE UPLOAD) */}
+      {activeCategory === "projects" && (
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div>
+              <h2 className="text-lg font-black text-slate-900">Featured Projects</h2>
+              <p className="text-xs text-slate-400 font-medium">Showcase work samples with live cover thumbnails and repository links</p>
+            </div>
+            <button
+              onClick={() => openModal("project")}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+            >
+              <FaPlus size={10} /> Add Project
+            </button>
+          </div>
+
+          {projects.length === 0 ? (
+            <div className="text-center py-12 bg-slate-50 rounded-2xl border border-slate-100">
+              <FaProjectDiagram className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-xs font-bold text-slate-600">No projects added yet</p>
+              <p className="text-[11px] text-slate-400 mt-1">Add your best projects with cover images to impress recruiters.</p>
+              <button
+                onClick={() => openModal("project")}
+                className="mt-3 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold cursor-pointer"
+              >
+                + Add First Project
               </button>
             </div>
-          </motion.div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {projects.map((proj) => (
+                <div key={proj.id} className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:shadow-md transition flex flex-col justify-between space-y-3">
+                  <div>
+                    {/* Project Cover Image */}
+                    {proj.imageUrl && (
+                      <div className="w-full h-36 rounded-xl overflow-hidden mb-3 bg-slate-200 border border-slate-200/80">
+                        <img
+                          src={resolveImageUrl(proj.imageUrl)}
+                          alt={proj.title}
+                          referrerPolicy="no-referrer"
+                          onError={(e) => { e.currentTarget.style.display = "none"; }}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <span className="text-[10px] font-black uppercase text-emerald-600 tracking-wider">
+                          {proj.category || "Project"}
+                        </span>
+                        <h3 className="text-sm font-black text-slate-800 mt-0.5">{proj.title}</h3>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => openModal("project", proj)}
+                          className="p-1.5 text-slate-400 hover:text-emerald-600 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+                        >
+                          <FaEdit size={12} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteItem("project", proj.id)}
+                          className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+                        >
+                          <FaTrash size={12} />
+                        </button>
+                      </div>
+                    </div>
+                    {proj.shortDescription && (
+                      <p className="text-xs text-slate-500 font-medium line-clamp-2 mt-1.5">{proj.shortDescription}</p>
+                    )}
+                    {proj.technologies && (
+                      <div className="flex flex-wrap gap-1 mt-2.5">
+                        {proj.technologies.split(",").map((tech, i) => (
+                          <span key={i} className="px-2 py-0.5 bg-white border border-slate-200 text-slate-600 text-[10px] font-bold rounded-md">
+                            {tech.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-3 border-t border-slate-100 text-xs font-bold">
+                    {proj.projectUrl && (
+                      <a href={proj.projectUrl} target="_blank" rel="noreferrer" className="text-emerald-600 hover:underline flex items-center gap-1">
+                        <FaExternalLinkAlt size={10} /> Live Demo
+                      </a>
+                    )}
+                    {proj.githubUrl && (
+                      <a href={proj.githubUrl} target="_blank" rel="noreferrer" className="text-slate-700 hover:underline flex items-center gap-1">
+                        <FaGithub size={12} /> Code
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
-      {/* ===== MOBILE PREVIEW SCREEN DRAWER MODAL ===== */}
-      {mobilePreviewOpen && (
-        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
-          <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-2xl p-6 relative animate-slideUp flex flex-col items-center">
-
-            {/* Modal Close */}
+      {/* CATEGORY 3: SKILLS (WITH ICON UPLOAD) */}
+      {activeCategory === "skills" && (
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div>
+              <h2 className="text-lg font-black text-slate-900">Skills & Tech Stack</h2>
+              <p className="text-xs text-slate-400 font-medium">Categorized proficiencies with custom brand icons</p>
+            </div>
             <button
-              onClick={() => setMobilePreviewOpen(false)}
-              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-all cursor-pointer"
-              title="Close preview"
+              onClick={() => openModal("skill")}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
             >
-              <FaTimes size={16} />
+              <FaPlus size={10} /> Add Skill
             </button>
+          </div>
 
-            {/* Modal Header */}
-            <div className="w-full flex items-center justify-start gap-2 mb-4">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-              </span>
-              <h3 className="font-black text-slate-800 text-sm">Live Mobile View</h3>
+          {skills.length === 0 ? (
+            <div className="text-center py-12 bg-slate-50 rounded-2xl border border-slate-100">
+              <FaTools className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-xs font-bold text-slate-600">No skills added yet</p>
               <button
-                onClick={() => setPreviewKey(prev => prev + 1)}
-                className="ml-auto p-1 text-slate-400 hover:text-emerald-600 rounded-lg transition-colors cursor-pointer"
-                title="Refresh preview screen"
+                onClick={() => openModal("skill")}
+                className="mt-3 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold cursor-pointer"
               >
-                <FaSync size={12} />
+                + Add First Skill
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {skills.map((skill) => (
+                <div key={skill.id} className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white transition flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {skill.iconUrl ? (
+                      <img
+                        src={resolveImageUrl(skill.iconUrl)}
+                        alt=""
+                        referrerPolicy="no-referrer"
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                        className="w-8 h-8 rounded-lg object-contain bg-white p-1 border border-slate-200"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-xs">
+                        {skill.name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div>
+                      <h4 className="text-xs font-black text-slate-800">{skill.name}</h4>
+                      <p className="text-[10px] text-slate-400 font-bold mt-0.5">
+                        {skill.category || "General"} • {skill.proficiencyLevel || "INTERMEDIATE"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => openModal("skill", skill)}
+                      className="p-1.5 text-slate-400 hover:text-emerald-600 cursor-pointer"
+                    >
+                      <FaEdit size={12} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteItem("skill", skill.id)}
+                      className="p-1.5 text-slate-400 hover:text-rose-600 cursor-pointer"
+                    >
+                      <FaTrash size={12} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* CATEGORY 4: EDUCATION (WITH INSTITUTION LOGO UPLOAD) */}
+      {activeCategory === "education" && (
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div>
+              <h2 className="text-lg font-black text-slate-900">Academic Background</h2>
+              <p className="text-xs text-slate-400 font-medium">Universities and degrees with institution logos</p>
+            </div>
+            <button
+              onClick={() => openModal("education")}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+            >
+              <FaPlus size={10} /> Add Education
+            </button>
+          </div>
+
+          {education.length === 0 ? (
+            <div className="text-center py-12 bg-slate-50 rounded-2xl border border-slate-100">
+              <FaGraduationCap className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-xs font-bold text-slate-600">No education records added yet</p>
+              <button
+                onClick={() => openModal("education")}
+                className="mt-3 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold cursor-pointer"
+              >
+                + Add Education Record
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {education.map((edu) => (
+                <div key={edu.id} className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white transition flex items-start justify-between">
+                  <div className="flex items-start gap-3.5">
+                    {edu.institutionLogoUrl ? (
+                      <img
+                        src={resolveImageUrl(edu.institutionLogoUrl)}
+                        alt=""
+                        referrerPolicy="no-referrer"
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                        className="w-10 h-10 rounded-xl object-contain bg-white p-1 border border-slate-200 shrink-0 mt-0.5"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center font-black text-sm shrink-0 mt-0.5">
+                        <FaGraduationCap size={16} />
+                      </div>
+                    )}
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-black text-slate-800">{edu.institution}</h3>
+                        {edu.grade && (
+                          <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold px-2 py-0.2 rounded-full">
+                            {edu.grade}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-600 font-bold">
+                        {edu.degree} {edu.fieldOfStudy ? `in ${edu.fieldOfStudy}` : ""}
+                      </p>
+                      {(edu.startDate || edu.endDate) && (
+                        <p className="text-[10px] text-slate-400 font-semibold flex items-center gap-1">
+                          <FaCalendarAlt size={9} /> {edu.startDate || "Started"} — {edu.isCurrent ? "Present" : edu.endDate || "Completed"}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => openModal("education", edu)}
+                      className="p-1.5 text-slate-400 hover:text-emerald-600 cursor-pointer"
+                    >
+                      <FaEdit size={12} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteItem("education", edu.id)}
+                      className="p-1.5 text-slate-400 hover:text-rose-600 cursor-pointer"
+                    >
+                      <FaTrash size={12} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* CATEGORY 5: CERTIFICATIONS (WITH BADGE / PROOF UPLOAD) */}
+      {activeCategory === "certifications" && (
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div>
+              <h2 className="text-lg font-black text-slate-900">Certifications & Licenses</h2>
+              <p className="text-xs text-slate-400 font-medium">Verified credentials with digital badges and proof documents</p>
+            </div>
+            <button
+              onClick={() => openModal("cert")}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+            >
+              <FaPlus size={10} /> Add Certification
+            </button>
+          </div>
+
+          {certifications.length === 0 ? (
+            <div className="text-center py-12 bg-slate-50 rounded-2xl border border-slate-100">
+              <FaCertificate className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-xs font-bold text-slate-600">No certifications added yet</p>
+              <button
+                onClick={() => openModal("cert")}
+                className="mt-3 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold cursor-pointer"
+              >
+                + Add Certification
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {certifications.map((c) => (
+                <div key={c.id} className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white transition flex flex-col justify-between">
+                  <div className="flex items-start gap-3">
+                    {c.certificateImageUrl ? (
+                      <img
+                        src={resolveImageUrl(c.certificateImageUrl)}
+                        alt=""
+                        referrerPolicy="no-referrer"
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                        className="w-12 h-12 rounded-xl object-contain bg-white p-1 border border-slate-200 shrink-0"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-lg shrink-0">
+                        <FaCertificate />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h4 className="text-xs font-black text-slate-800">{c.name}</h4>
+                          <p className="text-[11px] text-slate-500 font-bold mt-0.5">{c.issuingOrganization}</p>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => openModal("cert", c)}
+                            className="p-1.5 text-slate-400 hover:text-emerald-600 cursor-pointer"
+                          >
+                            <FaEdit size={12} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteItem("cert", c.id)}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 cursor-pointer"
+                          >
+                            <FaTrash size={12} />
+                          </button>
+                        </div>
+                      </div>
+                      {c.credentialId && (
+                        <p className="text-[10px] text-slate-400 font-mono mt-1">ID: {c.credentialId}</p>
+                      )}
+                    </div>
+                  </div>
+                  {c.credentialUrl && (
+                    <a
+                      href={c.credentialUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs text-emerald-600 hover:underline font-bold mt-3 pt-2 border-t border-slate-100 flex items-center gap-1"
+                    >
+                      <FaExternalLinkAlt size={9} /> Verify Credential
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* CATEGORY 6: ACHIEVEMENTS (WITH PHOTO / TROPHY UPLOAD) */}
+      {activeCategory === "achievements" && (
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div>
+              <h2 className="text-lg font-black text-slate-900">Honors & Achievements</h2>
+              <p className="text-xs text-slate-400 font-medium">Hackathon trophies, competitions, and recognized milestones</p>
+            </div>
+            <button
+              onClick={() => openModal("achievement")}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+            >
+              <FaPlus size={10} /> Add Achievement
+            </button>
+          </div>
+
+          {achievements.length === 0 ? (
+            <div className="text-center py-12 bg-slate-50 rounded-2xl border border-slate-100">
+              <FaTrophy className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-xs font-bold text-slate-600">No achievements recorded</p>
+              <button
+                onClick={() => openModal("achievement")}
+                className="mt-3 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold cursor-pointer"
+              >
+                + Add First Achievement
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {achievements.map((ach) => (
+                <div key={ach.id} className="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white transition flex items-start justify-between">
+                  <div className="flex items-start gap-3.5">
+                    {ach.badgeImageUrl ? (
+                      <img
+                        src={resolveImageUrl(ach.badgeImageUrl)}
+                        alt=""
+                        referrerPolicy="no-referrer"
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                        className="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center font-bold text-lg shrink-0">
+                        <FaAward />
+                      </div>
+                    )}
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-xs font-black text-slate-800">{ach.title}</h4>
+                      </div>
+                      {ach.issuer && <p className="text-[11px] text-slate-500 font-semibold">{ach.issuer}</p>}
+                      {ach.description && <p className="text-xs text-slate-600 font-normal mt-1">{ach.description}</p>}
+                      {ach.referenceUrl && (
+                        <a href={ach.referenceUrl} target="_blank" rel="noreferrer" className="text-[11px] text-emerald-600 hover:underline font-bold inline-flex items-center gap-1 pt-1">
+                          <FaExternalLinkAlt size={8} /> Reference Link
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => openModal("achievement", ach)}
+                      className="p-1.5 text-slate-400 hover:text-emerald-600 cursor-pointer"
+                    >
+                      <FaEdit size={12} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteItem("achievement", ach.id)}
+                      className="p-1.5 text-slate-400 hover:text-rose-600 cursor-pointer"
+                    >
+                      <FaTrash size={12} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* CATEGORY 7: SOCIAL BADGES */}
+      {activeCategory === "social" && (
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div>
+              <h2 className="text-lg font-black text-slate-900">Portfolio Social Badges</h2>
+              <p className="text-xs text-slate-400 font-medium">Links displayed in your portfolio header & footer</p>
+            </div>
+            <button
+              onClick={() => openModal("link")}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+            >
+              <FaPlus size={10} /> Add Badge Link
+            </button>
+          </div>
+
+          <div className="p-4 bg-teal-50/70 border border-teal-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left">
+            <div className="flex items-center gap-3">
+              <span className="p-2 bg-teal-100 text-teal-700 rounded-xl text-sm font-bold">🔗</span>
+              <div>
+                <h4 className="text-xs font-bold text-teal-900">Dedicated Linktree (Bio Links) Screen</h4>
+                <p className="text-[11px] text-teal-700 font-medium">Manage your Instagram bio links with smartphone preview and click analytics separately.</p>
+              </div>
+            </div>
+            <a
+              href="/linktree"
+              className="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 shrink-0 shadow-sm"
+            >
+              Open Linktree Manager →
+            </a>
+          </div>
+
+          {userLinks.length === 0 ? (
+            <div className="text-center py-12 bg-slate-50 rounded-2xl border border-slate-100">
+              <FaLink className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-xs font-bold text-slate-600">No social badges added yet</p>
+              <button
+                onClick={() => openModal("link")}
+                className="mt-3 px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold cursor-pointer"
+              >
+                + Add Social Badge
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {userLinks.map((link) => (
+                <div key={link.id} className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white transition flex items-center justify-between">
+                  <div className="flex items-center gap-3 min-w-0">
+                    {link.iconUrl ? (
+                      <img
+                        src={resolveImageUrl(link.iconUrl)}
+                        alt=""
+                        referrerPolicy="no-referrer"
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                        className="w-8 h-8 rounded-xl object-contain bg-slate-100 p-1 border border-slate-200 shrink-0"
+                      />
+                    ) : (
+                      <span className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-sm shrink-0">
+                        {link.platform ? link.platform.charAt(0) : "🔗"}
+                      </span>
+                    )}
+                    <div className="min-w-0">
+                      <h4 className="text-xs font-black text-slate-800 truncate">{link.title}</h4>
+                      <p className="text-[10px] text-slate-400 truncate">{link.url}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      onClick={() => openModal("link", link)}
+                      className="p-1.5 text-slate-400 hover:text-emerald-600 cursor-pointer"
+                    >
+                      <FaEdit size={12} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteItem("link", link.id)}
+                      className="p-1.5 text-slate-400 hover:text-rose-600 cursor-pointer"
+                    >
+                      <FaTrash size={12} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* MODAL FOR ADDING / EDITING ENTITY ITEMS (WITH IMAGE UPLOAD) */}
+      {modalType && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl w-full max-w-lg p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto text-left">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+              <h3 className="text-base font-black text-slate-900">
+                {editingItem ? "Edit" : "Add"}{" "}
+                {modalType === "project" && "Project"}
+                {modalType === "skill" && "Skill"}
+                {modalType === "education" && "Education Record"}
+                {modalType === "cert" && "Certification"}
+                {modalType === "achievement" && "Achievement"}
+                {modalType === "link" && "Social Badge"}
+              </h3>
+              <button onClick={closeModal} className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg cursor-pointer">
+                <FaTimes />
               </button>
             </div>
 
-            {/* SmartPhone Mobile Mockup or Direct Full-width Mobile Iframe on actual mobile */}
-            <div className="w-full sm:w-[280px] h-[60vh] sm:h-[520px] bg-slate-900 rounded-3xl sm:rounded-[40px] p-1.5 sm:p-3 shadow-2xl border border-slate-850 sm:border-4 sm:border-slate-800 relative">
-              {/* Dynamic Island Notch */}
-              <div className="hidden sm:block absolute top-4 left-1/2 transform -translate-x-1/2 w-16 h-3.5 bg-black rounded-full z-30"></div>
+            <form onSubmit={handleSaveModalItem} className="space-y-4 text-left">
+              {/* IMAGE UPLOAD DROPZONE COMPONENT FOR MODAL */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-slate-600">
+                  {modalType === "project" && "Project Cover / Screenshot"}
+                  {modalType === "skill" && "Skill Icon / Logo"}
+                  {modalType === "education" && "Institution / University Logo"}
+                  {modalType === "cert" && "Certificate Document / Badge"}
+                  {modalType === "achievement" && "Award Photo / Medal"}
+                  {modalType === "link" && "Custom Icon"}
+                </label>
 
-              <div className="w-full h-full bg-white rounded-2xl sm:rounded-[32px] overflow-hidden relative border border-slate-950/10">
-                <iframe
-                  key={previewKey}
-                  src={previewUrl}
-                  className="w-full h-full border-none"
-                  title="Mobile Live Preview"
-                  sandbox="allow-scripts allow-same-origin"
-                />
+                <div
+                  onClick={() => modalFileInputRef.current?.click()}
+                  className="border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-2xl p-4 flex flex-col items-center justify-center text-center cursor-pointer transition bg-slate-50/50 hover:bg-emerald-50/20"
+                >
+                  {modalImagePreview ? (
+                    <div className="relative group w-full flex flex-col items-center">
+                      <img
+                        src={modalImagePreview.startsWith("data:") ? modalImagePreview : resolveImageUrl(modalImagePreview)}
+                        alt="Preview"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                        className="max-h-36 rounded-xl object-contain border border-slate-200 shadow-xs mb-2"
+                      />
+                      <span className="text-[11px] font-bold text-emerald-600 hover:underline">
+                        Click to change photo
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center py-2 text-slate-400">
+                      <FaCloudUploadAlt size={28} className="mb-1 text-slate-300" />
+                      <span className="text-xs font-bold text-slate-700">Click to upload image</span>
+                      <span className="text-[10px] text-slate-400">PNG, JPG, WebP up to 5MB</span>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    ref={modalFileInputRef}
+                    onChange={handleModalImageSelect}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                </div>
               </div>
 
-              {/* Bottom Home Indicator */}
-              <div className="hidden sm:block absolute bottom-2.5 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-slate-800 rounded-full z-30"></div>
-            </div>
+              {/* PROJECT FORM FIELDS */}
+              {modalType === "project" && (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Project Title *</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.title || ""}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      placeholder="e.g. Distributed Task Orchestrator"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Domain Category</label>
+                    <input
+                      type="text"
+                      value={formData.category || ""}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      placeholder="e.g. Backend / Distributed Systems"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Short Description</label>
+                    <input
+                      type="text"
+                      value={formData.shortDescription || ""}
+                      onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
+                      placeholder="One-sentence elevator pitch"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Detailed Description</label>
+                    <textarea
+                      rows={3}
+                      value={formData.description || ""}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      placeholder="Explain the problem solved, architecture, and impact..."
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-emerald-500"
+                    ></textarea>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Technologies Used (comma separated)</label>
+                    <input
+                      type="text"
+                      value={formData.technologies || ""}
+                      onChange={(e) => setFormData({ ...formData, technologies: e.target.value })}
+                      placeholder="e.g. Java, Spring Boot, Redis, Kafka, AWS"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 mb-1">Live Demo URL</label>
+                      <input
+                        type="url"
+                        value={formData.projectUrl || ""}
+                        onChange={(e) => setFormData({ ...formData, projectUrl: e.target.value })}
+                        placeholder="https://..."
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 mb-1">GitHub URL</label>
+                      <input
+                        type="url"
+                        value={formData.githubUrl || ""}
+                        onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
+                        placeholder="https://github.com/..."
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
 
-            <button
-              onClick={() => setMobilePreviewOpen(false)}
-              className="mt-6 w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-2xl transition-all cursor-pointer"
-            >
-              Back to Editing
-            </button>
+              {/* SKILL FORM FIELDS */}
+              {modalType === "skill" && (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Skill Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.name || ""}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="e.g. React.js, Spring Boot, Python, Docker"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Category</label>
+                    <input
+                      type="text"
+                      value={formData.category || ""}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      placeholder="e.g. Frontend, Backend, Cloud & DevOps, Database"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Proficiency Level</label>
+                    <select
+                      value={formData.proficiencyLevel || "INTERMEDIATE"}
+                      onChange={(e) => setFormData({ ...formData, proficiencyLevel: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500 bg-white"
+                    >
+                      {SKILL_PROFICIENCIES.map((lvl) => (
+                        <option key={lvl.value} value={lvl.value}>
+                          {lvl.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Years of Experience</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      value={formData.yearsOfExperience || 1}
+                      onChange={(e) => setFormData({ ...formData, yearsOfExperience: parseFloat(e.target.value) || 0 })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* EDUCATION FORM FIELDS */}
+              {modalType === "education" && (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Institution / College Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.institution || ""}
+                      onChange={(e) => setFormData({ ...formData, institution: e.target.value })}
+                      placeholder="e.g. Stanford University or IIT Delhi"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Degree / Qualification *</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.degree || ""}
+                      onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
+                      placeholder="e.g. B.Tech / Bachelor of Science"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Major / Field of Study</label>
+                    <input
+                      type="text"
+                      value={formData.fieldOfStudy || ""}
+                      onChange={(e) => setFormData({ ...formData, fieldOfStudy: e.target.value })}
+                      placeholder="e.g. Computer Science & Engineering"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Grade / CGPA</label>
+                    <input
+                      type="text"
+                      value={formData.grade || ""}
+                      onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
+                      placeholder="e.g. 8.8 / 10 CGPA or 3.9 GPA"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* CERTIFICATION FORM FIELDS */}
+              {modalType === "cert" && (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Certification Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.name || ""}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="e.g. AWS Certified Solutions Architect"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Issuing Organization *</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.issuingOrganization || ""}
+                      onChange={(e) => setFormData({ ...formData, issuingOrganization: e.target.value })}
+                      placeholder="e.g. Amazon Web Services, Google Cloud"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Credential ID</label>
+                    <input
+                      type="text"
+                      value={formData.credentialId || ""}
+                      onChange={(e) => setFormData({ ...formData, credentialId: e.target.value })}
+                      placeholder="e.g. AWS-123456789"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Verification URL</label>
+                    <input
+                      type="url"
+                      value={formData.credentialUrl || ""}
+                      onChange={(e) => setFormData({ ...formData, credentialUrl: e.target.value })}
+                      placeholder="https://..."
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* ACHIEVEMENT FORM FIELDS */}
+              {modalType === "achievement" && (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Achievement Title *</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.title || ""}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      placeholder="e.g. 1st Place - Smart India Hackathon"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Issuer / Organization</label>
+                    <input
+                      type="text"
+                      value={formData.issuer || ""}
+                      onChange={(e) => setFormData({ ...formData, issuer: e.target.value })}
+                      placeholder="e.g. Ministry of Education & AICTE"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Description</label>
+                    <textarea
+                      rows={2}
+                      value={formData.description || ""}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      placeholder="Significance of achievement or prize..."
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-emerald-500"
+                    ></textarea>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Reference / Credential Link</label>
+                    <input
+                      type="url"
+                      value={formData.referenceUrl || ""}
+                      onChange={(e) => setFormData({ ...formData, referenceUrl: e.target.value })}
+                      placeholder="https://..."
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* SOCIAL LINK FORM FIELDS */}
+              {modalType === "link" && (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Platform</label>
+                    <select
+                      value={formData.platform || "GITHUB"}
+                      onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500 bg-white"
+                    >
+                      {SOCIAL_PLATFORMS.map((p) => (
+                        <option key={p.value} value={p.value}>
+                          {p.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Link Title *</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.title || ""}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      placeholder="e.g. GitHub Profile"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-1">Destination URL *</label>
+                    <input
+                      type="url"
+                      required
+                      value={formData.url || ""}
+                      onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                      placeholder="https://..."
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingItem}
+                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer disabled:opacity-50"
+                >
+                  {savingItem ? "Saving..." : "Save Details"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
     </DashboardLayout>
   );
-};
-
-export default Profile;
+}

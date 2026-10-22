@@ -42,24 +42,28 @@ const DashboardLayout = ({ children, containerClassName }) => {
 
   const getBreadcrumbs = () => {
     const path = location.pathname;
-    const crumbs = [{ label: "Home", path: "/dashboard" }];
+    const crumbs = [{ label: "Home", path: "/" }];
     
     if (path === "/dashboard" || path === "/") {
       crumbs.push({ label: "Dashboard", path: "/dashboard" });
     } else if (path === "/profile") {
-      crumbs.push({ label: "My Portfolio", path: "/profile" });
-    } else if (path === "/resume-builder") {
-      crumbs.push({ label: "Resume Templates", path: "/resume-builder" });
+      crumbs.push({ label: "Portfolio Details", path: "/profile" });
+    } else if (path === "/linktree") {
+      crumbs.push({ label: "Linktree (Bio Links)", path: "/linktree" });
+    } else if (path === "/linktree-templates") {
+      crumbs.push({ label: "Linktree Templates", path: "/linktree-templates" });
     } else if (path === "/portfolio-templates") {
       crumbs.push({ label: "Portfolio Templates", path: "/portfolio-templates" });
+    } else if (path === "/instagram-automation") {
+      crumbs.push({ label: "Instagram Automation", path: "/instagram-automation" });
     } else if (path === "/contacts") {
-      crumbs.push({ label: "Contacts", path: "/contacts" });
-    } else if (path === "/tasks") {
-      crumbs.push({ label: "Tasks & Projects", path: "/tasks" });
-    } else if (path === "/billings") {
-      crumbs.push({ label: "Billings", path: "/billings" });
-    } else if (path === "/help") {
-      crumbs.push({ label: "Help & Support", path: "/help" });
+      crumbs.push({ label: "Inquiries & Messages", path: "/contacts" });
+    } else if (path === "/qr-code") {
+      crumbs.push({ label: "Portfolio QR", path: "/qr-code" });
+    } else if (path === "/subscription") {
+      crumbs.push({ label: "Subscription & Plans", path: "/subscription" });
+    } else if (path === "/settings") {
+      crumbs.push({ label: "Settings", path: "/settings" });
     } else {
       // Fallback for any other path
       const segment = path.substring(1);
@@ -109,7 +113,7 @@ const DashboardLayout = ({ children, containerClassName }) => {
             {/* Breadcrumb trail */}
             <nav className="flex items-center space-x-2 text-[10px] font-bold text-slate-400 mb-5 tracking-wider uppercase" aria-label="Breadcrumb">
               {getBreadcrumbs().map((crumb, idx, arr) => (
-                <React.Fragment key={crumb.path}>
+                <React.Fragment key={`${crumb.path}-${idx}`}>
                   {idx > 0 && <span className="text-slate-350 select-none">/</span>}
                   {idx === arr.length - 1 ? (
                     <span className="text-emerald-600 font-black">{crumb.label}</span>
