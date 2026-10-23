@@ -37,6 +37,7 @@ import CustomDomain from "./portfolio/CustomDomain";
 import Subscription from "./portfolio/Subscription";
 import AdminLogin from "./admin/AdminLogin";
 import DashboardPage from "./admin/pages/DashboardPage";
+import AdminBlogs from "./admin/pages/AdminBlogs";
 import Templates from "./admin/pages/Templates";
 import AdminPayments from "./admin/pages/AdminPayments";
 import AdminSubscriptions from "./admin/pages/AdminSubscriptions";
@@ -117,6 +118,7 @@ const App = () => {
 
           <Route element={<AdminPrivateRoutes />}>
             <Route path="/admin-dashboard" element={<DashboardPage />} />
+            <Route path="/admin-blogs" element={<AdminBlogs />} />
             <Route path="/admin-users" element={<AdminUsers />} />
             <Route path="/admin-subscriptions" element={<AdminSubscriptions />} />
             <Route path="/admin-payments" element={<AdminPayments />} />

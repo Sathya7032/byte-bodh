@@ -13,7 +13,8 @@ import {
   Crown,
   Users,
   Link2,
-  Palette
+  Palette,
+  BookOpen
 } from 'lucide-react';
 import { getAdmin, adminLogout } from '../services/auth';
 
@@ -27,6 +28,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile }) => {
 
   const menuItems = [
     { path: '/admin-dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
+    { path: '/admin-blogs', icon: <BookOpen size={20} />, label: 'Blogs & Articles' },
     { path: '/admin-users', icon: <Users size={20} />, label: 'Users' },
     { path: '/admin-subscriptions', icon: <Crown size={20} />, label: 'Subscriptions' },
     { path: '/admin-payments', icon: <CreditCard size={20} />, label: 'Payments & Orders' },

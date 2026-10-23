@@ -217,6 +217,45 @@ export const adminUserApi = {
     adminApiClient.patch(`/api/v1/admin/users/${userId}/toggle`),
 };
 
+// ===================================================================
+// ADMIN BLOGS MANAGEMENT APIs (/api/v1/admin/blogs)
+// ===================================================================
+export const adminBlogApi = {
+  getAll: (params = {}) =>
+    adminApiClient.get("/api/v1/admin/blogs", { params }),
+  getById: (id) =>
+    adminApiClient.get(`/api/v1/admin/blogs/${id}`),
+  create: (blogData) => {
+    if (blogData instanceof FormData) {
+      return adminApiClient.post("/api/v1/admin/blogs", blogData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    }
+    return adminApiClient.post("/api/v1/admin/blogs", blogData);
+  },
+  update: (id, blogData) => {
+    if (blogData instanceof FormData) {
+      return adminApiClient.put(`/api/v1/admin/blogs/${id}`, blogData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    }
+    return adminApiClient.put(`/api/v1/admin/blogs/${id}`, blogData);
+  },
+  delete: (id) =>
+    adminApiClient.delete(`/api/v1/admin/blogs/${id}`),
+  togglePublish: (id) =>
+    adminApiClient.patch(`/api/v1/admin/blogs/${id}/toggle-publish`),
+  toggleFeature: (id) =>
+    adminApiClient.patch(`/api/v1/admin/blogs/${id}/toggle-feature`),
+  uploadEditorImage: (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return adminApiClient.post("/api/v1/admin/blogs/upload-image", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+};
+
 const adminApiService = {
   auth: adminAuthApi,
   sessions: adminSessionApi,
@@ -225,6 +264,7 @@ const adminApiService = {
   plans: adminSubscriptionPlanApi,
   subscriptions: adminSubscriptionApi,
   users: adminUserApi,
+  blogs: adminBlogApi,
 };
 
 export default adminApiService;

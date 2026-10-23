@@ -1,63 +1,81 @@
 import axios from "axios";
-import {
-  getAccessToken,
-  handleUnauthorizedError,
-} from "../services/auth";
 import API_BASE_URL from "../config/api";
 
-const api = axios.create({
+const publicBlogClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-api.interceptors.request.use((config) => {
-  const token = getAccessToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+/**
+ * Public Blog API client connecting directly to the Spring Boot backend
+ */
+export const blogApi = {
+  /**
+   * Retrieves paginated published blogs with search, category, and tag filters
+   */
+  getPublishedBlogs: (params = {}) =>
+    publicBlogClient.get("/api/v1/blogs/public", { params }),
 
-api.interceptors.response.use(
-  (response) => response,
-  (error) => handleUnauthorizedError(error, api)
-);
+  /**
+   * Retrieves a single published blog by its unique URL slug (automatically increments view count)
+   */
+  getBlogBySlug: (slug) =>
+    publicBlogClient.get(`/api/v1/blogs/public/${encodeURIComponent(slug)}`),
 
-// Blog API methods
-export const getBlogs = () => api.get("/api/blogs");
-export const getBlogById = (id) => api.get(`/api/blogs/${id}`);
-export const getBlogBySlug = (slug) => api.get(`/api/blogs/slug/${slug}`);
-export const createBlog = (blogData, imageFile) => {
-  const formData = new FormData();
-  formData.append(
-    "data",
-    new Blob([JSON.stringify(blogData)], { type: "application/json" })
-  );
-  if (imageFile) {
-    formData.append("image", imageFile);
-  }
-  return api.post("/api/blogs", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  /**
+   * Retrieves a single published blog by its UUID (automatically increments view count)
+   */
+  getBlogById: (id) =>
+    publicBlogClient.get(`/api/v1/blogs/public/id/${id}`),
+
+  /**
+   * Retrieves top featured blogs for hero showcase / carousel
+   */
+  getFeaturedBlogs: () =>
+    publicBlogClient.get("/api/v1/blogs/public/featured"),
+
+  /**
+   * Retrieves most recent published blogs
+   */
+  getRecentBlogs: (limit = 6) =>
+    publicBlogClient.get("/api/v1/blogs/public/recent", { params: { limit } }),
+
+  /**
+   * Retrieves related blogs in the same category
+   */
+  getRelatedBlogs: (slug, limit = 4) =>
+    publicBlogClient.get(`/api/v1/blogs/public/${encodeURIComponent(slug)}/related`, {
+      params: { limit },
+    }),
+
+  /**
+   * Retrieves active categories and their published article counts
+   */
+  getCategories: () =>
+    publicBlogClient.get("/api/v1/blogs/public/categories"),
+
+  /**
+   * Retrieves all unique tags across published articles
+   */
+  getTags: () =>
+    publicBlogClient.get("/api/v1/blogs/public/tags"),
+
+  /**
+   * Explicitly records a view for a given blog slug
+   */
+  recordView: (slug) =>
+    publicBlogClient.post(`/api/v1/blogs/public/${encodeURIComponent(slug)}/view`),
 };
-export const updateBlog = (id, blogData, imageFile) => {
-  const formData = new FormData();
-  formData.append(
-    "data",
-    new Blob([JSON.stringify(blogData)], { type: "application/json" })
-  );
-  if (imageFile) {
-    formData.append("image", imageFile);
-  }
-  return api.put(`/api/blogs/${id}`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-};
-export const deleteBlog = (id) => api.delete(`/api/blogs/${id}`);
 
-// Categories API (you need to create this endpoint in backend)
-export const getCategories = () => api.get("/api/categories");
+// ===================================================================
+// BACKWARD-COMPATIBLE NAMED EXPORTS
+// ===================================================================
+export const getBlogs = (params) => blogApi.getPublishedBlogs(params);
+export const getBlogBySlug = (slug) => blogApi.getBlogBySlug(slug);
+export const getBlogById = (id) => blogApi.getBlogById(id);
+export const getCategories = () => blogApi.getCategories();
+export const getAllContacts = () => publicBlogClient.get("/api/contact");
 
-export const getAllContacts = () => api.get("/api/contacts");
+export default blogApi;
