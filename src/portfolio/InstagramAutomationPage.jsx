@@ -102,6 +102,23 @@ export default function InstagramAutomationPage() {
   };
 
   useEffect(() => {
+    // If the Instagram connection was started from Instagram Studio, return there with the result.
+    try {
+      const raw = sessionStorage.getItem("ig_return_to");
+      const startedAt = Number(sessionStorage.getItem("ig_return_to_at") || 0);
+      sessionStorage.removeItem("ig_return_to");
+      sessionStorage.removeItem("ig_return_to_at");
+      if (raw && raw.startsWith("/instagram-studio") && Date.now() - startedAt < 15 * 60 * 1000) {
+        const result = new URLSearchParams(window.location.search);
+        const target = new URL(raw, window.location.origin);
+        result.forEach((v, k) => target.searchParams.set(k, v));
+        navigate(`${target.pathname}${target.search}`, { replace: true });
+        return;
+      }
+    } catch {
+      /* sessionStorage unavailable */
+    }
+
     fetchData();
 
     // Handle OAuth redirect status query params from backend or Meta
@@ -121,6 +138,7 @@ export default function InstagramAutomationPage() {
       toast.error(errorParam || "Instagram authorization was cancelled or failed.");
       window.history.replaceState({}, document.title, window.location.pathname);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const triggerUrl = `${window.location.origin}/instagram-connect`;

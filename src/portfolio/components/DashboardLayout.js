@@ -54,6 +54,8 @@ const DashboardLayout = ({ children, containerClassName }) => {
       crumbs.push({ label: "Linktree Templates", path: "/linktree-templates" });
     } else if (path === "/portfolio-templates") {
       crumbs.push({ label: "Portfolio Templates", path: "/portfolio-templates" });
+    } else if (path === "/instagram-studio") {
+      crumbs.push({ label: "Instagram Studio", path: "/instagram-studio" });
     } else if (path === "/instagram-automation") {
       crumbs.push({ label: "Instagram Automation", path: "/instagram-automation" });
     } else if (path === "/contacts") {

@@ -14,23 +14,84 @@
     gtag("config", "G-V1TNSPMGWK");
   </script>
   <meta charset="utf-8" />
-  <link rel="icon" href="%PUBLIC_URL%/bytebodh.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#000000" />
+  <meta name="theme-color" content="#10b981" />
+  <link rel="icon" href="%PUBLIC_URL%/bytebodh.png" />
   <meta name="google-adsense-account" content="ca-pub-2105328611825151" />
 
+  <!-- ================= Primary SEO ================= -->
+  <title>Portfolio Builder, Link in Bio &amp; Instagram Automation | ByteBodh</title>
   <meta name="description"
-    content="ByteBodh is an AI-powered online portfolio builder and resume maker. Create professional portfolio websites, build ATS-friendly resumes, explore tech jobs, and track your profile visits in real time." />
-
+    content="Build a portfolio website, a free link-in-bio page and Instagram comment-to-DM automation in minutes. Templates for students, developers and creators." />
   <meta name="keywords"
-    content="portfolio builder, resume maker, online portfolio maker, developer portfolio templates, terminal portfolio builder, academic cv template, ATS-friendly resume builder, tech job notifications, bytebodh, dynamic portfolio, portfolio builder for developers, free resume maker, best developer portfolio examples, VS Code portfolio template, interactive resume, fresher resume builder, career portfolio maker, software engineer portfolio, build online portfolio free, CV maker online, student resume template, professional portfolio website builder, free online compiler, image compressor, qr code generator tracking" />
+    content="portfolio website builder, online portfolio maker, free portfolio website, personal portfolio website, developer portfolio templates, student portfolio website, portfolio for freshers, resume website builder, personal website builder India, custom domain portfolio, portfolio QR code, link in bio, link in bio tool, free link in bio page, bio link page, linktree alternative, link tree for Instagram, Instagram bio link, all links in one page, creator link page, Instagram automation, Instagram comment to DM, auto DM Instagram, Instagram DM automation, Instagram auto reply, comment to DM tool, Instagram lead generation, Instagram keyword auto reply, Instagram business tools, Instagram insights, creator tools, ByteBodh, bytebodh.in" />
+  <meta name="author" content="ByteBodh" />
+  <meta name="application-name" content="ByteBodh" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow" />
+  <meta name="format-detection" content="telephone=no" />
+  <!-- Canonical URL is set per page at runtime by src/hooks/useSEO.js (all routes share this file). -->
 
-  <meta property="og:title" content="ByteBodh – AI Portfolio Builder & Resume Maker" />
-  <meta property="og:description"
-    content="Build a stunning developer portfolio and professional resume in minutes. Access interactive terminal, IDE, and minimalist templates with integrated visit analytics." />
+  <!-- ================= Open Graph (WhatsApp, LinkedIn, Facebook) ================= -->
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://bytebodh.in" />
-  <meta property="og:image" content="%PUBLIC_URL%/bytebodh.png" />
+  <meta property="og:site_name" content="ByteBodh" />
+  <meta property="og:locale" content="en_IN" />
+  <meta property="og:url" content="https://bytebodh.in/" />
+  <meta property="og:title" content="Portfolio Builder, Link in Bio & Instagram Automation | ByteBodh" />
+  <meta property="og:description"
+    content="Create your portfolio website, link-in-bio page and Instagram comment-to-DM automation — all in one place. Start free." />
+  <!-- Absolute URL required: social crawlers can't resolve relative image paths -->
+  <meta property="og:image" content="https://bytebodh.in/logo512.png" />
+  <meta property="og:image:alt" content="ByteBodh logo" />
+
+  <!-- ================= Twitter / X ================= -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Portfolio Builder, Link in Bio & Instagram Automation | ByteBodh" />
+  <meta name="twitter:description"
+    content="Portfolio websites, link-in-bio pages and Instagram comment-to-DM automation for students, developers and creators." />
+  <meta name="twitter:image" content="https://bytebodh.in/logo512.png" />
+
+  <!-- ================= Structured data (Google rich results) ================= -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://bytebodh.in/#organization",
+        "name": "ByteBodh",
+        "url": "https://bytebodh.in/",
+        "logo": "https://bytebodh.in/logo512.png",
+        "email": "info@bytebodh.in"
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://bytebodh.in/#website",
+        "url": "https://bytebodh.in/",
+        "name": "ByteBodh",
+        "inLanguage": "en-IN",
+        "publisher": { "@id": "https://bytebodh.in/#organization" }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "ByteBodh",
+        "url": "https://bytebodh.in/",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": "Portfolio website builder, link-in-bio page creator and Instagram comment-to-DM automation for students, developers and creators.",
+        "featureList": [
+          "Portfolio website builder with ready-made templates",
+          "Custom domain and QR code for your portfolio",
+          "Link-in-bio page (Linktree-style) with templates",
+          "Instagram comment-to-DM automation",
+          "Instagram content publishing, DM inbox and insights"
+        ],
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR", "description": "Free plan available" },
+        "publisher": { "@id": "https://bytebodh.in/#organization" }
+      }
+    ]
+  }
+  </script>
 
   <link rel="apple-touch-icon" href="%PUBLIC_URL%/bytebodh.png" />
   <!--
@@ -47,9 +108,6 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-  <title>
-    ByteBodh | AI Portfolio Builder & Resume Maker for Developers & Students
-  </title>
 
   <!-- Google Tag Manager -->
   <script>(function (w, d, s, l, i) {
@@ -64,7 +122,18 @@
 </head>
 
 <body>
-  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <noscript>
+    <h1>ByteBodh – Portfolio Website Builder, Link in Bio &amp; Instagram Automation</h1>
+    <p>Build a professional portfolio website, a free link-in-bio page and Instagram comment-to-DM automation in minutes.
+      Please enable JavaScript to use ByteBodh.</p>
+    <ul>
+      <li><a href="https://bytebodh.in/templates">Portfolio templates</a></li>
+      <li><a href="https://bytebodh.in/products">Products</a></li>
+      <li><a href="https://bytebodh.in/blogs">Blog</a></li>
+      <li><a href="https://bytebodh.in/about">About ByteBodh</a></li>
+      <li><a href="https://bytebodh.in/contact">Contact</a></li>
+    </ul>
+  </noscript>
   <div id="root"></div>
 
   <!--

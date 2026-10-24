@@ -23,7 +23,6 @@ import {
   FaUserTie,
   FaQuoteLeft,
   FaCheckCircle,
-  FaTimesCircle,
   FaRegHeart,
   FaQrcode,
   FaTimes,
@@ -34,7 +33,7 @@ import {
   FaPaperPlane
 } from "react-icons/fa";
 import { getAllTemplates } from "../api/templateService";
-import { getSubscriptionConfig } from "../api/subscriptionService";
+import PricingPlans from "../components/PricingPlans";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import useSEO from "../hooks/useSEO";
@@ -362,9 +361,12 @@ const templatesShowcase = [
 
 const Homepage = () => {
   useSEO({
-    title: "ByteBodh | AI Portfolio Builder & Career Hub for Developers & Students",
-    description: "Create a professional online portfolio website in 2 minutes. Choose from premium CLI terminal, IDE, and academic templates. Compile CVs to PDF and track views.",
-    keywords: "portfolio builder, resume maker, online portfolio maker, developer portfolio templates, terminal portfolio builder, academic cv template, ATS-friendly resume builder, bytebodh, linktree builder, instagram automation, dynamic portfolio, portfolio builder for developers, free resume maker, best developer portfolio examples, VS Code portfolio template, interactive resume, fresher resume builder, career portfolio maker, software engineer portfolio, build online portfolio free, CV maker online, student resume template, professional portfolio website builder, qr code generator tracking"
+    title: "Portfolio Builder, Link in Bio & Instagram Automation | ByteBodh",
+    description:
+      "Build a portfolio website, a free link-in-bio page and Instagram comment-to-DM automation in minutes. Templates for students, developers and creators.",
+    keywords:
+      "portfolio website builder, online portfolio maker, free portfolio website, personal portfolio website, developer portfolio templates, student portfolio website, portfolio for freshers, resume website builder, personal website builder India, custom domain portfolio, portfolio QR code, link in bio, link in bio tool, free link in bio page, bio link page, linktree alternative, link tree for Instagram, Instagram bio link, all links in one page, creator link page, Instagram automation, Instagram comment to DM, auto DM Instagram, Instagram DM automation, Instagram auto reply, comment to DM tool, Instagram lead generation, Instagram keyword auto reply, Instagram business tools, Instagram insights, creator tools, ByteBodh",
+    canonicalPath: "/",
   });
 
   const [faqOpen, setFaqOpen] = useState(null);
@@ -374,26 +376,6 @@ const Homepage = () => {
   const [previewDevice, setPreviewDevice] = useState("desktop");
   const [backendTemplates, setBackendTemplates] = useState([]);
   const [reviewFilter, setReviewFilter] = useState("ALL");
-
-  // Pricing plan states
-  const [planBillingCycle, setPlanBillingCycle] = useState("MONTHLY");
-  const [subscriptionConfig, setSubscriptionConfig] = useState({ monthlyCost: 29, yearlyCost: 299 });
-
-  useEffect(() => {
-    getSubscriptionConfig()
-      .then((res) => {
-        const cfg = res.data?.data || res.data;
-        if (cfg) {
-          setSubscriptionConfig({
-            monthlyCost: cfg.monthlyCost ?? 29,
-            yearlyCost: cfg.yearlyCost ?? 299,
-          });
-        }
-      })
-      .catch(() => {
-        // Visitor isn't authenticated / config endpoint unreachable — keep default ₹29 / ₹299 pricing.
-      });
-  }, []);
 
   useEffect(() => {
     getAllTemplates()
@@ -1119,7 +1101,7 @@ const Homepage = () => {
       {/* PRICING SECTION - Free vs Subscription */}
       <section className="py-24 bg-white border-t border-slate-100 relative overflow-hidden" id="pricing">
         <div className="absolute -top-32 -right-32 w-96 h-96 bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none"></div>
-        <div className="max-w-5xl mx-auto px-6 relative z-10">
+        <div className="max-w-6xl mx-auto px-6 relative z-10">
           <motion.div
             className="text-center max-w-2xl mx-auto mb-14 space-y-4"
             initial="hidden"
@@ -1139,128 +1121,8 @@ const Homepage = () => {
             </motion.p>
           </motion.div>
 
-          {/* Billing cycle toggle */}
-          <div className="flex justify-center mb-10">
-            <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200 p-1.5 rounded-2xl">
-              <button
-                onClick={() => setPlanBillingCycle("MONTHLY")}
-                className={`px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${planBillingCycle === "MONTHLY"
-                  ? "bg-slate-900 text-white shadow-md"
-                  : "text-slate-500 hover:text-slate-800"
-                  }`}
-              >
-                Monthly
-              </button>
-              <button
-                onClick={() => setPlanBillingCycle("YEARLY")}
-                className={`px-5 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer ${planBillingCycle === "YEARLY"
-                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
-                  : "text-slate-500 hover:text-emerald-600"
-                  }`}
-              >
-                Yearly
-                <span className="px-1.5 py-0.5 text-[9px] font-black bg-emerald-500 text-white rounded-md uppercase tracking-wider">Best Value</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* FREE PLAN */}
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-50px" }}
-              variants={fadeInUp}
-              className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-8 flex flex-col"
-            >
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Free</span>
-              <div className="mt-3 flex items-end gap-1">
-                <span className="text-4xl font-black text-slate-900">₹0</span>
-                <span className="text-sm text-slate-400 font-bold mb-1">/forever</span>
-              </div>
-              <p className="text-xs text-slate-500 font-semibold mt-2">Get started with a live portfolio in minutes.</p>
-
-              <ul className="mt-6 space-y-3 flex-1">
-                {[
-                  "Access to free portfolio templates",
-                  "Public portfolio link & QR code",
-                  "Task & project tracker",
-                  "Contact form on your portfolio",
-                  "Referral program access",
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-2.5 text-xs font-semibold text-slate-600">
-                    <FaCheckCircle className="text-emerald-500 flex-shrink-0" />
-                    {item}
-                  </li>
-                ))}
-                {["Premium templates", "Personal blogs section"].map((item) => (
-                  <li key={item} className="flex items-center gap-2.5 text-xs font-semibold text-slate-350">
-                    <FaTimesCircle className="text-slate-300 flex-shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                to="/register"
-                className="mt-8 w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 text-sm font-black rounded-2xl text-center transition-all"
-              >
-                Get Started Free
-              </Link>
-            </motion.div>
-
-            {/* SUBSCRIPTION PLAN */}
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-50px" }}
-              variants={fadeInUp}
-              className="relative bg-gradient-to-br from-[#0f172a] via-[#064e3b] to-[#0f172a] rounded-3xl shadow-xl p-8 flex flex-col overflow-hidden border border-slate-800"
-            >
-              <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-emerald-500/20 blur-3xl pointer-events-none" />
-              <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-teal-500" />
-
-              <div className="relative z-10 flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Subscription</span>
-                <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2.5 py-1 bg-amber-400/20 text-amber-300 border border-amber-400/30 rounded-full">
-                  <FaCrown size={9} /> Most Popular
-                </span>
-              </div>
-
-              <div className="relative z-10 mt-3 flex items-end gap-1">
-                <span className="text-4xl font-black text-white">
-                  ₹{planBillingCycle === "YEARLY" ? subscriptionConfig.yearlyCost : subscriptionConfig.monthlyCost}
-                </span>
-                <span className="text-sm text-slate-400 font-bold mb-1">/{planBillingCycle === "YEARLY" ? "year" : "month"}</span>
-              </div>
-              <p className="relative z-10 text-xs text-slate-400 font-semibold mt-2">
-                {planBillingCycle === "YEARLY" ? "Billed once a year." : "Billed every month."} Cancel any time.
-              </p>
-
-              <ul className="relative z-10 mt-6 space-y-3 flex-1">
-                {[
-                  "Everything in Free",
-                  "Unlock every premium portfolio template",
-                  "Personal blogs section enabled",
-                  "Receive portfolio contact messages",
-                  "Counts toward referral milestone rewards",
-                  "Priority support",
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-2.5 text-xs font-semibold text-slate-200">
-                    <FaCheckCircle className="text-emerald-400 flex-shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                to="/register"
-                className="relative z-10 mt-8 w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-black rounded-2xl text-center shadow-lg shadow-emerald-500/20 transition-all"
-              >
-                Subscribe Now
-              </Link>
-            </motion.div>
-          </div>
+          {/* Plans managed in Admin → Subscriptions (active plans only) */}
+          <PricingPlans />
         </div>
       </section>
 

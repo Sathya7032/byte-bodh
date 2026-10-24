@@ -1,9 +1,22 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FaCrown, FaLock } from "react-icons/fa";
+import usePublicPlans from "../../hooks/usePublicPlans";
+import { formatPrice } from "../../api/publicPlansApi";
 
 const SubscriptionRequiredNotice = ({ message, title = "Subscription Required" }) => {
   const navigate = useNavigate();
+  const { plans } = usePublicPlans();
+
+  // Build the price hint from the admin-configured plans (cheapest per billing cycle)
+  const cheapest = (cycle) => {
+    const list = plans.filter((p) => p.billingCycle === cycle);
+    if (!list.length) return null;
+    const p = list.reduce((a, b) => (Number(b.price) < Number(a.price) ? b : a));
+    return `${formatPrice(p.price, p.currency)}/${cycle === "YEARLY" ? "year" : "month"}`;
+  };
+  const priceParts = [cheapest("MONTHLY"), cheapest("YEARLY")].filter(Boolean);
+  const priceHint = priceParts.length ? ` Plans start at ${priceParts.join(" or ")}.` : "";
 
   return (
     <div className="bg-gradient-to-r from-slate-900 via-[#064e3b] to-slate-900 rounded-3xl p-10 text-center shadow-xl border border-slate-800 relative overflow-hidden">
@@ -16,7 +29,7 @@ const SubscriptionRequiredNotice = ({ message, title = "Subscription Required" }
         </div>
         <h3 className="text-white font-black text-lg">{title}</h3>
         <p className="text-slate-400 text-xs font-semibold mt-2 max-w-md mx-auto leading-relaxed">
-          {message || "An active subscription is required to use this feature. Subscribe for ₹29/month or ₹299/year to unlock all templates, blogs and portfolio messages."}
+          {message || `An active subscription is required to use this feature. Subscribe to unlock all templates, blogs and portfolio messages.${priceHint}`}
         </p>
         <button
           onClick={() => navigate("/subscription")}

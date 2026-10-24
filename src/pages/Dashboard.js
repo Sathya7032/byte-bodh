@@ -96,7 +96,6 @@ const Dashboard = () => {
 
   useEffect(() => {
     const token = getAccessToken();
-    console.log("%c[ByteBodh Dashboard] Active JWT Token:", "color:#10b981;font-weight:bold;", token);
     const storedUser = getUser();
 
     if (!token || !storedUser) {

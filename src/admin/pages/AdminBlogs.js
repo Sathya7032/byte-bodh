@@ -3,8 +3,7 @@ import DashboardLayout from "../DashboardLayout";
 import { adminBlogApi } from "../../api/adminApiService";
 import { getAdmin } from "../../services/auth";
 import { toast } from "react-toastify";
-import { useQuill } from "react-quilljs";
-import "quill/dist/quill.snow.css";
+import RichTextEditor from "../components/RichTextEditor";
 import {
   BookOpen,
   Plus,
@@ -83,7 +82,6 @@ const AdminBlogs = () => {
   const [coverImageAlt, setCoverImageAlt] = useState("");
   const [youtubeVideoUrl, setYoutubeVideoUrl] = useState("");
   const [readingTimeMinutes, setReadingTimeMinutes] = useState(5);
-  const [isPublished, setIsPublished] = useState(true);
   const [isFeatured, setIsFeatured] = useState(false);
   const [status, setStatus] = useState("PUBLISHED");
 
@@ -93,71 +91,41 @@ const AdminBlogs = () => {
   const [metaKeywords, setMetaKeywords] = useState("");
   const [canonicalUrl, setCanonicalUrl] = useState("");
 
-  // Editor Quill integration
-  const { quill, quillRef } = useQuill({
-    modules: {
-      toolbar: [
-        [{ header: [1, 2, 3, false] }],
-        ["bold", "italic", "underline", "strike"],
-        [{ color: [] }, { background: [] }],
-        [{ list: "ordered" }, { list: "bullet" }],
-        [{ align: [] }],
-        ["blockquote", "code-block"],
-        ["link", "image"],
-        ["clean"],
-      ],
-    },
-    placeholder: "Write your detailed blog post content here with rich formatting...",
-  });
+  // Rich text editor (remounted per article via `editorKey`; content read through the ref)
+  const editorRef = useRef(null);
+  const [editorKey, setEditorKey] = useState(0);
+  const [editorInitialHtml, setEditorInitialHtml] = useState("");
+  const [contentError, setContentError] = useState(false);
+  const [loadingArticle, setLoadingArticle] = useState(false);
 
-  // Attach custom image handler to Quill for direct uploads
-  const fileInputRef = useRef(null);
-
-  const handleEditorImageUpload = useCallback(
-    async (file) => {
-      if (!file) return;
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please upload an image file (PNG, JPG, WEBP, GIF, SVG)");
-        return;
-      }
-      const toastId = toast.loading("Uploading inline image to Cloudflare...");
-      try {
-        const res = await adminBlogApi.uploadEditorImage(file);
-        const imageUrl = res.data?.url;
-        if (imageUrl && quill) {
-          const range = quill.getSelection(true);
-          quill.insertEmbed(range.index, "image", imageUrl);
-          quill.setSelection(range.index + 1);
-          toast.update(toastId, {
-            render: "Image uploaded and inserted successfully!",
-            type: "success",
-            isLoading: false,
-            autoClose: 2500,
-          });
-        }
-      } catch (err) {
-        console.error("Editor image upload failed:", err);
-        toast.update(toastId, {
-          render: "Failed to upload inline image. Please try again.",
-          type: "error",
-          isLoading: false,
-          autoClose: 3500,
-        });
-      }
-    },
-    [quill]
-  );
-
-  useEffect(() => {
-    if (quill) {
-      const toolbar = quill.getModule("toolbar");
-      toolbar.addHandler("image", () => {
-        if (fileInputRef.current) {
-          fileInputRef.current.click();
-        }
-      });
+  /** Uploads an inline editor image to Cloudflare and returns its public URL. */
+  const handleEditorImageUpload = useCallback(async (file) => {
+    if (!file || !file.type.startsWith("image/")) {
+      toast.error("Please upload an image file (PNG, JPG, WEBP, GIF, SVG)");
+      return null;
     }
-  }, [quill]);
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Images must be 10 MB or smaller");
+      return null;
+    }
+    const toastId = toast.loading("Uploading image…");
+    try {
+      const res = await adminBlogApi.uploadEditorImage(file);
+      const imageUrl = res.data?.url || res.data?.imageUrl;
+      if (!imageUrl) throw new Error("No URL returned");
+      toast.update(toastId, { render: "Image uploaded", type: "success", isLoading: false, autoClose: 1800 });
+      return imageUrl;
+    } catch (err) {
+      console.error("Editor image upload failed:", err);
+      toast.update(toastId, {
+        render: err.response?.data?.message || "Failed to upload image. Please try again.",
+        type: "error",
+        isLoading: false,
+        autoClose: 3500,
+      });
+      return null;
+    }
+  }, []);
 
   // Generate slug automatically from title if user hasn't explicitly set custom slug
   const generateSlugFromTitle = (val) => {
@@ -237,8 +205,8 @@ const AdminBlogs = () => {
   // Quick stats calculation
   const stats = {
     total: totalElements,
-    published: blogs.filter((b) => b.status === "PUBLISHED" || b.isPublished).length,
-    drafts: blogs.filter((b) => b.status === "DRAFT" || !b.isPublished).length,
+    published: blogs.filter((b) => (b.status ? b.status === "PUBLISHED" : b.isPublished)).length,
+    drafts: blogs.filter((b) => (b.status ? b.status === "DRAFT" : !b.isPublished)).length,
     featured: blogs.filter((b) => b.isFeatured).length,
     totalViews: blogs.reduce((acc, curr) => acc + (curr.viewsCount || 0), 0),
   };
@@ -262,7 +230,6 @@ const AdminBlogs = () => {
     setCoverImageAlt("");
     setYoutubeVideoUrl("");
     setReadingTimeMinutes(5);
-    setIsPublished(true);
     setIsFeatured(false);
     setStatus("PUBLISHED");
     setMetaTitle("");
@@ -271,14 +238,26 @@ const AdminBlogs = () => {
     setCanonicalUrl("");
     setActiveTab("content");
 
-    if (quill) {
-      quill.clipboard.dangerouslyPasteHTML("");
-    }
+    setContentError(false);
+    setEditorInitialHtml("");
+    setEditorKey((k) => k + 1);
     setShowModal(true);
   };
 
   // Open Edit Modal
-  const openEditModal = (blog) => {
+  const openEditModal = async (listBlog) => {
+    // Always load the latest full article (list rows can be stale or trimmed)
+    setLoadingArticle(true);
+    let blog = listBlog;
+    try {
+      const res = await adminBlogApi.getById(listBlog.id);
+      blog = res.data || listBlog;
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Couldn't load the latest version of this article. Please try again.");
+      setLoadingArticle(false);
+      return;
+    }
+    setLoadingArticle(false);
     setIsEditing(true);
     setEditingId(blog.id);
     setTitle(blog.title || "");
@@ -296,7 +275,6 @@ const AdminBlogs = () => {
     setCoverImageAlt(blog.coverImageAlt || "");
     setYoutubeVideoUrl(blog.youtubeVideoUrl || "");
     setReadingTimeMinutes(blog.readingTimeMinutes || 5);
-    setIsPublished(Boolean(blog.isPublished));
     setIsFeatured(Boolean(blog.isFeatured));
     setStatus(blog.status || (blog.isPublished ? "PUBLISHED" : "DRAFT"));
     setMetaTitle(blog.metaTitle || "");
@@ -305,9 +283,9 @@ const AdminBlogs = () => {
     setCanonicalUrl(blog.canonicalUrl || "");
     setActiveTab("content");
 
-    if (quill) {
-      quill.clipboard.dangerouslyPasteHTML(blog.content || "");
-    }
+    setContentError(false);
+    setEditorInitialHtml(blog.content || "");
+    setEditorKey((k) => k + 1);
     setShowModal(true);
   };
 
@@ -327,85 +305,92 @@ const AdminBlogs = () => {
   // Submit Save Blog
   const handleSaveBlog = async (e) => {
     e.preventDefault();
+    if (saving) return;
+
     if (!title.trim()) {
+      setActiveTab("content");
       toast.error("Article title is required");
       return;
     }
-
-    const htmlContent = quill ? quill.root.innerHTML : "";
-    const plainText = quill ? quill.getText().trim() : "";
-
-    if (!plainText && (!htmlContent || htmlContent === "<p><br></p>")) {
-      toast.error("Blog content cannot be empty. Please write your article description.");
+    if (editorRef.current?.isEmpty()) {
+      setActiveTab("content");
+      setContentError(true);
+      editorRef.current?.focus();
+      toast.error("Blog content cannot be empty. Please write your article.");
+      return;
+    }
+    if (metaDescription.length > 500) {
+      setActiveTab("seo");
+      toast.error("SEO meta description must be 500 characters or fewer");
       return;
     }
 
     setSaving(true);
-    const toastId = toast.loading(isEditing ? "Updating blog post..." : "Publishing new blog post...");
+    const toastId = toast.loading(isEditing ? "Updating blog post…" : "Saving new blog post…");
 
     try {
-      // Build FormData for multipart support with direct file upload
+      // Upload any pasted base64 images so the article body stays small and CDN-hosted
+      const uploadedCount = await editorRef.current.uploadInlineImages();
+      if (uploadedCount) toast.update(toastId, { render: `Uploaded ${uploadedCount} inline image(s)… saving` });
+      const htmlContent = editorRef.current.getHTML();
+
       const formData = new FormData();
-      formData.append("title", title.trim());
-      formData.append("slug", slug.trim() || generateSlugFromTitle(title));
+      const put = (key, value) => formData.append(key, value == null ? "" : String(value).trim());
+
+      put("title", title);
+      put("slug", slug.trim() || generateSlugFromTitle(title));
       formData.append("content", htmlContent);
-      if (summary.trim()) formData.append("summary", summary.trim());
-      if (category) formData.append("category", category);
-      if (authorName) formData.append("authorName", authorName);
-      if (authorTitle) formData.append("authorTitle", authorTitle);
-      if (authorAvatarUrl) formData.append("authorAvatarUrl", authorAvatarUrl);
-      if (coverImageAlt) formData.append("coverImageAlt", coverImageAlt);
-      if (youtubeVideoUrl) formData.append("youtubeVideoUrl", youtubeVideoUrl.trim());
-      if (readingTimeMinutes) formData.append("readingTimeMinutes", readingTimeMinutes);
-      formData.append("isPublished", isPublished);
-      formData.append("isFeatured", isFeatured);
-      formData.append("status", status);
+      // Optional fields are ALWAYS sent (possibly empty) so that clearing a value is persisted on update
+      put("summary", summary);
+      put("category", category);
+      put("authorName", authorName);
+      put("authorTitle", authorTitle);
+      put("authorAvatarUrl", authorAvatarUrl);
+      put("coverImageAlt", coverImageAlt);
+      put("youtubeVideoUrl", youtubeVideoUrl);
+      if (readingTimeMinutes) put("readingTimeMinutes", parseInt(readingTimeMinutes, 10) || "");
+      put("isPublished", status === "PUBLISHED");
+      put("isFeatured", isFeatured);
+      put("status", status);
 
-      // Tags
-      tags.forEach((tag) => formData.append("tags", tag));
+      // Tags: an empty value tells the server to clear all tags
+      if (tags.length) tags.forEach((tag) => formData.append("tags", tag));
+      else formData.append("tags", "");
 
-      // SEO
-      if (metaTitle) formData.append("metaTitle", metaTitle);
-      if (metaDescription) formData.append("metaDescription", metaDescription);
-      if (metaKeywords) formData.append("metaKeywords", metaKeywords);
-      if (canonicalUrl) formData.append("canonicalUrl", canonicalUrl);
+      put("metaTitle", metaTitle);
+      put("metaDescription", metaDescription);
+      put("metaKeywords", metaKeywords);
+      put("canonicalUrl", canonicalUrl);
 
-      // Cover image (file or URL)
-      if (coverImageFile) {
-        formData.append("coverImageFile", coverImageFile);
-      } else if (coverImageUrl) {
-        formData.append("coverImageUrl", coverImageUrl);
-      }
+      // Cover image: new file > URL > explicitly removed ("")
+      if (coverImageFile) formData.append("coverImageFile", coverImageFile);
+      else put("coverImageUrl", coverImageUrl);
 
       if (isEditing) {
         await adminBlogApi.update(editingId, formData);
-        toast.update(toastId, {
-          render: "Blog updated successfully!",
-          type: "success",
-          isLoading: false,
-          autoClose: 2500,
-        });
       } else {
         await adminBlogApi.create(formData);
-        toast.update(toastId, {
-          render: "Blog post published successfully!",
-          type: "success",
-          isLoading: false,
-          autoClose: 2500,
-        });
       }
+      toast.update(toastId, {
+        render: isEditing ? "Blog updated successfully!" : status === "PUBLISHED" ? "Blog post published!" : "Blog post saved as draft",
+        type: "success",
+        isLoading: false,
+        autoClose: 2500,
+      });
 
       setShowModal(false);
       fetchBlogs();
     } catch (err) {
       console.error("Save blog error:", err);
-      const errMsg = err.response?.data?.message || err.message || "Failed to save blog post";
-      toast.update(toastId, {
-        render: errMsg,
-        type: "error",
-        isLoading: false,
-        autoClose: 4000,
-      });
+      const data = err.response?.data;
+      const fieldError = Array.isArray(data?.validationErrors) && data.validationErrors.length
+        ? `${data.validationErrors[0].field}: ${data.validationErrors[0].message}`
+        : null;
+      const errMsg =
+        err.response?.status === 413
+          ? "The article or cover image is too large. Use smaller images."
+          : fieldError || data?.message || (!err.response ? "Can't reach the server. Check your connection." : err.message) || "Failed to save blog post";
+      toast.update(toastId, { render: errMsg, type: "error", isLoading: false, autoClose: 5000 });
     } finally {
       setSaving(false);
     }
@@ -467,19 +452,6 @@ const AdminBlogs = () => {
 
   return (
     <DashboardLayout>
-      {/* Hidden file input for inline editor images */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        className="hidden"
-        accept="image/*"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) handleEditorImageUpload(file);
-          e.target.value = "";
-        }}
-      />
-
       <div className="space-y-6 pb-12">
         {/* Top Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/60 p-6 rounded-2xl border border-slate-200/60 backdrop-blur-sm shadow-xs">
@@ -875,6 +847,15 @@ const AdminBlogs = () => {
       </div>
 
       {/* CREATE / EDIT MODAL */}
+      {loadingArticle && (
+        <div className="fixed inset-0 z-[70] bg-slate-900/20 backdrop-blur-[1px] flex items-center justify-center" role="status" aria-live="polite">
+          <div className="bg-white rounded-2xl px-5 py-4 shadow-xl text-sm font-semibold text-slate-700 flex items-center gap-3">
+            <span className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+            Loading article…
+          </div>
+        </div>
+      )}
+
       {showModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
           <div className="bg-white rounded-3xl w-full max-w-4xl shadow-2xl border border-slate-100 my-auto flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -943,8 +924,7 @@ const AdminBlogs = () => {
 
             {/* Modal Body Form */}
             <form onSubmit={handleSaveBlog} className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5">
-              {activeTab === "content" && (
-                <div className="space-y-4">
+              <div className={activeTab === "content" ? "space-y-4" : "hidden"}>
                   {/* Title & Slug */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-black text-slate-700 uppercase tracking-wider">
@@ -1048,12 +1028,18 @@ const AdminBlogs = () => {
                         Article Content Description <span className="text-rose-500">*</span>
                       </label>
                       <span className="text-[10px] text-slate-400">
-                        Tip: Click the image icon on the toolbar to upload images directly to Cloudflare!
+                        Tip: use the image button, or drag & drop / paste images — they upload to Cloudflare automatically.
                       </span>
                     </div>
-                    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden min-h-[300px] flex flex-col">
-                      <div ref={quillRef} className="min-h-[260px] text-sm text-slate-800" />
-                    </div>
+                    <RichTextEditor
+                      key={editorKey}
+                      ref={editorRef}
+                      initialHtml={editorInitialHtml}
+                      onImageUpload={handleEditorImageUpload}
+                      onChange={() => contentError && setContentError(false)}
+                      invalid={contentError}
+                      placeholder="Write your detailed blog post content here with rich formatting..."
+                    />
                   </div>
 
                   {/* Tags */}
@@ -1087,8 +1073,7 @@ const AdminBlogs = () => {
                       />
                     </div>
                   </div>
-                </div>
-              )}
+              </div>
 
               {activeTab === "media" && (
                 <div className="space-y-5">
@@ -1270,7 +1255,6 @@ const AdminBlogs = () => {
                         onChange={(e) => {
                           const newStatus = e.target.value;
                           setStatus(newStatus);
-                          setIsPublished(newStatus === "PUBLISHED");
                         }}
                         className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none focus:border-emerald-500"
                       >

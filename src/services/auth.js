@@ -72,9 +72,10 @@ export const handleUnauthorizedError = async (error, axiosInstance) => {
       const response = await axios.post(refreshUrl, { refreshToken });
       const apiResponse = response.data;
 
-      if (apiResponse && (apiResponse.success || response.status === 200) && apiResponse.data) {
-        const newAuthData = apiResponse.data;
-        saveAuthData(newAuthData);
+      // Backend returns AuthResponse directly: { accessToken, refreshToken, user }
+      const newAuthData = apiResponse?.accessToken ? apiResponse : apiResponse?.data;
+      if (newAuthData?.accessToken) {
+        saveAuthData({ accessToken: newAuthData.accessToken, refreshToken: newAuthData.refreshToken, ...(newAuthData.user || {}) });
         const newAccessToken = newAuthData.accessToken;
 
         processQueue(null, newAccessToken);
@@ -85,7 +86,7 @@ export const handleUnauthorizedError = async (error, axiosInstance) => {
       }
     } catch (refreshErr) {
       processQueue(refreshErr, null);
-      logout();
+      logout({ reason: "expired", revoke: false });
       return Promise.reject(refreshErr);
     } finally {
       isRefreshing = false;
@@ -188,66 +189,81 @@ export const processGoogleToken = (token) => {
 };
 
 /* =========================
-   REGISTER
+   EMAIL / PASSWORD HELPERS
 ========================= */
-export const registerUser = async (registerData) => {
+
+/** Best-effort device label sent with auth requests (shown in "Active sessions"). */
+const getDeviceInfo = () => {
+  const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+  const browser = /Edg\//.test(ua) ? "Edge" : /Chrome\//.test(ua) ? "Chrome" : /Firefox\//.test(ua) ? "Firefox" : /Safari\//.test(ua) ? "Safari" : "Browser";
+  const os = /Windows/.test(ua) ? "Windows" : /Mac OS X/.test(ua) ? "macOS" : /Android/.test(ua) ? "Android" : /iPhone|iPad/.test(ua) ? "iOS" : /Linux/.test(ua) ? "Linux" : "Web";
+  return { deviceName: `${browser} on ${os}`, deviceOs: os };
+};
+
+/**
+ * Turns a backend ErrorResponse into one readable message.
+ * Prefers the first field validation error (e.g. "Valid email address is required").
+ */
+export const extractAuthError = (error, fallback) => {
+  const data = error?.response?.data;
+  if (!error?.response) return "Can't reach the server. Check your internet connection and try again.";
+  if (Array.isArray(data?.validationErrors) && data.validationErrors.length) {
+    return data.validationErrors[0].message || data.message || fallback;
+  }
+  if (error.response.status === 429) return "Too many attempts. Please wait a minute and try again.";
+  return data?.message || fallback;
+};
+
+/** Persists tokens + user from the backend AuthResponse { accessToken, refreshToken, user }. */
+const persistAuthResponse = (data) => {
+  saveAuthData({
+    accessToken: data.accessToken,
+    refreshToken: data.refreshToken,
+    ...(data.user || {}),
+  });
+};
+
+/* =========================
+   REGISTER (email + password)
+   POST /api/v1/auth/register → AuthResponse
+========================= */
+export const registerUser = async ({ name, fullName, email, password, confirmPassword }) => {
   try {
-    const res = await api.post("/register", registerData);
-    const apiResponse = res.data;
-
-    if (apiResponse.success && apiResponse.data) {
-      saveAuthData(apiResponse.data);
-      return {
-        success: true,
-        message: apiResponse.message || "Registration successful",
-        data: apiResponse.data,
-      };
+    const res = await axios.post(`${API_ENDPOINTS.AUTH}/register`, {
+      name: (name || fullName || "").trim(),
+      email: (email || "").trim().toLowerCase(),
+      password,
+      confirmPassword: confirmPassword ?? password,
+      ...getDeviceInfo(),
+    });
+    if (res.data?.accessToken) {
+      persistAuthResponse(res.data);
+      return { success: true, message: "Account created successfully", data: res.data };
     }
-
-    return {
-      success: false,
-      message: apiResponse.message || "Registration failed",
-    };
+    return { success: false, message: "Unexpected response from server. Please try again." };
   } catch (error) {
-    return {
-      success: false,
-      message:
-        error.response?.data?.message ||
-        error.message ||
-        "Registration failed. Please try again.",
-    };
+    return { success: false, status: error.response?.status, message: extractAuthError(error, "Registration failed. Please try again.") };
   }
 };
 
 /* =========================
-   LOGIN
+   LOGIN (email + password)
+   POST /api/v1/auth/login → AuthResponse
 ========================= */
-export const loginUser = async (loginData) => {
+export const loginUser = async ({ email, password }) => {
   try {
-    const res = await api.post("/login", loginData);
-    const apiResponse = res.data;
-
-    if (apiResponse.success && apiResponse.data) {
-      saveAuthData(apiResponse.data);
-      return {
-        success: true,
-        message: apiResponse.message || "Login successful",
-        data: apiResponse.data,
-      };
+    const res = await axios.post(`${API_ENDPOINTS.AUTH}/login`, {
+      email: (email || "").trim().toLowerCase(),
+      password,
+      ...getDeviceInfo(),
+    });
+    if (res.data?.accessToken) {
+      persistAuthResponse(res.data);
+      return { success: true, message: "Login successful", data: res.data };
     }
-
-    return {
-      success: false,
-      message: apiResponse.message || "Login failed",
-    };
+    return { success: false, message: "Unexpected response from server. Please try again." };
   } catch (error) {
-    return {
-      success: false,
-      message:
-        error.response?.data?.message ||
-        error.message ||
-        "Invalid username or password",
-    };
+    return { success: false, status: error.response?.status, message: extractAuthError(error, "Invalid email or password.") };
   }
 };
 
@@ -326,72 +342,82 @@ export const clearAuthData = () => {
 
 /* =========================
    LOGOUT
+   1. Revokes the session on the server (best effort, survives page navigation via keepalive)
+   2. Clears local credentials (other open tabs are notified through the "storage" event)
+   3. Replaces the current history entry so "Back" can't reopen the dashboard
 ========================= */
-export const logout = () => {
+let loggingOut = false;
+export const logout = (options = {}) => {
+  if (loggingOut) return;
+  loggingOut = true;
+
+  const refreshToken = localStorage.getItem("refreshToken");
+  const accessToken = localStorage.getItem("accessToken");
+  if (refreshToken && options.revoke !== false) {
+    try {
+      fetch(`${API_ENDPOINTS.AUTH}/logout`, {
+        method: "POST",
+        keepalive: true,
+        headers: {
+          "Content-Type": "application/json",
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        },
+        body: JSON.stringify({ refreshToken }),
+      }).catch(() => {});
+    } catch {
+      /* network errors must never block logout */
+    }
+  }
+
   clearAuthData();
-  window.location.href = "/login";
+
+  const target = options.reason === "expired" ? "/login?session=expired" : "/login";
+  if (window.location.pathname === "/login") {
+    loggingOut = false;
+    return;
+  }
+  window.location.replace(target);
 };
 
 /* =========================
-   FORGOT & CHANGE PASSWORD APIs
+   FORGOT / RESET / CHANGE PASSWORD
 ========================= */
+
+/** POST /forgot-password { email } — always answers generically; the link arrives by email. */
 export const forgotPassword = async (email) => {
   try {
-    const res = await api.post("/forgot-password", null, {
-      params: { email },
-    });
-    return {
-      success: true,
-      message: res.data?.message || "OTP sent to email",
-    };
+    const res = await axios.post(`${API_ENDPOINTS.AUTH}/forgot-password`, { email: (email || "").trim().toLowerCase() });
+    return { success: true, message: res.data?.message || "If an account exists for this email, a reset link has been sent." };
   } catch (error) {
-    return {
-      success: false,
-      message:
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to send OTP. Please try again.",
-    };
+    return { success: false, message: extractAuthError(error, "Couldn't send the reset link. Please try again.") };
   }
 };
 
-export const resetPassword = async (email, otp, newPassword) => {
+/** POST /reset-password { token, newPassword, confirmPassword } */
+export const resetPassword = async (token, newPassword, confirmPassword) => {
   try {
-    const res = await api.post("/reset-password", null, {
-      params: { email, otp, newPassword },
+    const res = await axios.post(`${API_ENDPOINTS.AUTH}/reset-password`, {
+      token: (token || "").trim(),
+      newPassword,
+      confirmPassword: confirmPassword ?? newPassword,
     });
-    return {
-      success: true,
-      message: res.data?.message || "Password reset successful",
-    };
+    return { success: true, message: res.data?.message || "Password reset successful" };
   } catch (error) {
-    return {
-      success: false,
-      message:
-        error.response?.data?.message ||
-        error.message ||
-        "Password reset failed. Please try again.",
-    };
+    return { success: false, message: extractAuthError(error, "Password reset failed. Please try again.") };
   }
 };
 
-export const changePassword = async (oldPassword, newPassword) => {
+/** POST /change-password { currentPassword, newPassword, confirmPassword } (authenticated) */
+export const changePassword = async (currentPassword, newPassword, confirmPassword) => {
   try {
-    const res = await api.post("/change-password", null, {
-      params: { oldPassword, newPassword },
+    const res = await api.post("/change-password", {
+      currentPassword,
+      newPassword,
+      confirmPassword: confirmPassword ?? newPassword,
     });
-    return {
-      success: true,
-      message: res.data?.message || "Password changed successfully",
-    };
+    return { success: true, message: res.data?.message || "Password changed successfully" };
   } catch (error) {
-    return {
-      success: false,
-      message:
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to change password. Please try again.",
-    };
+    return { success: false, message: extractAuthError(error, "Failed to change password. Please try again.") };
   }
 };
 
@@ -460,29 +486,32 @@ const isAdminRoute = (path) => {
   );
 };
 
+/**
+ * User pages use ONLY the user token and admin pages ONLY the admin token.
+ * (Previously user pages fell back to the admin token, so after a user logout the app still looked
+ *  "logged in" whenever an admin token existed → infinite /login ⇄ /dashboard redirects.)
+ */
 export const getAccessToken = () => {
   const path = window.location.pathname;
-  let token = null;
-  if (isAdminRoute(path)) {
-    const adminToken = localStorage.getItem("adminAccessToken");
-    if (adminToken) token = adminToken;
-  }
-  if (!token) {
-    token = localStorage.getItem("accessToken") || localStorage.getItem("adminAccessToken");
-  }
-  if (token) {
-    console.log("%c[ByteBodh JWT Access Token]:", "color:#10b981;font-weight:bold;", token);
-  }
-  return token;
+  return isAdminRoute(path) ? localStorage.getItem("adminAccessToken") : localStorage.getItem("accessToken");
 };
 
 export const getRefreshToken = () => {
   const path = window.location.pathname;
-  if (isAdminRoute(path)) {
-    const adminRefreshToken = localStorage.getItem("adminRefreshToken");
-    if (adminRefreshToken) return adminRefreshToken;
+  return isAdminRoute(path) ? localStorage.getItem("adminRefreshToken") : localStorage.getItem("refreshToken");
+};
+
+/** True when the JWT's `exp` is in the future (30s clock-skew margin). */
+const isJwtValid = (token) => {
+  if (!token) return false;
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return false;
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return !payload.exp || payload.exp * 1000 > Date.now() + 30000;
+  } catch {
+    return false;
   }
-  return localStorage.getItem("refreshToken") || localStorage.getItem("adminRefreshToken");
 };
 
 export const getUser = () => {
@@ -490,26 +519,16 @@ export const getUser = () => {
   return user ? JSON.parse(user) : null;
 };
 
+/**
+ * A user is signed in when we have their profile AND either a valid access token or a refresh token
+ * (an expired access token is renewed transparently by the 401 interceptor).
+ */
 export const isAuthenticated = () => {
-  const token = getAccessToken();
-  if (!token) return false;
-  
-  // Optional: Check if token is expired
-  try {
-    const tokenParts = token.split('.');
-    if (tokenParts.length === 3) {
-      const payload = JSON.parse(atob(tokenParts[1]));
-      const expiry = payload.exp * 1000; // Convert to milliseconds
-      return Date.now() < expiry;
-    }
-  } catch (error) {
-    console.error("Error checking token validity:", error);
-    return false;
-  }
-  
-  return !!token;
+  const token = localStorage.getItem("accessToken");
+  const user = localStorage.getItem("user");
+  if (!token || !user) return false;
+  return isJwtValid(token) || Boolean(localStorage.getItem("refreshToken"));
 };
-
 
 export const getAdminAccessToken = () =>
   localStorage.getItem("adminAccessToken");

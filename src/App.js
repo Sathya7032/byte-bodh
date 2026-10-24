@@ -19,6 +19,7 @@ import PrivateRoutes from "./services/PrivateRoutes";
 import AdminPrivateRoutes from "./services/AdminPrivateRoutes";
 import Register from "./auth/Register";
 import ForgotPassword from "./auth/ForgotPassword";
+import ResetPassword from "./auth/ResetPassword";
 import Profile from "./portfolio/Profile";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
@@ -28,6 +29,7 @@ import LinktreeTemplatesPage from "./portfolio/LinktreeTemplatesPage";
 import LinktreePage from "./portfolio/LinktreePage";
 import PublicLinktree from "./portfolio/PublicLinktree";
 import InstagramAutomationPage from "./portfolio/InstagramAutomationPage";
+import InstagramStudioPage from "./portfolio/instagram/InstagramStudioPage";
 import InstagramConnectTrigger from "./portfolio/InstagramConnectTrigger";
 import InstagramCallbackPage from "./portfolio/InstagramCallbackPage";
 import Contacts from "./portfolio/Contacts";
@@ -96,11 +98,13 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/google-success" element={<GoogleSuccess />} />
           <Route element={<PrivateRoutes />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/linktree" element={<LinktreePage />} />
+            <Route path="/instagram-studio" element={<InstagramStudioPage />} />
             <Route path="/instagram-automation" element={<InstagramAutomationPage />} />
             <Route path="/instagram-connect" element={<InstagramConnectTrigger />} />
             <Route path="/instagram/connect" element={<InstagramConnectTrigger />} />

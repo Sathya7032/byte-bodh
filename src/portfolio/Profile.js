@@ -12,7 +12,6 @@ import {
 } from "../api/portfolioApiService";
 import { getMyProfile, updateProfile } from "../api/profileService";
 import { getPortfolioUrl, getLinktreeUrl } from "../config/api";
-import { getAccessToken } from "../services/auth";
 import { toast } from "react-toastify";
 import {
   FaUser,
@@ -277,8 +276,6 @@ export default function Profile() {
   }, []);
 
   useEffect(() => {
-    const token = getAccessToken();
-    console.log("%c[ByteBodh Profile] Active JWT Token:", "color:#10b981;font-weight:bold;", token);
     loadAllData();
   }, [loadAllData]);
 

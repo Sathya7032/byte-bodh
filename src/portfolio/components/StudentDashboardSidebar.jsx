@@ -9,6 +9,7 @@ import {
   Award,
   Link45deg,
   Instagram,
+  Lightning,
   Palette,
   XLg,
   QuestionCircle,
@@ -44,6 +45,7 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
     if (path === "/linktree") return "linktree";
     if (path === "/linktree-templates") return "linktree-templates";
     if (path === "/portfolio-templates") return "portfolio-templates";
+    if (path === "/instagram-studio") return "instagram-studio";
     if (path === "/instagram-automation") return "instagram-automation";
     if (path === "/contacts") return "contacts";
     if (path === "/qr-code") return "qr-code";
@@ -88,9 +90,16 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
       path: "/portfolio-templates",
     },
     {
+      id: "instagram-studio",
+      label: "Instagram Studio",
+      icon: <Instagram size={19} />,
+      path: "/instagram-studio",
+      badge: "NEW",
+    },
+    {
       id: "instagram-automation",
       label: "Instagram Automation",
-      icon: <Instagram size={19} />,
+      icon: <Lightning size={19} />,
       path: "/instagram-automation",
     },
     {

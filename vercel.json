@@ -1,14 +1,6 @@
 {
   "rewrites": [
     {
-      "source": "/sitemap.xml",
-      "destination": "https://backend.bytebodh.in/sitemap.xml"
-    },
-    {
-      "source": "/site/sitemap.xml",
-      "destination": "https://backend.bytebodh.in/sitemap.xml"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

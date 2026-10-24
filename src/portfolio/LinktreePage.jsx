@@ -9,7 +9,6 @@ import {
   resolveImageUrl,
 } from "../api/portfolioApiService";
 import { getLinktreeUrl, getPortfolioUrl } from "../config/api";
-import { getAccessToken } from "../services/auth";
 import { toast } from "react-toastify";
 import {
   LINKTREE_TEMPLATES,
@@ -168,8 +167,6 @@ export default function LinktreePage() {
   };
 
   useEffect(() => {
-    const token = getAccessToken();
-    console.log("%c[ByteBodh Linktree] Active JWT Token:", "color:#10b981;font-weight:bold;", token);
     fetchData();
   }, []);
 
