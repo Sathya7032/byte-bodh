@@ -7,6 +7,7 @@ import {
   FaDesktop,
   FaTabletAlt,
   FaRocket,
+  FaPlay,
   FaStar,
   FaChevronDown,
   FaChevronUp,
@@ -20,26 +21,23 @@ import {
   FaRegClock,
   FaUserGraduate,
   FaUserTie,
+  FaQuoteLeft,
   FaCheckCircle,
   FaTimesCircle,
   FaRegHeart,
-  FaShareAlt,
   FaQrcode,
-  FaSearch,
   FaTimes,
-  FaEye,
-  FaBookOpen,
   FaCrown,
   FaInstagram,
   FaComments,
-  FaBolt
+  FaBolt,
+  FaPaperPlane
 } from "react-icons/fa";
 import { getAllTemplates } from "../api/templateService";
 import { getSubscriptionConfig } from "../api/subscriptionService";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import useSEO from "../hooks/useSEO";
-import hero from "../assets/images/hero.jpeg";
 import freeTemplate from "../assets/images/FreeTemplate.png";
 import template2 from "../assets/images/Template2.png";
 import template3 from "../assets/images/Template3.png";
@@ -50,6 +48,10 @@ import howItWorks2 from "../assets/images/how-it-works (3).jpeg";
 import howItWorks3 from "../assets/images/how-it-works (2).jpeg";
 import studentImg from "../assets/images/Student.jpeg";
 import professionalImg from "../assets/images/Professional.jpeg";
+import metaImg from "../assets/images/meta.png";
+import mobileAppImg from "../assets/images/mobileapp.png";
+import QRCode from "react-qr-code";
+import { TemplateCardThumbnail } from "../bytebodh-folio/TemplateRenderer";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -71,27 +73,105 @@ const staggerContainer = {
 const testimonials = [
   {
     name: "Sai Kiran Reddy",
-    role: "CSE Student at BITS Pilani Hyderabad",
-    quote: "ByteBodh was a lifesaver for placement season. I filled in my credentials, selected the 'Academic Std' template, and recruiters were blown away by my custom portfolio link!",
+    role: "CSE Final Year",
+    organization: "BITS Pilani Hyderabad",
+    category: "STUDENT",
+    quote: "ByteBodh was an absolute lifesaver during placement drives. I filled in my projects, picked the Minimalist layout, and interviewers were genuinely impressed that I had a real live URL instead of a static PDF.",
     rating: 5,
     tag: "Student",
-    avatar: "SK"
+    result: "Placed at Tier-1 Tech Firm",
+    avatar: "SK",
+    avatarBg: "from-emerald-500 to-teal-600"
   },
   {
     name: "Anirudh Rao",
-    role: "Software Engineer at Google Hyderabad",
-    quote: "I wanted a geeky developer portfolio without spending hours writing custom CSS. The 'Hacker Terminal' template is outstanding. 1-click update on the go, plus detailed traffic analytics.",
+    role: "Software Engineer",
+    organization: "Google Hyderabad",
+    category: "PROFESSIONAL",
+    quote: "I wanted a sleek developer portfolio without spending weekends writing custom CSS from scratch. The 'Hacker Terminal' layout is incredible. Instant mobile updates, plus real-time visitor tracking.",
     rating: 5,
     tag: "Professional",
-    avatar: "AR"
+    result: "Active Tech Blog & Projects",
+    avatar: "AR",
+    avatarBg: "from-blue-600 to-cyan-500"
+  },
+  {
+    name: "Pooja Sharma",
+    role: "UI/UX & Product Designer",
+    organization: "Razorpay",
+    category: "PROFESSIONAL",
+    quote: "The visual gallery and bento layouts easily rival portfolios crafted on Framer or Webflow. Having an instant QR code card made in-person networking at tech conferences effortless.",
+    rating: 5,
+    tag: "Professional",
+    result: "3 Recruiter Offers Received",
+    avatar: "PS",
+    avatarBg: "from-purple-500 to-pink-500"
   },
   {
     name: "Harini Reddy",
-    role: "Lead Product Manager in Hyderabad",
-    quote: "This platform is truly a 2-minute portfolio maker. I filled in my background details, chose a layout, and had a stunning live portfolio online instantly. Highly recommend!",
+    role: "Lead Product Manager",
+    organization: "FinTech Scaleup",
+    category: "PROFESSIONAL",
+    quote: "Truly a 2-minute executive portfolio maker. It highlighted my product roadmaps, metrics, and KPI outcomes with remarkable clarity. I had a polished custom domain live in minutes.",
     rating: 5,
     tag: "Professional",
-    avatar: "HR"
+    result: "Promoted to Principal Lead",
+    avatar: "HR",
+    avatarBg: "from-amber-500 to-orange-500"
+  },
+  {
+    name: "Karthik Varma",
+    role: "Full-Stack SDE",
+    organization: "Tech Mahindra",
+    category: "STUDENT",
+    quote: "The integrated compiler and code tabs on the Developer IDE template blew interviewers away. They could inspect my GitHub links, live projects, and certifications in one unified interface.",
+    rating: 5,
+    tag: "Student",
+    result: "Shortlisted for 4 SDE Roles",
+    avatar: "KV",
+    avatarBg: "from-indigo-500 to-blue-600"
+  },
+  {
+    name: "Sneha Patel",
+    role: "Computer Engineering Graduate",
+    organization: "VIT University",
+    category: "STUDENT",
+    quote: "I downloaded the ATS-friendly resume alongside my live portfolio link. Being able to edit projects from my phone while traveling for campus rounds kept all my credentials synchronized.",
+    rating: 5,
+    tag: "Student",
+    result: "Off-Campus SDE Offer Cleared",
+    avatar: "SP",
+    avatarBg: "from-rose-500 to-pink-500"
+  }
+];
+
+const featuredPaidTemplates = [
+  {
+    id: 7,
+    name: "Cyber HUD Matrix",
+    category: "Tech & Cyber Freshers",
+    tagCategory: "3D & Interactive",
+    desc: "Futuristic Cyber HUD Console with matrix grid background, glowing status ring, & Anime.js v4 animations.",
+    badge: "Cyber HUD • 4-Color",
+    tags: ["Cyberpunk HUD", "Matrix Grid", "Glowing Badges", "Anime.js v4"]
+  },
+  {
+    id: 8,
+    name: "Vintage Gazette",
+    category: "Academic Chronicle",
+    tagCategory: "Minimal & Academic",
+    desc: "Classic Newspaper Frontpage layout with 3-column editorial grid, serif drop caps, & double border rules.",
+    badge: "Gazette Chronicle",
+    tags: ["Newspaper Grid", "Vintage Typography", "Editorial Cards", "Drop Caps"]
+  },
+  {
+    id: 9,
+    name: "Neo-Brutalist Tech",
+    category: "High-Contrast Student",
+    tagCategory: "Creative & Vector",
+    desc: "Bold Neo-Brutalist Black, White & Yellow showcase with Anime.js continuous live ticker & heavy drop shadows.",
+    badge: "Neo-Brutalist • Anime.js",
+    tags: ["Neo-Brutalist", "High Contrast", "Continuous Ticker", "Heavy Shadows"]
   }
 ];
 
@@ -290,11 +370,10 @@ const Homepage = () => {
   const [faqOpen, setFaqOpen] = useState(null);
 
   // ThemeWagon Showcase States
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [searchQuery, setSearchQuery] = useState("");
   const [previewModalTemplate, setPreviewModalTemplate] = useState(null);
   const [previewDevice, setPreviewDevice] = useState("desktop");
   const [backendTemplates, setBackendTemplates] = useState([]);
+  const [reviewFilter, setReviewFilter] = useState("ALL");
 
   // Pricing plan states
   const [planBillingCycle, setPlanBillingCycle] = useState("MONTHLY");
@@ -328,41 +407,16 @@ const Homepage = () => {
   }, []);
 
   const displayTemplates = useMemo(() => {
-    if (backendTemplates.length > 0) {
-      return backendTemplates.map((bt, idx) => ({
-        id: bt.id,
-        name: bt.templateName,
-        category: bt.category || "Professional",
-        desc: bt.description || "Beautiful responsive layout outline for presenting career milestones with rich aesthetics.",
-        isFree: bt.isFree,
-        hasBlogsFeature: bt.hasBlogsFeature,
-        usesCount: bt.downloadsCount || (500 + idx * 140),
-        previewImageUrl: bt.previewImageUrl
-      }));
-    }
-    return templatesShowcase.map((t) => ({
-      ...t,
-      isFree: t.badge?.includes("Free") || t.id === 1,
-      hasBlogsFeature: [2, 3, 5, 7, 9, 11].includes(t.id),
-      usesCount: 400 + t.id * 110
-    }));
+    return featuredPaidTemplates.map((paid) => {
+      const match = backendTemplates.find((bt) => bt.id === paid.id) || templatesShowcase.find((st) => st.id === paid.id);
+      return match ? { ...paid, ...match } : paid;
+    });
   }, [backendTemplates]);
 
-  const filteredShowcase = useMemo(() => {
-    return displayTemplates.filter((t) => {
-      const matchesCategory =
-        activeCategory === "All" ||
-        t.category === activeCategory ||
-        (activeCategory === "Students & Freshers" && (t.category?.includes("Student") || t.category?.includes("Fresher") || t.category === "Academic")) ||
-        (activeCategory === "Developers & Sysadmins" && (t.category?.includes("Developer") || t.category?.includes("IDE") || t.category === "Hacker"));
-      const matchesSearch =
-        searchQuery === "" ||
-        t.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        t.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        t.desc?.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
-    });
-  }, [displayTemplates, activeCategory, searchQuery]);
+  const filteredReviews = useMemo(() => {
+    if (reviewFilter === "ALL") return testimonials;
+    return testimonials.filter((t) => t.category === reviewFilter);
+  }, [reviewFilter]);
 
 
   const toggleFaq = (index) => {
@@ -374,105 +428,182 @@ const Homepage = () => {
 
       <Header />
 
-      {/* HERO SECTION - Enhanced */}
-      <section className="relative pt-32 pb-24 md:pt-44 md:pb-32 overflow-hidden bg-gradient-to-br from-white via-white to-emerald-50/30">
+      {/* HERO SECTION - All Features Covered (Text-Driven Professional Layout) */}
+      <section className="relative pt-32 pb-20 md:pt-40 md:pb-24 overflow-hidden bg-gradient-to-b from-emerald-50/40 via-white to-white">
+        {/* Soft Ambient Background Elements */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-100/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-teal-100/20 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4 pointer-events-none"></div>
+        <div className="absolute top-1/3 left-1/2 w-[600px] h-[600px] bg-emerald-200/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
 
-        {/* Animated background elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-100/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 animate-pulse-slow"></div>
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-emerald-200/20 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4"></div>
-        <div className="absolute top-1/2 left-1/2 w-[500px] h-[500px] bg-emerald-300/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-
-        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-16 items-center relative z-10">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          {/* Main Hero Header */}
           <motion.div
-            className="lg:col-span-6 space-y-8 text-center lg:text-left flex flex-col items-center lg:items-start"
+            className="text-center max-w-4xl mx-auto space-y-6"
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: "-50px" }}
             variants={staggerContainer}
           >
-            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 shadow-sm text-xs font-semibold text-slate-600 hover:shadow-md transition-shadow">
+            {/* Trust Pill Badge */}
+            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-emerald-200/80 shadow-sm text-xs font-bold text-slate-700 hover:shadow-md transition-shadow">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              <span>Trusted by 10,000+ students & professionals</span>
+              <span>The Complete Developer &amp; Student Career Platform</span>
+              <span className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Free Tier</span>
             </motion.div>
 
-            <motion.h1 variants={fadeInUp} className="text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.1] text-slate-900 tracking-tight">
-              Your Portfolio.<br />
-              Your Story.<br />
-              Built by{" "}
-              <span className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400 bg-clip-text text-transparent relative">
+            {/* Main Headline */}
+            <motion.h1 variants={fadeInUp} className="text-4xl sm:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight leading-[1.1]">
+              Your Portfolio. Your Story. <br />
+              Built &amp; Hosted with{" "}
+              <span className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400 bg-clip-text text-transparent relative inline-block">
                 ByteBodh
-                <svg className="absolute -bottom-2 left-0 w-full h-2" viewBox="0 0 100 10" preserveAspectRatio="none">
-                  <path d="M0 5 Q25 10 50 5 Q75 0 100 5" stroke="#10B981" strokeWidth="2" fill="none" opacity="0.3" />
+                <svg className="absolute -bottom-2 left-0 w-full h-2.5" viewBox="0 0 100 10" preserveAspectRatio="none">
+                  <path d="M0 5 Q25 10 50 5 Q75 0 100 5" stroke="#10B981" strokeWidth="2.5" fill="none" opacity="0.4" />
                 </svg>
               </span>
             </motion.h1>
 
-            <motion.p variants={fadeInUp} className="text-lg md:text-xl text-slate-500 font-medium leading-relaxed max-w-xl">
-              Create a professional portfolio website in minutes. Just enter your details, choose a template, and publish instantly.
+            {/* Subtitle */}
+            <motion.p variants={fadeInUp} className="text-lg md:text-xl text-slate-600 font-medium leading-relaxed max-w-3xl mx-auto">
+              Everything developers, students, and professionals need to showcase their career. Build a personalized portfolio website, automate Instagram DMs, export ATS resumes, and share custom QR codes — in under 2 minutes with zero coding.
             </motion.p>
 
-            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            {/* Primary CTA Buttons */}
+            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
               <Link
                 to="/register"
-                className="w-full sm:w-auto text-center px-8 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold rounded-2xl shadow-xl shadow-emerald-500/30 hover:shadow-2xl hover:shadow-emerald-500/40 transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center gap-2 relative overflow-hidden group"
+                className="w-full sm:w-auto text-center px-8 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-extrabold rounded-2xl shadow-xl shadow-emerald-500/25 hover:shadow-2xl hover:shadow-emerald-500/35 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 group"
               >
-                <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></span>
-                Create My Portfolio
-                <FaArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                <FaRocket size={15} />
+                Create My Portfolio Free
+                <FaArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
               </Link>
               <a
                 href="#templates-section"
-                className="w-full sm:w-auto text-center px-8 py-4 bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-200 hover:border-emerald-500 rounded-2xl font-bold transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center gap-2"
+                className="w-full sm:w-auto text-center px-8 py-4 bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-200 hover:border-emerald-500 rounded-2xl font-bold transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 shadow-sm"
               >
-                Explore Templates
+                <FaPalette className="text-emerald-500" />
+                Explore 50+ Templates
               </a>
             </motion.div>
 
-            <motion.div variants={fadeInUp} className="flex items-center gap-6 pt-4">
-              <div className="flex -space-x-2">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 border-2 border-white flex items-center justify-center text-white text-xs font-bold shadow-md">
-                    {String.fromCharCode(64 + i)}
-                  </div>
-                ))}
+            {/* Value Trust Chips */}
+            <motion.div variants={fadeInUp} className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-3 text-xs font-semibold text-slate-500">
+              <div className="flex items-center gap-1.5">
+                <FaCheckCircle className="text-emerald-500 text-sm" />
+                <span>100% Free Forever Tier</span>
               </div>
-              <div className="text-left">
-                <div className="flex items-center gap-1 text-emerald-500">
-                  {[...Array(5)].map((_, i) => (
-                    <FaStar key={i} size={12} />
-                  ))}
-                </div>
-                <span className="text-xs text-slate-500 font-medium">4.9/5 from 500+ reviews</span>
+              <div className="flex items-center gap-1.5">
+                <FaCheckCircle className="text-emerald-500 text-sm" />
+                <span>No Credit Card Required</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <FaCheckCircle className="text-emerald-500 text-sm" />
+                <span>Live in Under 2 Minutes</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <FaStar className="text-amber-400 text-sm" />
+                <span>4.9/5 Rating (100+ Downloads)</span>
               </div>
             </motion.div>
           </motion.div>
 
+          {/* ALL FEATURES COVERED - 3 Core Platform Capabilities */}
           <motion.div
-            className="lg:col-span-6 relative flex items-center justify-center w-full"
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            whileInView={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-            viewport={{ once: true }}
+            className="mt-16 pt-10 border-t border-slate-200/60"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={staggerContainer}
           >
-            <div className="relative rounded-2xl shadow-2xl shadow-slate-200/80 group max-w-[620px] lg:max-w-[680px] w-full">
-              {/* Floating badges */}
-              <div className="absolute -top-4 -right-4 bg-white/90 backdrop-blur-sm border border-slate-200 rounded-xl px-4 py-2 shadow-lg flex items-center gap-2 z-20 animate-float">
-                <FaRocket className="text-emerald-500" />
-                <span className="text-xs font-bold text-slate-800">Live in 2 min</span>
-              </div>
-              <div className="absolute -bottom-4 -left-4 bg-white/90 backdrop-blur-sm border border-slate-200 rounded-xl px-4 py-2 shadow-lg flex items-center gap-2 z-20 animate-float-delayed">
-                <FaShieldAlt className="text-emerald-500" />
-                <span className="text-xs font-bold text-slate-800">100% Free</span>
-              </div>
-              <img
-                src={hero}
-                alt="ByteBodh Portfolio Platform"
-                className="w-full h-auto object-contain hover:scale-[1.02] transition-transform duration-500 pointer-events-none select-none relative z-10 rounded-2xl"
-              />
-              <div className="absolute inset-0 rounded-2xl ring-1 ring-slate-200/50 z-20 pointer-events-none"></div>
+            <div className="text-center mb-10 space-y-2">
+              <span className="text-xs font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 border border-emerald-200/80 px-3.5 py-1 rounded-full">
+                Platform Capabilities
+              </span>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+                Everything You Need in One Unified Platform
+              </h2>
+              <p className="text-sm sm:text-base text-slate-500 max-w-xl mx-auto">
+                Three powerful career growth engines designed to build your brand, share your work, and convert traffic automatically.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+              {[
+                {
+                  title: "Portfolio Website",
+                  subtitle: "Personal Brand & Work Showcase",
+                  badge: "Live Subdomain",
+                  badgeColor: "bg-emerald-100 text-emerald-700 border-emerald-200",
+                  desc: "Build a stunning, career-specific personal portfolio in under 2 minutes. Pick from 50+ templates with your own live subdomain (yourname.bytebodh.in), free SSL, and global edge hosting.",
+                  icon: <FaDesktop className="text-emerald-500 text-xl" />,
+                  iconBg: "bg-emerald-50 border-emerald-200",
+                  tags: ["50+ Templates", "yourname.bytebodh.in", "Global Edge CDN", "Zero Code"]
+                },
+                {
+                  title: "Linktree Bio Profile",
+                  subtitle: "Unified Social & Project Hub",
+                  badge: "Link-in-Bio",
+                  badgeColor: "bg-indigo-100 text-indigo-700 border-indigo-200",
+                  desc: "Consolidate your entire digital presence into one clean, high-speed bio link (bytebodh.in/username). Connect your GitHub, LinkedIn, LeetCode, YouTube, and work samples for mobile audiences.",
+                  icon: <FaMobileAlt className="text-indigo-500 text-xl" />,
+                  iconBg: "bg-indigo-50 border-indigo-200",
+                  tags: ["GitHub & LinkedIn", "LeetCode Hub", "Social Links", "Mobile-Optimized"]
+                },
+                {
+                  title: "Instagram Automations",
+                  subtitle: "Comment-to-DM Traffic Engine",
+                  badge: "Meta Verified",
+                  badgeColor: "bg-purple-100 text-purple-700 border-purple-200",
+                  desc: "Convert Instagram Reel and Post viewers into direct portfolio traffic. Automatically send your live portfolio link, Linktree, or resume straight into follower DMs in under 3 seconds when they comment.",
+                  icon: <FaInstagram className="text-purple-500 text-xl" />,
+                  iconBg: "bg-purple-50 border-purple-200",
+                  tags: ["< 3s Dispatch", "Trigger Words", "Meta Graph API", "Lead Capture"]
+                }
+              ].map((feature, idx) => (
+                <motion.div
+                  key={idx}
+                  variants={fadeInUp}
+                  className="bg-white/90 backdrop-blur-sm border border-slate-200/90 hover:border-emerald-500/40 rounded-3xl p-6 sm:p-7 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col justify-between hover:-translate-y-1"
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className={`w-12 h-12 rounded-2xl ${feature.iconBg} border flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
+                        {feature.icon}
+                      </div>
+                      <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border ${feature.badgeColor}`}>
+                        {feature.badge}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                        {feature.subtitle}
+                      </span>
+                      <h3 className="text-xl font-black text-slate-900 group-hover:text-emerald-600 transition-colors mt-0.5">
+                        {feature.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium mt-2">
+                        {feature.desc}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 pt-4 border-t border-slate-100 mt-5">
+                    {feature.tags.map((tag, tIdx) => (
+                      <span
+                        key={tIdx}
+                        className="text-[10px] font-semibold text-slate-600 bg-slate-50 border border-slate-200/60 rounded-lg px-2 py-0.5"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         </div>
@@ -483,9 +614,9 @@ const Homepage = () => {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { value: "10K+", label: "Portfolios Created", icon: <FaUsers className="text-emerald-500" /> },
-              { value: "50+", label: "Templates Available", icon: <FaPalette className="text-emerald-500" /> },
-              { value: "4.9", label: "User Rating", icon: <FaStar className="text-emerald-500" /> },
+              { value: "100+", label: "App Downloads", icon: <FaUsers className="text-emerald-500" /> },
+              { value: "18+", label: "Portfolio Themes", icon: <FaPalette className="text-emerald-500" /> },
+              { value: "4.9", label: "Play Store Rating", icon: <FaStar className="text-emerald-500" /> },
               { value: "99.9%", label: "Uptime Guarantee", icon: <FaCloudUploadAlt className="text-emerald-500" /> }
             ].map((stat, idx) => (
               <motion.div
@@ -507,10 +638,15 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* HOW IT WORKS SECTION - Enhanced */}
-      <section className="py-24 bg-white relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-50/20 to-transparent pointer-events-none"></div>
-        <div className="max-w-7xl mx-auto px-6">
+      {/* HOW IT WORKS SECTION - Enhanced Alternating Row Layout */}
+      <section className="py-24 bg-white relative overflow-hidden">
+        {/* Soft Ambient Background Accents */}
+        <div className="absolute inset-0 bg-gradient-to-b from-emerald-50/30 via-transparent to-emerald-50/20 pointer-events-none"></div>
+        <div className="absolute top-1/3 -left-48 w-96 h-96 bg-emerald-500/5 rounded-full blur-[140px] pointer-events-none"></div>
+        <div className="absolute bottom-1/4 -right-48 w-96 h-96 bg-teal-500/5 rounded-full blur-[140px] pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          {/* Section Header */}
           <motion.div
             className="text-center max-w-3xl mx-auto mb-20 space-y-4"
             initial="hidden"
@@ -518,76 +654,302 @@ const Homepage = () => {
             viewport={{ once: true, margin: "-50px" }}
             variants={staggerContainer}
           >
-            <motion.span variants={fadeInUp} className="px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2">
+            <motion.span variants={fadeInUp} className="px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 shadow-sm">
               <FaRegClock size={12} />
               Simple Process
             </motion.span>
-            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
+            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
               Portfolio Website in <span className="text-emerald-500">3 Simple Steps</span>
             </motion.h2>
-            <motion.p variants={fadeInUp} className="text-lg text-slate-500">
+            <motion.p variants={fadeInUp} className="text-base md:text-lg text-slate-600 font-medium leading-relaxed max-w-2xl mx-auto">
               Transform your accomplishments into a stunning website without writing a single line of code.
             </motion.p>
           </motion.div>
 
-          <motion.div
-            className="grid md:grid-cols-3 gap-8 relative"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            variants={staggerContainer}
-          >
-            {/* Timeline connectors */}
-            <div className="hidden md:block absolute top-[30%] left-[10%] right-[10%] h-[3px] bg-gradient-to-r from-emerald-200 via-emerald-400 to-emerald-200 z-0 rounded-full">
-              <div className="w-full h-full bg-gradient-to-r from-transparent via-emerald-500 to-transparent opacity-60 animate-[shimmer_2s_infinite] rounded-full"></div>
-            </div>
-
-            {[
-              {
-                step: 1,
-                title: "Choose a Template",
-                desc: "Browse curated, career-specific templates optimized for students, designers, product managers, and developers.",
-                img: howItWorks1,
-                icon: <FaPalette />
-              },
-              {
-                step: 2,
-                title: "Add Your Details",
-                desc: "Fill in your profile, projects, work experiences, certifications, education, and social links in a simple dashboard.",
-                img: howItWorks2,
-                icon: <FaCode />
-              },
-              {
-                step: 3,
-                title: "Publish Instantly",
-                desc: "Deploy your personalized live subdomain portfolio (e.g. yourname.bytebodh.in) in seconds. Instantly ready to share.",
-                img: howItWorks3,
-                icon: <FaCloudUploadAlt />
-              }
-            ].map((item, idx) => (
-              <motion.div
-                key={idx}
-                variants={fadeInUp}
-                className="relative z-10 bg-white border border-slate-200/60 p-6 rounded-3xl text-center space-y-6 hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-300 group hover:-translate-y-2"
-              >
-                <div className="aspect-video w-full rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 shadow-inner relative">
-                  <img
-                    src={item.img}
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute top-3 left-3 w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-bold flex items-center justify-center text-sm shadow-lg">
-                    {item.step}
+          <div className="space-y-6 lg:space-y-2">
+            {/* STEP 1: Image Left, Text Right */}
+            <motion.div
+              className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-center"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-50px" }}
+              variants={staggerContainer}
+            >
+              {/* Image Card Left */}
+              <motion.div variants={fadeInUp} className="lg:col-span-6 flex justify-center">
+                <div className="relative w-full max-w-lg bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-6 shadow-xl hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-500 group">
+                  {/* Step 1 Number Badge */}
+                  <div className="absolute -top-3 -left-3 sm:-top-4 sm:-left-4 z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-black text-lg flex items-center justify-center shadow-lg shadow-emerald-500/30 border-2 border-white">
+                    1
                   </div>
-                  <div className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm border border-slate-200 flex items-center justify-center text-emerald-500 shadow-md">
-                    {item.icon}
+
+                  {/* Corner Icon Badge */}
+                  <div className="absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 z-20 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border-2 border-emerald-100 flex items-center justify-center text-emerald-500 text-xl sm:text-2xl shadow-xl group-hover:scale-110 transition-transform duration-300">
+                    <FaPalette />
+                  </div>
+
+                  {/* Illustration Frame */}
+                  <div className="w-full bg-gradient-to-b from-slate-50/80 to-slate-100/50 rounded-2xl p-3 sm:p-5 border border-slate-100 overflow-hidden flex items-center justify-center">
+                    <img
+                      src={howItWorks1}
+                      alt="Choose a Template"
+                      className="w-full h-auto max-h-[340px] sm:max-h-[380px] object-contain group-hover:scale-[1.03] transition-transform duration-500 drop-shadow-sm"
+                    />
                   </div>
                 </div>
-                <h3 className="text-xl font-bold text-slate-900">{item.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
               </motion.div>
-            ))}
-          </motion.div>
+
+              {/* Text Right */}
+              <motion.div variants={fadeInUp} className="lg:col-span-6 space-y-6 text-left">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-600 text-xs font-black uppercase tracking-wider">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Step 01 • Curated Templates
+                </div>
+                <h3 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+                  Choose a <span className="text-emerald-500">Template</span>
+                </h3>
+                <p className="text-base sm:text-lg text-slate-600 font-medium leading-relaxed">
+                  Browse curated, career-specific templates optimized for students, designers, product managers, and developers. Every template is engineered for recruiter impact and lightning-fast load times.
+                </p>
+                <ul className="space-y-3 pt-2">
+                  {[
+                    "Career-specific themes for Students, Developers, & Creatives",
+                    "Live interactive previews across Desktop, Tablet & Mobile",
+                    "Seamless 1-click theme switching without losing your data"
+                  ].map((point, i) => (
+                    <li key={i} className="flex items-center gap-3 text-sm text-slate-700 font-medium">
+                      <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs flex-shrink-0">
+                        <FaCheckCircle size={12} />
+                      </div>
+                      <span>{point}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="pt-2">
+                  <a
+                    href="#templates"
+                    className="inline-flex items-center gap-2 text-sm font-bold text-emerald-600 hover:text-emerald-700 hover:gap-3 transition-all"
+                  >
+                    Browse All Templates <FaArrowRight size={12} />
+                  </a>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* DOTTED CONNECTING PATH 1 -> 2 */}
+            <div className="relative py-4 lg:py-6 flex items-center justify-center">
+              {/* Desktop Curved S-Line Flowing Left to Right */}
+              <div className="hidden lg:block w-full max-w-4xl h-24 relative">
+                <svg className="w-full h-full overflow-visible" viewBox="0 0 800 100" fill="none" preserveAspectRatio="none">
+                  <path
+                    d="M 220 0 C 220 70, 580 30, 580 100"
+                    stroke="#10b981"
+                    strokeWidth="3"
+                    strokeDasharray="8 8"
+                    strokeLinecap="round"
+                  />
+                  {/* Milestone Checkpoint Node */}
+                  <circle cx="400" cy="50" r="15" fill="#ffffff" stroke="#10b981" strokeWidth="3" />
+                  <circle cx="400" cy="50" r="6" fill="#10b981" />
+                </svg>
+              </div>
+              {/* Mobile / Tablet Vertical Dotted Line */}
+              <div className="lg:hidden flex flex-col items-center">
+                <div className="w-0.5 h-8 border-l-2 border-dashed border-emerald-500"></div>
+                <div className="w-8 h-8 rounded-full border-2 border-emerald-500 bg-white flex items-center justify-center my-1 shadow-sm">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+                </div>
+                <div className="w-0.5 h-8 border-l-2 border-dashed border-emerald-500"></div>
+              </div>
+            </div>
+
+            {/* STEP 2: Text Left, Image Right (Vice Versa) */}
+            <motion.div
+              className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-center"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-50px" }}
+              variants={staggerContainer}
+            >
+              {/* Text Left */}
+              <motion.div variants={fadeInUp} className="lg:col-span-6 space-y-6 text-left order-2 lg:order-1">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-600 text-xs font-black uppercase tracking-wider">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Step 02 • Fast Dashboard
+                </div>
+                <h3 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+                  Add Your <span className="text-emerald-500">Details</span>
+                </h3>
+                <p className="text-base sm:text-lg text-slate-600 font-medium leading-relaxed">
+                  Fill in your profile, projects, work experiences, certifications, education, and social links in a simple dashboard. No code, no design hurdles — just fill and watch your portfolio build itself.
+                </p>
+                <ul className="space-y-3 pt-2">
+                  {[
+                    "Intuitive guided form — be up and running in under 5 minutes",
+                    "Highlight GitHub repos, live projects, certifications & achievements",
+                    "Real-time visual editor with instant feedback on edits"
+                  ].map((point, i) => (
+                    <li key={i} className="flex items-center gap-3 text-sm text-slate-700 font-medium">
+                      <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs flex-shrink-0">
+                        <FaCheckCircle size={12} />
+                      </div>
+                      <span>{point}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="pt-2">
+                  <Link
+                    to="/register"
+                    className="inline-flex items-center gap-2 text-sm font-bold text-emerald-600 hover:text-emerald-700 hover:gap-3 transition-all"
+                  >
+                    Explore the Dashboard <FaArrowRight size={12} />
+                  </Link>
+                </div>
+              </motion.div>
+
+              {/* Image Card Right */}
+              <motion.div variants={fadeInUp} className="lg:col-span-6 flex justify-center order-1 lg:order-2">
+                <div className="relative w-full max-w-lg bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-6 shadow-xl hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-500 group">
+                  {/* Step 2 Number Badge */}
+                  <div className="absolute -top-3 -left-3 sm:-top-4 sm:-left-4 z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-black text-lg flex items-center justify-center shadow-lg shadow-emerald-500/30 border-2 border-white">
+                    2
+                  </div>
+
+                  {/* Corner Icon Badge */}
+                  <div className="absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 z-20 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border-2 border-emerald-100 flex items-center justify-center text-emerald-500 text-xl sm:text-2xl shadow-xl group-hover:scale-110 transition-transform duration-300">
+                    <FaCode />
+                  </div>
+
+                  {/* Illustration Frame */}
+                  <div className="w-full bg-gradient-to-b from-slate-50/80 to-slate-100/50 rounded-2xl p-3 sm:p-5 border border-slate-100 overflow-hidden flex items-center justify-center">
+                    <img
+                      src={howItWorks2}
+                      alt="Add Your Details"
+                      className="w-full h-auto max-h-[340px] sm:max-h-[380px] object-contain group-hover:scale-[1.03] transition-transform duration-500 drop-shadow-sm"
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* DOTTED CONNECTING PATH 2 -> 3 */}
+            <div className="relative py-4 lg:py-6 flex items-center justify-center">
+              {/* Desktop Curved S-Line Flowing Right to Left */}
+              <div className="hidden lg:block w-full max-w-4xl h-24 relative">
+                <svg className="w-full h-full overflow-visible" viewBox="0 0 800 100" fill="none" preserveAspectRatio="none">
+                  <path
+                    d="M 580 0 C 580 70, 220 30, 220 100"
+                    stroke="#10b981"
+                    strokeWidth="3"
+                    strokeDasharray="8 8"
+                    strokeLinecap="round"
+                  />
+                  {/* Milestone Checkpoint Node */}
+                  <circle cx="400" cy="50" r="15" fill="#ffffff" stroke="#10b981" strokeWidth="3" />
+                  <circle cx="400" cy="50" r="6" fill="#10b981" />
+                </svg>
+              </div>
+              {/* Mobile / Tablet Vertical Dotted Line */}
+              <div className="lg:hidden flex flex-col items-center">
+                <div className="w-0.5 h-8 border-l-2 border-dashed border-emerald-500"></div>
+                <div className="w-8 h-8 rounded-full border-2 border-emerald-500 bg-white flex items-center justify-center my-1 shadow-sm">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+                </div>
+                <div className="w-0.5 h-8 border-l-2 border-dashed border-emerald-500"></div>
+              </div>
+            </div>
+
+            {/* STEP 3: Image Left, Text Right (With Paper Airplane Launch) */}
+            <motion.div
+              className="grid lg:grid-cols-12 gap-8 lg:gap-16 items-center"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-50px" }}
+              variants={staggerContainer}
+            >
+              {/* Image Card Left */}
+              <motion.div variants={fadeInUp} className="lg:col-span-6 flex justify-center">
+                <div className="relative w-full max-w-lg bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-6 shadow-xl hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-500 group">
+                  {/* Step 3 Number Badge */}
+                  <div className="absolute -top-3 -left-3 sm:-top-4 sm:-left-4 z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white font-black text-lg flex items-center justify-center shadow-lg shadow-emerald-500/30 border-2 border-white">
+                    3
+                  </div>
+
+                  {/* Top-Right Paper Plane Accent Launching (as in reference image) */}
+                  <div className="absolute -top-6 -right-4 sm:-top-8 sm:-right-6 z-20 flex items-center pointer-events-none">
+                    <svg className="w-16 h-12 overflow-visible hidden sm:block" viewBox="0 0 60 40" fill="none">
+                      <path
+                        d="M 5 35 C 20 30, 35 20, 50 5"
+                        stroke="#10b981"
+                        strokeWidth="2.5"
+                        strokeDasharray="5 5"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center shadow-xl shadow-emerald-500/40 transform rotate-12 hover:rotate-45 transition-transform duration-300">
+                      <FaPaperPlane className="text-base sm:text-lg" />
+                    </div>
+                  </div>
+
+                  {/* Corner Icon Badge */}
+                  <div className="absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 z-20 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border-2 border-emerald-100 flex items-center justify-center text-emerald-500 text-xl sm:text-2xl shadow-xl group-hover:scale-110 transition-transform duration-300">
+                    <FaCloudUploadAlt />
+                  </div>
+
+                  {/* Illustration Frame */}
+                  <div className="w-full bg-gradient-to-b from-slate-50/80 to-slate-100/50 rounded-2xl p-3 sm:p-5 border border-slate-100 overflow-hidden flex items-center justify-center">
+                    <img
+                      src={howItWorks3}
+                      alt="Publish Instantly"
+                      className="w-full h-auto max-h-[340px] sm:max-h-[380px] object-contain group-hover:scale-[1.03] transition-transform duration-500 drop-shadow-sm"
+                    />
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Text Right */}
+              <motion.div variants={fadeInUp} className="lg:col-span-6 space-y-6 text-left">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-600 text-xs font-black uppercase tracking-wider">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Step 03 • Go Live Instantly
+                </div>
+                <h3 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+                  Publish <span className="text-emerald-500">Instantly</span>
+                </h3>
+                <p className="text-base sm:text-lg text-slate-600 font-medium leading-relaxed">
+                  Deploy your personalized live subdomain portfolio (e.g. yourname.bytebodh.in) in seconds. Instantly ready to share on LinkedIn, your resume, or Instagram bio with built-in DM automation.
+                </p>
+                <ul className="space-y-3 pt-2">
+                  {[
+                    "Free ultra-fast live subdomain (yourname.bytebodh.in)",
+                    "Instant share to LinkedIn, resume headers & Linktree profile",
+                    "Downloadable custom QR Code for fast mobile scanning"
+                  ].map((point, i) => (
+                    <li key={i} className="flex items-center gap-3 text-sm text-slate-700 font-medium">
+                      <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs flex-shrink-0">
+                        <FaCheckCircle size={12} />
+                      </div>
+                      <span>{point}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="pt-4 flex flex-wrap items-center gap-4">
+                  <Link
+                    to="/register"
+                    className="inline-flex items-center gap-2 px-7 py-3.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/35 transition-all transform hover:-translate-y-0.5"
+                  >
+                    <FaRocket size={14} />
+                    Create Your Website Free
+                    <FaArrowRight size={12} />
+                  </Link>
+                  <div className="flex items-center gap-2 text-emerald-600 font-bold text-xs bg-emerald-50 border border-emerald-200/70 px-3.5 py-2.5 rounded-xl shadow-sm">
+                    <FaPaperPlane className="transform -rotate-12 text-sm text-emerald-500" />
+                    <span>Live in under 3 minutes</span>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -612,7 +974,7 @@ const Homepage = () => {
           <div className="max-w-7xl mx-auto px-6">
             {/* Section Header */}
             <motion.div
-              className="text-center max-w-3xl mx-auto mb-12 space-y-4"
+              className="text-center max-w-3xl mx-auto mb-16 space-y-4"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-50px" }}
@@ -623,151 +985,61 @@ const Homepage = () => {
                 ThemeWagon Showcase
               </motion.span>
               <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
-                Explore Our <span className="text-emerald-500">Website Templates</span>
+                Explore Our <span className="text-emerald-500">Portfolio Templates</span>
               </motion.h2>
-              <motion.p variants={fadeInUp} className="text-lg text-slate-500">
+              <motion.p variants={fadeInUp} className="text-base sm:text-lg text-slate-500 max-w-2xl mx-auto">
                 Browse hand-crafted, high-performance web portfolio themes designed for students, developers, and leaders.
               </motion.p>
             </motion.div>
 
-            {/* ThemeWagon Filter & Search Bar */}
-            <div className="bg-white p-4 md:p-6 rounded-3xl border border-slate-200/80 shadow-sm mb-10 flex flex-col lg:flex-row gap-4 justify-between items-center">
-              {/* Categories Tabs */}
-              <div className="flex flex-wrap gap-2 w-full lg:w-auto">
-                {["All", "Students & Freshers", "Developers & Sysadmins", "Designers & Artists", "Product Managers & Leads"].map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setActiveCategory(cat)}
-                    className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeCategory === cat
-                      ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                      }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-
-              {/* Live Search */}
-              <div className="relative w-full lg:w-72">
-                <FaSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs" />
-                <input
-                  type="text"
-                  placeholder="Search templates by name, keyword..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2.5 border border-slate-200 focus:border-emerald-500 rounded-xl text-xs font-semibold focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all placeholder-slate-400"
-                />
-              </div>
-            </div>
-
-            {/* ThemeWagon Card Grid */}
+            {/* 3 Paid Templates Preview Grid - Clean preview without any text in cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredShowcase.map((item) => (
+              {displayTemplates.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover:shadow-2xl hover:border-emerald-500/40 transition-all duration-300 flex flex-col group text-left"
+                  className="bg-slate-950 rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover:shadow-2xl hover:border-emerald-500/50 transition-all duration-300 relative group aspect-[16/10]"
                 >
-                  {/* Browser Frame Header (ThemeWagon Signature) */}
-                  <div className="bg-slate-900 px-4 py-2.5 flex items-center justify-between border-b border-slate-800">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    </div>
-                    <span className="text-[10px] font-mono text-slate-400 truncate max-w-[160px]">
-                      bytebodh.in/template-{item.id}
-                    </span>
-                    <span className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md ${item.isFree !== false
-                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                      : "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
-                      }`}>
-                      {item.isFree !== false ? "FREE" : "SUBSCRIPTION"}
-                    </span>
-                  </div>
+                  {/* Live Template Component Scaled Preview (Same as templates screen) */}
+                  <TemplateCardThumbnail
+                    templateId={item.id}
+                    title={item.name}
+                    className="w-full h-full"
+                  />
 
-                  {/* Live Preview Window */}
-                  <div className="relative aspect-[16/10] bg-slate-950 overflow-hidden group">
-                    <iframe
-                      src={`/templates/preview/${item.id}`}
-                      title={`${item.name} Live Preview`}
-                      className="w-[1280px] h-[800px] origin-top-left transform scale-[0.28] sm:scale-[0.38] md:scale-[0.4] border-0 pointer-events-none select-none"
-                      loading="lazy"
-                    />
-                    {/* Hover Overlay Actions */}
-                    <div className="absolute inset-0 bg-slate-950/75 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-3 p-4">
-                      <button
-                        onClick={() => { setPreviewModalTemplate(item); setPreviewDevice("desktop"); }}
-                        className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-black rounded-xl shadow-lg flex items-center gap-2 transition-all cursor-pointer active:scale-95"
-                      >
-                        <FaEye /> Live Demo Preview
-                      </button>
-                      <Link
-                        to="/portfolio-templates"
-                        className="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white text-xs font-bold rounded-xl border border-white/20 transition-all flex items-center gap-1.5"
-                      >
-                        <FaRocket /> Use Template
-                      </Link>
-                    </div>
-                  </div>
-
-                  {/* Card Content */}
-                  <div className="p-6 flex-1 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100">
-                          {item.category}
-                        </span>
-                        <div className="flex items-center gap-1 text-amber-400 text-xs font-bold">
-                          <FaStar /> <span>4.9</span>
-                          <span className="text-slate-400 font-medium text-[10px]">({item.usesCount || 850}+)</span>
-                        </div>
-                      </div>
-
-                      <h3 className="text-lg font-black text-slate-800 group-hover:text-emerald-600 transition-colors">
-                        {item.name}
-                      </h3>
-                      <p className="text-xs text-slate-500 font-semibold mt-1.5 line-clamp-2 leading-relaxed">
-                        {item.desc}
-                      </p>
-
-                      {/* Features checklist (ThemeWagon style) */}
-                      <div className="grid grid-cols-2 gap-2 mt-4">
-                        <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[10px] font-bold ${item.hasBlogsFeature
-                          ? "bg-violet-50 border-violet-100 text-violet-700"
-                          : "bg-slate-50 border-slate-100 text-slate-400"
-                          }`}>
-                          {item.hasBlogsFeature ? <FaCheckCircle className="text-violet-500" /> : <FaTimesCircle className="text-slate-300" />}
-                          <span className="flex items-center gap-1"><FaBookOpen size={9} /> Blogs</span>
-                        </div>
-                        <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[10px] font-bold ${item.isFree !== false
-                          ? "bg-emerald-50 border-emerald-100 text-emerald-700"
-                          : "bg-indigo-50 border-indigo-100 text-indigo-700"
-                          }`}>
-                          <FaCheckCircle className={item.isFree !== false ? "text-emerald-500" : "text-indigo-500"} />
-                          <span className="flex items-center gap-1"><FaCrown size={9} /> {item.isFree !== false ? "Free Access" : "Subscription"}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* ThemeWagon Footer Actions */}
-                    <div className="pt-4 border-t border-slate-100 mt-5 flex gap-2">
-                      <button
-                        onClick={() => { setPreviewModalTemplate(item); setPreviewDevice("desktop"); }}
-                        className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                      >
-                        <FaEye className="text-slate-500" /> Live Demo
-                      </button>
-                      <Link
-                        to="/portfolio-templates"
-                        className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                      >
-                        <FaRocket /> Get Started
-                      </Link>
-                    </div>
+                  {/* Hover Overlay with Preview Button */}
+                  <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 z-20 p-4">
+                    <button
+                      onClick={() => {
+                        setPreviewModalTemplate(item);
+                        setPreviewDevice("desktop");
+                      }}
+                      className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white text-xs sm:text-sm font-black rounded-xl shadow-xl flex items-center gap-2 transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                      <FaPlay size={10} /> Live Preview #{item.id}
+                    </button>
+                    <a
+                      href={`/templates/preview/${item.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-xl border border-white/20 transition-all transform hover:scale-105 cursor-pointer"
+                      title="Open in new window"
+                    >
+                      <FaRocket size={14} />
+                    </a>
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* View More Templates Button */}
+            <div className="mt-14 text-center">
+              <Link
+                to="/templates"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-slate-900 hover:bg-emerald-600 text-white font-bold text-sm sm:text-base rounded-2xl shadow-xl hover:shadow-emerald-500/25 transition-all duration-300 group hover:-translate-y-0.5 cursor-pointer"
+              >
+                <span>View More Templates</span>
+                <FaArrowRight className="text-emerald-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
+              </Link>
             </div>
           </div>
         </section>
@@ -993,11 +1265,11 @@ const Homepage = () => {
       </section>
 
       {/* INSTAGRAM COMMENT-TO-DM AUTOMATION SECTION */}
-      <section className="py-24 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white border-t border-slate-800 relative overflow-hidden" id="instagram-automation">
+      <section className="py-24 bg-white text-slate-900 border-t border-slate-100 relative overflow-hidden" id="instagram-automation">
         {/* Glow Effects */}
-        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-pink-500/15 rounded-full blur-[140px] pointer-events-none"></div>
-        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-emerald-500/15 rounded-full blur-[140px] pointer-events-none"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[160px] pointer-events-none"></div>
+        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-pink-500/5 rounded-full blur-[140px] pointer-events-none"></div>
+        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-emerald-500/5 rounded-full blur-[140px] pointer-events-none"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[160px] pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           {/* Header */}
@@ -1008,160 +1280,39 @@ const Homepage = () => {
             viewport={{ once: true, margin: "-50px" }}
             variants={staggerContainer}
           >
-            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-emerald-500/10 border border-pink-500/20 text-pink-400 text-xs font-black uppercase tracking-wider">
-              <FaInstagram className="text-pink-400 text-sm" />
+            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-pink-50 via-purple-50 to-emerald-50 border border-pink-200/80 text-pink-600 text-xs font-black uppercase tracking-wider shadow-sm">
+              <FaInstagram className="text-pink-500 text-sm" />
               <span>Instagram Comment-to-DM Engine</span>
               <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[9px] font-black tracking-normal">PRO</span>
             </motion.div>
-            
-            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
+
+            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
               Turn Instagram Comments into <br className="hidden sm:inline" />
-              <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-pink-600 via-purple-600 to-emerald-600 bg-clip-text text-transparent">
                 Instant DMs & Direct Traffic
               </span>
             </motion.h2>
-            
-            <motion.p variants={fadeInUp} className="text-base md:text-lg text-slate-400 font-medium leading-relaxed max-w-2xl mx-auto">
-              Stop losing leads who never click your bio link. When followers comment a trigger word on your Reels or Posts, ByteBodh automatically sends them your portfolio link, Linktree, or resources directly in their DMs — in under 3 seconds.
-            </motion.p>
+
+
           </motion.div>
 
           {/* 2-Column Showcase */}
           <div className="grid lg:grid-cols-12 gap-12 items-center">
-            {/* Left: Interactive Visual Simulation */}
+            {/* Left: Meta 3D Graphic Showcase */}
             <motion.div
-              className="lg:col-span-6 flex flex-col items-center justify-center space-y-6"
-              initial={{ opacity: 0, x: -40 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              className="lg:col-span-6 flex items-center justify-center"
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
               viewport={{ once: true, margin: "-50px" }}
             >
-              {/* Card 1: The Reel Comment Trigger */}
-              <div className="w-full max-w-md bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-2xl relative backdrop-blur-xl">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-800/80 mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-yellow-500 via-pink-500 to-purple-600 p-0.5">
-                      <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center font-bold text-xs text-white">
-                        BB
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-white text-xs">your_instagram</span>
-                        <span className="w-1 h-1 rounded-full bg-slate-600"></span>
-                        <span className="text-[10px] text-pink-400 font-bold">Reel Post</span>
-                      </div>
-                      <span className="text-[10px] text-slate-500 block">Tech Creator • 12.4k views</span>
-                    </div>
-                  </div>
-                  <span className="px-2 py-0.5 bg-pink-500/10 text-pink-400 border border-pink-500/20 text-[9px] font-bold rounded-full">
-                    Trigger Active
-                  </span>
-                </div>
-
-                <p className="text-xs text-slate-300 leading-relaxed mb-4">
-                  "Want my exact portfolio layout and developer templates? Comment <span className="bg-pink-500/20 border border-pink-500/30 text-pink-300 font-black px-1.5 py-0.5 rounded text-[11px]">PORTFOLIO</span> below and I'll DM you the link instantly! 👇"
-                </p>
-
-                {/* Simulated Incoming Comments */}
-                <div className="space-y-2 pt-2 border-t border-slate-800/60">
-                  <div className="flex items-center justify-between bg-slate-950/70 border border-slate-800/60 rounded-xl px-3 py-2 text-xs">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-[10px] font-bold text-white">
-                        P
-                      </div>
-                      <span className="text-slate-400 text-[11px] font-semibold">@priya_dev</span>
-                      <span className="text-pink-400 font-black text-[11px]">PORTFOLIO 🔥</span>
-                    </div>
-                    <span className="text-[9px] text-emerald-400 font-bold flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                      DM Triggered
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between bg-slate-950/70 border border-slate-800/60 rounded-xl px-3 py-2 text-xs">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center text-[10px] font-bold text-white">
-                        R
-                      </div>
-                      <span className="text-slate-400 text-[11px] font-semibold">@rohan_builds</span>
-                      <span className="text-pink-400 font-black text-[11px]">portfolio please 🙌</span>
-                    </div>
-                    <span className="text-[9px] text-emerald-400 font-bold flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                      DM Triggered
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Connecting Flow Arrow */}
-              <div className="flex items-center gap-3 text-xs text-slate-400 font-bold">
-                <div className="w-12 h-px bg-gradient-to-r from-pink-500 to-emerald-400"></div>
-                <span className="px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-emerald-400 text-[10px] uppercase tracking-wider flex items-center gap-1.5 shadow-md">
-                  <FaBolt className="text-amber-400 text-[11px]" />
-                  Automated dispatch under 2 seconds
-                </span>
-                <div className="w-12 h-px bg-gradient-to-r from-emerald-400 to-pink-500"></div>
-              </div>
-
-              {/* Card 2: The Automated DM Received by Follower */}
-              <div className="w-full max-w-md bg-gradient-to-br from-slate-900 to-slate-950 border border-emerald-500/30 rounded-2xl p-5 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
-
-                <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-[10px] font-bold text-white">
-                      BB
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-white block">Instagram Direct</span>
-                      <span className="text-[9px] text-emerald-400 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Active Now
-                      </span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-slate-500 font-semibold">Just now</span>
-                </div>
-
-                <div className="bg-slate-800/80 border border-slate-700/70 rounded-2xl p-3.5 space-y-2.5">
-                  <p className="text-xs text-slate-200 leading-relaxed">
-                    Hey! 👋 Thanks for commenting on my post. Here is your direct link to my portfolio website & bio links:
-                  </p>
-                  
-                  <div className="bg-slate-950/80 border border-emerald-500/30 rounded-xl p-2.5 flex items-center justify-between">
-                    <div className="truncate pr-2">
-                      <span className="text-[10px] text-slate-400 block font-semibold">Live Portfolio Website</span>
-                      <span className="text-xs font-black text-emerald-400 truncate block">https://username.bytebodh.in</span>
-                    </div>
-                    <a
-                      href="/templates"
-                      className="px-2.5 py-1 bg-emerald-500 text-white rounded-lg text-[10px] font-black whitespace-nowrap hover:bg-emerald-400 transition-colors"
-                    >
-                      Visit ↗
-                    </a>
-                  </div>
-
-                  <div className="bg-slate-950/80 border border-purple-500/30 rounded-xl p-2.5 flex items-center justify-between">
-                    <div className="truncate pr-2">
-                      <span className="text-[10px] text-slate-400 block font-semibold">Linktree Bio Profile</span>
-                      <span className="text-xs font-black text-purple-400 truncate block">https://bytebodh.in/username</span>
-                    </div>
-                    <a
-                      href="/register"
-                      className="px-2.5 py-1 bg-purple-600 text-white rounded-lg text-[10px] font-black whitespace-nowrap hover:bg-purple-500 transition-colors"
-                    >
-                      Open ↗
-                    </a>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between mt-3 text-[10px] text-slate-500 font-semibold">
-                  <span>Automated via ByteBodh Engine</span>
-                  <span className="text-emerald-400 font-bold flex items-center gap-1">
-                    <FaCheckCircle className="text-emerald-400 text-xs" /> Delivered Instantly
-                  </span>
-                </div>
+              <div className="relative w-full max-w-lg mx-auto flex items-center justify-center p-2">
+                <div className="absolute -inset-6 bg-gradient-to-tr from-pink-500/10 via-purple-500/10 to-emerald-500/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+                <img
+                  src={metaImg}
+                  alt="Turn Instagram Comments into Instant DMs & Direct Traffic - ByteBodh Automation"
+                  className="w-full h-auto max-h-[640px] object-contain drop-shadow-2xl hover:scale-[1.02] transition-transform duration-500"
+                />
               </div>
             </motion.div>
 
@@ -1174,16 +1325,14 @@ const Homepage = () => {
               variants={staggerContainer}
             >
               <motion.div variants={fadeInUp} className="space-y-4">
-                <span className="text-emerald-400 text-xs font-black uppercase tracking-wider">
+                <span className="text-emerald-600 text-xs font-black uppercase tracking-wider">
                   Automate While You Sleep
                 </span>
-                <h3 className="text-2xl md:text-4xl font-black text-white tracking-tight leading-tight">
+                <h3 className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight">
                   Never Tell Anyone to <br />
-                  <span className="text-pink-400">"Check the Link in Bio"</span> Again
+                  <span className="text-pink-600">"Check the Link in Bio"</span> Again
                 </h3>
-                <p className="text-slate-400 text-sm md:text-base leading-relaxed">
-                  Only 2% of Instagram viewers actually visit a creator's profile to open their bio link. With ByteBodh Comment-to-DM automation, over 40% of viewers receive your personal portfolio or Linktree link straight into their DMs the moment they comment.
-                </p>
+
               </motion.div>
 
               {/* 4 Feature Cards */}
@@ -1192,37 +1341,37 @@ const Homepage = () => {
                   {
                     title: "Trigger Word Engine",
                     desc: "Set custom trigger words like PORTFOLIO, CODE, RESUME, or SEND. Works across reels, posts, or carousel media.",
-                    icon: <FaComments className="text-pink-400 text-lg" />,
-                    bg: "bg-pink-500/10 border-pink-500/20"
+                    icon: <FaComments className="text-pink-600 text-lg" />,
+                    bg: "bg-pink-50 border-pink-200"
                   },
                   {
                     title: "< 3s Instant Delivery",
                     desc: "Dispatches personalized DMs via high-performance webhooks powered by official Meta Graph API.",
-                    icon: <FaBolt className="text-amber-400 text-lg" />,
-                    bg: "bg-amber-500/10 border-amber-500/20"
+                    icon: <FaBolt className="text-amber-500 text-lg" />,
+                    bg: "bg-amber-50 border-amber-200"
                   },
                   {
                     title: "Recruiter & Lead Capture",
                     desc: "Capture direct leads from Instagram comments and seamlessly route them to your portfolio or Linktree.",
-                    icon: <FaChartLine className="text-emerald-400 text-lg" />,
-                    bg: "bg-emerald-500/10 border-emerald-500/20"
+                    icon: <FaChartLine className="text-emerald-600 text-lg" />,
+                    bg: "bg-emerald-50 border-emerald-200"
                   },
                   {
                     title: "100% Meta Verified & Safe",
                     desc: "Uses official Instagram OAuth credentials. Fully compliant with Instagram platform terms — zero risk to your account.",
-                    icon: <FaShieldAlt className="text-purple-400 text-lg" />,
-                    bg: "bg-purple-500/10 border-purple-500/20"
+                    icon: <FaShieldAlt className="text-purple-600 text-lg" />,
+                    bg: "bg-purple-50 border-purple-200"
                   }
                 ].map((item, idx) => (
                   <div
                     key={idx}
-                    className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all group"
+                    className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md hover:border-pink-200 transition-all group"
                   >
                     <div className={`w-10 h-10 rounded-xl ${item.bg} border flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
                       {item.icon}
                     </div>
-                    <h4 className="font-bold text-white text-sm mb-1">{item.title}</h4>
-                    <p className="text-[11px] text-slate-400 leading-relaxed font-medium">{item.desc}</p>
+                    <h4 className="font-bold text-slate-900 text-sm mb-1">{item.title}</h4>
+                    <p className="text-[11px] text-slate-500 leading-relaxed font-medium">{item.desc}</p>
                   </div>
                 ))}
               </motion.div>
@@ -1240,9 +1389,9 @@ const Homepage = () => {
 
                 <a
                   href="#pricing"
-                  className="w-full sm:w-auto text-center px-6 py-4 bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-slate-600 text-slate-300 font-bold rounded-2xl transition-all text-sm flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto text-center px-6 py-4 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-700 font-bold rounded-2xl transition-all text-sm flex items-center justify-center gap-2 shadow-sm"
                 >
-                  <FaCrown className="text-amber-400 text-xs" />
+                  <FaCrown className="text-amber-500 text-xs" />
                   Included in Pro Plan
                 </a>
               </motion.div>
@@ -1407,195 +1556,377 @@ const Homepage = () => {
 
 
 
-      {/* TESTIMONIALS SECTION - Enhanced */}
-      <section className="py-24 bg-white border-t border-slate-100 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6">
+      {/* TESTIMONIALS SECTION - Professional & Enhanced */}
+      <section className="py-28 bg-gradient-to-b from-slate-50 via-white to-slate-50/70 border-t border-slate-200/80 relative overflow-hidden" id="reviews">
+        {/* Subtle ambient lighting */}
+        <div className="absolute top-12 left-1/4 w-[500px] h-[300px] bg-emerald-500/5 rounded-full blur-[140px] pointer-events-none"></div>
+        <div className="absolute bottom-12 right-1/4 w-[450px] h-[300px] bg-teal-500/5 rounded-full blur-[140px] pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          {/* Section Header */}
           <motion.div
-            className="text-center max-w-3xl mx-auto mb-16 space-y-4"
+            className="text-center max-w-3xl mx-auto mb-12 space-y-4"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-50px" }}
             variants={staggerContainer}
           >
-            <motion.span variants={fadeInUp} className="px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2">
-              <FaStar size={12} />
+            <motion.span variants={fadeInUp} className="px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 shadow-sm">
+              <FaStar className="text-amber-400" size={13} />
               Reviews
             </motion.span>
-            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
-              Loved by Students and <span className="text-emerald-500">Professionals</span>
+            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+              Loved by Students and <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">Professionals</span>
             </motion.h2>
-            <motion.p variants={fadeInUp} className="text-lg text-slate-500">
-              Read how freshers and senior developers leverage ByteBodh to build their credentials.
+            <motion.p variants={fadeInUp} className="text-base sm:text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">
+              Read how freshers, college students, and senior software engineers build their digital credentials and stand out to top recruiters.
             </motion.p>
           </motion.div>
 
-          <div className="relative">
-            <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
-            <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
-
-            <div className="flex overflow-hidden group">
-              <div className="flex gap-8 animate-[marquee_30s_linear_infinite] group-hover:[animation-play-state:paused]">
-                {[...testimonials, ...testimonials].map((t, idx) => (
-                  <div
-                    key={idx}
-                    className="w-[380px] shrink-0 bg-gradient-to-br from-white to-slate-50/80 border border-slate-200/60 p-8 rounded-3xl relative flex flex-col justify-between hover:shadow-2xl hover:border-emerald-500/30 transition-all duration-300 hover:-translate-y-2"
-                  >
-                    <div>
-                      <div className="flex gap-1 text-emerald-500 mb-4">
-                        {[...Array(t.rating)].map((_, i) => (
-                          <FaStar key={i} size={14} className="fill-current" />
-                        ))}
-                      </div>
-                      <p className="text-sm text-slate-600 leading-relaxed italic">"{t.quote}"</p>
-                    </div>
-                    <div className="flex items-center mt-8 pt-4 border-t border-slate-200/40">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-sm shadow-lg flex-shrink-0">
-                        {t.avatar}
-                      </div>
-                      <div className="ml-4">
-                        <h4 className="font-bold text-slate-900 text-sm leading-none">{t.name}</h4>
-                        <p className="text-[10px] text-slate-400 mt-1.5 font-semibold">{t.role}</p>
-                      </div>
-                    </div>
-                    <span className="absolute top-6 right-6 px-3 py-1 bg-emerald-500/10 text-emerald-600 text-[8px] font-extrabold uppercase rounded-lg border border-emerald-500/20">
-                      {t.tag}
-                    </span>
-                  </div>
+          {/* Social Proof Metric Cards */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto mb-10"
+          >
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-sm text-center hover:border-emerald-500/30 transition-all">
+              <div className="flex items-center justify-center gap-1 text-amber-400 mb-1.5">
+                {[...Array(5)].map((_, i) => (
+                  <FaStar key={i} size={13} className="fill-current" />
                 ))}
               </div>
+              <div className="text-2xl font-black text-slate-900 tracking-tight">4.9 / 5.0</div>
+              <p className="text-[11px] font-semibold text-slate-400 mt-0.5">Google Play & Web Rating</p>
+            </div>
+
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-sm text-center hover:border-emerald-500/30 transition-all">
+              <div className="text-2xl font-black text-emerald-600 tracking-tight mb-1">94%</div>
+              <div className="text-xs font-bold text-slate-800">Placement Callback Rate</div>
+              <p className="text-[11px] font-semibold text-slate-400 mt-0.5">Reported Live URL Boost</p>
+            </div>
+
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-sm text-center hover:border-emerald-500/30 transition-all">
+              <div className="text-2xl font-black text-slate-900 tracking-tight mb-1">100+</div>
+              <div className="text-xs font-bold text-slate-800">App Downloads</div>
+              <p className="text-[11px] font-semibold text-slate-400 mt-0.5">Google Play Store</p>
+            </div>
+
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-sm text-center hover:border-emerald-500/30 transition-all">
+              <div className="text-2xl font-black text-emerald-600 tracking-tight mb-1">&lt; 2 Mins</div>
+              <div className="text-xs font-bold text-slate-800">Time to Live Profile</div>
+              <p className="text-[11px] font-semibold text-slate-400 mt-0.5">Instant Free Deployment</p>
+            </div>
+          </motion.div>
+
+          {/* Interactive Filter Pills */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-10">
+            {[
+              { key: "ALL", label: "All Reviews (6)", icon: <FaStar size={11} /> },
+              { key: "STUDENT", label: "Students & Campus Placements", icon: <FaUserGraduate size={11} /> },
+              { key: "PROFESSIONAL", label: "Working Professionals & SDEs", icon: <FaUserTie size={11} /> }
+            ].map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setReviewFilter(tab.key)}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                  reviewFilter === tab.key
+                    ? "bg-slate-900 text-white shadow-md shadow-slate-900/20 scale-105"
+                    : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80"
+                }`}
+              >
+                <span className={reviewFilter === tab.key ? "text-emerald-400" : "text-slate-400"}>
+                  {tab.icon}
+                </span>
+                <span>{tab.label}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Testimonial Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredReviews.map((item, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: idx * 0.06 }}
+                className="bg-white rounded-3xl border border-slate-200/80 p-7 flex flex-col justify-between shadow-sm hover:shadow-xl hover:border-emerald-500/40 transition-all duration-300 hover:-translate-y-1.5 relative group"
+              >
+                <div>
+                  {/* Card Header: Stars & Verified Badge */}
+                  <div className="flex items-center justify-between gap-2 mb-4">
+                    <div className="flex gap-1 text-amber-400">
+                      {[...Array(item.rating)].map((_, i) => (
+                        <FaStar key={i} size={13} className="fill-current" />
+                      ))}
+                    </div>
+                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/70 inline-flex items-center gap-1.5 shadow-sm">
+                      <FaCheckCircle size={10} className="text-emerald-500" />
+                      Verified {item.tag}
+                    </span>
+                  </div>
+
+                  {/* Quote Content */}
+                  <div className="relative">
+                    <FaQuoteLeft className="text-slate-200/90 text-xl mb-2" />
+                    <p className="text-sm text-slate-700 leading-relaxed font-normal">
+                      "{item.quote}"
+                    </p>
+                  </div>
+
+                  {/* Outcome Highlight Pill */}
+                  <div className="mt-5 px-3 py-1.5 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2 text-[11px] font-semibold text-slate-700">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                    <span className="truncate">{item.result}</span>
+                  </div>
+                </div>
+
+                {/* Reviewer Details Footer */}
+                <div className="flex items-center gap-3.5 mt-6 pt-4 border-t border-slate-100">
+                  <div className={`w-11 h-11 rounded-2xl bg-gradient-to-tr ${item.avatarBg} flex items-center justify-center text-white font-black text-xs shadow-md shrink-0 group-hover:scale-105 transition-transform`}>
+                    {item.avatar}
+                  </div>
+                  <div className="min-w-0 flex-1 text-left">
+                    <h4 className="font-bold text-slate-900 text-sm leading-tight truncate">
+                      {item.name}
+                    </h4>
+                    <p className="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                      {item.role}
+                    </p>
+                    <p className="text-[10px] text-emerald-600 font-bold truncate">
+                      {item.organization}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Social Proof Alumni & Hiring Strip */}
+          <div className="mt-16 pt-8 border-t border-slate-200/60 text-center">
+            <p className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest mb-4">
+              ByteBodh Portfolios Are Presented At Top Universities & Companies
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs font-black text-slate-600">
+              {["Google", "Microsoft", "Razorpay", "BITS Pilani", "Tech Mahindra", "VIT University", "IIT Hyderabad", "Amazon", "Flipkart"].map((org, i) => (
+                <div key={i} className="flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span>{org}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
       {/* MOBILE APP SECTION - Enhanced */}
-      <section className="py-20 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white relative overflow-hidden border-t border-b border-slate-900">
-        <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none"></div>
-        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none"></div>
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent"></div>
+      <section className="py-24 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white relative overflow-hidden border-t border-b border-slate-900">
+        {/* Glow ambient background effects */}
+        <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none"></div>
+        <div className="absolute bottom-0 right-1/4 w-[450px] h-[450px] bg-teal-500/10 rounded-full blur-[140px] pointer-events-none"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(16,185,129,0.12),rgba(0,0,0,0))] pointer-events-none"></div>
 
-        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-12 items-center relative z-10">
+        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-12 lg:gap-16 items-center relative z-10">
+          {/* Left Column: Details, Features & CTAs */}
           <motion.div
-            className="lg:col-span-7 space-y-6 text-left"
+            className="lg:col-span-7 space-y-7 text-left"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-50px" }}
             variants={staggerContainer}
           >
-            <motion.span variants={fadeInUp} className="px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2">
-              <FaMobileAlt size={12} />
-              On The Go
-            </motion.span>
-            <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
-              ByteBodh Mobile App <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-300">Available Now</span>
-            </motion.h2>
-            <motion.p variants={fadeInUp} className="text-slate-400 text-base md:text-lg leading-relaxed max-w-xl">
-              Create, update, and monitor your personal portfolio directly from your mobile device. Edit projects, check analytics, and share your QR code link instantly from anywhere.
-            </motion.p>
+            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <FaMobileAlt size={13} className="text-emerald-400" />
+              <span>ByteBodh Mobile • Android App</span>
+            </motion.div>
 
-            <motion.div variants={fadeInUp} className="flex flex-wrap items-center gap-4 pt-4">
+            <motion.div variants={fadeInUp} className="space-y-3">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1]">
+                ByteBodh Mobile App <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-200">
+                  Available Now
+                </span>
+              </h2>
+              <p className="text-slate-300 text-base md:text-lg leading-relaxed max-w-xl font-normal">
+                Create, customize, and monitor your personal portfolio directly from your phone. Edit live projects, track real-time analytics, and share your instant QR code with recruiters anywhere.
+              </p>
+            </motion.div>
+
+            {/* Feature Highlights Grid */}
+            <motion.div variants={fadeInUp} className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+              {[
+                {
+                  title: "Live Visitor Analytics",
+                  desc: "Track real-time visits, views & profile shares",
+                  icon: <FaChartLine className="text-emerald-400" />
+                },
+                {
+                  title: "Instant QR Code Share",
+                  desc: "One-tap scannable badge for meetups & interviews",
+                  icon: <FaQrcode className="text-emerald-400" />
+                },
+                {
+                  title: "On-The-Go Editor",
+                  desc: "Add projects, skills & customize bio instantly",
+                  icon: <FaBolt className="text-emerald-400" />
+                },
+                {
+                  title: "Instant Cloud Sync",
+                  desc: "Auto-synced across web and custom domain",
+                  icon: <FaShieldAlt className="text-emerald-400" />
+                }
+              ].map((feature, idx) => (
+                <div
+                  key={idx}
+                  className="group p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-emerald-500/40 hover:bg-slate-900/90 transition-all duration-300 backdrop-blur-sm"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all">
+                      {feature.icon}
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-white group-hover:text-emerald-300 transition-colors">
+                        {feature.title}
+                      </h4>
+                      <p className="text-xs text-slate-400 mt-0.5 leading-snug">
+                        {feature.desc}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+
+            {/* CTA & QR Code Download Row */}
+            <motion.div variants={fadeInUp} className="flex flex-wrap items-center gap-4 pt-2">
               <a
                 href="https://play.google.com/store/apps/details?id=com.bytebodh.bytebodh&pcampaignid=web_share"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-6 py-3.5 bg-slate-800/80 border border-slate-700 rounded-2xl text-left hover:bg-slate-800 hover:border-emerald-500/50 transition-all shadow-xl group cursor-pointer hover:-translate-y-1"
+                className="inline-flex items-center gap-4 px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold rounded-2xl transition-all shadow-[0_10px_30px_rgba(16,185,129,0.3)] hover:shadow-[0_15px_35px_rgba(16,185,129,0.5)] hover:-translate-y-0.5 group cursor-pointer"
               >
-                <FaGooglePlay className="text-white text-2xl group-hover:text-emerald-400 transition-colors" />
-                <div>
-                  <span className="text-[10px] text-slate-500 uppercase font-extrabold tracking-wider block">Get it on</span>
-                  <span className="text-sm font-bold text-white block">Google Play</span>
+                <FaGooglePlay className="text-slate-950 text-2xl group-hover:scale-110 transition-transform" />
+                <div className="text-left">
+                  <span className="text-[10px] text-slate-900/80 uppercase font-black tracking-wider block leading-tight">
+                    Get it on
+                  </span>
+                  <span className="text-sm sm:text-base font-black text-slate-950 block leading-tight">
+                    Google Play Store
+                  </span>
                 </div>
               </a>
 
-              <div className="flex items-center gap-3 text-slate-400 text-sm">
-                <span className="w-8 h-px bg-slate-700"></span>
-                <span className="flex items-center gap-1">
-                  <FaQrcode className="text-emerald-400" />
-                  <span>QR Code Available</span>
-                </span>
+              {/* Scan to Download Card */}
+              <div className="flex items-center gap-3.5 px-4 py-2.5 rounded-2xl bg-slate-900/80 border border-slate-800 backdrop-blur-md">
+                <div className="p-1.5 bg-white rounded-lg shadow-sm shrink-0">
+                  <QRCode
+                    value="https://play.google.com/store/apps/details?id=com.bytebodh.bytebodh&pcampaignid=web_share"
+                    size={42}
+                    level="M"
+                  />
+                </div>
+                <div className="text-left">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+                    <FaQrcode className="text-emerald-400 text-[11px]" />
+                    <span>Scan to Install</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">Point phone camera</p>
+                </div>
               </div>
             </motion.div>
 
-            <motion.div variants={fadeInUp} className="flex gap-6 pt-2">
-              {[
-                { icon: <FaChartLine />, label: "Analytics" },
-                { icon: <FaShareAlt />, label: "Share" },
-                { icon: <FaRegHeart />, label: "Favorites" }
-              ].map((item, idx) => (
-                <div key={idx} className="flex items-center gap-2 text-slate-400 text-xs">
-                  <span className="text-emerald-400">{item.icon}</span>
-                  <span>{item.label}</span>
+            {/* Trust and Rating Badges */}
+            <motion.div variants={fadeInUp} className="flex flex-wrap items-center gap-6 pt-3 text-xs text-slate-400 border-t border-slate-800/80">
+              <div className="flex items-center gap-1.5">
+                <div className="flex text-amber-400">
+                  {[...Array(5)].map((_, i) => (
+                    <FaStar key={i} size={12} className="fill-current" />
+                  ))}
                 </div>
-              ))}
+                <span className="font-bold text-white">4.9 / 5</span>
+                <span className="text-slate-500">(Google Play)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span>Free to Download</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span>Fast & Lightweight</span>
+              </div>
             </motion.div>
           </motion.div>
 
-          <div className="lg:col-span-5 flex justify-center w-full">
-            <div className="relative w-full max-w-[280px] aspect-[9/19] bg-slate-900 border-[6px] border-slate-800 rounded-[2.5rem] shadow-2xl p-3 flex flex-col justify-between overflow-hidden group hover:shadow-emerald-500/20 transition-shadow duration-500">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 h-5 w-24 bg-slate-800 rounded-b-2xl z-20"></div>
+          {/* Right Column: 3D Mobile App Visual Showcase */}
+          <div className="lg:col-span-5 flex justify-center items-center w-full relative">
+            <motion.div
+              className="relative flex items-center justify-center w-full max-w-[460px]"
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+            >
+              {/* Radial backdrop lights */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/25 via-teal-500/20 to-transparent rounded-full blur-[90px] pointer-events-none animate-pulse"></div>
 
-              <div className="flex-1 rounded-[1.8rem] bg-gradient-to-b from-slate-950 to-slate-900 border border-slate-800/50 p-4 pt-8 flex flex-col justify-between relative overflow-hidden text-xs">
-                <div className="absolute top-[-20%] right-[-20%] w-32 h-32 bg-emerald-500/20 rounded-full blur-2xl"></div>
-                <div className="absolute bottom-[-20%] left-[-20%] w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
+              {/* Modern ambient circular tech accents */}
+              <div className="absolute w-[360px] h-[360px] md:w-[420px] md:h-[420px] border border-emerald-500/15 rounded-full pointer-events-none"></div>
+              <div className="absolute w-[280px] h-[280px] md:w-[340px] md:h-[340px] border border-emerald-500/10 rounded-full border-dashed pointer-events-none animate-[spin_60s_linear_infinite]"></div>
 
-                <div className="space-y-4 relative z-10">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[8px] font-black tracking-widest text-emerald-500 uppercase flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                      ByteBodh App
-                    </span>
-                  </div>
+              {/* Floating Feature Tag Top Right */}
+              <motion.div
+                animate={{ y: [0, -6, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -top-3 right-2 sm:right-6 z-20 hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-900/90 border border-emerald-500/30 backdrop-blur-md shadow-xl text-xs font-semibold text-white"
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span>Live Sync Active</span>
+              </motion.div>
 
-                  <div className="p-3 bg-slate-800/50 rounded-xl border border-slate-700/60 space-y-2 backdrop-blur-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-600 to-emerald-400 flex items-center justify-center font-bold text-[10px] shadow-lg">BB</div>
-                      <div>
-                        <h4 className="font-bold text-white text-[10px]">Your Portfolio</h4>
-                        <p className="text-[8px] text-emerald-400">username.bytebodh.in</p>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-1.5 text-[8px] pt-1">
-                      <div className="bg-slate-900/80 p-1.5 rounded border border-slate-700/50">
-                        <span className="text-slate-500 block">Total Views</span>
-                        <span className="font-extrabold text-white text-[9px]">1,240</span>
-                      </div>
-                      <div className="bg-slate-900/80 p-1.5 rounded border border-slate-700/50">
-                        <span className="text-slate-500 block">Templates</span>
-                        <span className="font-extrabold text-emerald-400 text-[9px]">Hacker Terminal</span>
-                      </div>
-                    </div>
-                  </div>
+              {/* Floating Tag Bottom Left */}
+              <motion.div
+                animate={{ y: [0, 6, 0] }}
+                transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                className="absolute -bottom-2 left-2 sm:left-6 z-20 hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-900/90 border border-slate-700/60 backdrop-blur-md shadow-xl text-xs font-semibold text-slate-200"
+              >
+                <FaCheckCircle className="text-emerald-400 text-sm" />
+                <span>Android 8.0 & Above</span>
+              </motion.div>
 
-                  <div className="space-y-2 text-[9px]">
-                    {[
-                      "Live Site Analytics Tracker",
-                      "Instant QR Code Generation",
-                      "AI Bio Editor (Version 2.0)"
-                    ].map((item, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-slate-400 hover:text-slate-300 transition-colors">
-                        <div className="w-4 h-4 rounded-full bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-[8px] border border-emerald-500/20">
-                          <FaCheckCircle size={10} />
-                        </div>
-                        <span>{item}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
+              {/* Main mobileapp.png image */}
+              <motion.div
+                className="relative z-10 filter drop-shadow-[0_25px_45px_rgba(16,185,129,0.25)]"
+                whileHover={{ y: -6, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
                 <a
                   href="https://play.google.com/store/apps/details?id=com.bytebodh.bytebodh&pcampaignid=web_share"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-extrabold text-center rounded-xl text-[9px] cursor-pointer transition-all mt-4 block shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40"
+                  className="block cursor-pointer focus:outline-none"
+                  title="Download ByteBodh on Google Play"
                 >
-                  Download App 📱
+                  <img
+                    src={mobileAppImg}
+                    alt="ByteBodh Mobile App on Google Play - Create and showcase your portfolio"
+                    className="w-full max-w-[340px] sm:max-w-[400px] md:max-w-[440px] lg:max-w-[460px] h-auto object-contain mx-auto select-none"
+                    loading="lazy"
+                  />
                 </a>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </section>
+
 
       {/* FAQ SECTION - Enhanced */}
       <section className="py-24 bg-gradient-to-b from-white to-slate-50/50 border-t border-slate-100">
@@ -1688,13 +2019,13 @@ const Homepage = () => {
             <div className="relative z-10 space-y-8 max-w-3xl mx-auto">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 text-sm font-medium">
                 <FaRocket className="text-emerald-200" />
-                <span>Join 10,000+ users today</span>
+                <span>Join 100+ creators & developers</span>
               </div>
               <h2 className="text-3xl md:text-5xl font-black leading-tight tracking-tight">
                 Launch Your Portfolio Today
               </h2>
               <p className="text-lg text-emerald-50 max-w-xl mx-auto">
-                Join thousands of students and professionals building their online presence with ByteBodh.
+                Join ambitious students and professionals building their online presence with ByteBodh.
               </p>
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
                 <Link

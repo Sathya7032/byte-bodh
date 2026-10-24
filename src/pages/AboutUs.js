@@ -227,7 +227,7 @@ function AboutUs() {
                 Start Building Your Brand Online
               </h2>
               <p className="text-lg text-emerald-50 max-w-xl mx-auto">
-                Join over 10,000+ developers, designers, and students showcase their work and accelerate their careers with ByteBodh.
+                Join 100+ developers, designers, and students showcasing their work and accelerating their careers with ByteBodh.
               </p>
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
                 <Link

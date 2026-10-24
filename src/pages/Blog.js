@@ -604,7 +604,7 @@ function Blog() {
               <div className="bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 rounded-3xl p-6 text-white shadow-xl shadow-emerald-500/20 space-y-3">
                 <h4 className="text-lg font-black tracking-tight">Stay Ahead with ByteBodh</h4>
                 <p className="text-xs text-emerald-50 font-medium leading-relaxed">
-                  Join 10,000+ developers receiving monthly engineering guides and career strategies.
+                  Join 100+ developers receiving monthly engineering guides and career strategies.
                 </p>
                 <div className="space-y-2 pt-2">
                   <input
