@@ -13,6 +13,7 @@ import {
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import useSEO from "../hooks/useSEO";
+import LinktreeTemplatesShowcase from "../components/LinktreeTemplatesShowcase";
 
 const ALL_TEMPLATES = [
   {
@@ -259,6 +260,13 @@ const Templates = () => {
             </div>
           </div>
 
+          <a
+            href="#linktree-templates"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700"
+          >
+            Looking for link-in-bio designs? See Linktree templates <FaArrowRight size={9} />
+          </a>
+
           {/* CATEGORY FILTER PILLS */}
           <div className="flex items-center justify-center flex-wrap gap-2 pt-4">
             {CATEGORIES.map((cat) => (
@@ -396,6 +404,9 @@ const Templates = () => {
           )}
         </div>
       </section>
+
+      {/* LINKTREE (LINK-IN-BIO) TEMPLATES */}
+      <LinktreeTemplatesShowcase className="bg-white border-t border-slate-100" />
 
         {/* BOTTOM CTA SECTION */}
         <section className="max-w-7xl mx-auto px-6 py-20">

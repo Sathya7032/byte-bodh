@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { INSTAGRAM_COMING_SOON } from "../config/features";
 import { toast } from "react-toastify";
 import DashboardLayout from "./components/DashboardLayout";
 import { getUser } from "../services/auth";
@@ -20,7 +21,7 @@ import {
 const PERKS = [
   { icon: <FaPalette />, text: "Unlock every premium portfolio template in the catalog" },
   { icon: <FaExternalLinkAlt />, text: "Connect your custom domain with automatic SSL" },
-  { icon: <FaBolt />, text: "Unlimited Instagram Comment-to-DM auto-replies" },
+  { icon: <FaBolt />, text: `Unlimited Instagram Comment-to-DM auto-replies${INSTAGRAM_COMING_SOON ? " (coming soon)" : ""}` },
   { icon: <FaEnvelopeOpenText />, text: "Direct recruiter inbox & portfolio contact messaging" },
   { icon: <FaQrcode />, text: "High-resolution shareable vector QR codes" },
 ];
@@ -381,7 +382,7 @@ const Subscription = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <FaCheckCircle className="text-emerald-400 shrink-0" size={13} />
-                        <span>Instagram Comment-to-DM Automation</span>
+                        <span>Instagram Comment-to-DM Automation{INSTAGRAM_COMING_SOON && " (Coming Soon)"}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <FaCheckCircle className="text-emerald-400 shrink-0" size={13} />
@@ -400,7 +401,7 @@ const Subscription = () => {
                         href="/instagram-automation"
                         className="p-3 rounded-xl bg-gradient-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 border border-pink-500/30 text-white font-bold text-xs flex items-center justify-center gap-2 transition text-center"
                       >
-                        <FaBolt className="text-pink-400" /> Instagram Auto-DM
+                        <FaBolt className="text-pink-400" /> Instagram Auto-DM{INSTAGRAM_COMING_SOON && " (Soon)"}
                       </a>
                       <a
                         href="/portfolio-templates"

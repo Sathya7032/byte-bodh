@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { INSTAGRAM_COMING_SOON } from "../config/features";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -36,6 +37,7 @@ import { getAllTemplates } from "../api/templateService";
 import PricingPlans from "../components/PricingPlans";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import LinktreeTemplatesShowcase from "../components/LinktreeTemplatesShowcase";
 import useSEO from "../hooks/useSEO";
 import freeTemplate from "../assets/images/FreeTemplate.png";
 import template2 from "../assets/images/Template2.png";
@@ -538,8 +540,8 @@ const Homepage = () => {
                 {
                   title: "Instagram Automations",
                   subtitle: "Comment-to-DM Traffic Engine",
-                  badge: "Meta Verified",
-                  badgeColor: "bg-purple-100 text-purple-700 border-purple-200",
+                  badge: INSTAGRAM_COMING_SOON ? "Coming Soon" : "Meta Verified",
+                  badgeColor: INSTAGRAM_COMING_SOON ? "bg-amber-100 text-amber-700 border-amber-200" : "bg-purple-100 text-purple-700 border-purple-200",
                   desc: "Convert Instagram Reel and Post viewers into direct portfolio traffic. Automatically send your live portfolio link, Linktree, or resume straight into follower DMs in under 3 seconds when they comment.",
                   icon: <FaInstagram className="text-purple-500 text-xl" />,
                   iconBg: "bg-purple-50 border-purple-200",
@@ -1026,6 +1028,9 @@ const Homepage = () => {
           </div>
         </section>
 
+        {/* LINKTREE (LINK-IN-BIO) TEMPLATES */}
+        <LinktreeTemplatesShowcase className="bg-white border-t border-slate-200/80" />
+
         {/* ThemeWagon Interactive Live Demo Modal */}
         {previewModalTemplate && (
           <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex flex-col">
@@ -1145,7 +1150,11 @@ const Homepage = () => {
             <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-pink-50 via-purple-50 to-emerald-50 border border-pink-200/80 text-pink-600 text-xs font-black uppercase tracking-wider shadow-sm">
               <FaInstagram className="text-pink-500 text-sm" />
               <span>Instagram Comment-to-DM Engine</span>
-              <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[9px] font-black tracking-normal">PRO</span>
+              {INSTAGRAM_COMING_SOON ? (
+                <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[9px] font-black tracking-normal">COMING SOON</span>
+              ) : (
+                <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[9px] font-black tracking-normal">PRO</span>
+              )}
             </motion.div>
 
             <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
@@ -1155,7 +1164,11 @@ const Homepage = () => {
               </span>
             </motion.h2>
 
-
+            {INSTAGRAM_COMING_SOON && (
+              <motion.p variants={fadeInUp} className="text-sm md:text-base text-slate-500 font-medium">
+                Launching soon. We're waiting for Meta to approve our app.
+              </motion.p>
+            )}
           </motion.div>
 
           {/* 2-Column Showcase */}
@@ -1219,8 +1232,10 @@ const Homepage = () => {
                     bg: "bg-emerald-50 border-emerald-200"
                   },
                   {
-                    title: "100% Meta Verified & Safe",
-                    desc: "Uses official Instagram OAuth credentials. Fully compliant with Instagram platform terms — zero risk to your account.",
+                    title: INSTAGRAM_COMING_SOON ? "Official Meta API & Safe" : "100% Meta Verified & Safe",
+                    desc: INSTAGRAM_COMING_SOON
+                      ? "Built on official Instagram OAuth and the Meta Graph API. Meta app review is in progress."
+                      : "Uses official Instagram OAuth credentials. Fully compliant with Instagram platform terms — zero risk to your account.",
                     icon: <FaShieldAlt className="text-purple-600 text-lg" />,
                     bg: "bg-purple-50 border-purple-200"
                   }
@@ -1240,6 +1255,15 @@ const Homepage = () => {
 
               {/* CTA Buttons */}
               <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center gap-4 pt-2">
+                {INSTAGRAM_COMING_SOON ? (
+                  <span
+                    aria-disabled="true"
+                    className="w-full sm:w-auto text-center px-8 py-4 bg-slate-200 text-slate-500 font-extrabold rounded-2xl cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    <FaInstagram className="text-lg" />
+                    Instagram Auto-DM: Coming Soon
+                  </span>
+                ) : (
                 <Link
                   to="/register"
                   className="w-full sm:w-auto text-center px-8 py-4 bg-gradient-to-r from-pink-500 via-purple-600 to-emerald-500 hover:from-pink-600 hover:via-purple-700 hover:to-emerald-600 text-white font-extrabold rounded-2xl shadow-xl shadow-pink-500/20 hover:shadow-2xl hover:shadow-pink-500/30 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2"
@@ -1248,6 +1272,7 @@ const Homepage = () => {
                   Try Instagram Auto-DM
                   <FaArrowRight size={12} />
                 </Link>
+                )}
 
                 <a
                   href="#pricing"

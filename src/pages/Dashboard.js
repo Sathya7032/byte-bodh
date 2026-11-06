@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { INSTAGRAM_COMING_SOON } from "../config/features";
 import { Link, useNavigate } from "react-router-dom";
 import DashboardLayout from "../portfolio/components/DashboardLayout";
 import { getUser, getAccessToken } from "../services/auth";
@@ -631,7 +632,7 @@ const Dashboard = () => {
                 )}
               </div>
               <p className="text-xs text-slate-500 font-medium mt-0.5">
-                All 18 Portfolio Templates, 6 Linktree Bio Themes, and Instagram DM Automation are active on your account.
+                All 18 Portfolio Templates and 6 Linktree Bio Themes are active on your account{INSTAGRAM_COMING_SOON ? " (Instagram DM Automation coming soon)" : ", plus Instagram DM Automation"}.
               </p>
             </div>
           </div>
@@ -761,26 +762,32 @@ const Dashboard = () => {
               </div>
               <span
                 className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
-                  stats.instagramConnected
+                  INSTAGRAM_COMING_SOON
+                    ? "bg-amber-50 text-amber-600 border-amber-200"
+                    : stats.instagramConnected
                     ? "bg-emerald-50 text-emerald-600 border-emerald-100"
                     : "bg-slate-100 text-slate-500 border-slate-200"
                 }`}
               >
-                {stats.instagramConnected ? "Connected" : "Not Linked"}
+                {INSTAGRAM_COMING_SOON ? "Coming Soon" : stats.instagramConnected ? "Connected" : "Not Linked"}
               </span>
             </div>
             <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">
               Instagram DM Automation
             </span>
             <h3 className="text-xl font-black text-slate-800 mt-1">
-              {stats.instagramConnected ? `${stats.instagramRulesCount} Auto-Replies` : "Setup Automation"}
+              {INSTAGRAM_COMING_SOON
+                ? "Awaiting Meta Approval"
+                : stats.instagramConnected
+                ? `${stats.instagramRulesCount} Auto-Replies`
+                : "Setup Automation"}
             </h3>
           </div>
           <Link
             to="/instagram-automation"
             className="text-[11px] text-pink-600 font-extrabold hover:underline flex items-center gap-1 mt-4 pt-3 border-t border-slate-100"
           >
-            Configure Rules <FaArrowRight size={9} />
+            {INSTAGRAM_COMING_SOON ? "Learn More" : "Configure Rules"} <FaArrowRight size={9} />
           </Link>
         </div>
       </div>

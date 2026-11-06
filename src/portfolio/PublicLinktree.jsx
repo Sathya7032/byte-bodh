@@ -92,7 +92,6 @@ export default function PublicLinktree() {
         socialLinks={socialLinks}
         onLinkClick={handleLinkClick}
         onShare={handleShare}
-        showTemplateSwitcher={true}
       />
       <LinktreeShareModal
         isOpen={shareModalOpen}

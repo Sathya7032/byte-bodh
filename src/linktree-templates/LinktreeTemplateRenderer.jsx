@@ -15,7 +15,6 @@ import {
   Crown,
   Sparkles,
   Check,
-  Palette
 } from "lucide-react";
 
 /**
@@ -28,7 +27,7 @@ export const LINKTREE_TEMPLATES = [
     numericId: 1,
     name: "Cyber Dark",
     icon: "⚡",
-    description: "Deep obsidian dark with glowing neon accents & glassmorphic cards",
+    description: "Obsidian dark with a soft accent glow and solid pill buttons",
     accentColor: "#10B981",
     isFree: true,
   },
@@ -38,7 +37,7 @@ export const LINKTREE_TEMPLATES = [
     numericId: 2,
     name: "Minimal Ivory",
     icon: "🕊️",
-    description: "Crisp white minimalist aesthetic with refined slate typography",
+    description: "Warm paper tones, serif name and outline buttons that fill on hover",
     accentColor: "#0F172A",
     isFree: true,
   },
@@ -48,7 +47,7 @@ export const LINKTREE_TEMPLATES = [
     numericId: 3,
     name: "Neo Brutalist",
     icon: "🎨",
-    description: "Bold high-contrast pop colors with solid black borders & hard shadows",
+    description: "Bold pastel buttons with black borders and hard offset shadows",
     accentColor: "#FEF08A",
     isFree: true,
   },
@@ -58,7 +57,7 @@ export const LINKTREE_TEMPLATES = [
     numericId: 4,
     name: "Aurora Glass",
     icon: "🔮",
-    description: "Frosted acrylic glass cards with floating ambient iridescent gradients",
+    description: "Frosted glass buttons over a soft violet and pink colour field",
     accentColor: "#8B5CF6",
     isFree: false,
   },
@@ -68,7 +67,7 @@ export const LINKTREE_TEMPLATES = [
     numericId: 5,
     name: "Bento Grid",
     icon: "🍱",
-    description: "Modern Apple-style modular Bento card blocks with stats & contact chips",
+    description: "Profile card with links arranged as a two-column grid of tiles",
     accentColor: "#06B6D4",
     isFree: false,
   },
@@ -78,7 +77,7 @@ export const LINKTREE_TEMPLATES = [
     numericId: 6,
     name: "Sunset Glow",
     icon: "🌅",
-    description: "Warm rich dusk gradients with golden amber buttons & luxury accents",
+    description: "Full-width cover photo fading into warm dusk with cream buttons",
     accentColor: "#F59E0B",
     isFree: false,
   },
@@ -208,7 +207,6 @@ export const LinktreeCardThumbnail = ({ templateId, title, className = "" }) => 
           user={mockData.user}
           links={mockData.links}
           socialLinks={mockData.socialLinks}
-          showTemplateSwitcher={false}
         />
       </div>
     </div>
@@ -226,26 +224,17 @@ export const LinktreeTemplateRenderer = ({
   socialLinks = [],
   onLinkClick,
   onShare,
-  showTemplateSwitcher = false,
-  onTemplateChange,
+  fallbackToMock = true,
 }) => {
-  const initialNumber = getLinktreeTemplateNumber(templateId);
-  const [activeNumber, setActiveNumber] = useState(initialNumber);
-
-  useEffect(() => {
-    setActiveNumber(getLinktreeTemplateNumber(templateId));
-  }, [templateId]);
-
-  const handleSelectTemplate = (num) => {
-    setActiveNumber(num);
-    onTemplateChange?.(num);
-  };
+  // Each page renders exactly one template; there is no in-page template switcher.
+  const activeNumber = getLinktreeTemplateNumber(templateId);
 
   // If no user data is provided, fallback to the template's mock profile
   const mockData = getMockLinktreeForTemplate(activeNumber);
-  const activeUser = user || mockData.user;
-  const activeLinks = (links && links.length > 0) ? links : mockData.links;
-  const activeSocialLinks = (socialLinks && socialLinks.length > 0) ? socialLinks : mockData.socialLinks;
+  const activeUser = user || (fallbackToMock ? mockData.user : {});
+  const activeLinks = links && links.length > 0 ? links : fallbackToMock ? mockData.links : [];
+  const activeSocialLinks =
+    socialLinks && socialLinks.length > 0 ? socialLinks : fallbackToMock ? mockData.socialLinks : [];
 
   const renderActiveTemplate = () => {
     switch (activeNumber) {
@@ -315,29 +304,6 @@ export const LinktreeTemplateRenderer = ({
 
   return (
     <div className="relative w-full">
-      {/* Optional Floating Template Switcher Bar */}
-      {showTemplateSwitcher && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-slate-900/90 backdrop-blur-md border border-slate-700/80 rounded-full px-3 py-1.5 shadow-2xl flex items-center gap-1.5 max-w-[95vw] overflow-x-auto">
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider pl-1 pr-1 hidden sm:inline-flex items-center gap-1">
-            <Palette size={11} className="text-emerald-400" /> Templates:
-          </span>
-          {LINKTREE_TEMPLATES.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => handleSelectTemplate(t.numericId)}
-              className={`px-3 py-1 rounded-full text-xs font-bold transition flex items-center gap-1 whitespace-nowrap cursor-pointer ${
-                activeNumber === t.numericId
-                  ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-sm"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800"
-              }`}
-            >
-              <span>{t.icon}</span>
-              <span className="text-[11px]">{t.name}</span>
-            </button>
-          ))}
-        </div>
-      )}
-
       {renderActiveTemplate()}
     </div>
   );
@@ -534,7 +500,6 @@ export const LinktreeTemplatePreviewModal = ({
             user={activeUser}
             links={activeLinks}
             socialLinks={activeSocialLinks}
-            showTemplateSwitcher={false}
           />
         </div>
       </div>

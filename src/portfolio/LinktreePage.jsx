@@ -10,9 +10,8 @@ import {
 } from "../api/portfolioApiService";
 import { getLinktreeUrl, getPortfolioUrl } from "../config/api";
 import { toast } from "react-toastify";
-import {
+import LinktreeTemplateRenderer, {
   LINKTREE_TEMPLATES,
-  LinktreeLinkCard,
   getSocialIcon,
   sortLinks,
 } from "./LinktreeTemplates";
@@ -825,96 +824,15 @@ export default function LinktreePage() {
                 <div className="w-3 h-3 bg-slate-900 rounded-full"></div>
               </div>
 
-              {/* Phone Inner Display with Live Preview */}
-              <div
-                className={`rounded-[32px] p-5 text-center min-h-[560px] max-h-[640px] overflow-y-auto flex flex-col justify-between transition-all duration-300 relative ${
-                  selectedTemplate === "minimal-ivory"
-                    ? "bg-slate-50 text-slate-900"
-                    : selectedTemplate === "neo-brutalist"
-                    ? "bg-[#FEF08A] text-black"
-                    : selectedTemplate === "aurora-glass"
-                    ? "bg-gradient-to-b from-[#0F172A] via-[#1E1B4B] to-[#0F172A] text-white"
-                    : selectedTemplate === "bento-grid"
-                    ? "bg-slate-950 text-white"
-                    : selectedTemplate === "sunset-glow"
-                    ? "bg-gradient-to-b from-[#180828] via-[#2A0E3C] to-[#120420] text-white"
-                    : "bg-gradient-to-b from-[#070B14] via-[#0C1222] to-[#070B14] text-white"
-                }`}
-              >
-                <div className="space-y-4">
-                  {/* User Profile Summary */}
-                  <div className="flex flex-col items-center relative z-10 pt-2">
-                    <div className="relative w-20 h-20 rounded-full p-1 bg-gradient-to-tr from-emerald-400 to-teal-500 shadow-lg shadow-emerald-500/20 overflow-hidden">
-                      {user?.avatarUrl || user?.pictureUrl ? (
-                        <img
-                          src={resolveImageUrl(user.avatarUrl || user.pictureUrl)}
-                          alt={user?.fullName || "User"}
-                          className="w-full h-full object-cover rounded-full"
-                        />
-                      ) : (
-                        <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center text-2xl font-black text-emerald-400">
-                          {user?.fullName?.charAt(0) || "U"}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-center gap-1 mt-2.5">
-                      <h3 className="font-extrabold text-sm tracking-tight">
-                        {user?.fullName || "Your Full Name"}
-                      </h3>
-                      <FaCheckCircle className="text-emerald-400 text-xs shrink-0" />
-                    </div>
-
-                    <p className="text-xs font-semibold opacity-75">
-                      @{user?.username || "username"}
-                    </p>
-
-                    {user?.headline && (
-                      <p className="text-[11px] max-w-xs mt-1 opacity-75 line-clamp-2">
-                        {user.headline}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Social Links Dock */}
-                  {socialLinks.length > 0 && (
-                    <div className="flex items-center justify-center gap-1.5 flex-wrap pt-1">
-                      {socialLinks.slice(0, 6).map((soc, idx) => (
-                        <div
-                          key={idx}
-                          className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-xs"
-                          title={soc.title || soc.platform}
-                        >
-                          {getSocialIcon(soc.platform || soc.title)}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Bio Links Rendered Live */}
-                  <div className="space-y-2 pt-1 text-left">
-                    {sortedActiveLinks.length === 0 ? (
-                      <div className="p-4 rounded-xl border border-dashed border-slate-700/60 text-slate-400 text-xs text-center">
-                        No active links to display.
-                      </div>
-                    ) : (
-                      sortedActiveLinks.map((link) => (
-                        <LinktreeLinkCard
-                          key={link.id}
-                          link={link}
-                          theme={selectedTemplate}
-                        />
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                {/* Phone Footer */}
-                <div className="pt-4 pb-1">
-                  <span className="text-[9px] tracking-widest opacity-60 uppercase font-black">
-                    Powered by ByteBodh
-                  </span>
-                </div>
+              {/* Phone Inner Display: the real template, exactly as visitors see it */}
+              <div className="rounded-[32px] h-[640px] overflow-y-auto overflow-x-hidden relative">
+                <LinktreeTemplateRenderer
+                  templateId={selectedTemplate}
+                  user={user}
+                  links={sortedActiveLinks}
+                  socialLinks={socialLinks}
+                  fallbackToMock={false}
+                />
               </div>
             </div>
           </div>

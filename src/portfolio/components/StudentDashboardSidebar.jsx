@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { INSTAGRAM_COMING_SOON } from "../../config/features";
 import {
   HouseDoor,
   FileEarmarkPerson,
@@ -94,13 +95,14 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
       label: "Instagram Studio",
       icon: <Instagram size={19} />,
       path: "/instagram-studio",
-      badge: "NEW",
+      badge: INSTAGRAM_COMING_SOON ? "SOON" : "NEW",
     },
     {
       id: "instagram-automation",
       label: "Instagram Automation",
       icon: <Lightning size={19} />,
       path: "/instagram-automation",
+      badge: INSTAGRAM_COMING_SOON ? "SOON" : null,
     },
     {
       id: "contacts",
@@ -194,6 +196,8 @@ const StudentDashboardSidebar = ({ isOpen, onMenuItemClick }) => {
                 className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
                   item.isProBadge
                     ? "bg-amber-400 text-slate-950 shadow-xs"
+                    : item.badge === "SOON" && activeItem !== item.id
+                    ? "bg-amber-50 text-amber-600 border border-amber-200"
                     : activeItem === item.id
                     ? "bg-white/20 text-white"
                     : "bg-emerald-50 text-emerald-600 border border-emerald-100"

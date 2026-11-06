@@ -1,4 +1,5 @@
 import React from "react";
+import { INSTAGRAM_COMING_SOON } from "../config/features";
 import { Link } from "react-router-dom";
 import {
   FaInstagram,
@@ -48,7 +49,7 @@ function Footer() {
           <h5 className="font-extrabold text-white text-xs uppercase tracking-widest mb-4">Product</h5>
           <ul className="space-y-3 text-xs">
             <li><Link to="/#templates-section" className="hover:text-white transition-colors">Portfolio Templates</Link></li>
-            <li><Link to="/#instagram-automation" className="hover:text-white transition-colors">Instagram Auto-DM</Link></li>
+            <li><Link to="/#instagram-automation" className="hover:text-white transition-colors">Instagram Auto-DM{INSTAGRAM_COMING_SOON && " (Soon)"}</Link></li>
             <li><Link to="/#pricing" className="hover:text-white transition-colors">Pricing & Plans</Link></li>
             <li><Link to="/#faq" className="hover:text-white transition-colors">FAQs</Link></li>
           </ul>

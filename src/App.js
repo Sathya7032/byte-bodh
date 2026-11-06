@@ -51,6 +51,9 @@ import TemplatesPage from "./pages/Templates";
 import PublicPortfolioPage from "./bytebodh-folio/PublicPortfolioPage";
 import Disclaimer from "./pages/Disclaimer";
 import { isSubdomainPortfolio } from "./config/api";
+import LinktreeTemplatePreview from "./pages/LinktreeTemplatePreview";
+import { INSTAGRAM_COMING_SOON } from "./config/features";
+import InstagramComingSoon from "./portfolio/instagram/InstagramComingSoon";
 
 const App = () => {
   const googleClientId =
@@ -104,12 +107,12 @@ const App = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/linktree" element={<LinktreePage />} />
-            <Route path="/instagram-studio" element={<InstagramStudioPage />} />
-            <Route path="/instagram-automation" element={<InstagramAutomationPage />} />
-            <Route path="/instagram-connect" element={<InstagramConnectTrigger />} />
-            <Route path="/instagram/connect" element={<InstagramConnectTrigger />} />
-            <Route path="/instagram/callback" element={<InstagramCallbackPage />} />
-            <Route path="/auth/instagram/callback" element={<InstagramCallbackPage />} />
+            <Route path="/instagram-studio" element={INSTAGRAM_COMING_SOON ? <InstagramComingSoon /> : <InstagramStudioPage />} />
+            <Route path="/instagram-automation" element={INSTAGRAM_COMING_SOON ? <InstagramComingSoon /> : <InstagramAutomationPage />} />
+            <Route path="/instagram-connect" element={INSTAGRAM_COMING_SOON ? <InstagramComingSoon /> : <InstagramConnectTrigger />} />
+            <Route path="/instagram/connect" element={INSTAGRAM_COMING_SOON ? <InstagramComingSoon /> : <InstagramConnectTrigger />} />
+            <Route path="/instagram/callback" element={INSTAGRAM_COMING_SOON ? <InstagramComingSoon /> : <InstagramCallbackPage />} />
+            <Route path="/auth/instagram/callback" element={INSTAGRAM_COMING_SOON ? <InstagramComingSoon /> : <InstagramCallbackPage />} />
             <Route path="/profile-template" element={<ProfileTemplate />} />
             <Route path="/portfolio-templates" element={<PortfolioTemplates />} />
             <Route path="/linktree-templates" element={<LinktreeTemplatesPage />} />
@@ -136,6 +139,7 @@ const App = () => {
 
           {/* ===== TEMPLATE PREVIEW PAGE ===== */}
           <Route path="/templates/preview/:templateId" element={<PublicPortfolioPage isPreview={true} />} />
+          <Route path="/templates/linktree/:templateId" element={<LinktreeTemplatePreview />} />
 
           {/* ===== DIRECT PORTFOLIO ON ROOT DOMAIN ===== */}
           <Route path="/portfolio/:username" element={<PublicPortfolioPage />} />
